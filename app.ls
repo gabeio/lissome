@@ -6,6 +6,7 @@ require! {
 	'serve-static'
 	'fs-extra'
 	'express-session'
+	mongoose
 }
 fs = fsExtra
 app = express!
