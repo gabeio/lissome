@@ -11,6 +11,8 @@ require! {
 fs = fsExtra
 app = express!
 
+mongoose.connect (process.env.MONGO || 'mongodb://localhost/smrtboard')
+
 # Settings
 app
 	.disable 'x-powered-by' # best security practice to hide
