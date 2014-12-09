@@ -32,6 +32,7 @@ app
 
 if app.get 'env' is 'production'
 	# production run
+	require! <[ csrf compression ]>
 	app
 		.use csrf!
 		.use compression
