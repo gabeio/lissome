@@ -17,5 +17,5 @@ module.exports = do ->
 		..use '/', require './assignments' # hw/projects/other
 		..use '/', require './examinations' # exams/tests/quizes/etc
 		..use '/', require './conference' # community chat
-		..use '/', require './pm' # direct to teacher/student
+		..use '/', require './dm' # direct to teacher/student
 		..use '/', require './blog' # updates/rants/etc

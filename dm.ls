@@ -4,6 +4,6 @@ module.exports = do ->
 	}
 	app = express.Router!
 	app
-		..route '/:type(admin|teacher)?/:course/conference/:thread?'
+		..route '/:type(admin|teacher)?/:course/dm/:thread?'
 		.get (req, res, next)->
-			res.send 'conference:index > '+JSON.stringify req.params
+			res.send 'direct messaging:index > '+JSON.stringify req.params
