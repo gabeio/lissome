@@ -7,11 +7,31 @@ require! {
 	'fs-extra'
 	'express-session'
 	mongoose
+	'./schemas'
 }
+Schema = mongoose.Schema
 fs = fsExtra
 app = express!
 
 mongoose.connect (process.env.MONGO || 'mongodb://localhost/smrtboard')
+
+# mongoose schemas
+SchoolS = new Schema {name:String,students:[StudentS],teachers:[TeacherS],admins:[AdminS]}
+StudentS = new Schema {studentid:Number,classes:[CourseS],first:String,middle:String,last:String,username:String,hash:String}
+TeacherS = new Schema {teacherid:Number,classes:[CourseS],first:String,middle:String,last:String,username:String,hash:String}
+AdminS = new Schema {adminid:Number,first:String,middle:String,last:String,username:String,hash:String}
+ReqS = new Schema {body:String,time:{ type: Date, default: Date.now },author: Schema.Types.Mixed,/*{ type: Student }*/files:Buffer,due:{ type: Date, default: Date.now },tries:{ type: Number, default: 1 },/*attempts:{student:}*/}
+PostS = new Schema {body:String,time:{ type: Date, default: Date.now },author: Schema.Types.Mixed,/*{ type: Student }*/files:Buffer}
+ThreadS = new Schema {title:String,posts:[PostS]}
+CourseS = new Schema {conference:[ThreadS],blog:[PostS],exams:[ReqS],assignments:[ReqS],dm:Schema.Types.Mixed,grades:Schema.Types.Mixed,teachers:[TeacherS],registered:[StudentS]}
+
+SchoolM = mongoose.model 'University', SchoolS
+StudentM = mongoose.model 'Student', StudentS
+TeacherM = mongoose.model 'Teacher', TeacherS
+ReqM = mongoose.model 'Req', ReqS
+PostM = mongoose.model 'Post', PostS
+ThreadM = mongoose.model 'Thread', ThreadS
+CourseM = mongoose.model 'Course', CourseS
 
 # Settings
 app
@@ -24,7 +44,7 @@ app
 	.use '/assets', serveStatic './assets'
 	# sessions
 	.use expressSession {
-		secret: fs.readFileSync('secret.key',\utf-8),
+		secret: fs.readFileSync('secret.key', \utf-8),
 		resave: false,
 		saveUninitialized: true,
 		cookie: {
