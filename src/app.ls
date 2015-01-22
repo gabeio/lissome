@@ -1,119 +1,196 @@
 #!/usr/bin/env lsc
-require! {
-	express
-	swig
-	winston
-	'serve-static'
-	'fs-extra'
-	'express-session'
-	'multer'
-}
-fs = fsExtra
-app = express!
+# ``#!/usr/bin/env node`` # uncomment for lsc to node
 
-# Settings
+# Imports/Variables
+require! {
+	# 'jsondown' # json files/ if needed
+	# 'memdown' # in mem only/ if needed
+	# 'mongoose' # only if needed
+	'async'
+	'body-parser'
+	'compression' # nginx gzip
+	'cookie-parser'
+	'csurf'
+	'express' # router
+	'express-partial-response'
+	'express-session' # session
+	'fs-extra' # only if needed
+	'leveldown'
+	'levelup'
+	'method-override'
+	'multer'
+	'serve-static' # nginx static
+	'swig' # templates
+	'winston'
+	'yargs' # --var val
+}
+app = module.exports = express!
+fs = fsExtra
+
+# Setup DB
+db = app.locals.db = levelup './db' { db: leveldown }
+
+# App Settings/Middleware
 app
-	.disable 'x-powered-by' # best security practice to hide
-	# swig template setup
-	.engine 'html', swig.renderFile
-	.set 'view engine', 'html'
-	.set 'views', __dirname + '/views'
-	# static assets
-	.use '/assets', serveStatic './assets'
+	# needs to come first MIGHT NOT WORK...
+	# .use method-override
 	# sessions
 	.use expressSession {
-		secret: fs.readFileSync('secret.key',\utf-8),
-		resave: false,
-		saveUninitialized: true,
+		secret: fs.readFileSync 'secret.key' \utf-8
+		-resave
+		+saveUninitialized
 		cookie: {
-			path: \/,
-			httpOnly: true
+			path: '/'
+			+httpOnly
 		}
 	}
-
-if app.get 'env' is 'production'
-	# production run
-	require! {
-		csrf
-		compression
+	# hide what we are made of
+	.disable 'x-powered-by'
+	# swig template setup
+	# set extention of templates to html
+	.engine 'html' swig.renderFile
+	# set extention of templates to html
+	.set 'view engine' 'html'
+	# .set 'views' __dirname + '/NOTviews' # /views by default
+	# static assets (html,js,css)
+	.use '/static' serveStatic './static' # comment out when in production or cache server infront
+	# body parser
+	.use bodyParser.urlencoded { -extended } # standard (angular?)
+	.use bodyParser.json! # json (angular?)
+	# .use bodyParser.text! # idk
+	# .use bodyParser.raw! # idk
+	# multipart body parser
+	.use multer { # requires: enctype="multipart/form-data"
+		dest: './uploads/'
+		limits:
+			fileSize: 10000000
+			files: 10
+		-includeEmptyFields
+		-inMemory
 	}
-	app
-		.use csrf!
-		.use compression
-else
-	# development/other run
-	require! util
-	app.set 'view cache', false
-	swig.setDefaults { cache: false }
+	# Cross Site Request Forgery
+	.use csurf {
+		secretLength: 32
+		saltLength: 10
+	}
+	# compress large files
+	.use compression!
 
+# Custom Middleware
 app
-	# all routes here are pre-processing/validation
-	..route '*'
-	.all (req, res, next)->
-		if !req.app.locals.isLoggedin(req) # check loggedin
-			if req.path is '/login'
+	.use (req, res, next)->
+		async.parallel [
+			!->
+				res.locals.csrfToken = req.csrfToken!
+			!->
 				next!
-			else
-				res.redirect '/login'
-		else
-			next!
-	.all (req, res, next)->
-		# parse form data
-		if req.method.toLowerCase! in ['post','put','patch','delete']
-			winston.info 'handled a form'
-			form = new formidable.IncomingForm!
-			form.hash = \md5
-			form.multiples = true
-			form.parse req, (err, fields, files)->
-				if err?
-					winston.error 'login:formidable '+err
-					res.status 500 .send err
-				else
-					req.fields = fields
-					req.files = files
-			form.on 'end', ->
-				next!
-		else
-			next!
-	..route '/:type(admin|teacher)'
-	.all (req, res, next)->
-		if !req.app.locals.isTeacher(req) or !req.app.locals.isAdmin(req)
-			res.status 403 .send 'Forbidden'
-		else
-			next!
-	..route '/:type(admin|teacher)/*'
-	.all (req, res, next)->
-		if !req.app.locals.isTeacher(req) or !req.app.locals.isAdmin(req)
-			res.status 403 .send 'Forbidden'
-		else
-			next!
-	..use '/', require './base'
-	# app functions
-	..locals.isLoggedin = (req)->
-		# TODO: add session timeout check
-		if req.session.username?
-			return true
-		return false
-	..locals.isTeacher = (req)->
-		# TODO: add session timeout check
-		if req.session.teacher?
-			if req.session.teacher is true
-				return true
-		return false
-	..locals.isAdmin = (req)->
-		# TODO: add session timeout check
-		if req.session.admin?
-			if req.session.admin is true
-				return true
-		return false
-	..locals.util = if util? then util
-	..locals.winston = winston
-	..locals.fs = fsExtra
+		]
 
-if process.env.HTTP? or process.env.PORT?
-	port = (process.env.HTTP || process.env.PORT)
-	winston.info 'started on port '+port+' at '+new Date Date.now!
-	server = app.listen port
+# App Functions/Variables/Modules
+app
+	# functions
+	..locals.authorized = (req, res, next)->
+		# session TTL = 1 day
+		if req.session.admin is true
+			next!
+		else
+			next new Error 'UNAUTHORIZED'
+	# variables
+	..locals.recaptchaPrivateKey = process.env.RECAPKEY
+	# modules
+	..locals.fs = fsExtra
+	..locals.async = async
+	..locals.winston = winston
+	# errors
+	# ..locals.err = {
+	# 	'NOT FOUND': new Error
+	# }
+
+# Production Switch
+switch process.env.NODE_ENV
+| 'production'
+	# production run
+	winston.info "Production Mode"
+| _
+	# development/other run
+	winston.info "Development Mode"
+	require! {
+		util
+	}
+	app.set 'view cache' false
+	swig.setDefaults { -cache }
+	app.locals.util = if util? then util
+	app.use (req, res, next)->
+		async.parallel [
+			!->
+				thestr = req.method+"\t"+req.url
+				if req.xhr
+					thestr += "\tXHR"
+				winston.info thestr
+			!->
+				next!
+		]
+
+# Attach base
+require('./base')(app)
+
+# Error Catching
+app
+	..use (err, req, res, next)->
+		async.parallel [
+			!->
+				# ALWAYS LOG
+				winston.error 'error: ' + err + '\turl: ' + req.url
+			!->
+				if err?
+					if err.code is 'EBADCSRFTOKEN'
+						res.status 403 .send 'Bad Request' #.render 'error' {err:'Bad Request'}
+					else
+						# console.log err.message
+						switch err.message
+						| 'NOT FOUND'
+							res.status 404 .render 'error' { err:'Not Found' }
+						| 'NOT XHR'
+							res.status 400 .render 'error' { err:'Not Sent Correctly' }
+						| 'UNAUTHORIZED'
+							res.status 401 .render 'error' { err:'Unauthorized' }
+						| _
+							res.status 500 .render 'error' { err:'There was an error... Where did it go...?' }
+				else
+					next!
+		]
+/* istanbul ignore next */
+if !module.parent # assure this file is not being run by a different file
+	if process.env.HTTP? or process.env.PORT? or yargs.argv.http? or yargs.argv.port? # assure one of the settings were given
+		port = (process.env.HTTP or process.env.PORT) or (yargs.argv.http or yargs.argv.port)
+		winston.info 'Server started on port ' + port + ' at ' + new Date Date.now!
+		server = app.listen port
+	else
+		winston.error 'No port/socket specified please use HTTP or PORT environment variable'
+		process.exit 1
 else
-	console.error 'no port/socket specified please use HTTP or PORT environment variable'
-	process.exit(1)
+	winston.warn "TESTING MODE THIS MODE IS *NOT* SAFE."
+	# for testing
+	
+	# silence all logging on testing
+	winston.remove winston.transports.Console
+	
+	# all of the following routes only exists in testing
+	app
+		..route '/get/test/on/:something'
+		.get (req, res, next)->
+			switch req.params.something
+			| 'csrf' # get csrfToken
+				res.send res.locals.csrfToken
+			| 'admin' # get session.admin
+				res.send util.inspect req.session.admin
+			| _
+				res.send 0
+		..route '/post/test/on/:something'
+		.post (req, res, next)->
+			switch req.params.something
+			| 'admin'
+				req.session.admin = true
+				res.send 'ok'
+			| _
+				res.send 0
