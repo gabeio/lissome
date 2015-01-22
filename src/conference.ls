@@ -1,8 +1,4 @@
-module.exports = do ->
-	require! {
-		express
-	}
-	app = express.Router!
+module.exports = exports = (app)->
 	app
 		..route '/:type(admin|teacher)?/:course/conference/:thread?'
 		.get (req, res, next)->

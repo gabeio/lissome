@@ -6,6 +6,7 @@ require! {
 	'serve-static'
 	'fs-extra'
 	'express-session'
+	'multer'
 }
 fs = fsExtra
 app = express!
@@ -32,7 +33,10 @@ app
 
 if app.get 'env' is 'production'
 	# production run
-	require! <[ csrf compression ]>
+	require! {
+		csrf
+		compression
+	}
 	app
 		.use csrf!
 		.use compression
