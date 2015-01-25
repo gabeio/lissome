@@ -11,7 +11,7 @@ engines:
 scripts:
 	start: 'export PORT=8080; lsc ./src/app.ls'
 	test: 'gulp test'
-	test-travis: 'istanbul cover gulp test -- --check-leaks test/'
+	test-ci: 'istanbul cover gulp test -- --check-leaks test/'
 	continuousInstall: 'npm i nodemon; gulp build'
 	continuous: 'nodemon -w ./ -e html,css,js -x node app.js'
 
@@ -29,7 +29,7 @@ dependencies:
 	"express": '~4.11.1'
 	"express-partial-response": '~0.3.4'
 	"express-session": '~1.10.1'
-	"fs-extra": '~0.14.0'
+	"fs-extra": '~0.15.0'
 	"gulp": '~3.8.10'
 	"gulp-istanbul": '~0.5.0'
 	"gulp-livescript": '~2.3.0'
