@@ -49,7 +49,7 @@ dependencies:
 
 devDependencies:
 	"chai": '~1.10.0'
-	"codeclimate-test-reporter": '~0.0.4'
+	"coveralls": '~2.11.2'
 	"del": '~1.1.1'
 	"istanbul": '~0.3.5'
 	"mocha": '~2.1.0'
