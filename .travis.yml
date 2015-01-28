@@ -1,7 +1,6 @@
 language: node_js
 
 node_js:
-  - '0.8'
   - '0.10'
   - '0.11'
 
@@ -19,8 +18,11 @@ script:
 
 deploy:
   provider: heroku
+  on:
+    node: '0.10'
   app:
     master: smrtboard
     develop: develop-smrtboard
   api_key:
     secure: TEvZYGO5uTcSU9QY0MeKbxfCGNWIbp9qaKrJ8GkDEJPNcyuLlV8b78PyBp0BsQgJ+uSkFl/ijL0wWIJRbjk97tBZAtJZkJIPKzaC8ovYGyDHSZoQdVtYYy5SgTYyUpUuFwUC3mQhFnoikinjYWenXFfRTeiir62kJdVKk0Kcj2E=
+  skip_cleanup: true
