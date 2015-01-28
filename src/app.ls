@@ -36,7 +36,7 @@ app
 	# .use method-override
 	# sessions
 	.use expressSession {
-		secret: fs.readFileSync 'secret.key' \utf-8
+		secret: process.env.cookie
 		-resave
 		+saveUninitialized
 		cookie: {
