@@ -34,7 +34,6 @@ dependencies:
 	"gulp-istanbul": '~0.5.0'
 	"gulp-livescript": '~2.3.0'
 	"gulp-mocha": '~2.0.0'
-	"gulp-uglify": '~1.1.0'
 	"leveldown": '~1.0.0'
 	"levelup": '~0.19.0'
 	"LiveScript": '~1.3.1'
