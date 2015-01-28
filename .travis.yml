@@ -1,28 +1,25 @@
 language: node_js
-
 node_js:
-  - 'iojs'
-  - '0.10'
-  - '0.11'
-
+- iojs
+- '0.10'
+- '0.11'
 services:
-  - mongodb
-
+- mongodb
+notifications:
+  flowdock:
+    secure: OcgwG0RJdhPNMoD2IlTG9PShIw/6QWYzkYw+RWsFLyEpFV5XbbW+sVqo2+DGRDieFIuULQ1PDjmeRRB0uME3fH3IZRA2dwoPHZiaiFckX3Lfk03hkL86Yb/Fb1L5UIhKufXT+MzryPISjzSIqez+XTJj9VkiiRWgkWHNIA/Qydc=
 cache:
   directories:
-    - node_modules
-
+  - node_modules
 matrix:
   allow_failures:
     - node_js: 'iojs'
     - node_js: '0.11'
 
 before_install:
-  - npm install coveralls
-
+- npm install coveralls
 script:
-  - npm run-script testCi
-
+- npm run-script testCi
 deploy:
   provider: heroku
   on:
