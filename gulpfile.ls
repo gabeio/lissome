@@ -2,7 +2,6 @@ require! {
 	'del'
 	'gulp'
 	'gulp-mocha'
-	'gulp-uglify'
 	'gulp-istanbul'
 	'gulp-livescript'
 }
@@ -11,15 +10,16 @@ mocha = if gulpMocha? then gulpMocha
 git = if gulp-git? then gulp-git
 concat = if gulp-concat? then gulp-concat
 livescript = if gulp-livescript? then gulp-livescript
-uglify = if gulp-uglify? then gulp-uglify
 istanbul = if gulp-istanbul? then gulp-istanbul
 
 paths =
 	scripts: './*.ls'
 	tests: './test/*.ls'
 
+gulp.task 'clean-db' (done)->
+	del './db'
+
 gulp.task 'clean' (done)->
-	# del './db'
 	del '*.js'
 	done!
 

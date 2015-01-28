@@ -19,9 +19,6 @@ before_install:
 script:
   - npm run-script testCi
 
-after_script:
-  - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
-
 deploy:
   provider: heroku
   on:

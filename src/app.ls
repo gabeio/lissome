@@ -169,7 +169,7 @@ if !module.parent # assure this file is not being run by a different file
 		winston.error 'No port/socket specified please use HTTP or PORT environment variable'
 		process.exit 1
 else
-	winston.warn "TESTING MODE THIS MODE IS *NOT* SAFE."
+	winston.warn "TESTING MODE MODE IS *NOT* SAFE."
 	# for testing
 	
 	# silence all logging on testing
