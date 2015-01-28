@@ -1,6 +1,7 @@
 language: node_js
 
 node_js:
+  - '0.8'
   - '0.10'
   - '0.11'
 
@@ -10,14 +11,16 @@ cache:
 
 matrix:
   allow_failures:
-    - node_js: "0.11"
-
-addons:
-  code_climate:
-    repo_token: b11d4cd7cfd91b5ce93a3442e422300e77caece4c4caf5ddfb35af85dd82c00a
+    - node_js: '0.8'
+    - node_js: '0.11'
 
 script:
   - npm run-script testCi
 
-# after_script:
-#   - cat coverage/lcov.info | codeclimate
+deploy:
+  provider: heroku
+  app:
+    master: smrtboard
+    develop: develop-smrtboard
+  api_key:
+    secure: TEvZYGO5uTcSU9QY0MeKbxfCGNWIbp9qaKrJ8GkDEJPNcyuLlV8b78PyBp0BsQgJ+uSkFl/ijL0wWIJRbjk97tBZAtJZkJIPKzaC8ovYGyDHSZoQdVtYYy5SgTYyUpUuFwUC3mQhFnoikinjYWenXFfRTeiir62kJdVKk0Kcj2E=
