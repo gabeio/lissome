@@ -38,6 +38,7 @@ dependencies:
 	"levelup": '~0.19.0'
 	"LiveScript": '~1.3.1'
 	"lodash": '~3.0.0'
+	"mongoose": '~3.8.22'
 	"method-override": '~2.3.1'
 	"multer": '~0.1.7'
 	"request": '~2.51.0'
