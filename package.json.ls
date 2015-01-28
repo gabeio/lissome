@@ -38,7 +38,7 @@ dependencies:
 	"leveldown": '~1.0.0'
 	"levelup": '~0.19.0'
 	"LiveScript": '~1.3.1'
-	"lodash": '~2.4.1'
+	"lodash": '~3.0.0'
 	"method-override": '~2.3.1'
 	"multer": '~0.1.7'
 	"request": '~2.51.0'
