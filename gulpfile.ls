@@ -13,7 +13,7 @@ livescript = if gulp-livescript? then gulp-livescript
 istanbul = if gulp-istanbul? then gulp-istanbul
 
 paths =
-	scripts: './*.ls'
+	scripts: './src/*.ls'
 	tests: './test/*.ls'
 
 gulp.task 'clean-db' (done)->
