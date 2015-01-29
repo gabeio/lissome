@@ -18,7 +18,8 @@ matrix:
 before_install:
     - npm install coveralls
 script:
-    - npm run-script testCi
+    - gulp test
+    #- npm run-script testCi
 deploy:
   - provider: heroku
     on:
