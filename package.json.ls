@@ -29,7 +29,7 @@ dependencies:
 	"express": '~4.11.1'
 	"express-partial-response": '~0.3.4'
 	"express-session": '~1.10.1'
-	"fs-extra": '~0.15.0'
+	"fs-extra": '~0.16.3'
 	"gulp": '~3.8.10'
 	"gulp-istanbul": '~0.5.0'
 	"gulp-livescript": '~2.3.0'
