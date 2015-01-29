@@ -1,4 +1,4 @@
-module.exports = do ->
+module.exports = exports = (app)->
 	require! {
 		express
 	}

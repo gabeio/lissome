@@ -1,23 +1,23 @@
 #!/usr/bin/env lsc
 # ``#!/usr/bin/env node`` # uncomment for lsc to node
-
+if !process.env.cookie?
+	console.log 'REQUIRES COOKIE SECRET'
+	process.exit 1
+if !process.env.school?
+	console.log 'REQUIRES SCHOOL NAME'
+	process.exit 1
 # Imports/Variables
 require! {
-	# 'jsondown' # json files/ if needed
-	# 'memdown' # in mem only/ if needed
-	# 'mongoose' # only if needed
 	'async'
 	'body-parser'
 	'compression' # nginx gzip
-	'cookie-parser'
 	'csurf'
 	'express' # router
 	'express-partial-response'
 	'express-session' # session
 	'fs-extra' # only if needed
-	'leveldown'
-	'levelup'
 	'method-override'
+	'mongoose'
 	'multer'
 	'serve-static' # nginx static
 	'swig' # templates
@@ -26,9 +26,16 @@ require! {
 }
 app = module.exports = express!
 fs = fsExtra
-
-# Setup DB
-db = app.locals.db = levelup './db' { db: leveldown }
+mongoose.connect (process.env.MONGO || 'mongodb://localhost/smrtboard')
+db = mongoose.connection
+db.on 'error', console.error.bind console, 'connection error:'
+<- db.once 'open'
+schemas = require('./schemas')(mongoose)
+School = mongoose.model 'School', schemas.School
+school = new School {
+	name: process.env.school
+}
+err, school <- school.save
 
 # App Settings/Middleware
 app
@@ -46,8 +53,7 @@ app
 	}
 	# hide what we are made of
 	.disable 'x-powered-by'
-	# swig template setup
-	# set extention of templates to html
+	# set extention of templates to html to render in swig
 	.engine 'html' swig.renderFile
 	# set extention of templates to html
 	.set 'view engine' 'html'
@@ -55,8 +61,10 @@ app
 	# static assets (html,js,css)
 	.use '/static' serveStatic './static' # comment out when in production or cache server infront
 	# body parser
-	.use bodyParser.urlencoded { -extended } # standard (angular?)
-	.use bodyParser.json! # json (angular?)
+	.use bodyParser.urlencoded {
+		-extended
+	}
+	.use bodyParser.json!
 	# .use bodyParser.text! # idk
 	# .use bodyParser.raw! # idk
 	# multipart body parser
@@ -101,6 +109,18 @@ app
 	..locals.fs = fsExtra
 	..locals.async = async
 	..locals.winston = winston
+	..locals.models = {
+		school: school
+		student: mongoose.model 'Student', schemas.Student
+		teacher: mongoose.model 'Teacher', schemas.Teacher
+		admin: mongoose.model 'Admin', schemas.Admin
+		course: mongoose.model 'Course', schemas.Course
+		required: mongoose.model 'Req', schemas.Req
+		attempt: mongoose.model 'Attempt', schemas.Attempt
+		grade: mongoose.model 'Grade', schemas.Grade
+		thread: mongoose.model 'Thread', schemas.Thread
+		post: mongoose.model 'Post', schemas.Post
+	}
 	# errors
 	# ..locals.err = {
 	# 	'NOT FOUND': new Error
@@ -113,7 +133,7 @@ switch process.env.NODE_ENV
 	winston.info "Production Mode"
 | _
 	# development/other run
-	winston.info "Development Mode"
+	winston.info "Development Mode/Unknown Mode"
 	require! {
 		util
 	}
@@ -134,31 +154,6 @@ switch process.env.NODE_ENV
 # Attach base
 require('./base')(app)
 
-# Error Catching
-app
-	..use (err, req, res, next)->
-		async.parallel [
-			!->
-				# ALWAYS LOG
-				winston.error 'error: ' + err + '\turl: ' + req.url
-			!->
-				if err?
-					if err.code is 'EBADCSRFTOKEN'
-						res.status 403 .send 'Bad Request' #.render 'error' {err:'Bad Request'}
-					else
-						# console.log err.message
-						switch err.message
-						| 'NOT FOUND'
-							res.status 404 .render 'error' { err:'Not Found' }
-						| 'NOT XHR'
-							res.status 400 .render 'error' { err:'Not Sent Correctly' }
-						| 'UNAUTHORIZED'
-							res.status 401 .render 'error' { err:'Unauthorized' }
-						| _
-							res.status 500 .render 'error' { err:'There was an error... Where did it go...?' }
-				else
-					next!
-		]
 /* istanbul ignore next */
 if !module.parent # assure this file is not being run by a different file
 	if process.env.HTTP? or process.env.PORT? or yargs.argv.http? or yargs.argv.port? # assure one of the settings were given

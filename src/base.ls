@@ -16,5 +16,5 @@ module.exports = exports = (app)->
 		..route '/:type(admin|teacher|student)?/preferences'
 		.get (req, res, next)->
 			res.send 'base:preferences > '+JSON.stringify req.params
-
 	require('./course')(app)
+	require('./error')(app)
