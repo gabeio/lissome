@@ -20,22 +20,3 @@ before_install:
 script:
     - gulp test
     #- npm run-script testCi
-deploy:
-  - provider: heroku
-    on:
-        node: '0.10'
-    app:
-        master: smrtboard
-        develop: develop-smrtboard
-    api_key:
-        secure: TEvZYGO5uTcSU9QY0MeKbxfCGNWIbp9qaKrJ8GkDEJPNcyuLlV8b78PyBp0BsQgJ+uSkFl/ijL0wWIJRbjk97tBZAtJZkJIPKzaC8ovYGyDHSZoQdVtYYy5SgTYyUpUuFwUC3mQhFnoikinjYWenXFfRTeiir62kJdVKk0Kcj2E=
-    skip_cleanup: true
-  - provider: cloudcontrol
-    on:
-        node: '0.10'
-    app:
-        master: smrtboard
-        develop: develop-smrtboard
-    email: A5NZBHnWC8n4L9vR9xfY7GG/GM8BkNBpZlIstUn7WuSfNbVXe2UzX5g1f3LNoEroqWLQtLzLe3rmCG1cRzgNOGvmHDb+BLtEsvPEH511TrL4kZt7QouyjPQ3o9OdikpuaxaRU9rRy4niHOzkIopchSulqKjO5C7waECl7bnosRc=
-    password: bP3MStNX4DlwnrwSBrHXPypk7Z1YSruvYWXphglJKE0SbH/vI+idn3GI0DZaEgZLxqnUa0VLLkrX8/99fbVKtiidi6ODs70Ca32Y9ofIwfOtxLfIzDa8vFS96heAJ4IYm9PgWXvbL+OpzdFsdSNAjjusaRZn8zcF88tiTLVu7Ds=
-    skip_cleanup: true
