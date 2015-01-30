@@ -2,7 +2,6 @@ require! {
 	'del'
 	'gulp'
 	'gulp-mocha'
-	'gulp-istanbul'
 	'gulp-livescript'
 }
 fs = if fsExtra? then fsExtra
@@ -10,7 +9,6 @@ mocha = if gulpMocha? then gulpMocha
 git = if gulp-git? then gulp-git
 concat = if gulp-concat? then gulp-concat
 livescript = if gulp-livescript? then gulp-livescript
-istanbul = if gulp-istanbul? then gulp-istanbul
 
 paths =
 	scripts: './src/*.ls'
@@ -64,18 +62,6 @@ gulp.task 'test' ['build-tests','clean', 'build'] (done)->
 		.on 'finish' ->
 			del './db'
 			done
-
-gulp.task 'cover' ['build-tests','clean','build'] (done)->
-	gulp
-		.src ['./app.js','./base.js','./editable.js','./admin.js']
-		.pipe istanbul!
-		.pipe istanbul.hookRequire!
-		.on 'finish' ->
-			gulp
-				.src './test/*.js'
-				.pipe mocha!
-				.pipe istanbul.writeReports!
-				.on 'finish' done
 
 gulp.task 'watch-build' ->
 	gulp
