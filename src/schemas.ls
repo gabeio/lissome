@@ -31,6 +31,10 @@ module.exports = exports = (mongoose)->
 		last: String # last name
 		username: { type: String, required: true, unique: true } # unique username
 		hash: String # password bcrypt
+		school: { # school name
+			type: String
+			+required
+		}
 	}
 	Teacher = new Schema {
 		id: { type: Number, required: true, unique: true } # Teacher id
@@ -42,6 +46,10 @@ module.exports = exports = (mongoose)->
 		last: String # last name
 		username: { type: String, required: true, unique: true }
 		hash: String # password bcrypt
+		school: { # school name
+			type: String
+			+required
+		}
 	}
 	Admin = new Schema {
 		id: { type: Number, required: true, unique: true } # Admin id
@@ -50,6 +58,10 @@ module.exports = exports = (mongoose)->
 		last: String # last name
 		username: { type: String, required: true, unique: true } # username
 		hash: String # password bcrypt
+		school: { # school name
+			type: String
+			+required
+		}
 	}
 	Course = new Schema {
 		subject: { type: String, required: true } # cps
@@ -68,9 +80,18 @@ module.exports = exports = (mongoose)->
 		students: [ # student ids
 			{ type: Number, required: true, unique: true }
 		]
+		school: { # school name
+			type: String
+			+required
+		}
 	}
 	# Course Schemas
 	Req = new Schema {
+		uuid: {
+			type: String
+			+required
+			+unique
+		}
 		text: String # Require's text
 		files: Buffer # Require's file(s)?
 		author: { type: Number, required: true } # teacher id
@@ -83,13 +104,25 @@ module.exports = exports = (mongoose)->
 		totalPoints: Number
 	}
 	Attempt = new Schema {
+		uuid: {
+			type: String
+			+required
+			+unique
+		}
 		text: String # student attempt text
 		files: Buffer # student attempt file(s)?
 		time: { type: Date, default: Date.now } # submission time
 		comments: [] # teacher comments list
 	}
 	Grade = new Schema {
-		type: { type: String } #, match: /^(exam|assign)$/i },
+		uuid: {
+			type: String
+			+required
+			+unique
+		}
+		type: {
+			type: String
+		} #, match: /^(exam|assign)$/i },
 		points: Number # earned points
 		total: Number # total points
 		id: Number # exam/assign index
@@ -97,11 +130,21 @@ module.exports = exports = (mongoose)->
 	}
 	# Blog/Conference Schemas
 	Thread = new Schema {
+		uuid: {
+			type: String
+			+required
+			+unique
+		}
 		title: String # Thread name
 		posts: [] # Post list
 		author: { type: Number, required: true }
 	}
 	Post = new Schema {
+		uuid: {
+			type: String
+			+required
+			+unique
+		}
 		text: String
 		files: Buffer
 		author: { type: Number, required: true }
