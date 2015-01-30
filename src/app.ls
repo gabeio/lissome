@@ -1,11 +1,15 @@
 #!/usr/bin/env lsc
 # ``#!/usr/bin/env node`` # uncomment for lsc to node
+
 if !process.env.cookie?
 	console.log 'REQUIRES COOKIE SECRET'
 	process.exit 1
 if !process.env.school?
 	console.log 'REQUIRES SCHOOL NAME'
 	process.exit 1
+if !process.env.mongo?
+	console.log ''
+
 # Imports/Variables
 require! {
 	'async'
@@ -21,12 +25,13 @@ require! {
 	'multer'
 	'serve-static' # nginx static
 	'swig' # templates
+	'uuid'
 	'winston'
 	'yargs' # --var val
 }
 app = module.exports = express!
 fs = fsExtra
-mongoose.connect (process.env.MONGO || 'mongodb://localhost/smrtboard')
+mongoose.connect (process.env.mongo || 'mongodb://localhost/smrtboard')
 db = mongoose.connection
 db.on 'error', console.error.bind console, 'connection error:'
 <- db.once 'open'
@@ -59,7 +64,8 @@ app
 	.set 'view engine' 'html'
 	# .set 'views' __dirname + '/NOTviews' # /views by default
 	# static assets (html,js,css)
-	.use '/static' serveStatic './static' # comment out when in production or cache server infront
+	.use '/static' serveStatic './static'
+	.use '/assets' serveStatic './static'
 	# body parser
 	.use bodyParser.urlencoded {
 		-extended
@@ -77,10 +83,10 @@ app
 		-inMemory
 	}
 	# Cross Site Request Forgery
-	.use csurf {
-		secretLength: 32
-		saltLength: 10
-	}
+	# .use csurf {
+	# 	secretLength: 32
+	# 	saltLength: 10
+	# }
 	# compress large files
 	.use compression!
 
@@ -89,7 +95,8 @@ app
 	.use (req, res, next)->
 		async.parallel [
 			!->
-				res.locals.csrfToken = req.csrfToken!
+				if res.locals.csrfToken?
+					res.locals.csrfToken = req.csrfToken!
 			!->
 				next!
 		]
@@ -109,6 +116,7 @@ app
 	..locals.fs = fsExtra
 	..locals.async = async
 	..locals.winston = winston
+	..locals.db = db
 	..locals.models = {
 		school: school
 		student: mongoose.model 'Student', schemas.Student
@@ -137,6 +145,7 @@ switch process.env.NODE_ENV
 	require! {
 		util
 	}
+	# disable template cache
 	app.set 'view cache' false
 	swig.setDefaults { -cache }
 	app.locals.util = if util? then util
@@ -156,8 +165,8 @@ require('./base')(app)
 
 /* istanbul ignore next */
 if !module.parent # assure this file is not being run by a different file
-	if process.env.HTTP? or process.env.PORT? or yargs.argv.http? or yargs.argv.port? # assure one of the settings were given
-		port = (process.env.HTTP or process.env.PORT) or (yargs.argv.http or yargs.argv.port)
+	if process.env.port? or process.env.PORT? or yargs.argv.http? or yargs.argv.port? # assure one of the settings were given
+		port = (process.env.port or process.env.PORT) or (yargs.argv.http or yargs.argv.port)
 		winston.info 'Server started on port ' + port + ' at ' + new Date Date.now!
 		server = app.listen port
 	else

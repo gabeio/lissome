@@ -3,8 +3,6 @@ node_js:
     - iojs
     - '0.10'
     - '0.11'
-services:
-    - mongodb
 notifications:
     flowdock:
         secure: OcgwG0RJdhPNMoD2IlTG9PShIw/6QWYzkYw+RWsFLyEpFV5XbbW+sVqo2+DGRDieFIuULQ1PDjmeRRB0uME3fH3IZRA2dwoPHZiaiFckX3Lfk03hkL86Yb/Fb1L5UIhKufXT+MzryPISjzSIqez+XTJj9VkiiRWgkWHNIA/Qydc=
