@@ -31,7 +31,6 @@ dependencies:
 	"express-session": '~1.10.1'
 	"fs-extra": '~0.16.3'
 	"gulp": '~3.8.10'
-	"gulp-istanbul": '~0.5.0'
 	"gulp-livescript": '~2.3.0'
 	"gulp-mocha": '~2.0.0'
 	"leveldown": '~1.0.0'
@@ -44,6 +43,7 @@ dependencies:
 	"request": '~2.51.0'
 	"serve-static": '~1.8.0'
 	"swig": '~1.4.2'
+	"uuid": '~2.0.1'
 	"winston": '~0.8.3'
 	"yargs": '~1.3.3'
 
