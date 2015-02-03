@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>{% if school %}{{ school }} - {% endif %}Login</title>
+<style>
+	input
+	{
+		position:relative;
+		right:0;
+	}
+</style>
+{% endblock %}
+
+{% block body %}
+<form method="POST" action="/login">
+	<div>
+		<table>
+			<tr><td colspan="2"><h2 style="padding:0;border:0;margin:0;">{% if school %}{{ school }} - {% endif %}Login</h2></td></tr>
+			{% if error %}<tr><td colspan="2">{{error}}</td></tr>{% endif %}
+			<tr><td><label>Username: </label></td><td><input type="text" name="username" /></td></tr>
+			<tr><td><label>Password: </label></td><td><input type="password" name="password" /></td></tr>
+			<tr><td colspan="2"><select name="type">
+				<option value="Student">Student</option>
+				<option value="Faculty">Faculty</option>
+				<option value="Admin">Admin</option>
+			</td></tr>
+			<tr><td colspan="2"><input type="submit" value="Submit" style="width:100%;"/></td></tr>
+		</table>
+	</div>
+</form>
+{% endblock %}
