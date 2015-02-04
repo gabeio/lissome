@@ -7,7 +7,7 @@ module.exports = exports = (app)->
 
 		..route '/:course/edit'
 		.all (req, res, next)->
-			res.locals.needs = "Faculty"
+			res.locals.needs = 2
 			app.locals.authorize req, res, next
 		.get (req, res, next)->
 			# if app.req.locals.isTeacher(req) or app.req.locals.isAdmin(req)

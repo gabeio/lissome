@@ -18,12 +18,16 @@ module.exports = exports = (app)->
 				if data[0]?
 					faculty = data[0]
 					err,result <- bcrypt.compare req.body.password, faculty.hash
-					req.session.auth = 2
-					winston.info data
-					res.send data
-					res.end!
+					if result is true
+						req.session.auth = 2
+						# winston.info data
+						# res.send data
+						# res.end!
+						res.redirect '/'
+					else
+						res.render 'login', { error:'bad login credentials' }
 				else
-					winston.info err
+					res.render 'login', { error:'username not found' }
 			| 'Admin'
 				err,data <- models.Admin.find { 'username':req.body.username, 'school':app.locals.school }
 				winston.info 'c'
@@ -34,11 +38,11 @@ module.exports = exports = (app)->
 					err,result <- bcrypt.compare req.body.password, student.hash
 					if result is true
 						req.session.auth = 3
-						winston.info data
+						# winston.info data
 						res.redirect '/'
-						res.end!
+						# res.end!
 					else
-						res.render 'login', { error:'login credentials not valid' }
+						res.render 'login', { error:'bad login credentials' }
 				else
 					res.render 'login', { error:'username not found' }
 			#
@@ -53,9 +57,13 @@ module.exports = exports = (app)->
 				if data[0]?
 					student = data[0]
 					err,result <- bcrypt.compare req.body.password, student.hash
-					req.session.auth = 1
-					winston.info data
-					res.send data
-					res.end!
+					if result is true
+						req.session.auth = 1
+						# winston.info data
+						# res.send data
+						# res.end!
+						res.redirect '/'
+					else
+						res.render 'login', { error:'bad login credentials' }
 				else
-					winston.info err
+					res.render 'login', { error:'username not found' }

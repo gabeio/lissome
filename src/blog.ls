@@ -7,7 +7,7 @@ module.exports = exports = (app)->
 
 		..route '/:course/blog/:id?/edit'
 		.all (req, res, next)->
-			res.locals.needs = "Faculty"
-		.all app.locals.authorize
+			res.locals.needs = 2
+			app.locals.authorize req, res, next
 		.get (req, res, next)->
 			res.send 'course:blog:edit > '+JSON.stringify req.params
