@@ -178,28 +178,6 @@ if !module.parent # assure this file is not being run by a different file
 		winston.error 'No port/socket specified please use HTTP or PORT environment variable'
 		process.exit 1
 else
-	winston.warn "TESTING MODE MODE IS *NOT* SAFE."
-	# for testing
-	
 	# silence all logging on testing
 	winston.remove winston.transports.Console
-	
-	# all of the following routes only exists in testing
-	app
-		..route '/get/test/on/:something'
-		.get (req, res, next)->
-			switch req.params.something
-			| 'csrf' # get csrfToken
-				res.send res.locals.csrfToken
-			| 'admin' # get session.admin
-				res.send util.inspect req.session.admin
-			| _
-				res.send 0
-		..route '/post/test/on/:something'
-		.post (req, res, next)->
-			switch req.params.something
-			| 'admin'
-				req.session.admin = true
-				res.send 'ok'
-			| _
-				res.send 0
+

@@ -3,4 +3,4 @@ module.exports = exports = (app)->
 		..route '/:course/conference/:thread?'
 		.all app.locals.authorize
 		.get (req, res, next)->
-			res.send 'conference:index > '+JSON.stringify req.params
+			res.send 'course:conference:index > '+JSON.stringify req.params

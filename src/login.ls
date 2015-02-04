@@ -18,7 +18,7 @@ module.exports = exports = (app)->
 				if data[0]?
 					faculty = data[0]
 					err,result <- bcrypt.compare req.body.password, faculty.hash
-					req.session.auth = "faculty"
+					req.session.auth = 2
 					winston.info data
 					res.send data
 					res.end!
@@ -33,7 +33,7 @@ module.exports = exports = (app)->
 					admin = data[0]
 					err,result <- bcrypt.compare req.body.password, student.hash
 					if result is true
-						req.session.auth = "student"
+						req.session.auth = 3
 						winston.info data
 						res.redirect '/'
 						res.end!
@@ -41,6 +41,9 @@ module.exports = exports = (app)->
 						res.render 'login', { error:'login credentials not valid' }
 				else
 					res.render 'login', { error:'username not found' }
+			#
+			#	Might add sudo/su/root account for admins of admins
+			#
 			| _ # default to student login
 				winston.info req.body
 				err,data <- models.Student.find { 'username':req.body.username, 'school':app.locals.school }
@@ -50,7 +53,7 @@ module.exports = exports = (app)->
 				if data[0]?
 					student = data[0]
 					err,result <- bcrypt.compare req.body.password, student.hash
-					req.session.auth = "student" # give student auth
+					req.session.auth = 1
 					winston.info data
 					res.send data
 					res.end!

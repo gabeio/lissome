@@ -24,6 +24,8 @@ module.exports = exports = (app)->
 								else
 									res.redirect '/login' # not logged in
 								# res.status 401 .render 'error' { err:'Unauthorized' }
+							| 'UNKNOWN NEEDS'
+								res.status 401 .render 'error' { err:'Unknown Needs' }
 							| _
 								res.status 500 .render 'error' { err:'There was an error... Where did it go...?' }
 					else
