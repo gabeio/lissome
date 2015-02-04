@@ -1,4 +1,5 @@
 require! {
+	'fs-extra'
 	'del'
 	'gulp'
 	'gulp-mocha'
@@ -15,7 +16,9 @@ paths =
 	tests: './test/*.ls'
 
 gulp.task 'clean-db' (done)->
-	del './db'
+	err <- del './db'
+	err <- fs.ensureDir './db'
+	done err
 
 gulp.task 'clean' (done)->
 	del '*.js'

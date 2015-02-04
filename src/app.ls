@@ -8,14 +8,13 @@ if !process.env.school?
 	console.log 'REQUIRES SCHOOL NAME'
 	process.exit 1
 if !process.env.mongo?
-	console.log ''
+	console.log 'mongo env undefined\ntrying localhost anyway...'
 
 # Imports/Variables
 require! {
 	'async'
 	'body-parser'
 	'compression' # nginx gzip
-	'csurf'
 	'express' # router
 	'express-partial-response'
 	'express-session' # session
@@ -29,18 +28,27 @@ require! {
 	'winston'
 	'yargs' # --var val
 }
+
 app = module.exports = express!
 fs = fsExtra
+
 mongoose.connect (process.env.mongo || 'mongodb://localhost/smrtboard')
+schemas = require('./schemas')(mongoose)
 db = mongoose.connection
+db.on 'disconnect', -> db.connect!
 db.on 'error', console.error.bind console, 'connection error:'
 <- db.once 'open'
-schemas = require('./schemas')(mongoose)
+
 School = mongoose.model 'School', schemas.School
-school = new School {
-	name: process.env.school
-}
-err, school <- school.save
+err,school <- School.find { name:process.env.school }
+if err?
+	winston.error 'school:find ' + util.inspect err
+if !school[0]? # if none
+	winston.info 'creating new school '+process.env.school
+	school = new School {
+		name: process.env.school
+	}
+	err, school <- school.save
 
 # App Settings/Middleware
 app
@@ -98,18 +106,14 @@ app
 				if res.locals.csrfToken?
 					res.locals.csrfToken = req.csrfToken!
 			!->
+				if req.session.auth? # check if auth exists
+					res.locals.auth = req.session.auth # save auth level for template
+			!->
 				next!
 		]
 
 # App Functions/Variables/Modules
 app
-	# functions
-	..locals.authorized = (req, res, next)->
-		# session TTL = 1 day
-		if req.session.admin is true
-			next!
-		else
-			next new Error 'UNAUTHORIZED'
 	# variables
 	..locals.recaptchaPrivateKey = process.env.RECAPKEY
 	# modules
@@ -117,17 +121,18 @@ app
 	..locals.async = async
 	..locals.winston = winston
 	..locals.db = db
+	..locals.school = process.env.school
 	..locals.models = {
 		school: school
-		student: mongoose.model 'Student', schemas.Student
-		teacher: mongoose.model 'Teacher', schemas.Teacher
-		admin: mongoose.model 'Admin', schemas.Admin
-		course: mongoose.model 'Course', schemas.Course
-		required: mongoose.model 'Req', schemas.Req
-		attempt: mongoose.model 'Attempt', schemas.Attempt
-		grade: mongoose.model 'Grade', schemas.Grade
-		thread: mongoose.model 'Thread', schemas.Thread
-		post: mongoose.model 'Post', schemas.Post
+		Student: mongoose.model 'Student' schemas.Student
+		Faculty: mongoose.model 'Faculty' schemas.Faculty
+		Admin: mongoose.model 'Admin' schemas.Admin
+		Course: mongoose.model 'Course' schemas.Course
+		Required: mongoose.model 'Req' schemas.Req
+		Attempt: mongoose.model 'Attempt' schemas.Attempt
+		Grade: mongoose.model 'Grade' schemas.Grade
+		Thread: mongoose.model 'Thread' schemas.Thread
+		Post: mongoose.model 'Post' schemas.Post
 	}
 	# errors
 	# ..locals.err = {

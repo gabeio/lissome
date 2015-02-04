@@ -19,7 +19,11 @@ module.exports = exports = (app)->
 							| 'NOT XHR'
 								res.status 400 .render 'error' { err:'Not Sent Correctly' }
 							| 'UNAUTHORIZED'
-								res.status 401 .render 'error' { err:'Unauthorized' }
+								if req.session.auth?
+									res.redirect '/' # logged in
+								else
+									res.redirect '/login' # not logged in
+								# res.status 401 .render 'error' { err:'Unauthorized' }
 							| _
 								res.status 500 .render 'error' { err:'There was an error... Where did it go...?' }
 					else

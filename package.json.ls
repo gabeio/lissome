@@ -21,7 +21,7 @@ repository:
 
 dependencies:
 	"async": '~0.9.0'
-	"bcrypt": '~0.8.0'
+	"bcrypt": '~0.8.1'
 	"body-parser": '~1.10.1'
 	"compression": '~1.3.0'
 	"cookie-parser": '~1.3.3'

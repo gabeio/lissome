@@ -1,9 +1,13 @@
 module.exports = exports = (app)->
 	app
-		..route '/:type(admin|teacher|student)?/:course/blog/:id?'
+		..route '/:course/blog/:id?'
+		.all app.locals.authorize
 		.get (req, res, next)->
 			res.send 'blog:index > '+JSON.stringify req.params
 
-		..route '/:type(admin|teacher|student)/:course/blog/edit'
+		..route '/:course/blog/:id?/edit'
+		.all (req, res, next)->
+			res.locals.needs = "Faculty"
+		.all app.locals.authorize
 		.get (req, res, next)->
 			res.send 'blog:edit > '+JSON.stringify req.params

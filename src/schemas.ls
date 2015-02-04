@@ -24,28 +24,42 @@ module.exports = exports = (mongoose)->
 	Student = new Schema {
 		id: { type: Number, required: true, unique: true }, # Student id
 		courses: [
-			{ type: String, required: true, unique: true }
+			{ type: String, unique: true }
 		] # course id list
 		first: String # first name
 		middle: String # middle name
 		last: String # last name
-		username: { type: String, required: true, unique: true } # unique username
-		hash: String # password bcrypt
+		username: {
+			type: String
+			required: true
+			unique: true
+		}
+		hash: { # password bcrypt
+			type: String
+			+required
+		}
 		school: { # school name
 			type: String
 			+required
 		}
 	}
-	Teacher = new Schema {
-		id: { type: Number, required: true, unique: true } # Teacher id
+	Faculty = new Schema {
+		id: { type: Number, required: true, unique: true } # Faculty id
 		courses: [
-			{ type: String, required: true, unique: true }
+			{ type: String, unique: true }
 		] # course id
 		first: String # first name
 		middle: String # middle name
 		last: String # last name
-		username: { type: String, required: true, unique: true }
-		hash: String # password bcrypt
+		username: {
+			type: String
+			required: true
+			unique: true
+		}
+		hash: { # password bcrypt
+			type: String
+			+required
+		}
 		school: { # school name
 			type: String
 			+required
@@ -56,8 +70,15 @@ module.exports = exports = (mongoose)->
 		first: String # first name
 		middle: String # middle name
 		last: String # last name
-		username: { type: String, required: true, unique: true } # username
-		hash: String # password bcrypt
+		username: {
+			type: String
+			required: true
+			unique: true
+		}
+		hash: { # password bcrypt
+			type: String
+			+required
+		}
 		school: { # school name
 			type: String
 			+required
@@ -151,20 +172,10 @@ module.exports = exports = (mongoose)->
 		time: { type: Date, default: Date.now }
 	}
 
-	/*
-	SchoolM = mongoose.model 'University', SchoolS
-	StudentM = mongoose.model 'Student', StudentS
-	TeacherM = mongoose.model 'Teacher', TeacherS
-	ReqM = mongoose.model 'Req', ReqS
-	PostM = mongoose.model 'Post', PostS
-	ThreadM = mongoose.model 'Thread', ThreadS
-	CourseM = mongoose.model 'Course', CourseS
-	*/
-
 	module.exports = {
 		School: School
 		Student: Student
-		Teacher: Teacher
+		Faculty: Faculty
 		Admin: Admin
 		Course: Course
 		Req: Req

@@ -1,13 +1,13 @@
 module.exports = exports = (app)->
-	require! {
-		express
-	}
-	app = express.Router!
 	app
-		..route '/:type(admin|teacher)?/:course/assignments/:id?/:version?'
+		..route '/:course/assignments/:id?/:version?'
+		.all app.locals.authorize
 		.get (req, res, next)->
 			res.send 'assignments:index > '+JSON.stringify req.params
 
-		..route '/:type(admin|teacher)/:course/assignments/:id?/:version?/edit'
+		..route '/:course/assignments/:id?/:version?/edit'
+		.all (req, res, next)->
+			res.locals.needs = "Faculty"
+		.all app.locals.authorize
 		.get (req, res, next)->
 			res.send 'assignments:edit > '+JSON.stringify req.params
