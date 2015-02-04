@@ -20,9 +20,9 @@ module.exports = exports = (app)->
 								res.status 400 .render 'error' { err:'Not Sent Correctly' }
 							| 'UNAUTHORIZED'
 								if req.session.auth?
-									res.redirect '/' # logged in
+									res.status 302 .redirect '/' # logged in
 								else
-									res.redirect '/login' # not logged in
+									res.status 302 .redirect '/login' # not logged in
 								# res.status 401 .render 'error' { err:'Unauthorized' }
 							| 'UNKNOWN NEEDS'
 								res.status 401 .render 'error' { err:'Unknown Needs' }

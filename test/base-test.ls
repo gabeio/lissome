@@ -8,50 +8,42 @@ req = supertest
 expect = chai.expect
 assert = chai.assert
 should = chai.should!
-var admin, agent, csrf, acsrf
+var admin, faculty, student, outside
 describe "Base" ->
-	before (done)->
-		app.locals.db # somehow check this is connected
-		done!
 	before (done)-> # setup basic user
-		agent := req.agent app
-		done!
-	before (done)-> # get csrf cookie & token
-		agent
-			.get '/get/test/on/csrf'
-			.end (err, res)->
-				csrf := res.text
-				done err
-	before (done)->
 		admin := req.agent app
 		done!
 	before (done)->
 		admin
-			.get '/get/test/on/csrf'
+			.get '/test/getadmin'
 			.end (err, res)->
-				acsrf := res.text
-				done err
+				done!
+	before (done)->
+		faculty := req.agent app
+		done!
 	before (done)->
 		admin
-			.post '/post/test/on/admin'
-			.send { _csrf: acsrf } # all POST requests need csrf do not remove
+			.get '/test/getfaculty'
 			.end (err, res)->
-				expect res.status .to.equal 200
-				done err
+				done!
+	before (done)-> # setup basic user
+		student := req.agent app
+		done!
 	before (done)->
 		admin
-			.get '/get/test/on/admin'
-			.send { _csrf: acsrf } # all POST requests need csrf do not remove
+			.get '/test/getstudent'
 			.end (err, res)->
-				expect res.status .to.equal 200
-				done err
+				done!
+	before (done)->
+		outside := req.agent app
+		done!
+
 	describe "Index", (...)->
 		it "should respond to a GET", (done)->
 			req app
 				.get '/'
-				.expect 200
 				.end (err, res)->
-					expect res.status .to.equal 200
+					expect res.status .to.equal 302
 					expect res.body .to.not.be.a 'null'
 					done err
 		it "should error to a POST", (done)->
@@ -72,30 +64,128 @@ describe "Base" ->
 				.end (err, res)->
 					expect res.status .to.not.equal 200
 					done err
-	describe "Index w/ csrf", (...)->
-		it "should error to a POST", (done)->
-			agent
-				.post '/'
+
+	describe "Login", (...)->
+		it "should 200 to a GET", (done)->
+			outside
+				.get '/login'
+				.end (err, res)->
+					expect res.status .to.equal 200
+					# expect res.text .to.
+					done err
+		it "should 200 to a POST w/ student credentials", (done)->
+			student
+				.post '/login'
 				.send {
-					'_csrf': csrf
+					'username': 'astudent'
+					'password': 'password'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it "should 200 to a POST w/ faculty credentials", (done)->
+			faculty
+				.post '/login'
+				.send {
+					'username': 'a'
+					'password': 'password'
+					'type': 'faculty'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it "should 200 to a POST w/ admin credentials", (done)->
+			admin
+				.post '/login'
+				.send {
+					'username': 'a'
+					'password': 'password'
+					'type': 'admin'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it "should ignore everything else to login w/o credentials", (done)->
+			outside
+				.put '/login'
+				.send {
+					'username':'gibberish'
+					'password':'idk'
+					'anything':'else'
 				}
 				.end (err, res)->
 					expect res.status .to.not.equal 200
-					expect res.text .to.equal 'Cannot POST /\n'
-					done err
-		it "should error to a PUT", (done)->
-			agent
-				.put '/'
-				.send { _csrf:csrf }
+					outside
+						.delete '/login'
+						.send {
+							'username':'gibberish'
+							'password':'idk'
+							'anything':'else'
+						}
+						.end (err, res)->
+							expect res.status .to.not.equal 200
+							done err
+		it "should ignore everything else to login w/ student credentials", (done)->
+			student
+				.put '/login'
+				.send {
+					'username':'gibberish'
+					'password':'idk'
+					'anything':'else'
+				}
 				.end (err, res)->
 					expect res.status .to.not.equal 200
-					expect res.text .to.equal 'Cannot PUT /\n'
-					done err
-		it "should error to a DELETE", (done)->
-			agent
-				.delete '/'
-				.send {'_csrf':csrf}
+					student
+						.delete '/login'
+						.send {
+							'username':'gibberish'
+							'password':'idk'
+							'anything':'else'
+						}
+						.end (err, res)->
+							expect res.status .to.not.equal 200
+							done err
+		it "should ignore everything else to login w/ faculty credentials", (done)->
+			faculty
+				.put '/login'
+				.send {
+					'username':'gibberish'
+					'password':'idk'
+					'anything':'else'
+				}
 				.end (err, res)->
 					expect res.status .to.not.equal 200
-					expect res.text .to.equal 'Cannot DELETE /\n'
-					done err
+					faculty
+						.delete '/login'
+						.send {
+							'username':'gibberish'
+							'password':'idk'
+							'anything':'else'
+						}
+						.end (err, res)->
+							expect res.status .to.not.equal 200
+							done err
+		it "should ignore everything else to login w/ admin credentials", (done)->
+			admin
+				.put '/login'
+				.send {
+					'username':'gibberish'
+					'password':'idk'
+					'anything':'else'
+				}
+				.end (err, res)->
+					expect res.status .to.not.equal 200
+					admin
+						.delete '/login'
+						.send {
+							'username':'gibberish'
+							'password':'idk'
+							'anything':'else'
+						}
+						.end (err, res)->
+							expect res.status .to.not.equal 200
+							done err
+
+	# describe "Dashboard", (...)->
+	# 	it "", (done)->
+	# 		...

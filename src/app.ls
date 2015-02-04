@@ -180,4 +180,5 @@ if !module.parent # assure this file is not being run by a different file
 else
 	# silence all logging on testing
 	winston.remove winston.transports.Console
+	require('./test')(app)
 
