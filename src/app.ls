@@ -7,7 +7,7 @@ if !process.env.cookie?
 if !process.env.school?
 	console.log 'REQUIRES SCHOOL NAME'
 	process.exit 1
-if !process.env.mongo?
+if !process.env.mongo? and !process.env.MONGOURL?
 	console.log 'mongo env undefined\ntrying localhost anyway...'
 
 # Imports/Variables
@@ -32,7 +32,7 @@ require! {
 app = module.exports = express!
 fs = fsExtra
 
-mongoose.connect (process.env.mongo || 'mongodb://localhost/smrtboard')
+mongoose.connect (process.env.mongo || process.env.MONGOURL || 'mongodb://localhost/smrtboard')
 schemas = require('./schemas')(mongoose)
 db = mongoose.connection
 db.on 'disconnect', -> db.connect!
