@@ -10,9 +10,10 @@ module.exports = exports = (app)->
 			# res.send 'base:login > '+JSON.stringify req.params
 			res.render 'login'
 		.post (req, res, next)->
-			switch req.body.type
-			| 'Faculty'
-				err,data <- models.Teacher.find { 'username':req.body.username, 'school':app.locals.school }
+			if !req.body.type? then req.body.type = 'unknown'
+			switch req.body.type.toLowerCase!
+			| 'faculty'
+				err,data <- models.Faculty.find { 'username':req.body.username, 'school':app.locals.school }
 				if err?
 					winston.error err
 				if data[0]?
@@ -22,32 +23,29 @@ module.exports = exports = (app)->
 						req.session.auth = 2
 						# winston.info data
 						# res.send data
-						# res.end!
 						res.redirect '/'
+						res.end!
 					else
 						res.render 'login', { error:'bad login credentials' }
 				else
 					res.render 'login', { error:'username not found' }
-			| 'Admin'
+			| 'admin'
 				err,data <- models.Admin.find { 'username':req.body.username, 'school':app.locals.school }
 				winston.info 'c'
 				if err?
 					winston.error err
 				if data[0]?
 					admin = data[0]
-					err,result <- bcrypt.compare req.body.password, student.hash
+					err,result <- bcrypt.compare req.body.password, admin.hash
 					if result is true
 						req.session.auth = 3
 						# winston.info data
 						res.redirect '/'
-						# res.end!
+						res.end!
 					else
 						res.render 'login', { error:'bad login credentials' }
 				else
 					res.render 'login', { error:'username not found' }
-			#
-			#	Might add sudo/su/root account for admins of admins
-			#
 			| _ # default to student login
 				winston.info req.body
 				err,data <- models.Student.find { 'username':req.body.username, 'school':app.locals.school }
@@ -61,8 +59,8 @@ module.exports = exports = (app)->
 						req.session.auth = 1
 						# winston.info data
 						# res.send data
-						# res.end!
 						res.redirect '/'
+						res.end!
 					else
 						res.render 'login', { error:'bad login credentials' }
 				else

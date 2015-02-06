@@ -44,10 +44,10 @@ else
 	db.open (process.env.mongo||process.env.MONGOURL||'mongodb://localhost/smrtboard')
 db.on 'disconnect', -> db.connect!
 db.on 'error', console.error.bind console, 'connection error:'
-err, something <- db.once 'open'
-if err
-	winston.info 'db:err: ' + err
-winston.info 'db:something: ' + something
+db.once 'open' (err, something)->
+	if err
+		winston.info 'db:err: ' + err
+	/*winston.info 'db:something: ' + something*/
 
 School = mongoose.model 'School', schemas.School
 err,school <- School.find { name:process.env.school }
@@ -191,4 +191,5 @@ else
 	app.locals.testing = true
 	# silence all logging on testing
 	winston.remove winston.transports.Console
+	/*winston.add winston.transports.Console, {level:'warn'}*/
 	require('./test')(app)

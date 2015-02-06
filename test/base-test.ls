@@ -15,9 +15,9 @@ describe "Base" ->
 		agent := req.agent app
 		done!
 	before (done)->
-		this.timeout(0)
-		console.log 'pausing for 3s to allow mongodb connection'
-		setTimeout done, 3000
+		/*this.timeout 0*/
+		console.log '\tpausing for 1s to allow mongodb connection'
+		setTimeout done, 1000
 
 	describe "Index", (...)->
 		it "should respond to a GET", (done)->
@@ -81,7 +81,7 @@ describe "Base" ->
 					expect res.status .to.equal 302
 					/*expect res.headers.location .to.equal '/login'*/
 					done!
-		it "should 200 to a POST w/ student credentials", (done)->
+		it "should 200 to a POST w/ student credentials w/o type", (done)->
 			agent
 				.post '/login'
 				.send {
@@ -89,8 +89,33 @@ describe "Base" ->
 					'password': 'password'
 				}
 				.end (err, res)->
-					expect res.status .to.equal 200
+					expect res.status .to.equal 302
 					done err
+		it "should logout", (done)->
+			agent
+				.get '/logout'
+				.end (err, res)->
+					expect res.status .to.equal 302
+					/*expect res.headers.location .to.equal '/login'*/
+					done!
+		it "should 200 to a POST w/ student credentials w/ type", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'Student'
+					'password': 'password'
+					'type': 'Student'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 302
+					done err
+		it "should logout", (done)->
+			agent
+				.get '/logout'
+				.end (err, res)->
+					expect res.status .to.equal 302
+					/*expect res.headers.location .to.equal '/login'*/
+					done!
 		it "should ignore everything else to login w/ student credentials", (done)->
 			agent
 				.put '/login'
@@ -124,10 +149,10 @@ describe "Base" ->
 				.send {
 					'username': 'Faculty'
 					'password': 'password'
-					'type': 'faculty'
+					'type': 'Faculty'
 				}
 				.end (err, res)->
-					expect res.status .to.equal 200
+					expect res.status .to.equal 302
 					done err
 		it "should ignore everything else to login w/ faculty credentials", (done)->
 			agent
@@ -162,10 +187,10 @@ describe "Base" ->
 				.send {
 					'username': 'Admin'
 					'password': 'password'
-					'type': 'admin'
+					'type': 'Admin'
 				}
 				.end (err, res)->
-					expect res.status .to.equal 200
+					expect res.status .to.equal 302
 					done err
 		it "should ignore everything else to login w/ admin credentials", (done)->
 			agent

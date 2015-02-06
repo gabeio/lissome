@@ -62,8 +62,7 @@ gulp.task 'test' ['build-tests','clean', 'build'] (done)->
 	gulp
 		.src './test/*.js'
 		.pipe mocha!
-		.on 'finish' ->
-			del './db'
+		.on 'end' ->
 			done
 
 gulp.task 'watch-build' ->
