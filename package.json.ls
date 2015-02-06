@@ -33,8 +33,6 @@ dependencies:
 	"gulp": '~3.8.10'
 	"gulp-livescript": '~2.3.0'
 	"gulp-mocha": '~2.0.0'
-	"leveldown": '~1.0.0'
-	"levelup": '~0.19.0'
 	"LiveScript": '~1.3.1'
 	"lodash": '~3.0.0'
 	"mongoose": '~3.8.22'
