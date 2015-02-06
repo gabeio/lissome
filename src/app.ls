@@ -32,16 +32,16 @@ require! {
 app = module.exports = express!
 fs = fsExtra
 
-mongouser = if process.env.mongouser or process.env.MONGOUSER then (process.env.mongouser||process.env.MONGOUSER)
-mongopass = if process.env.mongopass or process.env.MONGOPASS then (process.env.mongopass||process.env.MONGOPASS)
+mongouser = if process.env.mongouser or process.env.MONGOUSER then ( process.env.mongouser || process.env.MONGOUSER )
+mongopass = if process.env.mongopass or process.env.MONGOPASS then ( process.env.mongopass || process.env.MONGOPASS )
 
 # mongoose.connect (process.env.mongo || process.env.MONGOURL || 'mongodb://localhost/smrtboard') { 'auth': }
 schemas = require('./schemas')(mongoose)
 db = mongoose.connection
 if mongouser? && mongopass?
-	db.open (process.env.mongo || process.env.MONGOURL || 'mongodb://localhost/smrtboard') { 'user': mongouser, 'pass': mongopass }
+	db.open (process.env.mongo||process.env.MONGOURL||'mongodb://localhost/smrtboard'), { 'user': mongouser, 'pass': mongopass }
 else
-	db.open (process.env.mongo || process.env.MONGOURL || 'mongodb://localhost/smrtboard')
+	db.open (process.env.mongo||process.env.MONGOURL||'mongodb://localhost/smrtboard')
 db.on 'disconnect', -> db.connect!
 db.on 'error', console.error.bind console, 'connection error:'
 err, something <- db.once 'open'
