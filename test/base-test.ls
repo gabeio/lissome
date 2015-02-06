@@ -2,171 +2,173 @@ require! {
 	'chai' # assert lib
 	'supertest' # request lib
 	'del' # delete
+	'async'
 }
 app = require '../app'
 req = supertest
 expect = chai.expect
 assert = chai.assert
 should = chai.should!
-var admin, faculty, student, outside
+var agent
 describe "Base" ->
 	before (done)-> # setup basic user
-		admin := req.agent app
+		agent := req.agent app
 		done!
 	before (done)->
-		admin
-			.get '/test/getadmin'
-			.end (err, res)->
-				done!
-	before (done)->
-		faculty := req.agent app
-		done!
-	before (done)->
-		admin
-			.get '/test/getfaculty'
-			.end (err, res)->
-				done!
-	before (done)-> # setup basic user
-		student := req.agent app
-		done!
-	before (done)->
-		admin
-			.get '/test/getstudent'
-			.end (err, res)->
-				done!
-	before (done)->
-		outside := req.agent app
-		done!
+		this.timeout(0)
+		console.log 'pausing for 3s to allow mongodb connection'
+		setTimeout done, 3000
 
 	describe "Index", (...)->
 		it "should respond to a GET", (done)->
-			req app
+			agent
 				.get '/'
 				.end (err, res)->
 					expect res.status .to.equal 302
-					expect res.body .to.not.be.a 'null'
+					/*expect res.body .to.not.be.a 'null'*/
 					done err
 		it "should error to a POST", (done)->
-			req app
+			agent
 				.post '/'
 				.end (err, res)->
 					expect res.status .to.not.equal 200
 					done err
 		it "should error to a PUT", (done)->
-			req app
+			agent
 				.put '/'
 				.end (err, res)->
 					expect res.status .to.not.equal 200
 					done err
 		it "should error to a DELETE", (done)->
-			req app
+			agent
 				.delete '/'
 				.end (err, res)->
 					expect res.status .to.not.equal 200
 					done err
 
-	describe "Login", (...)->
+	describe "Login/Logout", (...)->
 		it "should 200 to a GET", (done)->
-			outside
+			agent
 				.get '/login'
 				.end (err, res)->
 					expect res.status .to.equal 200
 					# expect res.text .to.
 					done err
+		it "should ignore everything else to login w/o credentials", (done)->
+			agent
+				.put '/login'
+				.send {
+					'username':'gibberish'
+					'password':'idk'
+					'anything':'else'
+				}
+				.end (err, res)->
+					expect res.status .to.not.equal 200
+					agent
+						.delete '/login'
+						.send {
+							'username':'gibberish'
+							'password':'idk'
+							'anything':'else'
+						}
+						.end (err, res)->
+							expect res.status .to.not.equal 200
+							done err
+		it "should logout", (done)->
+			agent
+				.get '/logout'
+				.end (err, res)->
+					expect res.status .to.equal 302
+					/*expect res.headers.location .to.equal '/login'*/
+					done!
 		it "should 200 to a POST w/ student credentials", (done)->
-			student
+			agent
 				.post '/login'
 				.send {
-					'username': 'astudent'
+					'username': 'Student'
 					'password': 'password'
 				}
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
+		it "should ignore everything else to login w/ student credentials", (done)->
+			agent
+				.put '/login'
+				.send {
+					'username':'gibberish'
+					'password':'idk'
+					'anything':'else'
+				}
+				.end (err, res)->
+					expect res.status .to.not.equal 200
+					agent
+						.delete '/login'
+						.send {
+							'username':'gibberish'
+							'password':'idk'
+							'anything':'else'
+						}
+						.end (err, res)->
+							expect res.status .to.not.equal 200
+							done err
+		it "should logout", (done)->
+			agent
+				.get '/logout'
+				.end (err, res)->
+					expect res.status .to.equal 302
+					/*expect res.headers.location .to.equal '/login'*/
+					done!
 		it "should 200 to a POST w/ faculty credentials", (done)->
-			faculty
+			agent
 				.post '/login'
 				.send {
-					'username': 'a'
+					'username': 'Faculty'
 					'password': 'password'
 					'type': 'faculty'
 				}
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
+		it "should ignore everything else to login w/ faculty credentials", (done)->
+			agent
+				.put '/login'
+				.send {
+					'username':'gibberish'
+					'password':'idk'
+					'anything':'else'
+				}
+				.end (err, res)->
+					expect res.status .to.not.equal 200
+					agent
+						.delete '/login'
+						.send {
+							'username':'gibberish'
+							'password':'idk'
+							'anything':'else'
+						}
+						.end (err, res)->
+							expect res.status .to.not.equal 200
+							done err
+		it "should logout", (done)->
+			agent
+				.get '/logout'
+				.end (err, res)->
+					expect res.status .to.equal 302
+					/*expect res.headers.location .to.equal '/login'*/
+					done!
 		it "should 200 to a POST w/ admin credentials", (done)->
-			admin
+			agent
 				.post '/login'
 				.send {
-					'username': 'a'
+					'username': 'Admin'
 					'password': 'password'
 					'type': 'admin'
 				}
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
-		it "should ignore everything else to login w/o credentials", (done)->
-			outside
-				.put '/login'
-				.send {
-					'username':'gibberish'
-					'password':'idk'
-					'anything':'else'
-				}
-				.end (err, res)->
-					expect res.status .to.not.equal 200
-					outside
-						.delete '/login'
-						.send {
-							'username':'gibberish'
-							'password':'idk'
-							'anything':'else'
-						}
-						.end (err, res)->
-							expect res.status .to.not.equal 200
-							done err
-		it "should ignore everything else to login w/ student credentials", (done)->
-			student
-				.put '/login'
-				.send {
-					'username':'gibberish'
-					'password':'idk'
-					'anything':'else'
-				}
-				.end (err, res)->
-					expect res.status .to.not.equal 200
-					student
-						.delete '/login'
-						.send {
-							'username':'gibberish'
-							'password':'idk'
-							'anything':'else'
-						}
-						.end (err, res)->
-							expect res.status .to.not.equal 200
-							done err
-		it "should ignore everything else to login w/ faculty credentials", (done)->
-			faculty
-				.put '/login'
-				.send {
-					'username':'gibberish'
-					'password':'idk'
-					'anything':'else'
-				}
-				.end (err, res)->
-					expect res.status .to.not.equal 200
-					faculty
-						.delete '/login'
-						.send {
-							'username':'gibberish'
-							'password':'idk'
-							'anything':'else'
-						}
-						.end (err, res)->
-							expect res.status .to.not.equal 200
-							done err
 		it "should ignore everything else to login w/ admin credentials", (done)->
-			admin
+			agent
 				.put '/login'
 				.send {
 					'username':'gibberish'
@@ -175,7 +177,7 @@ describe "Base" ->
 				}
 				.end (err, res)->
 					expect res.status .to.not.equal 200
-					admin
+					agent
 						.delete '/login'
 						.send {
 							'username':'gibberish'
@@ -185,7 +187,13 @@ describe "Base" ->
 						.end (err, res)->
 							expect res.status .to.not.equal 200
 							done err
-
+		it "should logout", (done)->
+			agent
+				.get '/logout'
+				.end (err, res)->
+					expect res.status .to.equal 302
+					/*expect res.headers.location .to.equal '/login'*/
+					done!
 	# describe "Dashboard", (...)->
 	# 	it "", (done)->
 	# 		...

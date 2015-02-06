@@ -32,12 +32,22 @@ require! {
 app = module.exports = express!
 fs = fsExtra
 
-mongoose.connect (process.env.mongo || process.env.MONGOURL || 'mongodb://localhost/smrtboard')
+mongouser = if process.env.mongouser or process.env.MONGOUSER then (process.env.mongouser||process.env.MONGOUSER)
+mongopass = if process.env.mongopass or process.env.MONGOPASS then (process.env.mongopass||process.env.MONGOPASS)
+
+# mongoose.connect (process.env.mongo || process.env.MONGOURL || 'mongodb://localhost/smrtboard') { 'auth': }
 schemas = require('./schemas')(mongoose)
 db = mongoose.connection
+if mongouser? && mongopass?
+	db.open (process.env.mongo || process.env.MONGOURL || 'mongodb://localhost/smrtboard') { 'user': mongouser, 'pass': mongopass }
+else
+	db.open (process.env.mongo || process.env.MONGOURL || 'mongodb://localhost/smrtboard')
 db.on 'disconnect', -> db.connect!
 db.on 'error', console.error.bind console, 'connection error:'
-<- db.once 'open'
+err, something <- db.once 'open'
+if err
+	winston.info 'db:err: ' + err
+winston.info 'db:something: ' + something
 
 School = mongoose.model 'School', schemas.School
 err,school <- School.find { name:process.env.school }
@@ -178,7 +188,7 @@ if !module.parent # assure this file is not being run by a different file
 		winston.error 'No port/socket specified please use HTTP or PORT environment variable'
 		process.exit 1
 else
+	app.locals.testing = true
 	# silence all logging on testing
 	winston.remove winston.transports.Console
 	require('./test')(app)
-
