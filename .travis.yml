@@ -21,13 +21,15 @@ matrix:
     allow_failures:
         - node_js: 'iojs'
         - node_js: '0.11'
+before_install:
+    - npm install coveralls
 before_script:
     - "git clone git@github.com:smrtboard/website views"
     - "cd views"
     - "git checkout develop"
     - "cd .."
-before_install:
-    - npm install coveralls
+    - gulp build-tests
 script:
-    - gulp test
-    #- npm run-script testCi
+    # - gulp test
+    # - npm run-script testCi
+    - mocha
