@@ -90,9 +90,6 @@ describe "Base" ->
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
-					console.log res.status
-					console.log res.text
-					console.log res.headers
 					done err
 		it "should logout", (done)->
 			agent
@@ -111,16 +108,12 @@ describe "Base" ->
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
-					console.log res.status
-					console.log res.text
-					console.log res.headers
 					done err
 		it "should logout", (done)->
 			agent
 				.get '/logout'
 				.end (err, res)->
 					expect res.status .to.equal 302
-					/*expect res.headers.location .to.equal '/login'*/
 					done!
 		it "should ignore everything else to login w/ student credentials", (done)->
 			agent
@@ -159,9 +152,6 @@ describe "Base" ->
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
-					console.log res.status
-					console.log res.text
-					console.log res.headers
 					done err
 		it "should ignore everything else to login w/ faculty credentials", (done)->
 			agent
@@ -200,9 +190,6 @@ describe "Base" ->
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
-					console.log res.status
-					console.log res.text
-					console.log res.headers
 					done err
 		it "should ignore everything else to login w/ admin credentials", (done)->
 			agent

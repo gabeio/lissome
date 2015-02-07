@@ -3,6 +3,7 @@ require! {
 	'gulp'
 	'gulp-mocha'
 	'gulp-livescript'
+	'gulp-coveralls'
 }
 mocha = if gulp-mocha? then gulp-mocha
 livescript = if gulp-livescript? then gulp-livescript
@@ -49,6 +50,10 @@ gulp.task 'run-tests' ['build-tests', 'build'] (done)->
 			/*process.exit!*/
 		/*.on 'error' ->
 			process.exit 1*/
+
+gulp.task 'report' (done)->
+	gulp.src 'coverage/**/lcov.info'
+		.pipe coveralls!
 
 gulp.task 'watch-build' ->
 	gulp

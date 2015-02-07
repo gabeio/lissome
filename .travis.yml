@@ -31,9 +31,5 @@ before_script:
     - "cd views"
     - "git checkout develop"
     - "cd .."
-    - gulp build
-    - gulp build-tests
-#script:
-    #- gulp test
-    # - npm run-script testCi
-    # - mocha
+script:
+    - npm run-script testCi
