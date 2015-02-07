@@ -2,80 +2,58 @@ require! {
 	'del'
 	'gulp'
 	'gulp-mocha'
-	'gulp-istanbul'
 	'gulp-livescript'
+	'gulp-coveralls'
 }
-fs = if fsExtra? then fsExtra
-mocha = if gulpMocha? then gulpMocha
-git = if gulp-git? then gulp-git
-concat = if gulp-concat? then gulp-concat
+mocha = if gulp-mocha? then gulp-mocha
 livescript = if gulp-livescript? then gulp-livescript
-istanbul = if gulp-istanbul? then gulp-istanbul
 
 paths =
-	scripts: './*.ls'
+	scripts: './src/*.ls'
 	tests: './test/*.ls'
 
-gulp.task 'clean-db' (done)->
-	del './db'
+gulp.task 'default' ['build'] (done)->
+	done
 
 gulp.task 'clean' (done)->
 	del '*.js'
 	done!
 
-gulp.task 'build-cramp' ['clean'] (done)->
-	gulp
-		.src './src/*.ls'
+gulp.task 'build-gulp' (done)->
+	gulp.src './gulpfile.ls'
 		.pipe livescript bare:true
 		.on 'error' -> throw it
-		.pipe uglify!
-		.pipe gulp.dest '.'
-		.on 'end' ->
-			del 'gulpfile.js'
-			done!
+		.pipe gulp.dest './'
 
 gulp.task 'build' ['clean'] (done)->
-	gulp
-		.src './src/*.ls'
+	gulp.src './src/*.ls'
 		.pipe livescript bare:true
 		.on 'error' -> throw it
-		.pipe gulp.dest '.'
-		.on 'end' ->
-			del 'gulpfile.js'
-			done
+		.pipe gulp.dest './'
+		/*.on 'end' ->
+			done*/
 
-gulp.task 'clean-tests' (done)->
-	del './test/*.js'
-	done!
+/*gulp.task 'clean-tests' (done)->
+	del './test/*.js'*/
 
-gulp.task 'build-tests' ['clean-tests'] (done)->
-	gulp
-		.src './test/*.ls'
+gulp.task 'build-tests' (done)-> # ['clean-tests']
+	gulp.src './test/*.ls'
 		.pipe livescript bare:true
 		.on 'error' -> throw it
 		.pipe gulp.dest './test/'
+
+gulp.task 'run-tests' ['build-tests', 'build'] (done)->
+	gulp.src './test/*.js'
+		.pipe mocha!
 		.on 'end' ->
 			done
+			/*process.exit!*/
+		/*.on 'error' ->
+			process.exit 1*/
 
-gulp.task 'test' ['build-tests','clean', 'build'] (done)->
-	gulp
-		.src './test/*.js'
-		.pipe mocha!
-		.on 'finish' ->
-			del './db'
-			done
-
-gulp.task 'cover' ['build-tests','clean','build'] (done)->
-	gulp
-		.src ['./app.js','./base.js','./editable.js','./admin.js']
-		.pipe istanbul!
-		.pipe istanbul.hookRequire!
-		.on 'finish' ->
-			gulp
-				.src './test/*.js'
-				.pipe mocha!
-				.pipe istanbul.writeReports!
-				.on 'finish' done
+gulp.task 'report' (done)->
+	gulp.src 'coverage/**/lcov.info'
+		.pipe coveralls!
 
 gulp.task 'watch-build' ->
 	gulp

@@ -1,34 +1,64 @@
 #!/usr/bin/env lsc
 # ``#!/usr/bin/env node`` # uncomment for lsc to node
 
+if !process.env.cookie?
+	console.log 'REQUIRES COOKIE SECRET'
+	process.exit 1
+if !process.env.school?
+	console.log 'REQUIRES SCHOOL NAME'
+	process.exit 1
+if !process.env.mongo? and !process.env.MONGOURL?
+	console.log 'mongo env undefined\ntrying localhost anyway...'
+
 # Imports/Variables
 require! {
-	# 'jsondown' # json files/ if needed
-	# 'memdown' # in mem only/ if needed
-	# 'mongoose' # only if needed
 	'async'
 	'body-parser'
 	'compression' # nginx gzip
-	'cookie-parser'
-	'csurf'
 	'express' # router
 	'express-partial-response'
 	'express-session' # session
 	'fs-extra' # only if needed
-	'leveldown'
-	'levelup'
 	'method-override'
+	'mongoose'
 	'multer'
 	'serve-static' # nginx static
 	'swig' # templates
+	'uuid'
 	'winston'
 	'yargs' # --var val
 }
+
 app = module.exports = express!
 fs = fsExtra
 
-# Setup DB
-db = app.locals.db = levelup './db' { db: leveldown }
+mongouser = if process.env.mongouser or process.env.MONGOUSER then ( process.env.mongouser || process.env.MONGOUSER )
+mongopass = if process.env.mongopass or process.env.MONGOPASS then ( process.env.mongopass || process.env.MONGOPASS )
+
+# mongoose.connect (process.env.mongo || process.env.MONGOURL || 'mongodb://localhost/smrtboard') { 'auth': }
+schemas = require('./schemas')(mongoose)
+db = mongoose.connection
+if mongouser? && mongopass?
+	db.open (process.env.mongo||process.env.MONGOURL||'mongodb://localhost/smrtboard'), { 'user': mongouser, 'pass': mongopass }
+else
+	db.open (process.env.mongo||process.env.MONGOURL||'mongodb://localhost/smrtboard')
+db.on 'disconnect', -> db.connect!
+db.on 'error', console.error.bind console, 'connection error:'
+db.once 'open' (err, something)->
+	if err
+		winston.info 'db:err: ' + err
+	/*winston.info 'db:something: ' + something*/
+
+School = mongoose.model 'School', schemas.School
+err,school <- School.find { name:process.env.school }
+if err?
+	winston.error 'school:find ' + util.inspect err
+if !school[0]? # if none
+	winston.info 'creating new school '+process.env.school
+	school = new School {
+		name: process.env.school
+	}
+	err, school <- school.save
 
 # App Settings/Middleware
 app
@@ -46,17 +76,19 @@ app
 	}
 	# hide what we are made of
 	.disable 'x-powered-by'
-	# swig template setup
-	# set extention of templates to html
+	# set extention of templates to html to render in swig
 	.engine 'html' swig.renderFile
 	# set extention of templates to html
 	.set 'view engine' 'html'
 	# .set 'views' __dirname + '/NOTviews' # /views by default
 	# static assets (html,js,css)
-	.use '/static' serveStatic './static' # comment out when in production or cache server infront
+	.use '/static' serveStatic './static'
+	.use '/assets' serveStatic './static'
 	# body parser
-	.use bodyParser.urlencoded { -extended } # standard (angular?)
-	.use bodyParser.json! # json (angular?)
+	.use bodyParser.urlencoded {
+		-extended
+	}
+	.use bodyParser.json!
 	# .use bodyParser.text! # idk
 	# .use bodyParser.raw! # idk
 	# multipart body parser
@@ -69,10 +101,10 @@ app
 		-inMemory
 	}
 	# Cross Site Request Forgery
-	.use csurf {
-		secretLength: 32
-		saltLength: 10
-	}
+	# .use csurf {
+	# 	secretLength: 32
+	# 	saltLength: 10
+	# }
 	# compress large files
 	.use compression!
 
@@ -81,26 +113,37 @@ app
 	.use (req, res, next)->
 		async.parallel [
 			!->
-				res.locals.csrfToken = req.csrfToken!
+				if res.locals.csrfToken?
+					res.locals.csrfToken = req.csrfToken!
+			!->
+				if req.session.auth? # check if auth exists
+					res.locals.auth = req.session.auth # save auth level for template
 			!->
 				next!
 		]
 
 # App Functions/Variables/Modules
 app
-	# functions
-	..locals.authorized = (req, res, next)->
-		# session TTL = 1 day
-		if req.session.admin is true
-			next!
-		else
-			next new Error 'UNAUTHORIZED'
 	# variables
 	..locals.recaptchaPrivateKey = process.env.RECAPKEY
 	# modules
 	..locals.fs = fsExtra
 	..locals.async = async
 	..locals.winston = winston
+	..locals.db = db
+	..locals.school = process.env.school
+	..locals.models = {
+		school: school
+		Student: mongoose.model 'Student' schemas.Student
+		Faculty: mongoose.model 'Faculty' schemas.Faculty
+		Admin: mongoose.model 'Admin' schemas.Admin
+		Course: mongoose.model 'Course' schemas.Course
+		Required: mongoose.model 'Req' schemas.Req
+		Attempt: mongoose.model 'Attempt' schemas.Attempt
+		Grade: mongoose.model 'Grade' schemas.Grade
+		Thread: mongoose.model 'Thread' schemas.Thread
+		Post: mongoose.model 'Post' schemas.Post
+	}
 	# errors
 	# ..locals.err = {
 	# 	'NOT FOUND': new Error
@@ -113,10 +156,11 @@ switch process.env.NODE_ENV
 	winston.info "Production Mode"
 | _
 	# development/other run
-	winston.info "Development Mode"
+	winston.info "Development Mode/Unknown Mode"
 	require! {
 		util
 	}
+	# disable template cache
 	app.set 'view cache' false
 	swig.setDefaults { -cache }
 	app.locals.util = if util? then util
@@ -134,63 +178,18 @@ switch process.env.NODE_ENV
 # Attach base
 require('./base')(app)
 
-# Error Catching
-app
-	..use (err, req, res, next)->
-		async.parallel [
-			!->
-				# ALWAYS LOG
-				winston.error 'error: ' + err + '\turl: ' + req.url
-			!->
-				if err?
-					if err.code is 'EBADCSRFTOKEN'
-						res.status 403 .send 'Bad Request' #.render 'error' {err:'Bad Request'}
-					else
-						# console.log err.message
-						switch err.message
-						| 'NOT FOUND'
-							res.status 404 .render 'error' { err:'Not Found' }
-						| 'NOT XHR'
-							res.status 400 .render 'error' { err:'Not Sent Correctly' }
-						| 'UNAUTHORIZED'
-							res.status 401 .render 'error' { err:'Unauthorized' }
-						| _
-							res.status 500 .render 'error' { err:'There was an error... Where did it go...?' }
-				else
-					next!
-		]
 /* istanbul ignore next */
 if !module.parent # assure this file is not being run by a different file
-	if process.env.HTTP? or process.env.PORT? or yargs.argv.http? or yargs.argv.port? # assure one of the settings were given
-		port = (process.env.HTTP or process.env.PORT) or (yargs.argv.http or yargs.argv.port)
+	if process.env.port? or process.env.PORT? or yargs.argv.http? or yargs.argv.port? # assure one of the settings were given
+		port = (process.env.port or process.env.PORT) or (yargs.argv.http or yargs.argv.port)
 		winston.info 'Server started on port ' + port + ' at ' + new Date Date.now!
 		server = app.listen port
 	else
 		winston.error 'No port/socket specified please use HTTP or PORT environment variable'
 		process.exit 1
 else
-	winston.warn "TESTING MODE MODE IS *NOT* SAFE."
-	# for testing
-	
+	app.locals.testing = true
 	# silence all logging on testing
 	winston.remove winston.transports.Console
-	
-	# all of the following routes only exists in testing
-	app
-		..route '/get/test/on/:something'
-		.get (req, res, next)->
-			switch req.params.something
-			| 'csrf' # get csrfToken
-				res.send res.locals.csrfToken
-			| 'admin' # get session.admin
-				res.send util.inspect req.session.admin
-			| _
-				res.send 0
-		..route '/post/test/on/:something'
-		.post (req, res, next)->
-			switch req.params.something
-			| 'admin'
-				req.session.admin = true
-				res.send 'ok'
-			| _
-				res.send 0
+	/*winston.add winston.transports.Console, {level:'warn'}*/
+	require('./test')(app)
