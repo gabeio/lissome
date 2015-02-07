@@ -8,11 +8,6 @@ node_js:
     - '0.13'
 notifications:
     email: false
-    irc:
-        channels:
-            - "irc.freenode.net##coldoc.co"
-        channel_key:
-            secure: "cyYwLYn8tQFTP5zhDFws3R+Z7X1zu9ByDxgDZd6L0LcRWeoYAGKdzsmTqxkz7gIRQg98w+XAjr7baS1lJA+PDsviGATD5LCJkrBSgw6eOFKcY4JzhQsRkilgbmltLClz2obZwo967FD+m17R4pyMR479POxTOr5Sv8Mpxy3jrfA="
     slack:
         secure: "ZCc16+LCCEqDS18BJZPoUcKowGzp5hg6m02MAOy/3LzBlzl/FPEuky2CqgSBUpJ6fQJZf/kl/E4r01tY4EqgdZZ876KrIOHe32yZ5VNUaTbRO1f4pKLRN8rPMrGjgs7GAHcWSFBYA90iscZERjsPyf1Rsx5V4up3w05hXX7L7Bg="
     flowdock:

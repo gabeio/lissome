@@ -11,7 +11,8 @@ engines:
 scripts:
 	start: 'export PORT=8080; lsc ./src/app.ls'
 	test: 'gulp run-tests'
-	test-ci: 'istanbul cover gulp run-tests && gulp report'
+	test-ci: 'gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage
+'
 	continuousInstall: 'npm i nodemon; gulp build'
 	continuous: 'nodemon -w ./ -e html,css,js -x node app.js'
 
