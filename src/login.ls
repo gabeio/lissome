@@ -1,4 +1,4 @@
-module.exports = exports = (app)->
+module.exports = (app)->
 	require! {
 		'bcrypt'
 	}

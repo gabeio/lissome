@@ -1,4 +1,4 @@
-module.exports = exports = (app)->
+module.exports = (app)->
 	async = app.locals.async
 	winston = app.locals.winston
 	app

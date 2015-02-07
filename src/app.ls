@@ -1,14 +1,17 @@
 #!/usr/bin/env lsc
 # ``#!/usr/bin/env node`` # uncomment for lsc to node
+var a
 
-if !process.env.cookie?
-	console.log 'REQUIRES COOKIE SECRET'
-	process.exit 1
-if !process.env.school?
-	console.log 'REQUIRES SCHOOL NAME'
-	process.exit 1
-if !process.env.mongo? and !process.env.MONGOURL?
-	console.log 'mongo env undefined\ntrying localhost anyway...'
+/* istanbul ignore next this is just for assurance the env vars are defined */
+do ->
+	if !process.env.cookie?
+		console.log 'REQUIRES COOKIE SECRET'
+		process.exit 1
+	if !process.env.school?
+		console.log 'REQUIRES SCHOOL NAME'
+		process.exit 1
+	if !process.env.mongo? and !process.env.MONGOURL?
+		console.log 'mongo env undefined\ntrying localhost anyway...'
 
 # Imports/Variables
 require! {
@@ -32,18 +35,23 @@ require! {
 app = module.exports = express!
 fs = fsExtra
 
+/* istanbul ignore next */
 mongouser = if process.env.mongouser or process.env.MONGOUSER then ( process.env.mongouser || process.env.MONGOUSER )
+/* istanbul ignore next */
 mongopass = if process.env.mongopass or process.env.MONGOPASS then ( process.env.mongopass || process.env.MONGOPASS )
 
 # mongoose.connect (process.env.mongo || process.env.MONGOURL || 'mongodb://localhost/smrtboard') { 'auth': }
 schemas = require('./schemas')(mongoose)
 db = mongoose.connection
+/* istanbul ignore next */
 if mongouser? && mongopass?
 	db.open (process.env.mongo||process.env.MONGOURL||'mongodb://localhost/smrtboard'), { 'user': mongouser, 'pass': mongopass }
 else
 	db.open (process.env.mongo||process.env.MONGOURL||'mongodb://localhost/smrtboard')
+/* istanbul ignore next */
 db.on 'disconnect', -> db.connect!
 db.on 'error', console.error.bind console, 'connection error:'
+/* istanbul ignore next */
 db.once 'open' (err, something)->
 	if err
 		winston.info 'db:err: ' + err

@@ -1,4 +1,4 @@
-module.exports = exports = (app)->
+module.exports = (app)->
 	app
 		..route '/:course/conference/:thread?'
 		.all app.locals.authorize

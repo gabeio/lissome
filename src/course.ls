@@ -1,4 +1,4 @@
-module.exports = exports = (app)->
+module.exports = (app)->
 	app
 		..route '/:course/:index(index|dash|dashboard)?'
 		.all app.locals.authorize

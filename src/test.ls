@@ -1,12 +1,15 @@
 /*
 	this module is meant only to load for testing.
 */
-module.exports = exports = (app)->
+/* istanbul ignore next only for testing anyway */
+module.exports = (app)->
 	winston = app.locals.winston
 	winston.warn 'IF YOU SEE THIS MESSAGE THERE IS SOMETHING WRONG!!!'
 	app
 		..route '/test/:action'
 		.get (req, res, next)->
+			res.send req.session.auth
+		.post (req, res, next)->
 			switch req.params.action
 			| 'getroot'
 				req.session.auth = 4

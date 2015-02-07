@@ -1,4 +1,4 @@
-module.exports = exports = (mongoose)->
+module.exports = (mongoose)->
 	Schema = mongoose.Schema
 	# Schools
 	School = new Schema {

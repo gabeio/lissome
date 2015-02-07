@@ -1,4 +1,4 @@
-module.exports = exports = (app)->
+module.exports = (app)->
 	require('./auth')(app)			# authy checking middleware
 	require('./login')(app)			# login
 	require('./logout')(app)		# logout
