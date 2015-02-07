@@ -15,9 +15,9 @@ describe "Base" ->
 		agent := req.agent app
 		done!
 	before (done)->
-		/*this.timeout 0*/
-		console.log '\tpausing for 1s to allow mongodb connection'
-		setTimeout done, 1000
+		this.timeout 0
+		console.log '\tpausing for 2s to allow mongodb connection'
+		setTimeout done, 2000
 
 	describe "Index", (...)->
 		it "should respond to a GET", (done)->
@@ -81,7 +81,7 @@ describe "Base" ->
 					expect res.status .to.equal 302
 					/*expect res.headers.location .to.equal '/login'*/
 					done!
-		it "should 200 to a POST w/ student credentials w/o type", (done)->
+		it "should 302 to a POST w/ student credentials w/o type", (done)->
 			agent
 				.post '/login'
 				.send {
@@ -90,6 +90,9 @@ describe "Base" ->
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
+					console.log res.status
+					console.log res.text
+					console.log res.headers
 					done err
 		it "should logout", (done)->
 			agent
@@ -98,7 +101,7 @@ describe "Base" ->
 					expect res.status .to.equal 302
 					/*expect res.headers.location .to.equal '/login'*/
 					done!
-		it "should 200 to a POST w/ student credentials w/ type", (done)->
+		it "should 302 to a POST w/ student credentials w/ type", (done)->
 			agent
 				.post '/login'
 				.send {
@@ -108,6 +111,9 @@ describe "Base" ->
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
+					console.log res.status
+					console.log res.text
+					console.log res.headers
 					done err
 		it "should logout", (done)->
 			agent
@@ -143,7 +149,7 @@ describe "Base" ->
 					expect res.status .to.equal 302
 					/*expect res.headers.location .to.equal '/login'*/
 					done!
-		it "should 200 to a POST w/ faculty credentials", (done)->
+		it "should 302 to a POST w/ faculty credentials", (done)->
 			agent
 				.post '/login'
 				.send {
@@ -153,6 +159,9 @@ describe "Base" ->
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
+					console.log res.status
+					console.log res.text
+					console.log res.headers
 					done err
 		it "should ignore everything else to login w/ faculty credentials", (done)->
 			agent
@@ -181,7 +190,7 @@ describe "Base" ->
 					expect res.status .to.equal 302
 					/*expect res.headers.location .to.equal '/login'*/
 					done!
-		it "should 200 to a POST w/ admin credentials", (done)->
+		it "should 302 to a POST w/ admin credentials", (done)->
 			agent
 				.post '/login'
 				.send {
@@ -191,6 +200,9 @@ describe "Base" ->
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
+					console.log res.status
+					console.log res.text
+					console.log res.headers
 					done err
 		it "should ignore everything else to login w/ admin credentials", (done)->
 			agent
@@ -222,3 +234,6 @@ describe "Base" ->
 	# describe "Dashboard", (...)->
 	# 	it "", (done)->
 	# 		...
+after (done)->
+	this.timeout 0
+	app.locals.db.close!

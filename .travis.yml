@@ -33,7 +33,7 @@ before_script:
     - "cd .."
     - gulp build
     - gulp build-tests
-script:
-    # - gulp test
+#script:
+    #- gulp test
     # - npm run-script testCi
-    - mocha
+    # - mocha
