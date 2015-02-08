@@ -225,7 +225,7 @@ describe "Base" ->
 					expect res.status .to.equal 302
 					/*expect res.headers.location .to.equal '/login'*/
 					done!
-		it "should fail for a blank user", (done)->
+		it "should fail for a blank student", (done)->
 			agent
 				.post '/login'
 				.send {
@@ -234,6 +234,7 @@ describe "Base" ->
 				}
 				.end (err, res)->
 					expect res.text .to.have.string 'username not found'
+					expect res.headers.location .to.be.an 'undefined'
 					done err
 		it "should fail for a blank faculty", (done)->
 			agent
@@ -245,6 +246,7 @@ describe "Base" ->
 				}
 				.end (err, res)->
 					expect res.text .to.have.string 'username not found'
+					expect res.headers.location .to.be.an 'undefined'
 					done err
 		it "should fail for a blank admin", (done)->
 			agent
@@ -256,6 +258,39 @@ describe "Base" ->
 				}
 				.end (err, res)->
 					expect res.text .to.have.string 'username not found'
+					expect res.headers.location .to.be.an 'undefined'
+					done err
+		it "should fail for a good student username bad password", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'Student'
+					'password': ''
+				}
+				.end (err, res)->
+					expect res.text .to.have.string 'bad login credentials'
+					done err
+		it "should fail for a good faculty username bad password", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'Faculty'
+					'password': ''
+					'type':'Faculty'
+				}
+				.end (err, res)->
+					expect res.text .to.have.string 'bad login credentials'
+					done err
+		it "should fail for a good admin username bad password", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'Admin'
+					'password': ''
+					'type':'Admin'
+				}
+				.end (err, res)->
+					expect res.text .to.have.string 'bad login credentials'
 					done err
 	# describe "Dashboard", (...)->
 	# 	it "", (done)->
