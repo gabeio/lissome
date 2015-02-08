@@ -218,6 +218,16 @@ describe "Base" ->
 					expect res.status .to.equal 302
 					/*expect res.headers.location .to.equal '/login'*/
 					done!
+		it "should fail for a blank user", (...)->
+			agent
+				.post '/login'
+				.send {
+					'username': ''
+					'password': ''
+				}
+				.end (err, res)->
+					expect res.text .to.have.string 'username not found'
+					done err
 	# describe "Dashboard", (...)->
 	# 	it "", (done)->
 	# 		...
