@@ -43,6 +43,8 @@ mongopass = if process.env.mongopass or process.env.MONGOPASS or argv.mongopass 
 
 schemas = require('./schemas')(mongoose)
 db = mongoose.connection
+app.locals.db = db
+
 /* istanbul ignore next */
 if mongouser? && mongopass?
 	db.open (process.env.mongo||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard'), { 'user': mongouser, 'pass': mongopass }
@@ -52,10 +54,10 @@ else
 db.on 'disconnect', -> db.connect!
 db.on 'error', console.error.bind console, 'connection error:'
 /* istanbul ignore next */
-db.once 'open' (err, something)->
+db.on 'open' (err)->
 	if err
 		winston.info 'db:err: ' + err
-	/*winston.info 'db:something: ' + something*/
+	winston.info 'db:open'
 
 School = mongoose.model 'School', schemas.School
 err,school <- School.find { name:process.env.school }
@@ -138,7 +140,6 @@ app
 	..locals.fs = fsExtra
 	..locals.async = async
 	..locals.winston = winston
-	..locals.db = db
 	..locals.school = process.env.school
 	..locals.models = {
 		school: school

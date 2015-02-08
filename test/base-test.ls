@@ -16,7 +16,14 @@ describe "Base" ->
 		done!
 	before (done)->
 		this.timeout 0
-		console.log '\tpausing for 2s to allow mongodb connection'
+		console.log '\tpausing to allow mongodb connection'
+		/*readyState = setInterval (done)->
+			console.log app.locals.db.readyState
+			if app.locals.db?
+				if app.locals.db.readyState is 1
+					clearInterval readyState
+					done
+		, 100*/
 		setTimeout done, 2000
 
 	describe "Index", (...)->
@@ -218,12 +225,34 @@ describe "Base" ->
 					expect res.status .to.equal 302
 					/*expect res.headers.location .to.equal '/login'*/
 					done!
-		it "should fail for a blank user", (...)->
+		it "should fail for a blank user", (done)->
 			agent
 				.post '/login'
 				.send {
 					'username': ''
 					'password': ''
+				}
+				.end (err, res)->
+					expect res.text .to.have.string 'username not found'
+					done err
+		it "should fail for a blank faculty", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': ''
+					'password': ''
+					'type':'Faculty'
+				}
+				.end (err, res)->
+					expect res.text .to.have.string 'username not found'
+					done err
+		it "should fail for a blank admin", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': ''
+					'password': ''
+					'type':'Admin'
 				}
 				.end (err, res)->
 					expect res.text .to.have.string 'username not found'
