@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		{%- block meta %}{% endblock -%} {# if meta description/keywords load it here. #}
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewpoart" content="width=device-width, initial-scale=1.0{% if no_scale %}, minimum-scale=1, maximum-scale=1, user-scalable=no{% endif %}">
+		<link href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css" rel="stylesheet"><!-- TODO: make local asset -->
+		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+		<!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+			<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+		<![endif]-->
+		{%- include 'styles.html' ignore missing -%} {# load global styles #}
+		{%- block styles %}{% endblock -%} {# load page styles #}
+		{%- block head %}{% endblock -%} {# title,more meta, etc #}
+	</head>
+	<body>
+		{%- include 'header.html' ignore missing -%} {# app header #}
+		{%- block body %}{% endblock -%} {# page body #}
+		{%- include 'footer.html' ignore missing -%} {# app footer #}
+		{%- include 'scripts.html' ignore missing -%} {# load global scripts #}
+		{%- block scripts %}{% endblock -%} {# load page scripts #}
+	</body>
+</html>{%- spaceless %}
+{#
+IMPORTS:
+	sytles.html: app global css (ie: bootstrap or foundation)
+	header.html: app header (ie: bootstrap's navbar or foundation's topbar)
+	footer.html: app footer (ie: website footer about us, contact us, etc.)
+	scripts.html: app scripts (ie: google analytics, beacon, etc.)
+BLOCKS:
+	styles: loaded very early so page load moderately correctly quickly
+	head: meta data and maybe jquery if jquery is needed that early
+	body: content
+	scripts: loaded last so if not needed never is loaded
+#}
+{% endspaceless -%}
