@@ -86,14 +86,14 @@ module.exports = (mongoose)->
 	}
 	Course = new Schema {
 		subject: { type: String, required: true } # cps
-		id: { type: Number, required: true } # 1231
+		id: { type: String, required: true, unique: true } # cps1231*02
 		section: String # *02
 		title: { type: String } # Intro to Java
 		conference: [] # Thread
 		blog: [] # Post
 		exams: [] # Req
 		assignments: [] # Req
-		dm: {} # tid:{sid:[posts]}
+		dm: {} # tid:{sid:[posts]} # might move this to socket.io completely or this might only be a message cache
 		grades: {} # sid:[Grades]
 		teachers: [ # teacher id(s)
 			{ type: Number, required: true, unique: true }
