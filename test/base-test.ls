@@ -16,7 +16,14 @@ describe "Base" ->
 		done!
 	before (done)->
 		this.timeout 0
-		console.log '\tpausing for 2s to allow mongodb connection'
+		console.log '\tpausing to allow mongodb connection'
+		/*readyState = setInterval (done)->
+			console.log app.locals.db.readyState
+			if app.locals.db?
+				if app.locals.db.readyState is 1
+					clearInterval readyState
+					done
+		, 100*/
 		setTimeout done, 2000
 
 	describe "Index", (...)->
@@ -141,7 +148,7 @@ describe "Base" ->
 				.end (err, res)->
 					expect res.status .to.equal 302
 					/*expect res.headers.location .to.equal '/login'*/
-					done!
+					done err
 		it "should 302 to a POST w/ faculty credentials", (done)->
 			agent
 				.post '/login'
@@ -179,7 +186,7 @@ describe "Base" ->
 				.end (err, res)->
 					expect res.status .to.equal 302
 					/*expect res.headers.location .to.equal '/login'*/
-					done!
+					done err
 		it "should 302 to a POST w/ admin credentials", (done)->
 			agent
 				.post '/login'
@@ -217,10 +224,84 @@ describe "Base" ->
 				.end (err, res)->
 					expect res.status .to.equal 302
 					/*expect res.headers.location .to.equal '/login'*/
-					done!
+					done err
+		it "should fail for a blank student", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': ''
+					'password': ''
+				}
+				.end (err, res)->
+					expect res.text .to.have.string 'username not found'
+					expect res.headers.location .to.be.an 'undefined'
+					done err
+		it "should fail for a blank faculty", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': ''
+					'password': ''
+					'type':'Faculty'
+				}
+				.end (err, res)->
+					expect res.text .to.have.string 'username not found'
+					expect res.headers.location .to.be.an 'undefined'
+					done err
+		it "should fail for a blank admin", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': ''
+					'password': ''
+					'type':'Admin'
+				}
+				.end (err, res)->
+					expect res.text .to.have.string 'username not found'
+					expect res.headers.location .to.be.an 'undefined'
+					done err
+		it "should fail for a good student username bad password", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'Student'
+					'password': ''
+				}
+				.end (err, res)->
+					expect res.text .to.have.string 'bad login credentials'
+					done err
+		it "should fail for a good faculty username bad password", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'Faculty'
+					'password': ''
+					'type':'Faculty'
+				}
+				.end (err, res)->
+					expect res.text .to.have.string 'bad login credentials'
+					done err
+		it "should fail for a good admin username bad password", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'Admin'
+					'password': ''
+					'type':'Admin'
+				}
+				.end (err, res)->
+					expect res.text .to.have.string 'bad login credentials'
+					done err
+
+	/*describe "Course", (...)->
+		before
+		it "should"*/
+
+	after (done)->
+		this.timeout 0
+		app.locals.db.close!
+		done!
+
 	# describe "Dashboard", (...)->
 	# 	it "", (done)->
 	# 		...
-after (done)->
-	this.timeout 0
-	app.locals.db.close!

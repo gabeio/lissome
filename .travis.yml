@@ -21,10 +21,5 @@ matrix:
         - node_js: '0.13'
 before_install:
     - npm install coveralls
-before_script:
-    - "git clone git@github.com:smrtboard/website views"
-    - "cd views"
-    - "git checkout develop"
-    - "cd .."
 script:
     - npm run-script testCi

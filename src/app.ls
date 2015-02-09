@@ -1,17 +1,5 @@
 #!/usr/bin/env lsc
 # ``#!/usr/bin/env node`` # uncomment for lsc to node
-var a
-
-/* istanbul ignore next this is just for assurance the env vars are defined */
-do ->
-	if !process.env.cookie?
-		console.log 'REQUIRES COOKIE SECRET'
-		process.exit 1
-	if !process.env.school?
-		console.log 'REQUIRES SCHOOL NAME'
-		process.exit 1
-	if !process.env.mongo? and !process.env.MONGOURL?
-		console.log 'mongo env undefined\ntrying localhost anyway...'
 
 # Imports/Variables
 require! {
@@ -28,39 +16,53 @@ require! {
 	'serve-static' # nginx static
 	'swig' # templates
 	'uuid'
+	'util'
 	'winston'
 	'yargs' # --var val
 }
 
+argv = yargs.argv
 app = module.exports = express!
 fs = fsExtra
 
-/* istanbul ignore next */
-mongouser = if process.env.mongouser or process.env.MONGOUSER then ( process.env.mongouser || process.env.MONGOUSER )
-/* istanbul ignore next */
-mongopass = if process.env.mongopass or process.env.MONGOPASS then ( process.env.mongopass || process.env.MONGOPASS )
+/* istanbul ignore next this is just for assurance the env vars are defined */
+do ->
+	if !process.env.cookie? and !argv.cookie?
+		console.log 'REQUIRES COOKIE SECRET'
+		process.exit 1
+	if !process.env.school? and !argv.school?
+		console.log 'REQUIRES SCHOOL NAME'
+		process.exit 1
+	if !process.env.mongo? and !process.env.MONGOURL? and !argv.mongo?
+		console.log 'mongo env undefined\ntrying localhost anyway...'
 
-# mongoose.connect (process.env.mongo || process.env.MONGOURL || 'mongodb://localhost/smrtboard') { 'auth': }
+/* istanbul ignore next */
+mongouser = if process.env.mongouser or process.env.MONGOUSER or argv.mongouser then (process.env.mongouser||process.env.MONGOUSER||argv.mongouser)
+/* istanbul ignore next */
+mongopass = if process.env.mongopass or process.env.MONGOPASS or argv.mongopass then (process.env.mongopass||process.env.MONGOPASS||argv.mongopass)
+
 schemas = require('./schemas')(mongoose)
 db = mongoose.connection
+app.locals.db = db
+
 /* istanbul ignore next */
 if mongouser? && mongopass?
-	db.open (process.env.mongo||process.env.MONGOURL||'mongodb://localhost/smrtboard'), { 'user': mongouser, 'pass': mongopass }
+	db.open (process.env.mongo||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard'), { 'user': mongouser, 'pass': mongopass }
 else
-	db.open (process.env.mongo||process.env.MONGOURL||'mongodb://localhost/smrtboard')
+	db.open (process.env.mongo||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard')
 /* istanbul ignore next */
 db.on 'disconnect', -> db.connect!
 db.on 'error', console.error.bind console, 'connection error:'
 /* istanbul ignore next */
-db.once 'open' (err, something)->
+db.on 'open' (err)->
 	if err
 		winston.info 'db:err: ' + err
-	/*winston.info 'db:something: ' + something*/
+	winston.info 'db:open'
 
 School = mongoose.model 'School', schemas.School
 err,school <- School.find { name:process.env.school }
 if err?
-	winston.error 'school:find ' + util.inspect err
+	winston.error 'school:find '+util.inspect err
 if !school[0]? # if none
 	winston.info 'creating new school '+process.env.school
 	school = new School {
@@ -138,7 +140,6 @@ app
 	..locals.fs = fsExtra
 	..locals.async = async
 	..locals.winston = winston
-	..locals.db = db
 	..locals.school = process.env.school
 	..locals.models = {
 		school: school
@@ -172,16 +173,6 @@ switch process.env.NODE_ENV
 	app.set 'view cache' false
 	swig.setDefaults { -cache }
 	app.locals.util = if util? then util
-	app.use (req, res, next)->
-		async.parallel [
-			!->
-				thestr = req.method+"\t"+req.url
-				if req.xhr
-					thestr += "\tXHR"
-				winston.info thestr
-			!->
-				next!
-		]
 
 # Attach base
 require('./base')(app)

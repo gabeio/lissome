@@ -7,7 +7,6 @@ module.exports = (app)->
 	app
 		..route '/login'
 		.get (req, res, next)->
-			# res.send 'base:login > '+JSON.stringify req.params
 			res.render 'login'
 		.post (req, res, next)->
 			if !req.body.type? then req.body.type = 'unknown'
@@ -16,7 +15,9 @@ module.exports = (app)->
 				err,data <- models.Faculty.find { 'username':req.body.username, 'school':app.locals.school }
 				if err?
 					winston.error err
-				if data[0]?
+				if !data? or data.length is 0
+					res.render 'login', { error:'username not found' }
+				else
 					faculty = data[0]
 					err,result <- bcrypt.compare req.body.password, faculty.hash
 					if result is true
@@ -27,14 +28,13 @@ module.exports = (app)->
 						res.end!
 					else
 						res.render 'login', { error:'bad login credentials' }
-				else
-					res.render 'login', { error:'username not found' }
 			| 'admin'
 				err,data <- models.Admin.find { 'username':req.body.username, 'school':app.locals.school }
-				winston.info 'c'
 				if err?
 					winston.error err
-				if data[0]?
+				if !data? or data.length is 0
+					res.render 'login', { error:'username not found' }
+				else
 					admin = data[0]
 					err,result <- bcrypt.compare req.body.password, admin.hash
 					if result is true
@@ -44,15 +44,14 @@ module.exports = (app)->
 						res.end!
 					else
 						res.render 'login', { error:'bad login credentials' }
-				else
-					res.render 'login', { error:'username not found' }
 			| _ # default to student login
 				winston.info req.body
 				err,data <- models.Student.find { 'username':req.body.username, 'school':app.locals.school }
-				winston.info 'a'
 				if err?
 					winston.error err
-				if data[0]?
+				if !data? or data.length is 0
+					res.render 'login', { error:'username not found' }
+				else
 					student = data[0]
 					err,result <- bcrypt.compare req.body.password, student.hash
 					if result is true
@@ -63,5 +62,3 @@ module.exports = (app)->
 						res.end!
 					else
 						res.render 'login', { error:'bad login credentials' }
-				else
-					res.render 'login', { error:'username not found' }
