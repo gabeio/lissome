@@ -12,7 +12,7 @@ module.exports = (app)->
 			if !req.body.type? then req.body.type = 'unknown'
 			switch req.body.type.toLowerCase!
 			| 'faculty'
-				err,data <- models.Faculty.find { 'username':req.body.username, 'school':app.locals.school }
+				err,data <- models.Faculty.find { 'username':req.body.username.toLowerCase!, 'school':app.locals.school }
 				if err?
 					winston.error err
 				if !data? or data.length is 0
@@ -29,7 +29,7 @@ module.exports = (app)->
 					else
 						res.render 'login', { error:'bad login credentials' }
 			| 'admin'
-				err,data <- models.Admin.find { 'username':req.body.username, 'school':app.locals.school }
+				err,data <- models.Admin.find { 'username':req.body.username.toLowerCase!, 'school':app.locals.school }
 				if err?
 					winston.error err
 				if !data? or data.length is 0
@@ -46,7 +46,7 @@ module.exports = (app)->
 						res.render 'login', { error:'bad login credentials' }
 			| _ # default to student login
 				winston.info req.body
-				err,data <- models.Student.find { 'username':req.body.username, 'school':app.locals.school }
+				err,data <- models.Student.find { 'username':req.body.username.toLowerCase!, 'school':app.locals.school }
 				if err?
 					winston.error err
 				if !data? or data.length is 0
