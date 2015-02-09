@@ -291,7 +291,6 @@ describe "Base" ->
 				}
 				.end (err, res)->
 					expect res.text .to.have.string 'bad login credentials'
-					expect null .to.be.a 'string'
 					done err
 
 	/*describe "Course", (...)->
