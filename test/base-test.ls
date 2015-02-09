@@ -148,7 +148,7 @@ describe "Base" ->
 				.end (err, res)->
 					expect res.status .to.equal 302
 					/*expect res.headers.location .to.equal '/login'*/
-					done!
+					done err
 		it "should 302 to a POST w/ faculty credentials", (done)->
 			agent
 				.post '/login'
@@ -186,7 +186,7 @@ describe "Base" ->
 				.end (err, res)->
 					expect res.status .to.equal 302
 					/*expect res.headers.location .to.equal '/login'*/
-					done!
+					done err
 		it "should 302 to a POST w/ admin credentials", (done)->
 			agent
 				.post '/login'
@@ -224,7 +224,7 @@ describe "Base" ->
 				.end (err, res)->
 					expect res.status .to.equal 302
 					/*expect res.headers.location .to.equal '/login'*/
-					done!
+					done err
 		it "should fail for a blank student", (done)->
 			agent
 				.post '/login'
@@ -291,10 +291,18 @@ describe "Base" ->
 				}
 				.end (err, res)->
 					expect res.text .to.have.string 'bad login credentials'
+					expect null .to.be.a 'string'
 					done err
+
+	/*describe "Course", (...)->
+		before
+		it "should"*/
+
+	after (done)->
+		this.timeout 0
+		app.locals.db.close!
+		done!
+
 	# describe "Dashboard", (...)->
 	# 	it "", (done)->
 	# 		...
-after (done)->
-	this.timeout 0
-	app.locals.db.close!
