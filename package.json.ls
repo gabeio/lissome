@@ -9,7 +9,7 @@ engines:
 	node: '>= 0.10.0'
 
 scripts:
-	start: 'export PORT=8080; lsc ./src/app.ls'
+	start: 'node ./app.js'
 	test: 'gulp run-tests'
 	test-ci: 'gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage'
 	test-cover: 'gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec'
