@@ -24,8 +24,8 @@ module.exports = (mongoose)->
 	Student = new Schema {
 		id: { type: Number, required: true, unique: true }, # Student id
 		courses: [
-			{ type: String, unique: true }
-		] # course id list
+			{ type: String, unique: true }# course id list
+		]
 		first: String # first name
 		middle: String # middle name
 		last: String # last name
@@ -86,20 +86,20 @@ module.exports = (mongoose)->
 	}
 	Course = new Schema {
 		subject: { type: String, required: true } # cps
-		id: { type: String, required: true, unique: true } # cps1231*02
-		section: String # *02
+		id: { type: String, required: true, unique: true } # 1231*02
+		/*section: String # *02*/
 		title: { type: String } # Intro to Java
 		conference: [] # Thread
 		blog: [] # Post
 		exams: [] # Req
 		assignments: [] # Req
-		dm: {} # tid:{sid:[posts]} # might move this to socket.io completely or this might only be a message cache
+		dm: {} # tid:{sid:[posts]}
 		grades: {} # sid:[Grades]
-		teachers: [ # teacher id(s)
-			{ type: Number, required: true, unique: true }
+		teachers: [ # teacher username
+			{ type: String, required: true, unique: true }
 		]
-		students: [ # student ids
-			{ type: Number, required: true, unique: true }
+		students: [ # student username
+			{ type: String, required: true, unique: true }
 		]
 		school: { # school name
 			type: String
