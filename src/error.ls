@@ -26,6 +26,8 @@ module.exports = (app)->
 								# res.status 401 .render 'error' { err:'Unauthorized' }
 							| 'UNKNOWN NEEDS'
 								res.status 401 .render 'error' { err:'Unknown Needs' }
+							| 'NOT IMPL'
+								res.status 501 .render 'error' { err:'Not Implemented'}
 							| _
 								res.status 500 .render 'error' { err:'There was an error... Where did it go...?' }
 					else
