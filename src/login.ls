@@ -25,6 +25,7 @@ module.exports = (app)->
 						winston.err err
 					if result is true
 						req.session.auth = 2
+						req.session.username = req.body.username.toLowerCase!
 						res.redirect '/'
 						res.end!
 					else
@@ -43,6 +44,7 @@ module.exports = (app)->
 						winston.err err
 					if result is true
 						req.session.auth = 3
+						req.session.username = req.body.username.toLowerCase!
 						res.redirect '/'
 						res.end!
 					else
@@ -62,6 +64,7 @@ module.exports = (app)->
 						winston.err err
 					if result is true
 						req.session.auth = 1
+						req.session.username = req.body.username.toLowerCase!
 						res.redirect '/'
 						res.end!
 					else
