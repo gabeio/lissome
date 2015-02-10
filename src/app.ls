@@ -57,7 +57,8 @@ db.on 'error', console.error.bind console, 'connection error:'
 db.on 'open' (err)->
 	if err
 		winston.info 'db:err: ' + err
-	winston.info 'db:open'
+	if !module.parent
+		winston.info 'db:open'
 
 School = mongoose.model 'School', schemas.School
 err,school <- School.find { name:process.env.school }
@@ -165,7 +166,8 @@ switch process.env.NODE_ENV
 	winston.info "Production Mode"
 | _
 	# development/other run
-	winston.info "Development Mode/Unknown Mode"
+	if !module.parent
+		winston.info "Development Mode/Unknown Mode"
 	require! {
 		util
 	}
