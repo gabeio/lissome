@@ -8,7 +8,7 @@ module.exports = (app)->
 			err,result <- models.Course.find { 'id':req.params.course, 'school':app.locals.school }
 			if err?
 				winston.error err
-			if !result[0]?
+			if !result? or result.length is 0
 				next new Error 'NOT FOUND'
 			else
 				res.send result
