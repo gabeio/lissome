@@ -13,6 +13,7 @@ module.exports = (app)->
 			switch req.body.type.toLowerCase!
 			| 'faculty'
 				err,data <- models.Faculty.find { 'username':req.body.username.toLowerCase!, 'school':app.locals.school }
+				/* istanbul ignore next errors really shouldn't ever happen while connection is open */
 				if err?
 					winston.error 'faculty:find '+err
 				if !data? or data.length is 0
@@ -30,6 +31,7 @@ module.exports = (app)->
 						res.render 'login', { error:'bad login credentials' }
 			| 'admin'
 				err,data <- models.Admin.find { 'username':req.body.username.toLowerCase!, 'school':app.locals.school }
+				/* istanbul ignore next errors really shouldn't ever happen while connection is open */
 				if err?
 					winston.error 'admin:find '+err
 				if !data? or data.length is 0
@@ -48,6 +50,7 @@ module.exports = (app)->
 			| _ # default to student login
 				if req.body.type.toLowerCase! isnt 'student' then winston.info req.body
 				err,data <- models.Student.find { 'username':req.body.username.toLowerCase!, 'school':app.locals.school }
+				/* istanbul ignore next errors really shouldn't ever happen while connection is open */
 				if err?
 					winston.error 'student:find '+err
 				if !data? or data.length is 0
