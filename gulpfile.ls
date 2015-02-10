@@ -47,7 +47,6 @@ gulp.task 'run-tests' ['build-tests', 'build'] (done)->
 		.pipe mocha!
 		.on 'end' ->
 			process.exit!
-			# done
 		.on 'error' ->
 			process.exit 1
 
