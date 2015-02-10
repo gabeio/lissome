@@ -123,7 +123,7 @@ app
 	.use (req, res, next)->
 		async.parallel [
 			!->
-				if res.locals.csrfToken?
+				if res.locals.csrfToken? # if csurf enabled
 					res.locals.csrfToken = req.csrfToken!
 			!->
 				if req.session.auth? # check if auth exists

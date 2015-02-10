@@ -24,8 +24,6 @@ module.exports = (app)->
 						winston.err err
 					if result is true
 						req.session.auth = 2
-						# winston.info data
-						# res.send data
 						res.redirect '/'
 						res.end!
 					else
@@ -43,7 +41,6 @@ module.exports = (app)->
 						winston.err err
 					if result is true
 						req.session.auth = 3
-						# winston.info data
 						res.redirect '/'
 						res.end!
 					else
@@ -62,8 +59,6 @@ module.exports = (app)->
 						winston.err err
 					if result is true
 						req.session.auth = 1
-						# winston.info data
-						# res.send data
 						res.redirect '/'
 						res.end!
 					else
