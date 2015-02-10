@@ -46,10 +46,10 @@ gulp.task 'run-tests' ['build-tests', 'build'] (done)->
 	gulp.src './test/*.js'
 		.pipe mocha!
 		.on 'end' ->
-			done
-			/*process.exit!*/
-		/*.on 'error' ->
-			process.exit 1*/
+			process.exit!
+			# done
+		.on 'error' ->
+			process.exit 1
 
 gulp.task 'report' (done)->
 	gulp.src 'coverage/**/lcov.info'
