@@ -100,8 +100,8 @@ app
 		-extended
 	}
 	.use bodyParser.json!
-	# .use bodyParser.text! # idk
-	# .use bodyParser.raw! # idk
+	.use bodyParser.text! # idk
+	.use bodyParser.raw! # idk
 	# multipart body parser
 	.use multer { # requires: enctype="multipart/form-data"
 		dest: './uploads/'
