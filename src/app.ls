@@ -36,16 +36,16 @@ do ->
 	if !process.env.mongo? and !process.env.MONGOURL? and !argv.mongo?
 		console.log 'mongo env undefined\ntrying localhost anyway...'
 
-/* istanbul ignore next */
+/* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
 mongouser = if process.env.mongouser or process.env.MONGOUSER or argv.mongouser then (process.env.mongouser||process.env.MONGOUSER||argv.mongouser)
-/* istanbul ignore next */
+/* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
 mongopass = if process.env.mongopass or process.env.MONGOPASS or argv.mongopass then (process.env.mongopass||process.env.MONGOPASS||argv.mongopass)
 
 schemas = require('./schemas')(mongoose)
 db = mongoose.connection
 app.locals.db = db
 
-/* istanbul ignore next */
+/* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
 if mongouser? && mongopass?
 	db.open (process.env.mongo||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard'), { 'user': mongouser, 'pass': mongopass }
 else
