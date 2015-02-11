@@ -114,7 +114,7 @@ module.exports = (mongoose)->
 		}
 		text: String # Require's text
 		files: Buffer # Require's file(s)?
-		author: { type: Number, +required } # teacher id
+		author: { type: String, +required } # teacher id
 		time: { type: Date, default: Date.now } # created
 		start: { type: Date,  default: Date.now } # start due
 		end: { type: Date } # late time
@@ -157,7 +157,7 @@ module.exports = (mongoose)->
 		}
 		title: String # Thread name
 		posts: [] # Post list
-		author: { type: Number, +required }
+		author: { type: String, +required }
 	}
 	Post = new Schema {
 		uuid: {
@@ -167,7 +167,7 @@ module.exports = (mongoose)->
 		}
 		text: String
 		files: Buffer
-		author: { type: Number, +required }
+		author: { type: String, +required }
 		time: { type: Date, default: Date.now }
 	}
 
