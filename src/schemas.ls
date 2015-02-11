@@ -156,7 +156,7 @@ module.exports = (mongoose)->
 			+unique
 		}
 		title: String # Thread name
-		posts: [] # Post list
+		posts: [] # Post UUIDs
 		author: { type: String, +required }
 	}
 	Post = new Schema {
@@ -165,10 +165,12 @@ module.exports = (mongoose)->
 			+required
 			+unique
 		}
+		title: String
 		text: String
 		files: Buffer
 		author: { type: String, +required }
 		time: { type: Date, default: Date.now }
+		tags: []
 	}
 
 	module.exports = {
