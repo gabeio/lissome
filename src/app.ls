@@ -42,10 +42,11 @@ do ->
 	if !process.env.redisport? and !process.env.REDISPORT? and !argv.redisport?
 		console.log 'redishost env undefined\ntrying default anyway...'
 
+# REDIS
 redishost = (process.env.redishost||process.env.REDISHOST||argv.redishost||'localhost')
 redisport = (process.env.redisport||process.env.REDISPORT||argv.redisport||6379)
 redisauth = (process.env.redisauth||process.env.REDISAUTH||argv.redisauth||null)
-
+/* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
 if redisauth
 	rediscli = redis.createClient redisport, redishost, {
 		auth_pass: redisauth
@@ -55,15 +56,16 @@ else
 	}
 rediscli.on "connect", ->
 	winston.info "redis:open"
+	app.locals.redis = rediscli
+
+# MONGOOSE
 /* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
 mongouser = if process.env.mongouser or process.env.MONGOUSER or argv.mongouser then (process.env.mongouser||process.env.MONGOUSER||argv.mongouser)
 /* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
 mongopass = if process.env.mongopass or process.env.MONGOPASS or argv.mongopass then (process.env.mongopass||process.env.MONGOPASS||argv.mongopass)
-
-schemas = require('./schemas')(mongoose)
-mongo = mongoose.connection
-app.locals.mongo = mongo
-
+schemas = require('./schemas')(mongoose) # get mongoose schemas
+mongo = mongoose.connection # build connection object
+app.locals.mongo = mongo # save connection object in app level variables
 /* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
 if mongouser? && mongopass?
 	mongo.open (process.env.mongo||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard'), { 'user': mongouser, 'pass': mongopass }
@@ -79,6 +81,7 @@ mongo.on 'open' (err)->
 	if !module.parent
 		winston.info 'mongo:open'
 
+# setup school if it's not already setup
 School = mongoose.model 'School', schemas.School
 err,school <- School.find { name:process.env.school }
 if err?

@@ -331,5 +331,6 @@ describe "Base" ->
 
 	after (done)->
 		this.timeout 0
-		app.locals.db.close!
+		app.locals.mongo.close!
+		# app.locals.redis.close! # check if this works
 		done!
