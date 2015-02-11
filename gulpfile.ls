@@ -29,7 +29,7 @@ gulp.task 'build' ['clean'] (done)->
 	gulp.src './src/*.ls'
 		.pipe livescript bare:true
 		.on 'error' -> throw it
-		.pipe gulp.dest './'
+		.pipe gulp.dest './lib/'
 		/*.on 'end' ->
 			done*/
 

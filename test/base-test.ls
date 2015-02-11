@@ -4,7 +4,7 @@ require! {
 	'del' # delete
 	'async'
 }
-app = require '../app'
+app = require '../lib/app'
 req = supertest
 expect = chai.expect
 assert = chai.assert

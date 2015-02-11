@@ -9,12 +9,11 @@ engines:
 	node: '>= 0.10.0'
 
 scripts:
-	start: 'node ./app.js'
+	start: 'node ./lib/app.js'
 	test: 'gulp run-tests'
 	test-ci: 'gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage'
 	test-cover: 'gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec'
-	continuousInstall: 'npm i nodemon; gulp build'
-	continuous: 'nodemon -w ./ -e html,css,js -x node app.js'
+	continuous: 'nodemon -w ./ -e html,css,js -x node ./lib/app.js'
 
 repository:
 	type: 'git'
