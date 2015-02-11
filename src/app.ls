@@ -74,7 +74,7 @@ if !school[0]? # if none
 # App Settings/Middleware
 app
 	# needs to come first MIGHT NOT WORK...
-	# .use method-override
+	.use method-override 'hmo' # http-method-override
 	# sessions
 	.use expressSession {
 		secret: process.env.cookie
@@ -169,12 +169,14 @@ switch process.env.NODE_ENV
 	if !module.parent
 		winston.info "Development Mode/Unknown Mode"
 	require! {
-		util
+		'util'
+		'response-time'
 	}
 	# disable template cache
 	app.set 'view cache' false
 	swig.setDefaults { -cache }
 	app.locals.util = if util? then util
+	app.use response-time!
 
 # Attach base
 require('./base')(app)
