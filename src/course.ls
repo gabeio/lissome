@@ -11,7 +11,7 @@ module.exports = (app)->
 			if !result? or result.length is 0
 				next new Error 'NOT FOUND'
 			else
-				res.send result
+				res.send result.0
 
 		..route '/:course/edit'
 		.all (req, res, next)->
