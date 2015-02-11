@@ -6,6 +6,7 @@ require! {
 	'async'
 	'body-parser'
 	'compression' # nginx gzip
+	'connect-redis'
 	'express' # router
 	'express-partial-response'
 	'express-session' # session
@@ -13,6 +14,7 @@ require! {
 	'method-override'
 	'mongoose'
 	'multer'
+	'redis'
 	'serve-static' # nginx static
 	'swig' # templates
 	'uuid'
@@ -20,7 +22,7 @@ require! {
 	'winston'
 	'yargs' # --var val
 }
-
+RedisStore = connect-redis(express-session)
 argv = yargs.argv
 app = module.exports = express!
 fs = fsExtra
@@ -35,30 +37,47 @@ do ->
 		process.exit 1
 	if !process.env.mongo? and !process.env.MONGOURL? and !argv.mongo?
 		console.log 'mongo env undefined\ntrying localhost anyway...'
+	if !process.env.redishost? and !process.env.REDISHOST? and !argv.redishost?
+		console.log 'redishost env undefined\ntrying localhost anyway...'
+	if !process.env.redisport? and !process.env.REDISPORT? and !argv.redisport?
+		console.log 'redishost env undefined\ntrying default anyway...'
 
+redishost = (process.env.redishost||process.env.REDISHOST||argv.redishost||'localhost')
+redisport = (process.env.redisport||process.env.REDISPORT||argv.redisport||6379)
+redisauth = (process.env.redisauth||process.env.REDISAUTH||argv.redisauth||null)
+
+if redisauth
+	rediscli = redis.createClient redisport, redishost, {
+		auth_pass: redisauth
+	}
+else
+	rediscli = redis.createClient redisport, redishost, {
+	}
+rediscli.on "connect", ->
+	winston.info "redis:open"
 /* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
 mongouser = if process.env.mongouser or process.env.MONGOUSER or argv.mongouser then (process.env.mongouser||process.env.MONGOUSER||argv.mongouser)
 /* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
 mongopass = if process.env.mongopass or process.env.MONGOPASS or argv.mongopass then (process.env.mongopass||process.env.MONGOPASS||argv.mongopass)
 
 schemas = require('./schemas')(mongoose)
-db = mongoose.connection
-app.locals.db = db
+mongo = mongoose.connection
+app.locals.mongo = mongo
 
 /* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
 if mongouser? && mongopass?
-	db.open (process.env.mongo||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard'), { 'user': mongouser, 'pass': mongopass }
+	mongo.open (process.env.mongo||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard'), { 'user': mongouser, 'pass': mongopass }
 else
-	db.open (process.env.mongo||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard')
+	mongo.open (process.env.mongo||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard')
 /* istanbul ignore next */
-db.on 'disconnect', -> db.connect!
-db.on 'error', console.error.bind console, 'connection error:'
+mongo.on 'disconnect', -> mongo.connect!
+mongo.on 'error', console.error.bind console, 'connection error:'
 /* istanbul ignore next */
-db.on 'open' (err)->
+mongo.on 'open' (err)->
 	if err
-		winston.info 'db:err: ' + err
+		winston.info 'mongo:err: ' + err
 	if !module.parent
-		winston.info 'db:open'
+		winston.info 'mongo:open'
 
 School = mongoose.model 'School', schemas.School
 err,school <- School.find { name:process.env.school }
@@ -76,13 +95,18 @@ app
 	# needs to come first MIGHT NOT WORK...
 	.use method-override 'hmo' # http-method-override
 	# sessions
-	.use expressSession {
+	.use express-session {
 		secret: process.env.cookie
 		-resave
 		+saveUninitialized
 		cookie: {
 			path: '/'
 			+httpOnly
+		}
+		store: new RedisStore {
+			ttl: 604800
+			prefix: 'smrtboard'
+			client: rediscli
 		}
 	}
 	# hide what we are made of
@@ -144,15 +168,15 @@ app
 	..locals.school = process.env.school
 	..locals.models = {
 		school: school
-		Student: mongoose.model 'Student' schemas.Student
-		Faculty: mongoose.model 'Faculty' schemas.Faculty
-		Admin: mongoose.model 'Admin' schemas.Admin
-		Course: mongoose.model 'Course' schemas.Course
-		Required: mongoose.model 'Req' schemas.Req
-		Attempt: mongoose.model 'Attempt' schemas.Attempt
-		Grade: mongoose.model 'Grade' schemas.Grade
-		Thread: mongoose.model 'Thread' schemas.Thread
-		Post: mongoose.model 'Post' schemas.Post
+		Student: mongo.model 'Student' schemas.Student
+		Faculty: mongo.model 'Faculty' schemas.Faculty
+		Admin: mongo.model 'Admin' schemas.Admin
+		Course: mongo.model 'Course' schemas.Course
+		Required: mongo.model 'Req' schemas.Req
+		Attempt: mongo.model 'Attempt' schemas.Attempt
+		Grade: mongo.model 'Grade' schemas.Grade
+		Thread: mongo.model 'Thread' schemas.Thread
+		Post: mongo.model 'Post' schemas.Post
 	}
 	# errors
 	# ..locals.err = {
