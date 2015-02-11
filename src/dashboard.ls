@@ -7,8 +7,8 @@ module.exports = (app)->
 		..route '/:index(index|dash|dashboard)?'
 		.all app.locals.authorize
 		.get (req, res, next)->
-			res.write 'index > '+JSON.stringify(req.params)+ '<br>'
-			res.write '\nmore > '+JSON.stringify(_.omit(req.session,'cookie'))+ '<br>'
+			res.send """index > """+JSON.stringify(req.params)+"""<br/>
+			more > """+JSON.stringify(_.omit(req.session,'cookie'))
 			res.end!
 
 		..route '/preferences'
