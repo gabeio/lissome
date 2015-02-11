@@ -5,34 +5,34 @@ module.exports = (mongoose)->
 		name: { # School name, index: true
 			type: String
 			requred: true
-			unique: true
+			+unique
 		}
 		students: [
-			{ type: Number, unique: true }
+			{ type: Number, +unique }
 		] # id list of all student
 		teachers: [
-			{ type: Number, unique: true }
+			{ type: Number, +unique }
 		] # id list of all teacher
 		admins: [
-			{ type: Number, unique: true }
+			{ type: Number, +unique }
 		] # id list of all admin
 		courses: [ # id list of all courses
-			{ type: String, unique: true }
+			{ type: String, +unique }
 		]
 	}
 	# School Schemas
 	Student = new Schema {
-		id: { type: Number, required: true, unique: true }, # Student id
+		id: { type: Number, +required, +unique }, # Student id
 		courses: [
-			{ type: String, unique: true }# course id list
+			{ type: String, +unique }# course id list
 		]
 		first: String # first name
 		middle: String # middle name
 		last: String # last name
 		username: {
 			type: String
-			required: true
-			unique: true
+			+required
+			+unique
 		}
 		hash: { # password bcrypt
 			type: String
@@ -44,17 +44,17 @@ module.exports = (mongoose)->
 		}
 	}
 	Faculty = new Schema {
-		id: { type: Number, required: true, unique: true } # Faculty id
+		id: { type: Number, +required, +unique } # Faculty id
 		courses: [
-			{ type: String, unique: true }
+			{ type: String, +unique }
 		] # course id
 		first: String # first name
 		middle: String # middle name
 		last: String # last name
 		username: {
 			type: String
-			required: true
-			unique: true
+			+required
+			+unique
 		}
 		hash: { # password bcrypt
 			type: String
@@ -66,14 +66,14 @@ module.exports = (mongoose)->
 		}
 	}
 	Admin = new Schema {
-		id: { type: Number, required: true, unique: true } # Admin id
+		id: { type: Number, +required, +unique } # Admin id
 		first: String # first name
 		middle: String # middle name
 		last: String # last name
 		username: {
 			type: String
-			required: true
-			unique: true
+			+required
+			+unique
 		}
 		hash: { # password bcrypt
 			type: String
@@ -85,21 +85,20 @@ module.exports = (mongoose)->
 		}
 	}
 	Course = new Schema {
-		subject: { type: String, required: true } # cps
-		id: { type: String, required: true, unique: true } # 1231*02
-		/*section: String # *02*/
+		subject: { type: String, +required } # cps
+		id: { type: String, +required, +unique } # 1231*02
 		title: { type: String } # Intro to Java
-		conference: [] # Thread
-		blog: [] # Post
-		exams: [] # Req
-		assignments: [] # Req
+		conference: [] # Thread UUIDs
+		blog: [] # Post UUIDs
+		exams: [] # Req UUIDs
+		assignments: [] # Req UUIDs
 		dm: {} # tid:{sid:[posts]}
 		grades: {} # sid:[Grades]
-		teachers: [ # teacher username
-			{ type: String, required: true, unique: true }
+		teachers: [ # teacher usernames
+			{ type: String, +required, +unique }
 		]
-		students: [ # student username
-			{ type: String, required: true, unique: true }
+		students: [ # student usernames
+			{ type: String, +required, +unique }
 		]
 		school: { # school name
 			type: String
@@ -115,7 +114,7 @@ module.exports = (mongoose)->
 		}
 		text: String # Require's text
 		files: Buffer # Require's file(s)?
-		author: { type: Number, required: true } # teacher id
+		author: { type: Number, +required } # teacher id
 		time: { type: Date, default: Date.now } # created
 		start: { type: Date,  default: Date.now } # start due
 		end: { type: Date } # late time
@@ -158,7 +157,7 @@ module.exports = (mongoose)->
 		}
 		title: String # Thread name
 		posts: [] # Post list
-		author: { type: Number, required: true }
+		author: { type: Number, +required }
 	}
 	Post = new Schema {
 		uuid: {
@@ -168,7 +167,7 @@ module.exports = (mongoose)->
 		}
 		text: String
 		files: Buffer
-		author: { type: Number, required: true }
+		author: { type: Number, +required }
 		time: { type: Date, default: Date.now }
 	}
 
