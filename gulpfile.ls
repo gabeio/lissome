@@ -10,7 +10,7 @@ livescript = if gulp-livescript? then gulp-livescript
 
 paths =
 	scripts: './src/*.ls'
-	tests: './test/*.ls'
+	tests: ['./test/*.ls','./src/*.ls']
 
 gulp.task 'default' ['build'] (done)->
 	done
@@ -29,7 +29,7 @@ gulp.task 'build' ['clean'] (done)->
 	gulp.src './src/*.ls'
 		.pipe livescript bare:true
 		.on 'error' -> throw it
-		.pipe gulp.dest './'
+		.pipe gulp.dest './lib/'
 		/*.on 'end' ->
 			done*/
 
@@ -46,10 +46,15 @@ gulp.task 'run-tests' ['build-tests', 'build'] (done)->
 	gulp.src './test/*.js'
 		.pipe mocha!
 		.on 'end' ->
+			process.exit!
+		.on 'error' ->
+			process.exit 1
+
+gulp.task 'watch-run-tests' ['build-tests', 'build'] (done)->
+	gulp.src './test/*.js'
+		.pipe mocha!
+		.on 'end' ->
 			done
-			/*process.exit!*/
-		/*.on 'error' ->
-			process.exit 1*/
 
 gulp.task 'report' (done)->
 	gulp.src 'coverage/**/lcov.info'
@@ -61,4 +66,4 @@ gulp.task 'watch-build' ->
 
 gulp.task 'watch-tests' ->
 	gulp
-		..watch paths.tests, ['test']
+		..watch paths.tests, ['watch-run-tests']

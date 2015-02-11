@@ -4,7 +4,7 @@
 /* istanbul ignore next only for testing anyway */
 module.exports = (app)->
 	winston = app.locals.winston
-	winston.warn 'IF YOU SEE THIS MESSAGE THERE IS SOMETHING WRONG!!!'
+	winston.warn 'TESTING MODE\nIF YOU SEE THIS MESSAGE THERE IS SOMETHING WRONG!!!'
 	app
 		..route '/test/:action'
 		.get (req, res, next)->
