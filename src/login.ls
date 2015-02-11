@@ -7,7 +7,10 @@ module.exports = (app)->
 	app
 		..route '/login'
 		.get (req, res, next)->
-			res.render 'login'
+			if req.session.auth? or req.session.userid? or req.session.username?
+				res.redirect '/'
+			else
+				res.render 'login'
 		.post (req, res, next)->
 			if !req.body.type? then req.body.type = 'unknown' # user type
 			switch req.body.type.toLowerCase!
