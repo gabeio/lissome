@@ -85,6 +85,11 @@ module.exports = (mongoose)->
 		}
 	}
 	Course = new Schema {
+		uuid: uuid: {
+			type: String
+			+required
+			+unique
+		}
 		subject: { type: String, +required } # cps
 		id: { type: String, +required, +unique } # 1231*02
 		title: { type: String } # Intro to Java
