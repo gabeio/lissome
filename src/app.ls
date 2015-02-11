@@ -68,9 +68,9 @@ mongo = mongoose.connection # build connection object
 app.locals.mongo = mongo # save connection object in app level variables
 /* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
 if mongouser? && mongopass?
-	mongo.open (process.env.mongo||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard'), { 'user': mongouser, 'pass': mongopass }
+	mongo.open (process.env.mongo||process.env.MONGO||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard'), { 'user': mongouser, 'pass': mongopass }
 else
-	mongo.open (process.env.mongo||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard')
+	mongo.open (process.env.mongo||process.env.MONGO||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard')
 /* istanbul ignore next */
 mongo.on 'disconnect', -> mongo.connect!
 mongo.on 'error', console.error.bind console, 'connection error:'
