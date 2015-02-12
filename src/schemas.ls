@@ -84,33 +84,7 @@ module.exports = (mongoose)->
 			+required
 		}
 	}
-	Course = new Schema {
-		uuid: uuid: {
-			type: String
-			+required
-			+unique
-		}
-		subject: { type: String, +required } # cps
-		id: { type: String, +required, +unique } # 1231*02
-		title: { type: String } # Intro to Java
-		conference: [] # Thread UUIDs
-		blog: [] # Post UUIDs
-		exams: [] # Req UUIDs
-		assignments: [] # Req UUIDs
-		dm: {} # tid:{sid:[posts]}
-		grades: {} # sid:[Grades]
-		teachers: [ # teacher usernames
-			{ type: String, +required, +unique }
-		]
-		students: [ # student usernames
-			{ type: String, +required, +unique }
-		]
-		school: { # school name
-			type: String
-			+required
-		}
-	}
-	# Course Schemas
+	# Course internal Schemas
 	Req = new Schema {
 		uuid: {
 			type: String
@@ -176,8 +150,35 @@ module.exports = (mongoose)->
 		author: { type: String, +required }
 		time: { type: Date, default: Date.now }
 		tags: []
+		type: String # blog/conference/etc
+		course: String # course uuid for faster lookups
 	}
-
+	Course = new Schema {
+		uuid: uuid: {
+			type: String
+			+required
+			+unique
+		}
+		subject: { type: String, +required } # cps
+		id: { type: String, +required, +unique } # 1231*02
+		title: { type: String } # Intro to Java
+		conference: [] # Thread UUIDs
+		blog: [] # Post UUIDs
+		exams: [] # Req UUIDs
+		assignments: [] # Req UUIDs
+		dm: {} # tid:{sid:[posts]}
+		grades: {} # sid:[Grades]
+		teachers: [ # teacher usernames
+			{ type: String, +required, +unique }
+		]
+		students: [ # student usernames
+			{ type: String, +required, +unique }
+		]
+		school: { # school name
+			type: String
+			+required
+		}
+	}
 	module.exports = {
 		School: School
 		Student: Student
