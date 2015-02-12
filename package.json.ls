@@ -43,7 +43,7 @@ dependencies:
 	"swig": '~1.4.2'
 	"uuid": '~2.0.1'
 	"winston": '~0.9.0'
-	"yargs": '~1.3.3'
+	"yargs": '~2.3.0'
 
 devDependencies:
 	"chai": '~1.10.0'
