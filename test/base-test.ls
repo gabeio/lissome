@@ -325,9 +325,8 @@ describe "Base" ->
 		it "should allow a teacher should NOT be ablt to edit any other classes"
 		it "should allow an admin should be able to edit any class"
 
-	# describe "Dashboard", (...)->
-	# 	it "", (done)->
-	# 		...
+	describe "Dashboard", (...)->
+		it.skip "should show any changes to any classes a student presently enrolled in", (done)->
 
 	after (done)->
 		this.timeout 0
