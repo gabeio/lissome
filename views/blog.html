@@ -6,10 +6,13 @@
 
 {%- block body -%}
 	<div class="container">
+		{% include 'navbar.html' ignore missing %}
 		<div class="row">
 			{%- for entry in blog -%}
 			<div class="col-xs-12">
-				{{ entry }}
+				<h2>{{ entry.title }}</h2>
+				{{ entry.text|markdown|safe }}
+				<p class="text-muted">{{ entry.author }}</p>
 			</div>
 			{%- endfor -%}
 		</div>
@@ -21,8 +24,11 @@
 			</div>
 			<label class="col-xs-2" for="formBody">Body</label>
 			<div class="col-xs-9 col-xs-offset-1 form-group">
-				<textarea class="form-control" id="formBody" name="body">
-				</textarea>
+				<textarea class="form-control" id="formBody" name="body"></textarea>
+			</div>
+			<label class="col-xs-2" for="formUpload">Files</label>
+			<div class="col-xs-9 col-xs-offset-1 form-group">
+				<input type="file" id="formUpload" name="files" />
 			</div>
 			<div class="form-group">
 				<div class="col-xs-offset-3 col-xs-10">
