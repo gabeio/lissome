@@ -11,6 +11,7 @@ require! {
 	'express-partial-response'
 	'express-session' # session
 	'fs-extra' # only if needed
+	'markdown'
 	'method-override'
 	'mongoose'
 	'multer'
@@ -26,6 +27,7 @@ RedisStore = connect-redis(express-session)
 argv = yargs.argv
 app = module.exports = express!
 fs = fsExtra
+markdown = markdown.markdown
 
 /* istanbul ignore next this is just for assurance the env vars are defined */
 do ->
@@ -41,6 +43,10 @@ do ->
 		console.log 'redishost env undefined\ntrying localhost anyway...'
 	if !process.env.redisport? and !process.env.REDISPORT? and !argv.redisport?
 		console.log 'redishost env undefined\ntrying default anyway...'
+	if !process.env.redisauth? and !process.env.REDISAUTH? and !argv.redisauth?
+		console.log 'redisauth env undefined\ntrying null anyway...'
+
+swig.setFilter 'markdown', markdown.toHTML
 
 # REDIS
 redishost = (process.env.redishost||process.env.REDISHOST||argv.redishost||'localhost')
@@ -54,9 +60,16 @@ if redisauth
 else
 	rediscli = redis.createClient redisport, redishost, {
 	}
-rediscli.on "connect", ->
+rediscli.on "open", ->
 	winston.info "redis:open"
+rediscli.on "connect", ->
+	winston.info "redis:connected"
 	app.locals.redis = rediscli
+rediscli.on "ready", ->
+	winston.info "redis:ready"
+rediscli.on "disconnect", ->
+	winston.warn 'mongo:disconnect\ntrying to reconnect'
+	rediscli.connect!
 
 # MONGOOSE
 /* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
@@ -72,7 +85,9 @@ if mongouser? && mongopass?
 else
 	mongo.open (process.env.mongo||process.env.MONGO||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard')
 /* istanbul ignore next */
-mongo.on 'disconnect', -> mongo.connect!
+mongo.on 'disconnect', ->
+	winston.warn 'mongo:disconnect\ntrying to reconnect'
+	mongo.connect!
 mongo.on 'error', console.error.bind console, 'connection error:'
 /* istanbul ignore next */
 mongo.on 'open' (err)->
