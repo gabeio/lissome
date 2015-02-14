@@ -5,14 +5,13 @@ module.exports = (app)->
 		app.locals.authorize req, res, next
 	app
 		..route '/admin'
-		..route '/admin/:subject?/:course/edit'
+		..route '/admin/:course/edit'
 		.get (req, res, next)->
 			err, course <- models.Course.find {
-				'subject':req.params.subject
-				'id':req.params.course
+				'uid':req.params.course
 				'school':app.locals.school
 			}
 			res.send course
-		..route '/admin/:subject?/:course/:index(index|dash|dashboard)?'
-		..route '/admin/:subject?/:course/blog/:id?/edit'
-		..route '/admin/:subject?/:course/blog/:id?'
+		..route '/admin/:course/:index(index|dash|dashboard)?'
+		..route '/admin/:course/blog/:id?/edit'
+		..route '/admin/:course/blog/:id?'

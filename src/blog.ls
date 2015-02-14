@@ -4,8 +4,12 @@ module.exports = (app)->
 		'uuid'
 	}
 	_ = lodash
+	async = app.locals.async
 	winston = app.locals.winston
-	models = app.locals.models
+	# models = app.locals.models
+	User = app.locals.models.Users
+	Course = app.locals.models.Course
+	Post = app.locals.models.Post
 	app
 		..route '/:course/blog/:id?/edit'
 		.all (req, res, next)->
@@ -13,52 +17,49 @@ module.exports = (app)->
 			app.locals.authorize req, res, next
 
 		.get (req, res, next)->
-			err, course <- models.Course.find {
-				'id':req.params.course
+			err, course <- Course.find {
+				'uid':req.params.course
 				'school':app.locals.school
 			}
-			course = course.0
-			if err?
+			if err
 				winston.error 'course:find '+err
 			if !course? or course.length is 0
 				next new Error 'NOT FOUND'
 			else
-				res.locals.blog = []
-				for entry in course.blog
-					# might need to find a better way to do this maybe just give up
-					# and store inside the course blog array itself.
-					err, post <- models.Post.find {
-						'uuid':entry
-					}
-					res.locals.blog.push post
+				course = course.0
+				err, posts <- Post.find {
+					'course':course.uuid,
+					'type':'blog'
+				}
+				console.log posts
+				res.locals.blog = posts
 				res.render 'blog', { +edit }
 
 		.post (req, res, next)->
-			res.locals.postuuid = uuid.v4!
-			post = new models.Post {
-				uuid: res.locals.postuuid
-				text: req.body.body
-				files: req.body.files
-				author: req.session.username
-				time: new Date Date.now!
-				title: req.body.title
-			}
-			err, post <- post.save
-			winston.info 'post:save '+post
-			err, course <- models.Course.findOneAndUpdate {
-				'id':req.params.course
+			err, course <- Course.find {
+				'uid':req.params.course
 				'school':app.locals.school
-			},{
-				$push:{ 'blog': res.locals.postuuid } # pushes to property
 			}
-			course = course.0
-			if err?
+			if err
 				winston.error 'course:find '+err
 			if !course? or course.length is 0
 				next new Error 'NOT FOUND'
 			else
-				res.locals.blog = course.blog.
-				res.render 'blog'
+				course = course.0
+				res.locals.postuuid = uuid.v4!
+				post = new Post {
+					uuid: res.locals.postuuid
+					title: req.body.title
+					text: req.body.body
+					files: req.body.files
+					author: req.session.username
+					tags: []
+					type: 'blog'
+					course: course.uuid
+				}
+				err, post <- post.save
+				winston.info 'post:save '+post
+				res.redirect '#'
 
 		.put (req, res, next)->
 			...
@@ -72,25 +73,23 @@ module.exports = (app)->
 			app.locals.authorize req, res, next
 
 		.get (req, res, next)->
-			err, course <- models.Course.find { 'id':req.params.course, 'school':app.locals.school }
+			err, course <- Course.find { 'uid':req.params.course, 'school':app.locals.school }
 			course = course.0
-			if err?
+			if err
 				winston.error 'course:find '+err
 			if !course? or course.length is 0
 				next new Error 'NOT FOUND'
 			else
-				res.locals.blog = []
-				cont = lodash.once next
-				for entry in course.blog
-					# might need to find a better way to do this maybe just give up
-					# and store inside the course blog array itself.
-					console.log entry
-					err, post <- models.Post.find {
-						'uuid':entry
-					}
-					# console.log post
-					res.locals.blog.push post.0
-					console.log res.locals.blog
-					cont!
+				# res.locals.blog = []
+				err, posts <- Post.find {
+					'course':course.uuid,
+					'type':'blog'
+				}
+				console.log posts
+				res.locals.blog = posts
+				# for entry in posts
+				# 	res.locals.blog.push entry
+				# 	console.log res.locals.blog
+				next!
 		.get (req, res, next)->
 			res.render 'blog'

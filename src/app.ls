@@ -186,9 +186,10 @@ app
 	..locals.school = process.env.school
 	..locals.models = {
 		school: school
-		Student: mongo.model 'Student' schemas.Student
-		Faculty: mongo.model 'Faculty' schemas.Faculty
-		Admin: mongo.model 'Admin' schemas.Admin
+		User: mongo.model 'User' schemas.User
+		# Student: mongo.model 'Student' schemas.Student
+		# Faculty: mongo.model 'Faculty' schemas.Faculty
+		# Admin: mongo.model 'Admin' schemas.Admin
 		Course: mongo.model 'Course' schemas.Course
 		Required: mongo.model 'Req' schemas.Req
 		Attempt: mongo.model 'Attempt' schemas.Attempt

@@ -4,9 +4,12 @@ module.exports = (mongoose)->
 	School = new Schema {
 		name: { # School name, index: true
 			type: String
-			requred: true
+			+requred
 			+unique
 		}
+		users: [
+			{ type: String, +unique }
+		]
 		students: [
 			{ type: Number, +unique }
 		] # id list of all student
@@ -21,18 +24,18 @@ module.exports = (mongoose)->
 		]
 	}
 	# School Schemas
-	Student = new Schema {
+	User = new Schema {
 		id: { type: Number, +required, +unique }, # Student id
+		first: String # first name
+		middle: String # middle name
+		last: String # last name
 		courses: [
 			{ type: String, +unique }# course id list
 		]
-		first: String # first name
-		middle: String # middle name
-		last: String # last name
 		username: {
 			type: String
 			+required
-			+unique
+			+trim
 		}
 		hash: { # password bcrypt
 			type: String
@@ -42,46 +45,10 @@ module.exports = (mongoose)->
 			type: String
 			+required
 		}
-	}
-	Faculty = new Schema {
-		id: { type: Number, +required, +unique } # Faculty id
-		courses: [
-			{ type: String, +unique }
-		] # course id
-		first: String # first name
-		middle: String # middle name
-		last: String # last name
-		username: {
-			type: String
-			+required
-			+unique
-		}
-		hash: { # password bcrypt
-			type: String
-			+required
-		}
-		school: { # school name
-			type: String
-			+required
-		}
-	}
-	Admin = new Schema {
-		id: { type: Number, +required, +unique } # Admin id
-		first: String # first name
-		middle: String # middle name
-		last: String # last name
-		username: {
-			type: String
-			+required
-			+unique
-		}
-		hash: { # password bcrypt
-			type: String
-			+required
-		}
-		school: { # school name
-			type: String
-			+required
+		type: { # 1 student 2 faculty 3 admin
+			type: Number
+			+require
+			default: 1
 		}
 	}
 	# Course internal Schemas
@@ -94,9 +61,9 @@ module.exports = (mongoose)->
 		text: String # Require's text
 		files: Buffer # Require's file(s)?
 		author: { type: String, +required } # teacher id
-		time: { type: Date, default: Date.now } # created
-		start: { type: Date,  default: Date.now } # start due
-		end: { type: Date } # late time
+		created: { type: Date, default: Date.now } # created
+		start: { type: Date,  default: Date.now } # when Date.now > start students can attempt
+		end: { type: Date } # when Date.now > end students can't attempt anylonger
 		tries: { type: Number, default: 1 } # tries per student
 		allowLate: { type: Boolean, default: false } # allow late submissions or not
 		attempts: {} # student id : [attempt]
@@ -126,6 +93,7 @@ module.exports = (mongoose)->
 		total: Number # total points
 		id: Number # exam/assign index
 		try: Number # attempt index
+		time: { type: Date, default: Date.now } # time
 	}
 	# Blog/Conference Schemas
 	Thread = new Schema {
@@ -154,20 +122,20 @@ module.exports = (mongoose)->
 		course: String # course uuid for faster lookups
 	}
 	Course = new Schema {
-		uuid: uuid: {
+		uuid: {
 			type: String
 			+required
 			+unique
 		}
-		subject: { type: String, +required } # cps
-		id: { type: String, +required, +unique } # 1231*02
+		# subject: { type: String, +required } # cps
+		uid: { type: String, +required, +unique } # cps1231*02 # unique identifier given by school
 		title: { type: String } # Intro to Java
-		conference: [] # Thread UUIDs
-		blog: [] # Post UUIDs
-		exams: [] # Req UUIDs
-		assignments: [] # Req UUIDs
-		dm: {} # tid:{sid:[posts]}
-		grades: {} # sid:[Grades]
+		# conference: [] # Thread UUIDs
+		# blog: [] # Post UUIDs
+		# exams: [] # Req UUIDs
+		# assignments: [] # Req UUIDs
+		# dm: {} # tid:{sid:[posts]}
+		# grades: {} # sid:[Grades]
 		teachers: [ # teacher usernames
 			{ type: String, +required, +unique }
 		]
@@ -178,12 +146,11 @@ module.exports = (mongoose)->
 			type: String
 			+required
 		}
+		status: Boolean # open:true closed:false
 	}
 	module.exports = {
 		School: School
-		Student: Student
-		Faculty: Faculty
-		Admin: Admin
+		User: User
 		Course: Course
 		Req: Req
 		Attempt: Attempt
