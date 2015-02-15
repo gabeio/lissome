@@ -10,15 +10,6 @@ module.exports = (mongoose)->
 		users: [
 			{ type: String, +unique }
 		]
-		students: [
-			{ type: Number, +unique }
-		] # id list of all student
-		teachers: [
-			{ type: Number, +unique }
-		] # id list of all teacher
-		admins: [
-			{ type: Number, +unique }
-		] # id list of all admin
 		courses: [ # id list of all courses
 			{ type: String, +unique }
 		]
@@ -30,7 +21,7 @@ module.exports = (mongoose)->
 		middle: String # middle name
 		last: String # last name
 		courses: [
-			{ type: String, +unique }# course id list
+			{ type: String, +unique } # course uid list
 		]
 		username: {
 			type: String
@@ -60,7 +51,7 @@ module.exports = (mongoose)->
 		}
 		text: String # Require's text
 		files: Buffer # Require's file(s)?
-		author: { type: String, +required } # teacher id
+		author: { type: String, +required } # user id
 		created: { type: Date, default: Date.now } # created
 		start: { type: Date,  default: Date.now } # when Date.now > start students can attempt
 		end: { type: Date } # when Date.now > end students can't attempt anylonger
@@ -78,7 +69,7 @@ module.exports = (mongoose)->
 		text: String # student attempt text
 		files: Buffer # student attempt file(s)?
 		time: { type: Date, default: Date.now } # submission time
-		comments: [] # teacher comments list
+		comments: [] # professor/student comments list
 	}
 	Grade = new Schema {
 		uuid: {
@@ -112,6 +103,7 @@ module.exports = (mongoose)->
 			+required
 			+unique
 		}
+		course: String # course uuid for faster lookups
 		title: String
 		text: String
 		files: Buffer
@@ -119,7 +111,7 @@ module.exports = (mongoose)->
 		time: { type: Date, default: Date.now }
 		tags: []
 		type: String # blog/conference/etc
-		course: String # course uuid for faster lookups
+		school: String # school name
 	}
 	Course = new Schema {
 		uuid: {
@@ -136,7 +128,7 @@ module.exports = (mongoose)->
 		# assignments: [] # Req UUIDs
 		# dm: {} # tid:{sid:[posts]}
 		# grades: {} # sid:[Grades]
-		teachers: [ # teacher usernames
+		faculty: [ # faculty usernames
 			{ type: String, +required, +unique }
 		]
 		students: [ # student usernames
