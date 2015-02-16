@@ -5,32 +5,24 @@
 {% endblock %}
 
 {% block body %}
-	<div class="container">
+	<div class="container-fluid">
 		<form class="form-horizonal" method="POST" action="/login">
 			<div class="col-xs-12 form-group">
 				<h2>{% if school %}{{ school }} - {% endif %}Login</h2>
 			</div>
-			{% if error %}<div class="col-xs-12 alert alert-danger" role="alert">
+			{%- if error %}<div class="col-xs-12 col-sm-12 col-md-12 alert alert-danger" role="alert">
 				{{error}}
-			</div>{% endif %}
-			<label class="col-xs-2" for="formUsername">Username</label>
-			<div class="col-xs-9 col-xs-offset-1 form-group">
+			</div>{% endif -%}
+			<label class="col-xs-3 col-sm-2 col-md-1" for="formUsername">Username</label>
+			<div class="col-xs-9 col-sm-10 col-md-11 form-group">
 				<input type="text" class="form-control" id="formUsername" name="username" />
 			</div>
-			<label class="col-xs-2" for="formPassword">Password</label>
-			<div class="col-xs-9 col-xs-offset-1 form-group">
+			<label class="col-xs-3 col-sm-2 col-md-1" for="formPassword">Password</label>
+			<div class="col-xs-9 col-sm-10 col-md-11 form-group">
 				<input type="password" class="form-control" id="formPassword" name="password" />
 			</div>
-			<!-- <label class="col-xs-2" for="formType">User Type</label>
-			<div class="col-xs-9 col-xs-offset-1 form-group">
-				<select class="form-control" id="formType" name="type">
-					<option value="Student">Student</option>
-					<option value="Faculty">Faculty</option>
-					<option value="Admin">Admin</option>
-				</select>
-			</div> -->
 			<div class="form-group">
-				<div class="col-xs-offset-3 col-xs-10">
+				<div class="col-xs-offset-3 col-xs-9 col-sm-offset-2 col-sm-10 col-md-offset-1 col-md-11">
 					<button type="submit" class="btn btn-default">Submit</button>
 				</div>
 			</div>
