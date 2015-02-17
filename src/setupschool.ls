@@ -61,6 +61,8 @@ async.series [
 				student := new User {
 					id: 1
 					username: "student"
+					firstName: "Alpha"
+					lastName: "Beta"
 					hash: hashPassword
 					school: process.env.school
 					type: 1
@@ -87,6 +89,8 @@ async.series [
 				astudent := new User {
 					id: 2
 					username: "astudent"
+					firstName: "Alpha1"
+					lastName: "Beta1"
 					hash: hashPassword
 					school: process.env.school
 					type: 1
@@ -113,6 +117,8 @@ async.series [
 				faculty := new User {
 					id: 3
 					username: "faculty"
+					firstName: "Alpha2"
+					lastName: "Beta2"
 					hash: hashPassword
 					school: process.env.school
 					type: 2
@@ -139,6 +145,8 @@ async.series [
 				gfaculty := new User {
 					id: 4
 					username: "gfaculty"
+					firstName: "Alpha3"
+					lastName: "Beta3"
 					hash: hashPassword
 					school: process.env.school
 					type: 2
@@ -165,6 +173,8 @@ async.series [
 				admin := new User {
 					id: 5
 					username: "admin"
+					firstName: "Alpha4"
+					lastName: "Beta4"
 					hash: hashPassword
 					school: process.env.school
 					type: 3

@@ -10,6 +10,9 @@ module.exports = (app)->
 		.all (req, res, next)->
 			res.locals.needs = 2 # maybe 3
 			app.locals.authorize req, res, next
+		.all (req, res, next)->
+			res.locals.oncourse = true
+			...
 		.get (req, res, next)->
 			res.send 'this will allow showing of course settings'
 			/*
@@ -32,11 +35,13 @@ module.exports = (app)->
 			else
 				res.send result
 			*/
+
 		..route '/:course/:index(index|dash|dashboard)?'
 		.all (req, res, next)->
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
 		.get (req, res, next)->
+			res.locals.oncourse = true
 			switch req.session.auth
 			| 1
 				console.log '1'

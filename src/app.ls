@@ -33,6 +33,7 @@ app
 	# variables
 	..locals.recaptchaPrivateKey = process.env.RECAPKEY
 	..locals.school = process.env.school
+	..locals.swig = swig
 	# errors
 	# ..locals.err = {
 	# 	'NOT FOUND': new Error

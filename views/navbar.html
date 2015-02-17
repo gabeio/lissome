@@ -31,4 +31,17 @@
 			</div>
 		</nav>
 	</div>
+	<div class="row">
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+			<ol class="breadcrumb">
+				{% if ondash %}<li class="active">Home</li>{% else %}<li><a href="/">Home</a></li>{% endif %}
+				{% if course and !oncourse %}<li><a href="/{{ course.id }}">{{ course.title }}</a></li>{% endif %}
+				{% if oncourse %}<li class="active">{{ course.title }}</li>{% endif %}
+				{% if onblog %}<li class="active">Blog</li>{% endif %}
+				{% if onpreferences %}<li class="active">Preferences</li>{% endif %}
+				{% if onsettings %}<li class="active">Settings</li>{% endif %}
+				{% if newpost %}<li class="active">New Post</li>{% endif %}
+			</ol>
+		</div>
+	</div>
 {% endblock %}

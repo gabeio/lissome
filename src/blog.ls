@@ -8,7 +8,7 @@ module.exports = (app)->
 		'winston'
 	}
 	_ = ld = lodash
-	User = app.locals.models.Users
+	User = app.locals.models.User
 	Course = app.locals.models.Course
 	Post = app.locals.models.Post
 	app
@@ -18,6 +18,7 @@ module.exports = (app)->
 			app.locals.authorize req, res, next
 
 		.all (req, res, next)->
+			res.locals.onblog = true
 			switch req.session.auth
 			| 3
 				err, result <- Course.find {
@@ -60,24 +61,36 @@ module.exports = (app)->
 
 		.post (req, res, next)->
 			console.log req.body
+			err, user <- User.findOne {
+				'_id': mongoose.Types.ObjectId(post.author)
+				'school': app.locals.school
+			}
+			authorName = ""
+			if user.firstName?
+				authorName += user.firstName
+			if user.middleName?
+				authorName += user.middleName
+			if user.lastName?
+				authorName += user.lastName
 			post = new Post {
 				# uuid: res.locals.postuuid
 				title: req.body.title
 				text: req.body.body
 				files: req.body.files
 				author: mongoose.Types.ObjectId(req.session.uid)
+				authorName: authorName
 				tags: []
 				type: 'blog'
 				school: app.locals.school
 				course: mongoose.Types.ObjectId(res.locals.course._id)
 			}
 			err, post <- post.save
-			if err
+			if err?
 				winston.error 'blog post save', err
-				res.render 'blog', { +create, -success }
+				res.render 'blog', { +create, success:'no' }
 			else
-				winston.info 'blog post save', post
-				res.render 'blog', { +create, +success }
+				# winston.info 'blog post save', post
+				res.render 'blog', { +create, success:'yes' }
 
 		.put (req, res, next)->
 			...
@@ -128,6 +141,7 @@ module.exports = (app)->
 			app.locals.authorize req, res, next
 
 		.all (req, res, next)->
+			res.locals.onblog = true
 			switch req.session.auth
 			| 3
 				err, result <- Course.find {
@@ -174,10 +188,10 @@ module.exports = (app)->
 				next new Error 'UNAUTHORIZED'
 
 		.get (req, res, next)->
-			console.log 'ALPHA'
+			# console.log 'ALPHA'
 			res.locals.blog = []
 			if req.params.unique?
-				console.log 'b'
+				# console.log 'b'
 				async.series [
 					# (done)->
 					# 	# search date
@@ -220,11 +234,9 @@ module.exports = (app)->
 						done!
 				]
 			else
-				console.log 'a'
-				err, post <- Post.find {
+				err, posts <- Post.find {
 					'course':mongoose.Types.ObjectId(res.locals.course._id)
 					'type':'blog'
 				}
-				res.locals.blog.push post.0
-				# res.locals.blog = posts
+				res.locals.blog = posts
 				res.render 'blog'

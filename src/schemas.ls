@@ -109,13 +109,14 @@ module.exports = (mongoose)->
 	Post = new Schema {
 		# AUTOCREATED
 		# _id
-		author: { type: Schema.Types.ObjectId, ref:'User' }
+		author: { type: Schema.Types.ObjectId, +required, ref:'User' }
+		authorName: { type: String, +required }
 		timestamp: { type: Date, default: Date.now }
 		# REQUIRED
-		course: { type: Schema.Types.ObjectId, ref:'Course' }
-		text: String
-		type: String # blog/conference
-		thread: { type: Schema.Types.ObjectId, ref:'Thread' }
+		course: { type: Schema.Types.ObjectId, +required, ref:'Course' }
+		text: { type: String, +required }
+		type: { type: String, +required } # blog/conference
+		thread: { type: Schema.Types.ObjectId, ref:'Thread' } # required if type conference
 		school: { type: String, +required, ref: 'School' }
 		# OPTIONAL
 		title: String

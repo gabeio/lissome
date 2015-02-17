@@ -29,7 +29,7 @@ dependencies:
 	"csurf": '~1.7.0'
 	"express": '~4.11.2'
 	"express-partial-response": '~0.3.4'
-	"express-session": '~1.10.1'
+	"express-session": '~1.10.3'
 	"fs-extra": '~0.16.3'
 	"hiredis": '~0.2.0'
 	"LiveScript": '~1.3.1'

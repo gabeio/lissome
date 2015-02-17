@@ -8,40 +8,32 @@
 	<div class="container-fluid">
 		{% include 'navbar.html' ignore missing %}
 		{%- if !create %}
-		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-			<ol class="breadcrumb">
-				<li><a href="/">Home</a></li>
-				<li><a href="/{{ course.id }}">{{ course.title }}</a></li>
-				<li class="active">Blog</li>
-			</ol>
-			{% if auth <= 2 %}<div class="pull-right">
-				<a href="/{{ course.id }}/blog/new" class="btn btn-default"><span class="glyphicon glyphicon-edit"></span></a>
-			</div>{% endif %}
-			{%- for entry in blog|reverse -%}
-			<div class="col-xs-12">
-				<h2>{{ entry.title }}</h2>
-				{{ entry.text|markdown|safe }}
-				<p class="text-muted">{{ entry.author }}<span class="pull-right">{{ entry.time|date('F jS h:m:s') }}</span></p>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				{% if 2 <= auth %}<div class="pull-right">
+					<a href="/{{ course.id }}/blog/new" class="btn btn-default"><span class="glyphicon glyphicon-edit"></span></a>
+				</div>{% endif %}
+				{%- for entry in blog|reverse -%}
+				<div class="col-xs-12 well">
+					<h2>{{ entry.title }}</h2>
+					{{ entry.text|markdown|safe }}
+					<p class="text-muted">{{ entry.author.firstName }}{{ entry.author.middleName }}{{ entry.author.lastName }}
+					{%- if !entry.author.firstName or !entry.author.lastName %}{{ entry.author.username }}{% endif -%}
+					<span class="pull-right">{{ entry.timestamp|date('F jS H:m a') }}</span></p>
+					<hr />
+				</div>
+				{%- endfor -%}
 			</div>
-			{%- endfor -%}
 		</div>
 		{%- else %}
-		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-			<ol class="breadcrumb">
-				<li><a href="/">Home</a></li>
-				<li><a href="/{{ course.id }}">{{ course.title }}</a></li>
-				<li><a href="/{{ course.id }}/blog">Blog</a></li>
-				<li class="active">New Post</li>
-			</ol>
-		</div>
 		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="#">
-			{%- if success == true -%}
+			{%- if success == 'yes' -%}
 			<div class="form-group">
 				<div class="alert alert-success" role="alert">
 					Blog post created successfully.
 				</div>
 			</div>
-			{%- elif success == false -%}
+			{%- elif success == 'no' -%}
 			<div class="form-group">
 				<div class="alert alert-danger" role="alert">
 					Blog post failed to be created successfully.

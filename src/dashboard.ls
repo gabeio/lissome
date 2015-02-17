@@ -3,6 +3,7 @@ module.exports = (app)->
 		'async'
 		'lodash'
 		'mongoose'
+		'winston'
 	}
 	_ = lodash
 	Course = app.locals.models.Course
@@ -10,6 +11,7 @@ module.exports = (app)->
 		..route '/:index(index|dash|dashboard)?'
 		.all app.locals.authorize
 		.get (req, res, next)->
+			res.locals.ondash = true
 			switch req.session.auth
 			| 2
 				err, courses <- Course.find {
@@ -44,4 +46,5 @@ module.exports = (app)->
 		..route '/preferences'
 		.all app.locals.authorize
 		.get (req, res, next)->
+			res.locals.onpreferences = true
 			res.send 'preferences > '+JSON.stringify req.params

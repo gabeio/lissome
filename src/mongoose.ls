@@ -1,5 +1,6 @@
 module.exports = (app)->
 	require! {
+		'async'
 		'mongoose'
 		'winston'
 	}
@@ -35,3 +36,31 @@ module.exports = (app)->
 		Thread: Thread
 		Post: Post
 	}
+	oidToAuthor = (oid,callback)->
+		console.log oid
+		console.log callback
+		author = {}
+		async.series [
+			(done)->
+				# process.nextTick ->
+				err,user <- User.findOne {
+					'_id':mongoose.Types.ObjectId(oid)
+					'school':app.locals.school
+				}
+				if err
+					winston.error 'oidToAuthor', err
+				else
+					author.username := user.username
+					author.fullName := user.firstName+" "+user.middleName+" "+user.lastName
+					done!
+			(done)->
+				console.log author.username
+				console.log author.fullName
+				callback((author.fullName||author.username))
+				done!
+		]
+		console.log 'a', author.username
+		console.log 'b', author.fullName
+		# return (author.fullName||author.username)
+
+	app.locals.swig.setFilter 'oidToAuthor', oidToAuthor
