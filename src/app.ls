@@ -13,13 +13,12 @@ require! {
 	'fs-extra' # only if needed
 	'markdown'
 	'method-override'
-	'mongoose'
+	# 'mongoose'
 	'multer'
-	'redis'
 	'serve-static' # nginx static
 	'swig' # templates
-	'uuid'
 	'util'
+	# 'uuid'
 	'winston'
 	'yargs' # --var val
 }
@@ -28,6 +27,16 @@ argv = yargs.argv
 app = module.exports = express!
 fs = fsExtra
 markdown = markdown.markdown
+
+# load needed libs into app locals
+app
+	# variables
+	..locals.recaptchaPrivateKey = process.env.RECAPKEY
+	..locals.school = process.env.school
+	# errors
+	# ..locals.err = {
+	# 	'NOT FOUND': new Error
+	# }
 
 /* istanbul ignore next this is just for assurance the env vars are defined */
 do ->
@@ -46,72 +55,25 @@ do ->
 	if !process.env.redisauth? and !process.env.REDISAUTH? and !argv.redisauth?
 		console.log 'redisauth env undefined\ntrying null anyway...'
 
+# create swig |markdown filter
 swig.setFilter 'markdown', markdown.toHTML
 
 # REDIS
-redishost = (process.env.redishost||process.env.REDISHOST||argv.redishost||'localhost')
-redisport = (process.env.redisport||process.env.REDISPORT||argv.redisport||6379)
-redisauth = (process.env.redisauth||process.env.REDISAUTH||argv.redisauth||null)
-/* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
-if redisauth
-	rediscli = redis.createClient redisport, redishost, {
-		auth_pass: redisauth
-	}
-else
-	rediscli = redis.createClient redisport, redishost, {
-	}
-rediscli.on "open", ->
-	winston.info "redis:open"
-rediscli.on "connect", ->
-	winston.info "redis:connected"
-	app.locals.redis = rediscli
-rediscli.on "ready", ->
-	winston.info "redis:ready"
-rediscli.on "disconnect", ->
-	winston.warn 'mongo:disconnect\ntrying to reconnect'
-	rediscli.connect!
+rediscli = require('./redisClient')(app,\
+	(process.env.redishost||process.env.REDISHOST||argv.redishost||'localhost'),\
+	(process.env.redisport||process.env.REDISPORT||argv.redisport||6379),\
+	(process.env.redisauth||process.env.REDISAUTH||argv.redisauth||void))
 
 # MONGOOSE
-/* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
-mongouser = if process.env.mongouser or process.env.MONGOUSER or argv.mongouser then (process.env.mongouser||process.env.MONGOUSER||argv.mongouser)
-/* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
-mongopass = if process.env.mongopass or process.env.MONGOPASS or argv.mongopass then (process.env.mongopass||process.env.MONGOPASS||argv.mongopass)
-schemas = require('./schemas')(mongoose) # get mongoose schemas
-mongo = mongoose.connection # build connection object
-app.locals.mongo = mongo # save connection object in app level variables
-/* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
-if mongouser? && mongopass?
-	mongo.open (process.env.mongo||process.env.MONGO||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard'), { 'user': mongouser, 'pass': mongopass }
-else
-	mongo.open (process.env.mongo||process.env.MONGO||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard')
-/* istanbul ignore next */
-mongo.on 'disconnect', ->
-	winston.warn 'mongo:disconnect\ntrying to reconnect'
-	mongo.connect!
-mongo.on 'error', console.error.bind console, 'connection error:'
-/* istanbul ignore next */
-mongo.on 'open' (err)->
-	if err
-		winston.info 'mongo:err: ' + err
-	if !module.parent
-		winston.info 'mongo:open'
-
-# setup school if it's not already setup
-School = mongoose.model 'School', schemas.School
-err,school <- School.find { name:process.env.school }
-if err?
-	winston.error 'school:find '+util.inspect err
-if !school[0]? # if none
-	winston.info 'creating new school '+process.env.school
-	school = new School {
-		name: process.env.school
-	}
-	err, school <- school.save
+mongo = require('./mongoClient')(app,\
+	(process.env.mongo||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard'),\
+	(process.env.mongouser||process.env.MONGOUSER||argv.mongouser||void),\
+	(process.env.mongopass||process.env.MONGOPASS||argv.mongopass||void))
 
 # App Settings/Middleware
 app
 	# needs to come first MIGHT NOT WORK...
-	.use method-override 'hmo' # http-method-override
+	.use method-override 'hmo' # Http-Method-Override
 	# sessions
 	.use express-session {
 		secret: process.env.cookie
@@ -169,38 +131,12 @@ app
 				if res.locals.csrfToken? # if csurf enabled
 					res.locals.csrfToken = req.csrfToken!
 			!->
-				if req.session.auth? # check if auth exists
+				if req.session? and req.session.auth?
+					res.locals.username =  req.session.username
 					res.locals.auth = req.session.auth # save auth level for template
 			!->
 				next!
 		]
-
-# App Functions/Variables/Modules
-app
-	# variables
-	..locals.recaptchaPrivateKey = process.env.RECAPKEY
-	# modules
-	..locals.fs = fsExtra
-	..locals.async = async
-	..locals.winston = winston
-	..locals.school = process.env.school
-	..locals.models = {
-		school: school
-		User: mongo.model 'User' schemas.User
-		# Student: mongo.model 'Student' schemas.Student
-		# Faculty: mongo.model 'Faculty' schemas.Faculty
-		# Admin: mongo.model 'Admin' schemas.Admin
-		Course: mongo.model 'Course' schemas.Course
-		Required: mongo.model 'Req' schemas.Req
-		Attempt: mongo.model 'Attempt' schemas.Attempt
-		Grade: mongo.model 'Grade' schemas.Grade
-		Thread: mongo.model 'Thread' schemas.Thread
-		Post: mongo.model 'Post' schemas.Post
-	}
-	# errors
-	# ..locals.err = {
-	# 	'NOT FOUND': new Error
-	# }
 
 # Production Switch
 switch process.env.NODE_ENV

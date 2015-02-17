@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{%- block head -%}
+	<title>{{ course.title }} - {{ school }}</title>
+{%- endblock -%}
+
+{%- block body -%}
+	<div class="container-fluid">
+		{% include 'navbar.html' ignore missing %}
+		<div class="row">
+			<div class="col-xs-12 col-lg-10 col-lg-offset-1">
+				<h3>{{ course.title }}</h3>
+				<ul class="list-group">
+					<a class="list-group-item" href="/{{ course.id }}/blog">Blog</a>
+					<a class="list-group-item" href="/{{ course.id }}/conference">Conference</a>
+					<a class="list-group-item" href="/{{ course.id }}/assignments">Assignments</a>
+					<a class="list-group-item" href="/{{ course.id }}/grades">Grades</a>
+				</ul>
+			</div>
+		</div>
+	</div>
+{%- endblock -%}

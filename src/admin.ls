@@ -1,14 +1,14 @@
 module.exports = (app)->
 	models = app.locals.models
-	app.use (req, res, next)->
-		res.locals.needs = 3
-		app.locals.authorize req, res, next
 	app
+		..use (req, res, next)->
+			res.locals.needs = 3
+			app.locals.authorize req, res, next
 		..route '/admin'
 		..route '/admin/:course/edit'
 		.get (req, res, next)->
 			err, course <- models.Course.find {
-				'uid':req.params.course
+				'id':req.params.course
 				'school':app.locals.school
 			}
 			res.send course

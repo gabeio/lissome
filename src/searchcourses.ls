@@ -1,12 +1,14 @@
 require! {
 	'bcrypt'
 	'mongoose'
+	'uuid'
 }
 schemas = require('./schemas')(mongoose)
 School = mongoose.model 'School' schemas.School
 User = mongoose.model 'User' schemas.User
 Course = mongoose.model 'Course' schemas.Course
-Post = mongoose.model 'Post' schemas.Post
+
+console.log 'Searching under ',process.env.school
 
 db = mongoose.connection
 mongouser = if process.env.mongouser or process.env.MONGOUSER then ( process.env.mongouser || process.env.MONGOUSER )
@@ -18,26 +20,10 @@ db.on 'error', console.error.bind console, 'connection error:'
 err, something <- db.once 'open'
 hashPassword = bcrypt.hashSync 'password', 10
 
-err,result <- School.remove { 'name': process.env.school }
-if err?
-	console.log err
-console.log result
-console.log 'supposedly deleted '+process.env.school
-
-err,result <- User.remove { 'school': process.env.school }
-if err?
-	console.log err
-console.log result
-console.log 'supposedly deleted all Users from '+process.env.school
-
-err,result <- Course.remove { 'school': process.env.school }
-if err?
-	console.log err
-console.log result
-console.log 'supposedly deleted all Course from '+process.env.school
-
-err,result <- Post.remove { 'school': process.env.school }
-if err?
-	console.log err
-console.log result
-console.log 'supposedly deleted all Post from '+process.env.school
+err,result <- Course.find { 'school':process.env.school, 'students':'student' }
+if err
+	console.error err
+if result? and result.length > 0
+	console.log 'Course:',result
+else
+	console.log 'No Courses Found'

@@ -1,8 +1,9 @@
 module.exports = (app)->
 	require! {
 		'bcrypt'
+		'winston'
 	}
-	winston = app.locals.winston
+	# winston = app.locals.winston
 	# models = app.locals.models
 	User = app.locals.models.User
 	app
@@ -28,7 +29,8 @@ module.exports = (app)->
 					req.session.auth = user.type
 					req.session.username = user.username
 					req.session.userid = user.id
-					req.session.courses = user.courses
+					req.session.uid = user._id
+					# req.session.courses = user.courses # find better way
 					res.redirect '/'
 					res.end!
 				else

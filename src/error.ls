@@ -1,6 +1,8 @@
 module.exports = (app)->
-	async = app.locals.async
-	winston = app.locals.winston
+	require! {
+		'async'
+		'winston'
+	}
 	app
 		..use (err, req, res, next)->
 			async.parallel [

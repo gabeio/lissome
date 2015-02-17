@@ -7,5 +7,8 @@
 
 
 {% block body %}
-	<center><h3>{{err}}</h3></center>
+	<div class="container-fluid">
+		{% include 'navbar.html' ignore missing %}
+		<p class="text-center"><h3>{{err}}</h3></p>
+	</div>
 {% endblock %}

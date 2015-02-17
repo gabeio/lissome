@@ -1,41 +1,84 @@
 {% extends 'base.html' %}
 
 {%- block head -%}
-	<title>{{ school }} - Blog</title>
+	<title>Blog - {{ school }}</title>
 {%- endblock -%}
 
 {%- block body -%}
-	<div class="container">
+	<div class="container-fluid">
 		{% include 'navbar.html' ignore missing %}
-		<div class="row">
-			{%- for entry in blog -%}
+		{%- if !create %}
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+			<ol class="breadcrumb">
+				<li><a href="/">Home</a></li>
+				<li><a href="/{{ course.id }}">{{ course.title }}</a></li>
+				<li class="active">Blog</li>
+			</ol>
+			{% if auth <= 2 %}<div class="pull-right">
+				<a href="/{{ course.id }}/blog/new" class="btn btn-default"><span class="glyphicon glyphicon-edit"></span></a>
+			</div>{% endif %}
+			{%- for entry in blog|reverse -%}
 			<div class="col-xs-12">
 				<h2>{{ entry.title }}</h2>
 				{{ entry.text|markdown|safe }}
-				<p class="text-muted">{{ entry.author }}</p>
+				<p class="text-muted">{{ entry.author }}<span class="pull-right">{{ entry.time|date('F jS h:m:s') }}</span></p>
 			</div>
 			{%- endfor -%}
 		</div>
-		{%- if edit %}
-		<form class="form-horizonal" method="POST" action="#">
-			<label class="col-xs-2" for="formTitle">Title</label>
-			<div class="col-xs-9 col-xs-offset-1 form-group">
+		{%- else %}
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+			<ol class="breadcrumb">
+				<li><a href="/">Home</a></li>
+				<li><a href="/{{ course.id }}">{{ course.title }}</a></li>
+				<li><a href="/{{ course.id }}/blog">Blog</a></li>
+				<li class="active">New Post</li>
+			</ol>
+		</div>
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="#">
+			{%- if success == true -%}
+			<div class="form-group">
+				<div class="alert alert-success" role="alert">
+					Blog post created successfully.
+				</div>
+			</div>
+			{%- elif success == false -%}
+			<div class="form-group">
+				<div class="alert alert-danger" role="alert">
+					Blog post failed to be created successfully.
+				</div>
+			</div>
+			{%- else -%}
+			{%- endif -%}
+			<div class="form-group">
+				<label for="formTitle">Title</label>
 				<input type="text" class="form-control" id="formTitle" name="title" />
 			</div>
-			<label class="col-xs-2" for="formBody">Body</label>
-			<div class="col-xs-9 col-xs-offset-1 form-group">
+			<div class="form-group">
+				<label for="formBody">Body</label>
 				<textarea class="form-control" id="formBody" name="body"></textarea>
 			</div>
-			<label class="col-xs-2" for="formUpload">Files</label>
-			<div class="col-xs-9 col-xs-offset-1 form-group">
+			<div class="form-group">
+				<label for="formUpload">Files</label>
 				<input type="file" id="formUpload" name="files" />
 			</div>
 			<div class="form-group">
-				<div class="col-xs-offset-3 col-xs-10">
-					<button type="submit" class="btn btn-default">Submit</button>
-				</div>
+				<button type="submit" class="btn btn-default">Submit</button>
 			</div>
 		</form>
-		{% endif -%}
+		{% endif %}
+		{# for entry use
+		<div class="row">
+			{%- for entry in blog|reverse -%}
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				{%- if create %}<input type="hidden" name="uuid" value="{{ entry.uuid }}" />{% endif -%}
+				<h2><input type="text" value="{{ entry.title }}" name="title" /></h2>
+				<textarea name="text">{{ entry.text|safe }}</textarea>
+				<input type="files" name="files" />
+				<p class="text-muted">{{ entry.author }} {{ entry.time|date('F jS h:m:s') }}</p>
+				<button class="button danger-button">delete</button>
+			</div>
+			{%- endfor -%}
+		</div>
+		{%- endif -%}#}
 	</div>
 {%- endblock -%}

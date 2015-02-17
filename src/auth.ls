@@ -1,8 +1,8 @@
 module.exports = (app)->
 	require! {
 		'util'
+		'winston'
 	}
-	winston = app.locals.winston
 	app
 		..locals.authorize = (req, res, next)->
 			winston.info "auth #{req.session.auth}"
@@ -12,16 +12,11 @@ module.exports = (app)->
 			else
 				# req.session.auth = (1|2|3|4)
 				if !res.locals.needs?
-					winston.error '!needs? '+req.originalUrl
-					# throw new Error 'UNKNOWN NEEDS'
+					winston.error "!needs? #{req.originalUrl}"
+					# next new Error 'UNKNOWN NEEDS'
 					next! # if needs is undefined then probably okay
 				else # check needs <= has
-					if req.session.auth is 3
-						next! # just get admins through
-					else if res.locals.needs <= req.session.auth
-						if req.params.course in req.session.courses # check if student/teacher part of class
-							next!
-						else
-							next new Error 'UNAUTHORIZED'
+					if res.locals.needs <= req.session.auth
+						next!
 					else
 						next new Error 'UNAUTHORIZED' # other unauth
