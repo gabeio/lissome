@@ -13,19 +13,19 @@ module.exports = (app)->
 		.get (req, res, next)->
 			res.locals.on = 'dash'
 			switch req.session.auth
-			| 2
+			| 3
 				err, courses <- Course.find {
 					'school':app.locals.school
-					'faculty':mongoose.Types.ObjectId(req.session.uid)
 				}
 				if err
 					winston.error 'course:find', err
 				else
 					res.locals.courses = courses
 					res.render 'dashboard'
-			| 3
+			| 2
 				err, courses <- Course.find {
 					'school':app.locals.school
+					'faculty':mongoose.Types.ObjectId(req.session.uid)
 				}
 				if err
 					winston.error 'course:find', err
