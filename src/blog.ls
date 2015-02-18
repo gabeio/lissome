@@ -61,21 +61,12 @@ module.exports = (app)->
 
 		.post (req, res, next)->
 			var authorName, authorUsername
-			async.series [
-				(done)->
+			async.parallel [
+				->
 					res.render 'blog', { +create, 'blog':true, 'on':'newblog', success:'yes' } # return
-					done!
-				(done)->
-					cont = lodash.once done
-					err, user <- User.findOne {
-						'_id': mongoose.Types.ObjectId req.session.uid
-						'school': app.locals.school
-					}
-					authorUsername := user.username
-					authorName := user.firstName+" "+user.lastName
-					cont!
-				(done)->
-					console.log 
+				->
+					authorUsername := req.session.username
+					authorName := req.session.firstName+" "+req.session.lastName
 					post = new Post {
 						# uuid: res.locals.postuuid
 						title: req.body.title
@@ -92,8 +83,6 @@ module.exports = (app)->
 					err, post <- post.save
 					if err?
 						winston.error 'blog post save', err
-					# res.render 'blog', { +create, success:'yes' }
-					done!
 			]
 
 		.put (req, res, next)->
