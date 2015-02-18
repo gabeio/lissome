@@ -63,6 +63,7 @@ async.series [
 					username: "student"
 					firstName: "Alpha"
 					lastName: "Beta"
+					email: "student@kean.edu"
 					hash: hashPassword
 					school: process.env.school
 					type: 1
@@ -91,6 +92,7 @@ async.series [
 					username: "astudent"
 					firstName: "Alpha1"
 					lastName: "Beta1"
+					email: "astudent@kean.edu"
 					hash: hashPassword
 					school: process.env.school
 					type: 1
@@ -119,6 +121,7 @@ async.series [
 					username: "faculty"
 					firstName: "Alpha2"
 					lastName: "Beta2"
+					email: "faculty@kean.edu"
 					hash: hashPassword
 					school: process.env.school
 					type: 2
@@ -147,6 +150,7 @@ async.series [
 					username: "gfaculty"
 					firstName: "Alpha3"
 					lastName: "Beta3"
+					email: "gfaculty@kean.edu"
 					hash: hashPassword
 					school: process.env.school
 					type: 2
@@ -175,6 +179,7 @@ async.series [
 					username: "admin"
 					firstName: "Alpha4"
 					lastName: "Beta4"
+					email: "admin@kean.edu"
 					hash: hashPassword
 					school: process.env.school
 					type: 3

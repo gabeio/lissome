@@ -6,12 +6,12 @@ module.exports = (app)->
 	Course = app.locals.models.Course
 	Post = app.locals.models.Post
 	app
-		..route '/:course/edit'
+		..route '/:course/settings'
 		.all (req, res, next)->
 			res.locals.needs = 2 # maybe 3
 			app.locals.authorize req, res, next
 		.all (req, res, next)->
-			res.locals.oncourse = true
+			res.locals.on = 'course'
 			...
 		.get (req, res, next)->
 			res.send 'this will allow showing of course settings'
@@ -41,7 +41,7 @@ module.exports = (app)->
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
 		.get (req, res, next)->
-			res.locals.oncourse = true
+			res.locals.on = 'course'
 			switch req.session.auth
 			| 1
 				console.log '1'

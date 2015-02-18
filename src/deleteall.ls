@@ -18,7 +18,7 @@ db.on 'error', console.error.bind console, 'connection error:'
 
 async.series [
 	(done)->
-		err,result <- School.remove
+		err,result <- School.remove {}
 		if err?
 			console.log err
 			done err
@@ -26,7 +26,7 @@ async.series [
 			console.log "supposedly deleted #{result} Schools"
 			done!
 	(done)->
-		err,result <- User.remove
+		err,result <- User.remove {}
 		if err?
 			console.log err
 			done err
@@ -34,7 +34,7 @@ async.series [
 			console.log "supposedly deleted #{result} Users"
 			done!
 	(done)->
-		err,result <- Course.remove
+		err,result <- Course.remove {}
 		if err?
 			console.log err
 			done err
@@ -42,7 +42,7 @@ async.series [
 			console.log "supposedly deleted #{result} Course"
 			done!
 	(done)->
-		err,result <- Post.remove
+		err,result <- Post.remove {}
 		if err?
 			console.log err
 			done err

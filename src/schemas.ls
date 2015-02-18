@@ -16,9 +16,10 @@ module.exports = (mongoose)->
 		hash: { type: String, +required }
 		school: { type: String, +required, ref: 'School' }
 		type: { type: Number, +required, default: 1 }
-		firstName: String # first name
-		lastName: String # last name
-		author: { type: Schema.Types.ObjectId, ref:'User' }
+		firstName: { type: String } # first name
+		lastName: { type: String } # last name
+		creator: { type: Schema.Types.ObjectId, ref:'User' } # if admins wish to save creator
+		email: { type: String, +unique, +required }
 		# OPTIONAL
 		# courses: [
 		# 	{ type: String, ref: 'Course' } # course id list
@@ -26,7 +27,7 @@ module.exports = (mongoose)->
 		id: { type: Number, +unique }, # school issued id
 		middleName: String # middle name
 	}
-	User.index {username: 1}
+	User.index { username: 1 }
 	Course = new Schema {
 		# AUTOCREATED
 		# _id
@@ -111,6 +112,7 @@ module.exports = (mongoose)->
 		# _id
 		author: { type: Schema.Types.ObjectId, +required, ref:'User' }
 		authorName: { type: String, +required }
+		authorUsername: { type: String, +required }
 		timestamp: { type: Date, default: Date.now }
 		# REQUIRED
 		course: { type: Schema.Types.ObjectId, +required, ref:'Course' }
@@ -123,7 +125,7 @@ module.exports = (mongoose)->
 		files: Buffer
 		tags: []
 	}
-	Post.index {timestamp: 1}
+	Post.index { timestamp: -1 }
 	module.exports = {
 		School: School
 		User: User

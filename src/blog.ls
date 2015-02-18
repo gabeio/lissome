@@ -12,13 +12,13 @@ module.exports = (app)->
 	Course = app.locals.models.Course
 	Post = app.locals.models.Post
 	app
-		..route '/:course/blog/:id?/:create(new|create)'
+		..route '/:course/blog/:id?/:action(new|edit)'
 		.all (req, res, next)->
 			res.locals.needs = 2
 			app.locals.authorize req, res, next
 
 		.all (req, res, next)->
-			res.locals.onblog = true
+			res.locals.on = 'blog'
 			switch req.session.auth
 			| 3
 				err, result <- Course.find {
@@ -57,83 +57,77 @@ module.exports = (app)->
 			# }
 			# console.log 'posts',posts
 			# res.locals.blog = posts
-			res.render 'blog', { +create }
+			res.render 'blog', { +create, 'blog':true, 'on':'newblog' }
 
 		.post (req, res, next)->
-			console.log req.body
-			err, user <- User.findOne {
-				'_id': mongoose.Types.ObjectId(post.author)
-				'school': app.locals.school
-			}
-			authorName = ""
-			if user.firstName?
-				authorName += user.firstName
-			if user.middleName?
-				authorName += user.middleName
-			if user.lastName?
-				authorName += user.lastName
-			post = new Post {
-				# uuid: res.locals.postuuid
-				title: req.body.title
-				text: req.body.body
-				files: req.body.files
-				author: mongoose.Types.ObjectId(req.session.uid)
-				authorName: authorName
-				tags: []
-				type: 'blog'
-				school: app.locals.school
-				course: mongoose.Types.ObjectId(res.locals.course._id)
-			}
-			err, post <- post.save
-			if err?
-				winston.error 'blog post save', err
-				res.render 'blog', { +create, success:'no' }
-			else
-				# winston.info 'blog post save', post
-				res.render 'blog', { +create, success:'yes' }
+			var authorName, authorUsername
+			async.series [
+				(done)->
+					res.render 'blog', { +create, 'blog':true, 'on':'newblog', success:'yes' } # return
+					done!
+				(done)->
+					cont = lodash.once done
+					err, user <- User.findOne {
+						'_id': mongoose.Types.ObjectId req.session.uid
+						'school': app.locals.school
+					}
+					authorUsername := user.username
+					authorName := user.firstName+" "+user.lastName
+					cont!
+				(done)->
+					console.log 
+					post = new Post {
+						# uuid: res.locals.postuuid
+						title: req.body.title
+						text: req.body.body
+						files: req.body.files
+						author: mongoose.Types.ObjectId req.session.uid
+						authorName: authorName
+						authorUsername: authorUsername
+						tags: []
+						type: 'blog'
+						school: app.locals.school
+						course: mongoose.Types.ObjectId res.locals.course._id
+					}
+					err, post <- post.save
+					if err?
+						winston.error 'blog post save', err
+					# res.render 'blog', { +create, success:'yes' }
+					done!
+			]
 
 		.put (req, res, next)->
-			...
-			# err, course <- Course.find {
-			# 	'uid':req.params.course
-			# 	'school':app.locals.school
-			# }
-			# if err
-			# 	winston.error 'course:find '+err
-			# if !course? or course.length is 0
-			# 	next new Error 'NOT FOUND'
-			# else
-			# 	course = course.0
-			# 	err, post <- Post.findOneAndUpdate {
-			# 		'school': app.locals.school
-			# 		'course': course.uuid
-			# 		'type': 'blog'
-			# 		'uuid': req.body.uuid
-			# 	}
-			# 	if err
-			# 		winston.error 'post:update:blog', err
-			# 	res.redirect '#'
+			async.parallel [
+				->
+					res.redirect '#'
+				->
+					err, post <- Post.findOneAndUpdate {
+						'_id': mongoose.Types.ObjectId req.body.pid
+						'school': app.locals.school
+						'course': mongoose.Types.ObjectId res.locals.course._id
+						'type': 'blog'
+					}, {
+						'title': res.body.title
+						'text': res.body.text
+					}
+					if err
+						winston.error 'blog post update', err
+			]
 
 		.delete (req, res, next)->
-			...
-			# err, course <- Course.find {
-			# 	'id':req.params.course
-			# 	'school':app.locals.school
-			# }
-			# if err
-			# 	winston.error 'course:find '+err
-			# if !course? or course.length is 0
-			# 	next new Error 'NOT FOUND'
-			# else
-			# 	course = course.0
-			# 	err, post <- Post.remove {
-			# 		'_id': 
-			# 		'school': app.locals.school
-			# 		'course': course.uuid
-			# 		'type': 'blog'
-			# 		# 'uuid': req.body.uuid
-			# 	}
-			# 	res.redirect '#'
+			async.parallel [
+				->
+					res.redirect '#'
+				->
+					err, post <- Post.remove {
+						'_id': mongoose.Types.ObjectId req.body.pid
+						'school': app.locals.school
+						'course': mongoose.Types.ObjectId res.locals.course._id
+						'type': 'blog'
+					}
+					if err
+						winston.error 'blog post delete', err
+			]
 
 		..route '/:course/blog/:unique?'
 		.all (req, res, next)->
@@ -141,7 +135,7 @@ module.exports = (app)->
 			app.locals.authorize req, res, next
 
 		.all (req, res, next)->
-			res.locals.onblog = true
+			res.locals.on = 'blog'
 			switch req.session.auth
 			| 3
 				err, result <- Course.find {
@@ -188,10 +182,8 @@ module.exports = (app)->
 				next new Error 'UNAUTHORIZED'
 
 		.get (req, res, next)->
-			# console.log 'ALPHA'
 			res.locals.blog = []
 			if req.params.unique?
-				# console.log 'b'
 				async.series [
 					# (done)->
 					# 	# search date
@@ -209,7 +201,6 @@ module.exports = (app)->
 					# 	# if it's not a date don't do the search
 					(done)->
 						# search titles
-						console.log 'e'
 						err, posts <- Post.find {
 							'course':mongoose.Types.ObjectId(res.locals.course._id)
 							'type':'blog'
@@ -220,7 +211,6 @@ module.exports = (app)->
 						done!
 					(done)->
 						# search tags
-						console.log 'f'
 						err, posts <- Post.find {
 							'course':mongoose.Types.ObjectId(res.locals.course._id)
 							'type':'blog'
@@ -235,8 +225,11 @@ module.exports = (app)->
 				]
 			else
 				err, posts <- Post.find {
-					'course':mongoose.Types.ObjectId(res.locals.course._id)
+					'course': mongoose.Types.ObjectId res.locals.course._id
 					'type':'blog'
-				}
+				}# } .sort {
+				# 	date: 'descending'
+				# } .exec
+				console.log posts
 				res.locals.blog = posts
 				res.render 'blog'
