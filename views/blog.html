@@ -6,20 +6,33 @@
 
 {%- block body -%}
 	<div class="container-fluid">
-		{% include 'navbar.html' ignore missing %}
+		{% include 'navbar.html' %}
 		{%- if !create %}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				{% if 2 <= auth %}<div class="pull-right">
-					<a href="/{{ course.id }}/blog/new" class="btn btn-default"><span class="glyphicon glyphicon-edit"></span></a>
+					<a href="/{{ course.id }}/blog/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span></a>
 				</div>{% endif %}
-				{%- for entry in blog|reverse -%}
+				{%- for entry in blog -%}
 				<div class="col-xs-12 well">
+					{%- if 2 <= auth -%}
+					<div class="pull-right">
+						<div class="dropdown">
+							<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+								<span class="glyphicon glyphicon-cog"></span>
+								<span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
+								<li role="presentation"><a role="menuitem" tabindex="-1" href="/{{ course.id }}/blog/{{ entry.title }}/edit"><span class="glyphicon glyphicon-edit"></span> Edit</a></li>
+								<li role="presentation"><a role="menuitem" tabindex="-1" href="/{{ course.id }}/blog/{{ entry.title }}"><span class="glyphicon glyphicon-remove"></span> Delete</a></li>
+							</ul>
+						</div>
+					</div>
+					{% endif %}
 					<h2>{{ entry.title }}</h2>
 					{{ entry.text|markdown|safe }}
-					<p class="text-muted">{{ entry.author.firstName }}{{ entry.author.middleName }}{{ entry.author.lastName }}
-					{%- if !entry.author.firstName or !entry.author.lastName %}{{ entry.author.username }}{% endif -%}
-					<span class="pull-right">{{ entry.timestamp|date('F jS H:m a') }}</span></p>
+					<p class="text-muted"><span class="pull-left" alt="{{ entry.authorUsername }}">{{ entry.authorName }}</span>
+					<span class="pull-right">{{ entry.timestamp|date('F jS h:m a') }}</span></p>
 					<hr />
 				</div>
 				{%- endfor -%}
@@ -39,7 +52,6 @@
 					Blog post failed to be created successfully.
 				</div>
 			</div>
-			{%- else -%}
 			{%- endif -%}
 			<div class="form-group">
 				<label for="formTitle">Title</label>
@@ -73,4 +85,5 @@
 		</div>
 		{%- endif -%}#}
 	</div>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js"></script>
 {%- endblock -%}

@@ -9,7 +9,7 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" {#href="#"#}>{{ school }}</a>
+					<a class="navbar-brand" href="/">{{ school }}</a>
 				</div>
 				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 					<ul class="nav navbar-nav">
@@ -19,7 +19,7 @@
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						<li class="dropdown">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-cog"></span><span class="caret"></span></a>
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-cog"></span><!-- <span class="caret"></span> --></a>
 							<ul class="dropdown-menu" role="menu">
 								<li><a href="/preferences"><span class="glyphicon glyphicon-wrench"></span> Preferences</a></li>
 								<li class="divider"></li>
@@ -34,13 +34,14 @@
 	<div class="row">
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 			<ol class="breadcrumb">
-				{% if ondash %}<li class="active">Home</li>{% else %}<li><a href="/">Home</a></li>{% endif %}
-				{% if course and !oncourse %}<li><a href="/{{ course.id }}">{{ course.title }}</a></li>{% endif %}
-				{% if oncourse %}<li class="active">{{ course.title }}</li>{% endif %}
-				{% if onblog %}<li class="active">Blog</li>{% endif %}
-				{% if onpreferences %}<li class="active">Preferences</li>{% endif %}
-				{% if onsettings %}<li class="active">Settings</li>{% endif %}
-				{% if newpost %}<li class="active">New Post</li>{% endif %}
+				{% if on == 'dash' %}<li class="active">Home</li>{% else %}<li><a href="/">Home</a></li>{% endif %}
+				{% if course and on !== 'course' %}<li><a href="/{{ course.id }}">{{ course.title }}</a></li>{% endif %}
+				{% if blog and on !== 'blog' %}<li><a href="/{{ course.id }}/blog">Blog</a></li>{% endif %}
+				{% if on == 'course' %}<li class="active">{{ course.title }}</li>
+				{% elif on == 'blog' %}<li class="active">Blog</li>
+				{% elif on == 'preferences' %}<li class="active">Preferences</li>
+				{% elif on == 'settings' %}<li class="active">Settings</li>
+				{% elif on == 'newblog' %}<li class="active">New Post</li>{% endif %}
 			</ol>
 		</div>
 	</div>
