@@ -13,12 +13,10 @@ require! {
 	'fs-extra' # only if needed
 	'markdown'
 	'method-override'
-	# 'mongoose'
 	'multer'
 	'serve-static' # nginx static
 	'swig' # templates
 	'util'
-	# 'uuid'
 	'winston'
 	'yargs' # --var val
 }
@@ -73,7 +71,7 @@ mongo = require('./mongoClient')(app,\
 
 # App Settings/Middleware
 app
-	# needs to come first MIGHT NOT WORK...
+	# method override needs to come first.
 	.use method-override 'hmo' # Http-Method-Override
 	# sessions
 	.use express-session {
@@ -99,7 +97,6 @@ app
 	# .set 'views' __dirname + '/NOTviews' # /views by default
 	# static assets (html,js,css)
 	.use '/static' serveStatic './static'
-	.use '/assets' serveStatic './static'
 	# body parser
 	.use bodyParser.urlencoded {
 		-extended
@@ -163,7 +160,8 @@ require('./base')(app)
 
 /* istanbul ignore next */
 if !module.parent # assure this file is not being run by a different file
-	if process.env.port? or process.env.PORT? or yargs.argv.http? or yargs.argv.port? # assure one of the settings were given
+	# assure one of the settings were given
+	if process.env.port? or process.env.PORT? or yargs.argv.http? or yargs.argv.port?
 		port = (process.env.port or process.env.PORT) or (yargs.argv.http or yargs.argv.port)
 		winston.info 'Server started on port ' + port + ' at ' + new Date Date.now!
 		server = app.listen port
