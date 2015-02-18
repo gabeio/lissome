@@ -30,6 +30,9 @@ module.exports = (app)->
 					req.session.username = user.username
 					req.session.userid = user.id
 					req.session.uid = user._id
+					req.session.firstName = user.firstName
+					req.session.middleName = user.middleName
+					req.session.lastName = user.lastName
 					# req.session.courses = user.courses # find better way
 					res.redirect '/'
 					res.end!
