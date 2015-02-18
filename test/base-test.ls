@@ -319,8 +319,34 @@ describe "Base" ->
 
 	describe "Course", (...)->
 		# before (done)->
-		it "should allow a student to access their classes"
-		it "should not allow a student should NOT be able to access any other classes"
+		it "should allow a student to access their classes", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'Student'
+					'password': 'password'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 302
+					agent
+						.get '/cps1234'
+						.end (err, res)->
+							expect res.status .to.equal 200
+							done err
+		it "should not allow a student should NOT be able to access any other classes", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'Student'
+					'password': 'password'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 302
+					agent
+						.get '/cps4601'
+						.end (err, res)->
+							expect res.status .to.not.equal 200
+							done err
 		it "should allow a teacher should be able to edit their classes"
 		it "should allow a teacher should NOT be ablt to edit any other classes"
 		it "should allow an admin should be able to edit any class"
