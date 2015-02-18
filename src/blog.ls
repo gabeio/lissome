@@ -16,7 +16,6 @@ module.exports = (app)->
 		.all (req, res, next)->
 			res.locals.needs = 2
 			app.locals.authorize req, res, next
-
 		.all (req, res, next)->
 			res.locals.on = 'blog'
 			switch req.session.auth
@@ -49,7 +48,6 @@ module.exports = (app)->
 						next!
 			| _
 				next new Error 'UNAUTHORIZED'
-
 		.get (req, res, next)->
 			# err, posts <- Post.find {
 			# 	'course': mongoose.Types.ObjectId(res.locals.course._id)
@@ -58,7 +56,6 @@ module.exports = (app)->
 			# console.log 'posts',posts
 			# res.locals.blog = posts
 			res.render 'blog', { +create, 'blog':true, 'on':'newblog' }
-
 		.post (req, res, next)->
 			var authorName, authorUsername
 			async.parallel [
@@ -84,7 +81,6 @@ module.exports = (app)->
 					if err?
 						winston.error 'blog post save', err
 			]
-
 		.put (req, res, next)->
 			async.parallel [
 				->
@@ -102,7 +98,6 @@ module.exports = (app)->
 					if err
 						winston.error 'blog post update', err
 			]
-
 		.delete (req, res, next)->
 			async.parallel [
 				->
@@ -117,12 +112,10 @@ module.exports = (app)->
 					if err
 						winston.error 'blog post delete', err
 			]
-
 		..route '/:course/blog/:unique?'
 		.all (req, res, next)->
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
-
 		.all (req, res, next)->
 			res.locals.on = 'blog'
 			switch req.session.auth
@@ -169,7 +162,6 @@ module.exports = (app)->
 						next!
 			| _
 				next new Error 'UNAUTHORIZED'
-
 		.get (req, res, next)->
 			res.locals.blog = []
 			if req.params.unique?
