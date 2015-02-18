@@ -44,7 +44,6 @@ module.exports = (app)->
 			res.locals.on = 'course'
 			switch req.session.auth
 			| 1
-				console.log '1'
 				err,result <- Course.find { 'id':req.params.course, 'school':app.locals.school, 'students': mongoose.Types.ObjectId(req.session.uid) }
 				if err?
 					winston.error 'course:find', err
@@ -56,7 +55,6 @@ module.exports = (app)->
 						res.locals.course = result.0
 						next!
 			| 2
-				console.log '2'
 				err,result <- Course.find { 'id':req.params.course, 'school':app.locals.school, 'faculty': mongoose.Types.ObjectId(req.session.uid) }
 				if err?
 					winston.error 'course:find', err
@@ -68,7 +66,6 @@ module.exports = (app)->
 						res.locals.course = result.0
 						next!
 			| 3
-				console.log '3'
 				err,result <- Course.find { 'id':req.params.course, 'school':app.locals.school }
 				if err?
 					winston.error 'course:find', err
@@ -82,5 +79,4 @@ module.exports = (app)->
 			| _
 				next new Error 'UNAUTHORIZED'
 		.get (req, res, next)->
-			console.log '4'
 			res.render 'course'
