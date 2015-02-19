@@ -20,7 +20,7 @@ require! {
 	'winston'
 	'yargs' # --var val
 }
-RedisStore = connect-redis(express-session)
+RedisStore = connect-redis express-session
 argv = yargs.argv
 app = module.exports = express!
 fs = fsExtra
@@ -162,7 +162,7 @@ require('./base')(app)
 if !module.parent # assure this file is not being run by a different file
 	# assure one of the settings were given
 	if process.env.port? or process.env.PORT? or yargs.argv.http? or yargs.argv.port?
-		port = (process.env.port or process.env.PORT) or (yargs.argv.http or yargs.argv.port)
+		port = process.env.port or process.env.PORT or yargs.argv.http or yargs.argv.port
 		winston.info 'Server started on port ' + port + ' at ' + new Date Date.now!
 		server = app.listen port
 	else
