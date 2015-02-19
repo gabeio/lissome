@@ -14,6 +14,64 @@ module.exports = (app)->
 	Grade = mongoose.model 'Grade' schemas.Grade
 	Thread = mongoose.model 'Thread' schemas.Thread
 	Post = mongoose.model 'Post' schemas.Post
+	async.parallel [
+		->
+			User.find().populate('creator').exec (err, users)->
+				if err
+					winston.error 'User populate'
+		->
+			Course.find().populate('author').exec (err, courses)->
+				if err
+					winston.error 'Course populate'
+		->
+			Course.find().populate('faculty').exec (err, courses)->
+				if err
+					winston.error 'Course populate'
+		->
+			Course.find().populate('students').exec (err, courses)->
+				if err
+					winston.error 'Course populate'
+		->
+			Assignment.find().populate('author').exec (err, assignments)->
+				if err
+					winston.error 'Assignment populate'
+		->
+			Assignment.find().populate('course').exec (err, assignments)->
+				if err
+					winston.error 'Assignment populate'
+		->
+			Attempt.find().populate('author').exec (err, attempts)->
+				if err
+					winston.error 'Attempt populate'
+		->
+			Grade.find().populate('author').exec (err, grades)->
+				if err
+					winston.error 'Grade populate'
+		->
+			Grade.find().populate('attempt').exec (err, grades)->
+				if err
+					winston.error 'Grade populate'
+		->
+			Grade.find().populate('assignment').exec (err, grades)->
+				if err
+					winston.error 'Grade populate'
+		->
+			Thread.find().populate('author').exec (err, threads)->
+				if err
+					winston.error 'Thread populate'
+		->
+			Post.find().populate('author').exec (err, posts)->
+				if err
+					winston.error 'Post populate'
+		->
+			Post.find().populate('course').exec (err, posts)->
+				if err
+					winston.error 'Post populate'
+		->
+			Post.find().populate('thread').exec (err, posts)->
+				if err
+					winston.error 'Post populate'
+	]
 	# setup school if it's not already setup
 	School = mongoose.model 'School', schemas.School
 	School.find { name:process.env.school }, (err,school)->
