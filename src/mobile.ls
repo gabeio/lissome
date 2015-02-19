@@ -8,6 +8,9 @@ module.exports = (app)->
 				->
 					next!
 				->
+					if req.headers['user-agent'].match(/Mobile/i)
+						res.locals.mobile = true
+				->
 					if req.headers['user-agent'].match(/Android/i)
 						res.locals.mobile = true
 				->
