@@ -44,37 +44,37 @@ module.exports = (app)->
 			res.locals.on = 'course'
 			switch req.session.auth
 			| 1
-				err,result <- Course.find { 'id':req.params.course, 'school':app.locals.school, 'students': mongoose.Types.ObjectId(req.session.uid) }
+				err,result <- Course.findOne { 'id':req.params.course, 'school':app.locals.school, 'students': mongoose.Types.ObjectId(req.session.uid) }
 				if err?
-					winston.error 'course:find', err
+					winston.error 'course:findOne', err
 					next new Error 'INTERNAL'
 				else
 					if !result? or result.length is 0
 						next new Error 'NOT FOUND'
 					else
-						res.locals.course = result.0
+						res.locals.course = result
 						next!
 			| 2
-				err,result <- Course.find { 'id':req.params.course, 'school':app.locals.school, 'faculty': mongoose.Types.ObjectId(req.session.uid) }
+				err,result <- Course.findOne { 'id':req.params.course, 'school':app.locals.school, 'faculty': mongoose.Types.ObjectId(req.session.uid) }
 				if err?
-					winston.error 'course:find', err
+					winston.error 'course:findOne', err
 					next new Error 'INTERNAL'
 				else
 					if !result? or result.length is 0
 						next new Error 'NOT FOUND'
 					else
-						res.locals.course = result.0
+						res.locals.course = result
 						next!
 			| 3
-				err,result <- Course.find { 'id':req.params.course, 'school':app.locals.school }
+				err,result <- Course.findOne { 'id':req.params.course, 'school':app.locals.school }
 				if err?
-					winston.error 'course:find', err
+					winston.error 'course:findOne', err
 					next new Error 'INTERNAL'
 				else
 					if !result? or result.length is 0
 						next new Error 'NOT FOUND'
 					else
-						res.locals.course = result.0
+						res.locals.course = result
 						next!
 			| _
 				next new Error 'UNAUTHORIZED'
