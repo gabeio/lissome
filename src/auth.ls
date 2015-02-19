@@ -5,8 +5,6 @@ module.exports = (app)->
 	}
 	app
 		..locals.authorize = (req, res, next)->
-			winston.info "auth #{req.session.auth}"
-			winston.info "needs #{res.locals.needs}"
 			if !req.session.auth?
 				next new Error 'UNAUTHORIZED'
 			else
