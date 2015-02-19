@@ -14,7 +14,10 @@ module.exports = (app)->
 			else
 				res.render 'login'
 		.post (req, res, next)->
-			err, user <- User.findOne { 'username':req.body.username.toLowerCase!, 'school':app.locals.school }
+			err, user <- User.findOne {
+				'username':req.body.username.toLowerCase!
+				'school':app.locals.school
+			}
 			if err
 				winston.err 'user:find', err
 			if !user? or user.length is 0
