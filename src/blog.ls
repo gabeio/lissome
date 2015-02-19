@@ -118,50 +118,62 @@ module.exports = (app)->
 			app.locals.authorize req, res, next
 		.all (req, res, next)->
 			res.locals.on = 'blog'
-			switch req.session.auth
-			| 3
-				err, result <- Course.findOne {
-					'id': req.params.course
-					'school': app.locals.school
-				}
-				if err
-					winston.error 'course:findOne:blog', err
-				else
-					if !result? or result.length is 0
-						next new Error 'NOT FOUND'
+			err, data <- async.parallel [
+				(done)->
+					if req.session.auth is 3
+						err, result <- Course.findOne {
+							'id': req.params.course
+							'school': app.locals.school
+						}
+						if err
+							winston.error 'course:findOne:blog:auth3', err
+							next new Error 'INTERNAL'
+						else
+							if !result? or result.length is 0
+								next new Error 'NOT FOUND'
+							else
+								res.locals.course = result
+								done!
 					else
-						res.locals.course = result
-						next!
-			| 2
-				err, result <- Course.findOne {
-					'id': req.params.course
-					'school': app.locals.school
-					'faculty': mongoose.Types.ObjectId(req.session.uid)
-				}
-				if err
-					winston.error 'course:findOne:blog', err
-				else
-					if !result? or result.length is 0
-						next new Error 'NOT FOUND'
+						done!
+				(done)->
+					if req.session.auth is 2
+						err, result <- Course.findOne {
+							'id': req.params.course
+							'school': app.locals.school
+							'faculty': mongoose.Types.ObjectId(req.session.uid)
+						}
+						if err
+							winston.error 'course:findOne:blog:auth2', err
+							next new Error 'INTERNAL'
+						else
+							if !result? or result.length is 0
+								next new Error 'NOT FOUND'
+							else
+								res.locals.course = result
+								done!
 					else
-						res.locals.course = result
-						next!
-			| 1
-				err, result <- Course.findOne {
-					'id': req.params.course
-					'school': app.locals.school
-					'students': mongoose.Types.ObjectId(req.session.uid)
-				}
-				if err
-					winston.error 'course:findOne:blog', err
-				else
-					if !result? or result.length is 0
-						next new Error 'NOT FOUND'
+						done!
+				(done)->
+					if req.session.auth is 1
+						err, result <- Course.findOne {
+							'id': req.params.course
+							'school': app.locals.school
+							'students': mongoose.Types.ObjectId(req.session.uid)
+						}
+						if err
+							winston.error 'course:findOne:blog:auth1', err
+							next new Error 'INTERNAL'
+						else
+							if !result? or result.length is 0
+								next new Error 'NOT FOUND'
+							else
+								res.locals.course = result
+								done!
 					else
-						res.locals.course = result
-						next!
-			| _
-				next new Error 'UNAUTHORIZED'
+						done!
+			]
+			next!
 		.get (req, res, next)->
 			res.locals.blog = []
 			if req.params.unique?
