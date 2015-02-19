@@ -47,7 +47,7 @@ module.exports = (mongoose)->
 		open: { type: Date }
 		close: { type: Date }
 	}
-	Course.index {timestamp: 1}
+	Course.index { timestamp: 1, id: 1 }
 	# Course internal Schemas
 	Assignment = new Schema {
 		# AUTOCREATED
@@ -66,26 +66,26 @@ module.exports = (mongoose)->
 		body: String # Require's text
 		files: Buffer # Require's file(s)?
 	}
-	Assignment.index {timestamp: 1}
+	Assignment.index { timestamp: 1, course: -1 }
 	Attempt = new Schema {
 		# AUTOCREATED
 		author: { type: Schema.Types.ObjectId, ref:'User' }
 		timestamp: { type: Date, default: Date.now } # submission time
 		# REQUIRED
-		assignment: String
+		assignment: { type: Schema.Types.ObjectId, +required, ref:'Assignment' }
 		text: String # student attempt text
 		files: Buffer # student attempt file(s)?
 		school: { type: String, +required, ref: 'School' }
 	}
-	Attempt.index {timestamp: 1}
+	Attempt.index { timestamp: 1, assignment: -1 }
 	Grade = new Schema {
 		# AUTOCREATED
 		# _id
 		author: { type: Schema.Types.ObjectId, ref:'User' }
 		timestamp: { type: Date, default: Date.now }
 		# REQUIRED
-		attempt: { type: Schema.Types.ObjectId, ref:'Attempt' }
 		assignment: { type: Schema.Types.ObjectId, ref:'Assignment' }
+		attempt: { type: Schema.Types.ObjectId, ref:'Attempt' }
 		school: { type: String, +required, ref: 'School' }
 		try: { type: Number, +required } # attempt index
 		type: { type: String, +required } # attempt/final
@@ -94,7 +94,7 @@ module.exports = (mongoose)->
 		total: Number # total points
 		id: Number # exam/assign index
 	}
-	Grade.index {timestamp: 1}
+	Grade.index { timestamp: 1, attempt: -1, assignment: 1 }
 	# Blog/Conference Schemas
 	Thread = new Schema {
 		# AUTOCREATED
@@ -102,11 +102,12 @@ module.exports = (mongoose)->
 		author: { type: Schema.Types.ObjectId, ref:'User' }
 		timestamp: { type: Date, default: Date.now }
 		school: { type: String, +required, ref: 'School' }
+		course: { type: Schema.Types.ObjectId, +required, ref:'Course' }
 		# REQUIRED
 		title: String # Thread name
 		thread: String # Parent Thread
 	}
-	Thread.index {timestamp: 1}
+	Thread.index { timestamp: 1, course: -1 }
 	Post = new Schema {
 		# AUTOCREATED
 		# _id
@@ -125,7 +126,7 @@ module.exports = (mongoose)->
 		files: Buffer
 		tags: []
 	}
-	Post.index { timestamp: -1 }
+	Post.index { timestamp: 1, course: -1, type: 1 }
 	module.exports = {
 		School: School
 		User: User
