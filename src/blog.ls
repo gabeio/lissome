@@ -12,7 +12,7 @@ module.exports = (app)->
 	Course = app.locals.models.Course
 	Post = app.locals.models.Post
 	app
-		..route '/:course/blog/:id?/:action(new|edit)'
+		..route '/:course/:blog(blog|b)/:id?/:action(new|edit)'
 		.all (req, res, next)->
 			res.locals.needs = 2
 			app.locals.authorize req, res, next
@@ -20,31 +20,31 @@ module.exports = (app)->
 			res.locals.on = 'blog'
 			switch req.session.auth
 			| 3
-				err, result <- Course.find {
+				err, result <- Course.findOne {
 					'id': req.params.course
 					'school': app.locals.school
 				}
 				if err
-					winston.error 'course:find:blog', err
+					winston.error 'course:findOne:blog', err
 				else
 					if !result? or result.length is 0
 						next new Error 'NOT FOUND'
 					else
-						res.locals.course = result.0
+						res.locals.course = result
 						next!
 			| 2
-				err, result <- Course.find {
+				err, result <- Course.findOne {
 					'id': req.params.course
 					'school': app.locals.school
 					'faculty': mongoose.Types.ObjectId(req.session.uid)
 				}
 				if err
-					winston.error 'course:find:blog', err
+					winston.error 'course:findOne:blog', err
 				else
 					if !result? or result.length is 0
 						next new Error 'NOT FOUND'
 					else
-						res.locals.course = result.0
+						res.locals.course = result
 						next!
 			| _
 				next new Error 'UNAUTHORIZED'
@@ -120,52 +120,52 @@ module.exports = (app)->
 			res.locals.on = 'blog'
 			switch req.session.auth
 			| 3
-				err, result <- Course.find {
+				err, result <- Course.findOne {
 					'id': req.params.course
 					'school': app.locals.school
 				}
 				if err
-					winston.error 'course:find:blog', err
+					winston.error 'course:findOne:blog', err
 				else
 					if !result? or result.length is 0
 						next new Error 'NOT FOUND'
 					else
-						res.locals.course = result.0
+						res.locals.course = result
 						next!
 			| 2
-				err, result <- Course.find {
+				err, result <- Course.findOne {
 					'id': req.params.course
 					'school': app.locals.school
 					'faculty': mongoose.Types.ObjectId(req.session.uid)
 				}
 				if err
-					winston.error 'course:find:blog', err
+					winston.error 'course:findOne:blog', err
 				else
 					if !result? or result.length is 0
 						next new Error 'NOT FOUND'
 					else
-						res.locals.course = result.0
+						res.locals.course = result
 						next!
 			| 1
-				err, result <- Course.find {
+				err, result <- Course.findOne {
 					'id': req.params.course
 					'school': app.locals.school
 					'students': mongoose.Types.ObjectId(req.session.uid)
 				}
 				if err
-					winston.error 'course:find:blog', err
+					winston.error 'course:findOne:blog', err
 				else
 					if !result? or result.length is 0
 						next new Error 'NOT FOUND'
 					else
-						res.locals.course = result.0
+						res.locals.course = result
 						next!
 			| _
 				next new Error 'UNAUTHORIZED'
 		.get (req, res, next)->
 			res.locals.blog = []
 			if req.params.unique?
-				async.series [
+				err, posts <- async.parallel [
 					# (done)->
 					# 	# search date
 					# 	if moment(req.params.unique).isValid!
@@ -182,28 +182,31 @@ module.exports = (app)->
 					# 	# if it's not a date don't do the search
 					(done)->
 						# search titles
-						err, posts <- Post.find {
-							'course':mongoose.Types.ObjectId(res.locals.course._id)
-							'type':'blog'
-							'title':req.params.unique
-						}
-						for post in posts
-							res.locals.blog.push post
-						done!
+						Post.find {
+							'course': mongoose.Types.ObjectId(res.locals.course._id)
+							'type': 'blog'
+							'title': req.params.unique
+						}, (err, posts)->
+							done err, posts
 					(done)->
 						# search tags
-						err, posts <- Post.find {
-							'course':mongoose.Types.ObjectId(res.locals.course._id)
-							'type':'blog'
-							'tag':req.params.unique
-						}
-						for post in posts
-							res.locals.blog.push post
-						done!
+						Post.find {
+							'course': mongoose.Types.ObjectId(res.locals.course._id)
+							'type': 'blog'
+							'tags': req.params.unique
+						}, (err, posts)->
+							done err, posts
 					(done)->
-						res.render 'blog'
-						done!
+						# search authorName
+						Post.find {
+							'course': mongoose.Types.ObjectId(res.locals.course._id)
+							'type': 'blog'
+							'authorName': req.params.unique
+						}, (err, posts)->
+							done err, posts
 				]
+				posts = _.flatten posts, true
+				res.render 'blog', blog: posts
 			else
 				err, posts <- Post.find {
 					'course': mongoose.Types.ObjectId res.locals.course._id
