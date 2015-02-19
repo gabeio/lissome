@@ -14,13 +14,12 @@ module.exports = (app)->
 			else
 				res.render 'login'
 		.post (req, res, next)->
-			err, user <- User.find { 'username':req.body.username.toLowerCase!, 'school':app.locals.school }
+			err, user <- User.findOne { 'username':req.body.username.toLowerCase!, 'school':app.locals.school }
 			if err
 				winston.err 'user:find', err
 			if !user? or user.length is 0
 				res.render 'login', { error: 'username not found' }
 			else
-				user = user.0
 				err,result <- bcrypt.compare req.body.password, user.hash
 				if err
 					winston.err err
