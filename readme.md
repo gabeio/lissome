@@ -12,6 +12,9 @@ process.env
 - mongo|MONGOURL = the uri to mongodb (mongodb://LOCATION/DB)
 - mongouser|MONGOUSER = the username to the mongo db
 - mongopass|MONGOPASS = the password to the mongo db
+- redishost|REDISHOST = the redis host
+- redisport|REDISPORT = the port redis is running on
+- redisauth|REDISAUTH = the auth for redis
 
 auth levels
 ===========

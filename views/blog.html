@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{%- block head -%}
+	<title>Blog - {{ school }}</title>
+{%- endblock -%}
+
+{%- block body -%}
+	<div class="container-fluid">
+		{% include 'navbar.html' %}
+		{%- if !create %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>Blog</h3>
+				</div>
+				{% if 2 <= auth %}<div class="pull-right">
+					<a href="/{{ course.id }}/blog/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span></a>
+				</div>{% endif %}
+				{%- for entry in blog -%}
+				<div class="col-xs-12 well">
+					{%- if 2 <= auth -%}
+					<div class="pull-right">
+						<div class="dropdown">
+							<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+								<span class="glyphicon glyphicon-cog"></span>
+								<span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
+								<li role="presentation"><a role="menuitem" tabindex="-1" href="/{{ course.id }}/blog/{{ entry.title }}/edit"><span class="glyphicon glyphicon-edit"></span> Edit</a></li>
+								<li role="presentation"><a role="menuitem" tabindex="-1" href="/{{ course.id }}/blog/{{ entry.title }}"><span class="glyphicon glyphicon-remove"></span> Delete</a></li>
+							</ul>
+						</div>
+					</div>
+					{% endif %}
+					<h2>{{ entry.title }}</h2>
+					{{ entry.text|markdown|safe }}
+					<p class="text-muted"><span class="pull-left" alt="{{ entry.authorUsername }}">{{ entry.authorName }}</span>
+					<span class="pull-right">{{ entry.timestamp|date('F jS h:m a') }}</span></p>
+					<hr />
+				</div>
+				{%- endfor -%}
+			</div>
+		</div>
+		{%- else %}
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="#">
+			{%- if success == 'yes' -%}
+			<div class="form-group">
+				<div class="alert alert-success" role="alert">
+					Blog post created successfully.
+				</div>
+			</div>
+			{%- elif success == 'no' -%}
+			<div class="form-group">
+				<div class="alert alert-danger" role="alert">
+					Blog post failed to be created successfully.
+				</div>
+			</div>
+			{%- endif -%}
+			<div class="form-group">
+				<label for="formTitle">Title</label>
+				<input type="text" class="form-control" id="formTitle" name="title" />
+			</div>
+			<div class="form-group">
+				<label for="formBody">Body</label>
+				<textarea class="form-control" id="formBody" name="body"></textarea>
+			</div>
+			<div class="form-group">
+				<label for="formUpload">Files</label>
+				<input type="file" id="formUpload" name="files" />
+			</div>
+			<div class="form-group">
+				<button type="submit" class="btn btn-default">Submit</button>
+			</div>
+		</form>
+		{% endif %}
+		{# for entry use
+		<div class="row">
+			{%- for entry in blog|reverse -%}
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				{%- if create %}<input type="hidden" name="uuid" value="{{ entry.uuid }}" />{% endif -%}
+				<h2><input type="text" value="{{ entry.title }}" name="title" /></h2>
+				<textarea name="text">{{ entry.text|safe }}</textarea>
+				<input type="files" name="files" />
+				<p class="text-muted">{{ entry.author }} {{ entry.time|date('F jS h:m:s') }}</p>
+				<button class="button danger-button">delete</button>
+			</div>
+			{%- endfor -%}
+		</div>
+		{%- endif -%}#}
+	</div>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js"></script>
+{%- endblock -%}

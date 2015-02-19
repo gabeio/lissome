@@ -4,7 +4,7 @@ require! {
 	'del' # delete
 	'async'
 }
-app = require '../app'
+app = require '../lib/app'
 req = supertest
 expect = chai.expect
 assert = chai.assert
@@ -52,14 +52,98 @@ describe "Base" ->
 				.end (err, res)->
 					expect res.status .to.not.equal 200
 					done err
+		it.skip "should be a dashboard for student"
+		it.skip "should be a dashboard for faculty"
+		it.skip "should be a dashboard for admin"
 
 	describe "Login/Logout", (...)->
-		it "should 200 to a GET", (done)->
+		afterEach (done)->
+			agent
+				.get '/logout'
+				.end (err, res)->
+					done err
+		it "should respond to a GET", (done)->
 			agent
 				.get '/login'
 				.end (err, res)->
 					expect res.status .to.equal 200
 					# expect res.text .to.
+					done err
+		it "should login with valid student credentials w/o type", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'Student'
+					'password': 'password'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 302
+					done err
+		it "should login with valid student credentials w/ type", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'Student'
+					'password': 'password'
+					'type': 'Student'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 302
+					done err
+		it "should login with valid faculty credentials", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'Faculty'
+					'password': 'password'
+					'type': 'Faculty'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 302
+					done err
+		it "should login with valid admin credentials", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'Admin'
+					'password': 'password'
+					'type': 'Admin'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 302
+					done err
+		it "shouldn't matter how the user caps the username (student)", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'stuDENT'
+					'password': 'password'
+					'type': 'stuDENT'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 302
+					done err
+		it "shouldn't matter how the user caps the username (faculty)", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'facULTY'
+					'password': 'password'
+					'type': 'FACULTY'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 302
+					done err
+		it "shouldn't matter how the user caps the username (admin)", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'adMIN'
+					'password': 'password'
+					'type': 'ADMIN'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 302
 					done err
 		it "should ignore everything else to login w/o credentials", (done)->
 			agent
@@ -81,59 +165,17 @@ describe "Base" ->
 						.end (err, res)->
 							expect res.status .to.not.equal 200
 							done err
-		it "should logout", (done)->
-			agent
-				.get '/logout'
-				.end (err, res)->
-					expect res.status .to.equal 302
-					/*expect res.headers.location .to.equal '/login'*/
-					done!
-		it "should 302 to a POST w/ student credentials w/o type", (done)->
-			agent
-				.post '/login'
-				.send {
-					'username': 'Student'
-					'password': 'password'
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
-		it "should logout", (done)->
-			agent
-				.get '/logout'
-				.end (err, res)->
-					expect res.status .to.equal 302
-					/*expect res.headers.location .to.equal '/login'*/
-					done!
-		it "should 302 to a POST w/ student credentials w/ type", (done)->
-			agent
-				.post '/login'
-				.send {
-					'username': 'Student'
-					'password': 'password'
-					'type': 'Student'
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
-		it "should logout", (done)->
-			agent
-				.get '/logout'
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done!
 		it "should ignore everything else to login w/ student credentials", (done)->
 			agent
-				.put '/login'
+				.post '/login'
 				.send {
-					'username':'gibberish'
-					'password':'idk'
-					'anything':'else'
+					'username': 'stuDENT'
+					'password': 'password'
+					'type': 'stuDENT'
 				}
 				.end (err, res)->
-					expect res.status .to.not.equal 200
 					agent
-						.delete '/login'
+						.put '/login'
 						.send {
 							'username':'gibberish'
 							'password':'idk'
@@ -141,15 +183,17 @@ describe "Base" ->
 						}
 						.end (err, res)->
 							expect res.status .to.not.equal 200
-							done err
-		it "should logout", (done)->
-			agent
-				.get '/logout'
-				.end (err, res)->
-					expect res.status .to.equal 302
-					/*expect res.headers.location .to.equal '/login'*/
-					done err
-		it "should 302 to a POST w/ faculty credentials", (done)->
+							agent
+								.delete '/login'
+								.send {
+									'username':'gibberish'
+									'password':'idk'
+									'anything':'else'
+								}
+								.end (err, res)->
+									expect res.status .to.not.equal 200
+									done err
+		it "should ignore everything else to login w/ faculty credentials", (done)->
 			agent
 				.post '/login'
 				.send {
@@ -158,20 +202,8 @@ describe "Base" ->
 					'type': 'Faculty'
 				}
 				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
-		it "should ignore everything else to login w/ faculty credentials", (done)->
-			agent
-				.put '/login'
-				.send {
-					'username':'gibberish'
-					'password':'idk'
-					'anything':'else'
-				}
-				.end (err, res)->
-					expect res.status .to.not.equal 200
 					agent
-						.delete '/login'
+						.put '/login'
 						.send {
 							'username':'gibberish'
 							'password':'idk'
@@ -179,15 +211,17 @@ describe "Base" ->
 						}
 						.end (err, res)->
 							expect res.status .to.not.equal 200
-							done err
-		it "should logout", (done)->
-			agent
-				.get '/logout'
-				.end (err, res)->
-					expect res.status .to.equal 302
-					/*expect res.headers.location .to.equal '/login'*/
-					done err
-		it "should 302 to a POST w/ admin credentials", (done)->
+							agent
+								.delete '/login'
+								.send {
+									'username':'gibberish'
+									'password':'idk'
+									'anything':'else'
+								}
+								.end (err, res)->
+									expect res.status .to.not.equal 200
+									done err
+		it "should ignore everything else to login w/ admin credentials", (done)->
 			agent
 				.post '/login'
 				.send {
@@ -196,20 +230,8 @@ describe "Base" ->
 					'type': 'Admin'
 				}
 				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
-		it "should ignore everything else to login w/ admin credentials", (done)->
-			agent
-				.put '/login'
-				.send {
-					'username':'gibberish'
-					'password':'idk'
-					'anything':'else'
-				}
-				.end (err, res)->
-					expect res.status .to.not.equal 200
 					agent
-						.delete '/login'
+						.put '/login'
 						.send {
 							'username':'gibberish'
 							'password':'idk'
@@ -217,14 +239,16 @@ describe "Base" ->
 						}
 						.end (err, res)->
 							expect res.status .to.not.equal 200
-							done err
-		it "should logout", (done)->
-			agent
-				.get '/logout'
-				.end (err, res)->
-					expect res.status .to.equal 302
-					/*expect res.headers.location .to.equal '/login'*/
-					done err
+							agent
+								.delete '/login'
+								.send {
+									'username':'gibberish'
+									'password':'idk'
+									'anything':'else'
+								}
+								.end (err, res)->
+									expect res.status .to.not.equal 200
+									done err
 		it "should fail for a blank student", (done)->
 			agent
 				.post '/login'
@@ -293,15 +317,45 @@ describe "Base" ->
 					expect res.text .to.have.string 'bad login credentials'
 					done err
 
-	/*describe "Course", (...)->
-		before
-		it "should"*/
+	describe "Course", (...)->
+		# before (done)->
+		it "should allow a student to access their classes", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'Student'
+					'password': 'password'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 302
+					agent
+						.get '/cps1234'
+						.end (err, res)->
+							expect res.status .to.equal 200
+							done err
+		it "should not allow a student should NOT be able to access any other classes", (done)->
+			agent
+				.post '/login'
+				.send {
+					'username': 'Student'
+					'password': 'password'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 302
+					agent
+						.get '/cps4601'
+						.end (err, res)->
+							expect res.status .to.not.equal 200
+							done err
+		it "should allow a teacher should be able to edit their classes"
+		it "should allow a teacher should NOT be ablt to edit any other classes"
+		it "should allow an admin should be able to edit any class"
+
+	describe "Dashboard", (...)->
+		it.skip "should show any changes to any classes a student presently enrolled in", (done)->
 
 	after (done)->
 		this.timeout 0
-		app.locals.db.close!
+		app.locals.mongo.close!
+		# app.locals.redis.close! # check if this works
 		done!
-
-	# describe "Dashboard", (...)->
-	# 	it "", (done)->
-	# 		...

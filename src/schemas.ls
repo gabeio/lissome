@@ -2,183 +2,136 @@ module.exports = (mongoose)->
 	Schema = mongoose.Schema
 	# Schools
 	School = new Schema {
-		name: { # School name, index: true
-			type: String
-			requred: true
-			unique: true
-		}
-		students: [
-			{ type: Number, unique: true }
-		] # id list of all student
-		teachers: [
-			{ type: Number, unique: true }
-		] # id list of all teacher
-		admins: [
-			{ type: Number, unique: true }
-		] # id list of all admin
-		courses: [ # id list of all courses
-			{ type: String, unique: true }
-		]
+		# AUTOCREATED
+		# _id
+		# REQUIRED
+		name: { type: String, +requred, +unique }
 	}
 	# School Schemas
-	Student = new Schema {
-		id: { type: Number, required: true, unique: true }, # Student id
-		courses: [
-			{ type: String, unique: true }# course id list
-		]
-		first: String # first name
-		middle: String # middle name
-		last: String # last name
-		username: {
-			type: String
-			required: true
-			unique: true
-		}
-		hash: { # password bcrypt
-			type: String
-			+required
-		}
-		school: { # school name
-			type: String
-			+required
-		}
+	User = new Schema {
+		# AUTOCREATED
+		# _id
+		# REQUIRED
+		username: { type: String, +required, +trim }
+		hash: { type: String, +required }
+		school: { type: String, +required, ref: 'School' }
+		type: { type: Number, +required, default: 1 }
+		firstName: { type: String } # first name
+		lastName: { type: String } # last name
+		creator: { type: Schema.Types.ObjectId, ref:'User' } # if admins wish to save creator
+		email: { type: String, +unique, +required }
+		# OPTIONAL
+		# courses: [
+		# 	{ type: String, ref: 'Course' } # course id list
+		# ]
+		id: { type: Number, +unique }, # school issued id
+		middleName: String # middle name
 	}
-	Faculty = new Schema {
-		id: { type: Number, required: true, unique: true } # Faculty id
-		courses: [
-			{ type: String, unique: true }
-		] # course id
-		first: String # first name
-		middle: String # middle name
-		last: String # last name
-		username: {
-			type: String
-			required: true
-			unique: true
-		}
-		hash: { # password bcrypt
-			type: String
-			+required
-		}
-		school: { # school name
-			type: String
-			+required
-		}
-	}
-	Admin = new Schema {
-		id: { type: Number, required: true, unique: true } # Admin id
-		first: String # first name
-		middle: String # middle name
-		last: String # last name
-		username: {
-			type: String
-			required: true
-			unique: true
-		}
-		hash: { # password bcrypt
-			type: String
-			+required
-		}
-		school: { # school name
-			type: String
-			+required
-		}
-	}
+	User.index { username: 1 }
 	Course = new Schema {
-		subject: { type: String, required: true } # cps
-		id: { type: String, required: true, unique: true } # 1231*02
-		/*section: String # *02*/
+		# AUTOCREATED
+		# _id
+		author: { type: Schema.Types.ObjectId, ref:'User' }
+		timestamp: { type: Date, default: Date.now }
+		# REQUIRED
+		id: { type: String, +required, +unique } # cps1231*02 # unique identifier given by school
 		title: { type: String } # Intro to Java
-		conference: [] # Thread
-		blog: [] # Post
-		exams: [] # Req
-		assignments: [] # Req
-		dm: {} # tid:{sid:[posts]}
-		grades: {} # sid:[Grades]
-		teachers: [ # teacher username
-			{ type: String, required: true, unique: true }
+		school: { type: String, +required, ref: 'School' }
+		# OPTIONAL
+		faculty: [ # faculty usernames
+			{ type: Schema.Types.ObjectId, ref:'User' }
 		]
-		students: [ # student username
-			{ type: String, required: true, unique: true }
+		students: [ # student usernames
+			{ type: Schema.Types.ObjectId, ref:'User' }
 		]
-		school: { # school name
-			type: String
-			+required
-		}
+		open: { type: Date }
+		close: { type: Date }
 	}
-	# Course Schemas
-	Req = new Schema {
-		uuid: {
-			type: String
-			+required
-			+unique
-		}
-		text: String # Require's text
-		files: Buffer # Require's file(s)?
-		author: { type: Number, required: true } # teacher id
-		time: { type: Date, default: Date.now } # created
-		start: { type: Date,  default: Date.now } # start due
-		end: { type: Date } # late time
+	Course.index { timestamp: 1, id: 1 }
+	# Course internal Schemas
+	Assignment = new Schema {
+		# AUTOCREATED
+		author: { type: Schema.Types.ObjectId, ref:'User' }
+		timestamp: { type: Date, default: Date.now } # created
+		# REQUIRED
+		course: { type: Schema.Types.ObjectId, +required, ref:'Course' }
+		title: String
+		start: { type: Date,  default: Date.now } # when Date.now > start students can attempt
+		end: { type: Date } # when Date.now > end students can't attempt anylonger
 		tries: { type: Number, default: 1 } # tries per student
 		allowLate: { type: Boolean, default: false } # allow late submissions or not
-		attempts: {} # student id : [attempt]
 		totalPoints: Number
+		school: { type: String, +required, ref: 'School' }
+		# OPTIONAL
+		body: String # Require's text
+		files: Buffer # Require's file(s)?
 	}
+	Assignment.index { timestamp: 1, course: -1 }
 	Attempt = new Schema {
-		uuid: {
-			type: String
-			+required
-			+unique
-		}
+		# AUTOCREATED
+		author: { type: Schema.Types.ObjectId, ref:'User' }
+		timestamp: { type: Date, default: Date.now } # submission time
+		# REQUIRED
+		assignment: { type: Schema.Types.ObjectId, +required, ref:'Assignment' }
 		text: String # student attempt text
 		files: Buffer # student attempt file(s)?
-		time: { type: Date, default: Date.now } # submission time
-		comments: [] # teacher comments list
+		school: { type: String, +required, ref: 'School' }
 	}
+	Attempt.index { timestamp: 1, assignment: -1 }
 	Grade = new Schema {
-		uuid: {
-			type: String
-			+required
-			+unique
-		}
-		type: {
-			type: String
-		} #, match: /^(exam|assign)$/i },
+		# AUTOCREATED
+		# _id
+		author: { type: Schema.Types.ObjectId, ref:'User' }
+		timestamp: { type: Date, default: Date.now }
+		# REQUIRED
+		assignment: { type: Schema.Types.ObjectId, ref:'Assignment' }
+		attempt: { type: Schema.Types.ObjectId, ref:'Attempt' }
+		school: { type: String, +required, ref: 'School' }
+		try: { type: Number, +required } # attempt index
+		type: { type: String, +required } # attempt/final
+		# OPTIONAL
 		points: Number # earned points
 		total: Number # total points
 		id: Number # exam/assign index
-		try: Number # attempt index
 	}
+	Grade.index { timestamp: 1, attempt: -1, assignment: 1 }
 	# Blog/Conference Schemas
 	Thread = new Schema {
-		uuid: {
-			type: String
-			+required
-			+unique
-		}
+		# AUTOCREATED
+		# _id
+		author: { type: Schema.Types.ObjectId, ref:'User' }
+		timestamp: { type: Date, default: Date.now }
+		school: { type: String, +required, ref: 'School' }
+		course: { type: Schema.Types.ObjectId, +required, ref:'Course' }
+		# REQUIRED
 		title: String # Thread name
-		posts: [] # Post list
-		author: { type: Number, required: true }
+		thread: String # Parent Thread
 	}
+	Thread.index { timestamp: 1, course: -1 }
 	Post = new Schema {
-		uuid: {
-			type: String
-			+required
-			+unique
-		}
-		text: String
+		# AUTOCREATED
+		# _id
+		author: { type: Schema.Types.ObjectId, +required, ref:'User' }
+		authorName: { type: String, +required }
+		authorUsername: { type: String, +required }
+		timestamp: { type: Date, default: Date.now }
+		# REQUIRED
+		course: { type: Schema.Types.ObjectId, +required, ref:'Course' }
+		text: { type: String, +required }
+		type: { type: String, +required } # blog/conference
+		thread: { type: Schema.Types.ObjectId, ref:'Thread' } # required if type conference
+		school: { type: String, +required, ref: 'School' }
+		# OPTIONAL
+		title: String
 		files: Buffer
-		author: { type: Number, required: true }
-		time: { type: Date, default: Date.now }
+		tags: []
 	}
-
+	Post.index { timestamp: 1, course: -1, type: 1 }
 	module.exports = {
 		School: School
-		Student: Student
-		Faculty: Faculty
-		Admin: Admin
+		User: User
 		Course: Course
-		Req: Req
+		Assignment: Assignment
 		Attempt: Attempt
 		Grade: Grade
 		Thread: Thread

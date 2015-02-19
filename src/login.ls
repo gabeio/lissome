@@ -1,64 +1,42 @@
 module.exports = (app)->
 	require! {
 		'bcrypt'
+		'winston'
 	}
-	winston = app.locals.winston
-	models = app.locals.models
+	# winston = app.locals.winston
+	# models = app.locals.models
+	User = app.locals.models.User
 	app
 		..route '/login'
 		.get (req, res, next)->
-			res.render 'login'
+			if req.session.auth? or req.session.userid? or req.session.username?
+				res.redirect '/'
+			else
+				res.render 'login'
 		.post (req, res, next)->
-			if !req.body.type? then req.body.type = 'unknown'
-			switch req.body.type.toLowerCase!
-			| 'faculty'
-				err,data <- models.Faculty.find { 'username':req.body.username.toLowerCase!, 'school':app.locals.school }
-				if err?
-					winston.error err
-				if !data? or data.length is 0
-					res.render 'login', { error:'username not found' }
+			err, user <- User.findOne {
+				'username':req.body.username.toLowerCase!
+				'school':app.locals.school
+			}
+			if err
+				winston.err 'user:find', err
+			if !user? or user.length is 0
+				res.render 'login', { error: 'username not found' }
+			else
+				err,result <- bcrypt.compare req.body.password, user.hash
+				if err
+					winston.err err
+				if result is true
+					# do NOT take anything from req.body
+					req.session.auth = user.type
+					req.session.username = user.username
+					req.session.userid = user.id
+					req.session.uid = user._id
+					req.session.firstName = user.firstName
+					req.session.middleName = user.middleName
+					req.session.lastName = user.lastName
+					# req.session.courses = user.courses # find better way
+					res.redirect '/'
+					res.end!
 				else
-					faculty = data[0]
-					err,result <- bcrypt.compare req.body.password, faculty.hash
-					if result is true
-						req.session.auth = 2
-						# winston.info data
-						# res.send data
-						res.redirect '/'
-						res.end!
-					else
-						res.render 'login', { error:'bad login credentials' }
-			| 'admin'
-				err,data <- models.Admin.find { 'username':req.body.username.toLowerCase!, 'school':app.locals.school }
-				if err?
-					winston.error err
-				if !data? or data.length is 0
-					res.render 'login', { error:'username not found' }
-				else
-					admin = data[0]
-					err,result <- bcrypt.compare req.body.password, admin.hash
-					if result is true
-						req.session.auth = 3
-						# winston.info data
-						res.redirect '/'
-						res.end!
-					else
-						res.render 'login', { error:'bad login credentials' }
-			| _ # default to student login
-				winston.info req.body
-				err,data <- models.Student.find { 'username':req.body.username.toLowerCase!, 'school':app.locals.school }
-				if err?
-					winston.error err
-				if !data? or data.length is 0
-					res.render 'login', { error:'username not found' }
-				else
-					student = data[0]
-					err,result <- bcrypt.compare req.body.password, student.hash
-					if result is true
-						req.session.auth = 1
-						# winston.info data
-						# res.send data
-						res.redirect '/'
-						res.end!
-					else
-						res.render 'login', { error:'bad login credentials' }
+					res.render 'login', { error:'bad login credentials' }

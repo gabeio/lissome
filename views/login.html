@@ -1,70 +1,35 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<title>{% if school %}{{ school }} - {% endif %}Login</title>
+	<title>Login - {{ school }}</title>
 {% endblock %}
 
 {% block body %}
-<div class="container">
-	<form class="form-horizonal" method="POST" action="/login">
-		<div class="col-xs-12 form-group">
-			<h2>{% if school %}{{ school }} - {% endif %}Login</h2>
-		</div>
-		{% if error %}<div class="col-xs-12 alert alert-danger" role="alert">
-			{{error}}
-		</div>{% endif %}
-		<label class="col-xs-2" for="formUsername">Username</label>
-		<div class="col-xs-9 col-xs-offset-1 form-group">
-			<input type="text" class="form-control" id="formUsername" name="username" />
-		</div>
-		<label class="col-xs-2" for="formPassword">Password</label>
-		<div class="col-xs-9 col-xs-offset-1 form-group">
-			<input type="password" class="form-control" id="formPassword" name="password" />
-		</div>
-		<label class="col-xs-2" for="formType">User Type</label>
-		<div class="col-xs-9 col-xs-offset-1 form-group">
-			<select class="form-control" id="formType" name="type">
-				<option value="Student">Student</option>
-				<option value="Faculty">Faculty</option>
-				<option value="Admin">Admin</option>
-			</select>
-		</div>
-		<div class="form-group">
-			<div class="col-xs-offset-3 col-xs-10">
+	<div class="container-fluid">
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="/login">
+			<div class="form-group">
+				<!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-1 col-lg-offset-1"> -->
+				<h2>{% if school %}{{ school }} - {% endif %}Login</h2>
+				<!-- </div> -->
+			</div>
+			{%- if error -%}
+			<div class="form-group">
+				<div class="alert alert-danger" role="alert">
+					{{error}}
+				</div>
+			</div>
+			{%- endif -%}
+			<div class="form-group">
+				<label for="formUsername">Username</label>
+				<input type="text" class="form-control" id="formUsername" name="username" placeholder="Username" />
+			</div>
+			<div class="form-group">
+				<label for="formPassword">Password</label>
+				<input type="password" class="form-control" id="formPassword" name="password" placeholder="Password" />
+			</div>
+			<div class="form-group">
 				<button type="submit" class="btn btn-default">Submit</button>
 			</div>
-		</div>
-	</form>
-</div>
-<!-- <div class="visible-sm container-fluid">
-	<form class="form-horizonal" method="POST" action="/login">
-		<div class="col-xs-12 form-group">
-			<h2>{% if school %}{{ school }} - {% endif %}Login</h2>
-		</div>
-		{% if error %}<div class="col-xs-12 alert alert-danger" role="alert">
-			{{error}}
-		</div>{% endif %}
-		<label class="col-xs-2" for="formUsername">Username</label>
-		<div class="col-xs-10 form-group">
-			<input type="text" class="form-control" id="formUsername" name="username" />
-		</div>
-		<label class="col-xs-2" for="formPassword">Password</label>
-		<div class="col-xs-10 form-group">
-			<input type="password" class="form-control" id="formPassword" name="password" />
-		</div>
-		<label class="col-xs-2" for="formType">User Type</label>
-		<div class="col-xs-10 form-group">
-			<select class="form-control" id="formType" name="type">
-				<option value="Student">Student</option>
-				<option value="Faculty">Faculty</option>
-				<option value="Admin">Admin</option>
-			</select>
-		</div>
-		<div class="form-group">
-			<div class="col-xs-offset-2 col-xs-10">
-				<button type="submit" class="btn btn-default">Submit</button>
-			</div>
-		</div>
-	</form>
-</div> -->
+		</form>
+	</div>
 {% endblock %}
