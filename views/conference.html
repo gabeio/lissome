@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{%- extends 'base.html' -%}
 
 {%- block head -%}
 	<title>{{ school }} -  Conference</title>
@@ -6,14 +6,33 @@
 
 {%- block body -%}
 	<div class="container-fluid">
-		{% include 'navbar.html' %}
+		{%- include 'navbar.html' -%}
 		<div class="row">
-			<div class="col-xs-12">
-				<h3>Conference Room</h3>
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>Conference</h3>
+				</div>
+				{%- if threads -%}
+				<h4><small>Threads</small></h4>
 				<ul class="list-group">
-				{% for course in courses %}
-					<a class="list-group-item" href="/{{ course.uid }}">{{ course.title }}</a>
-				{% endfor %}
+					{%- for thread in threads -%}
+					<a class="list-group-item" href="/{{ thread._id }}">{{ thread.title }}</a>
+					{%- endfor -%}
+				<!-- <hr /> -->
+				{%- endif -%}
+				{%- if posts -%}
+					{%- for post in posts -%}
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">Panel title</h3>
+					</div>
+					<div class="panel-body">
+					Panel content
+					</div>
+					<div class="panel-footer">Panel footer</div>
+				</div>
+					{%- endfor -%}
+				{%- endif  -%}
 				</ul>
 			</div>
 		</div>
