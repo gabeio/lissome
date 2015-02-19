@@ -2,12 +2,11 @@ module.exports = (app)->
 	require! {
 		'async'
 		'lodash'
-		'moment'
 		'mongoose'
 		'uuid'
 		'winston'
 	}
-	_ = ld = lodash
+	_ = lodash
 	User = app.locals.models.User
 	Course = app.locals.models.Course
 	Post = app.locals.models.Post
@@ -118,7 +117,7 @@ module.exports = (app)->
 			app.locals.authorize req, res, next
 		.all (req, res, next)->
 			res.locals.on = 'blog'
-			err, data <- async.parallel [
+			<- async.parallel [
 				(done)->
 					if req.session.auth is 3
 						err, result <- Course.findOne {
@@ -223,9 +222,7 @@ module.exports = (app)->
 				err, posts <- Post.find {
 					'course': mongoose.Types.ObjectId res.locals.course._id
 					'type':'blog'
-				}# } .sort {
-				# 	date: 'descending'
-				# } .exec
+				}
 				console.log posts
 				res.locals.blog = posts
 				res.render 'blog'
