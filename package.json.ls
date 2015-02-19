@@ -22,7 +22,7 @@ repository:
 dependencies:
 	"async": '~0.9.0'
 	"bcrypt": '~0.8.1'
-	"body-parser": '~1.11.0'
+	"body-parser": '~1.12.0'
 	"compression": '~1.4.0'
 	"connect-redis": '~2.2.0'
 	"cookie-parser": '~1.3.4'
@@ -40,11 +40,11 @@ dependencies:
 	"multer": '~0.1.7'
 	"redis": '~0.12.1'
 	"request": '~2.53.0'
-	"serve-static": '~1.8.0'
+	"serve-static": '~1.9.1'
 	"swig": '~1.4.2'
 	"uuid": '~2.0.1'
 	"winston": '~0.9.0'
-	"yargs": '~2.3.0'
+	"yargs": '~3.1.0'
 
 devDependencies:
 	"chai": '~2.0.0'
