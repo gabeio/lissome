@@ -17,7 +17,7 @@ module.exports = (app)->
 			<- async.parallel [
 				(done)->
 					if req.session.auth is 3
-						err, courseFind <- Course.find {
+						err, courses <- Course.find {
 							'school':app.locals.school
 						}
 						if err
@@ -30,7 +30,7 @@ module.exports = (app)->
 						done!
 				(done)->
 					if req.session.auth is 2
-						err, courseFind <- Course.find {
+						err, courses <- Course.find {
 							'school':app.locals.school
 							'faculty':mongoose.Types.ObjectId(req.session.uid)
 						}
