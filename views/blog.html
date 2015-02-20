@@ -22,7 +22,7 @@
 			</div>
 			<div class="form-group">
 				<label for="formBody">Body</label>
-				<textarea class="form-control" id="formBody" name="body"></textarea>
+				<textarea class="form-control" id="formBody" name="body" rows="7"></textarea>
 			</div>
 			<div class="form-group">
 				<label for="formUpload">Files</label>
@@ -49,7 +49,7 @@
 				</div>
 				<div class="form-group">
 					<label for="formBody">Body</label>
-					<textarea class="form-control" id="formBody" name="text">{{ post.text }}</textarea>
+					<textarea class="form-control" id="formBody" name="text" rows="7">{{ post.text }}</textarea>
 				</div>
 				<div class="form-group">
 					<label for="formUpload">Files</label>
@@ -116,10 +116,10 @@
 		</div>
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				{% for entry in blog %}
+				{% for post in blog %}
 				<div class="panel panel-default">
 					<div class="panel-heading clearfix">
-						<h2 class="panel-title pull-left"{% if 2 <= auth %} style="padding-top: 10px;"{% endif %}>{{ entry.title|url_decode }}</h2>
+						<h2 class="panel-title pull-left"{% if 2 <= auth %} style="padding-top: 10px;"{% endif %}>{{ post.title|url_decode }}</h2>
 						{% if 2 <= auth %}
 						<div class="pull-right">
 							<div class="dropdown">
@@ -128,18 +128,18 @@
 								</button>
 								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
 									<li role="presentation">
-										<a role="menuitem" href="/{{ course.id }}/blog/edit/{{ entry.title|url_encode }}"><span class="glyphicon glyphicon-edit"></span> Edit</a>
+										<a role="menuitem" href="/{{ course.id }}/blog/edit/{{ post.title|url_encode }}"><span class="glyphicon glyphicon-edit"></span> Edit</a>
 									</li>
 									<li role="presentation">
-										<a role="menuitem" href="/{{ course.id }}/blog/delete/{{ entry.title|url_encode }}"><span class="glyphicon glyphicon-remove"></span> Delete</a>
+										<a role="menuitem" href="/{{ course.id }}/blog/delete/{{ post.title|url_encode }}"><span class="glyphicon glyphicon-remove"></span> Delete</a>
 									</li>
 								</ul>
 							</div>
 						</div>
 						{% endif %}
 					</div>
-					<div class="panel-body">{{ entry.text|markdown|safe }}</div>
-					<div class="panel-footer">{{ entry.authorName }}<span class="pull-right">{{ entry.timestamp|fromNow }}</span></div>
+					<div class="panel-body">{{ post.text|markdown|safe }}</div>
+					<div class="panel-footer">{{ post.authorName }}<span class="pull-right">{{ post.timestamp|fromNow }}</span></div>
 				</div>
 				{% endfor %}
 			</div>
