@@ -21,7 +21,7 @@
 				<input type="text" class="form-control" id="formTitle" name="title" autofocus />
 			</div>
 			<div class="form-group">
-				<label for="formBody">Body</label>
+				<label for="formBody">Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
 				<textarea class="form-control" id="formBody" name="body" rows="7"></textarea>
 			</div>
 			{#<div class="form-group">
@@ -48,7 +48,7 @@
 					<input type="text" class="form-control" id="formTitle" name="title" value="{{ post.title|url_decode }}" />
 				</div>
 				<div class="form-group">
-					<label for="formBody">Body</label>
+					<label for="formBody">Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
 					<textarea class="form-control" id="formBody" name="text" rows="7" autofocus>{{ post.text }}</textarea>
 				</div>
 				{#<div class="form-group">
