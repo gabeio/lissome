@@ -119,7 +119,8 @@ app
 	.set 'view engine' 'html'
 	# .set 'views' __dirname + '/NOTviews' # /views by default
 	# static assets (html,js,css)
-	.use '/static' serveStatic './static'
+	.use '/static' serveStatic './static' # static
+	.use '/assets' serveStatic './assets'
 	# Cross Site Request Forgery
 	# .use csurf {
 	# 	secretLength: 32
