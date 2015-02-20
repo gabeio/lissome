@@ -9,7 +9,7 @@ mocha = if gulp-mocha? then gulp-mocha
 livescript = if gulp-livescript? then gulp-livescript
 
 paths =
-	scripts: ['./src/*.ls', './src/frontend/*.ls']
+	scripts: ['./*.json.ls', './src/*.ls', './src/frontend/*.ls']
 	tests: ['./test/*.ls','./src/*.ls']
 
 gulp.task 'default' ['build'] (done)->
@@ -33,7 +33,11 @@ gulp.task 'build' ['clean'] (done)->
 	gulp.src './src/frontend/*.ls'
 		.pipe livescript bare:true
 		.on 'error' -> throw it
-		.pipe gulp.dest './assets/custom/'
+		.pipe gulp.dest './public/assets/custom/'
+	gulp.src './*.json.ls'
+		.pipe livescript!
+		.on 'error' -> throw it
+		.pipe gulp.dest './'
 
 /*gulp.task 'clean-tests' (done)->
 	del './test/*.js'*/
