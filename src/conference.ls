@@ -76,12 +76,9 @@ module.exports = (app)->
 			next!
 		.all (req, res, next)->
 			# thread/post db middleware async for attempted max speed
-			console.log 'course', res.locals.course
 			<- async.parallel [
 				(done)->
-					console.log 'a'
 					if req.params.thread?
-						console.log 'b'
 						err, posts <- Post.find {
 							'course': mongoose.Types.ObjectId res.locals.course._id
 							'type':'conference'
@@ -90,7 +87,6 @@ module.exports = (app)->
 							winston.error 'course:findOne:blog:auth1', err
 							next new Error 'INTERNAL'
 						else
-							console.log 'c'
 							res.locals.posts = posts
 							done!
 					else
@@ -110,10 +106,8 @@ module.exports = (app)->
 					else
 						done!
 			]
-			console.log 'here'
 			next!
 		.get (req, res, next)->
-			console.log 'threads', res.locals.threads
 			res.render 'conference'
 		.post (req, res, next)->
 			...
