@@ -11,7 +11,7 @@ require! {
 	'express-partial-response'
 	'express-session' # session
 	'fs-extra' # only if needed
-	'marked'
+	'markdown-it'
 	'method-override'
 	'moment'
 	'multer'
@@ -25,6 +25,7 @@ RedisStore = connect-redis express-session
 argv = yargs.argv
 app = module.exports = express!
 fs = fsExtra
+md = new markdown-it!
 
 # load needed libs into app locals
 app
@@ -55,9 +56,10 @@ do ->
 		console.log 'redisauth env undefined\ntrying null anyway...'
 
 # create swig |markdown filter
-swig.setFilter 'markdown', marked
+swig.setFilter 'markdown', (input)->
+	md.render input
 swig.setFilter 'toString', (input)->
-	input.toString!
+	input.toString!	
 swig.setFilter 'fromNow', (input)->
 	moment(input).fromNow()
 swig.setFilter 'mformat', (input,format)->
