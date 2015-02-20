@@ -18,7 +18,7 @@ module.exports = (mongoose)->
 		type: { type: Number, +required, default: 1 }
 		firstName: { type: String } # first name
 		lastName: { type: String } # last name
-		creator: { type: Schema.Types.ObjectId, ref:'User' } # if admins wish to save creator
+		creator: { type: Schema.Types.ObjectId, ref: 'User' } # if admins wish to save creator
 		email: { type: String, +unique, +required }
 		# OPTIONAL
 		# courses: [
@@ -31,7 +31,7 @@ module.exports = (mongoose)->
 	Course = new Schema {
 		# AUTOCREATED
 		# _id
-		author: { type: Schema.Types.ObjectId, ref:'User' }
+		author: { type: Schema.Types.ObjectId, ref: 'User' }
 		timestamp: { type: Date, default: Date.now }
 		# REQUIRED
 		id: { type: String, +required, +unique } # cps1231*02 # unique identifier given by school
@@ -39,10 +39,10 @@ module.exports = (mongoose)->
 		school: { type: String, +required, ref: 'School' }
 		# OPTIONAL
 		faculty: [ # faculty usernames
-			{ type: Schema.Types.ObjectId, ref:'User' }
+			{ type: Schema.Types.ObjectId, ref: 'User' }
 		]
 		students: [ # student usernames
-			{ type: Schema.Types.ObjectId, ref:'User' }
+			{ type: Schema.Types.ObjectId, ref: 'User' }
 		]
 		open: { type: Date }
 		close: { type: Date }
@@ -51,10 +51,10 @@ module.exports = (mongoose)->
 	# Course internal Schemas
 	Assignment = new Schema {
 		# AUTOCREATED
-		author: { type: Schema.Types.ObjectId, ref:'User' }
+		author: { type: Schema.Types.ObjectId, ref: 'User' }
 		timestamp: { type: Date, default: Date.now } # created
 		# REQUIRED
-		course: { type: Schema.Types.ObjectId, +required, ref:'Course' }
+		course: { type: Schema.Types.ObjectId, +required, ref: 'Course' }
 		title: String
 		start: { type: Date,  default: Date.now } # when Date.now > start students can attempt
 		end: { type: Date } # when Date.now > end students can't attempt anylonger
@@ -69,10 +69,10 @@ module.exports = (mongoose)->
 	Assignment.index { timestamp: 1, course: -1 }
 	Attempt = new Schema {
 		# AUTOCREATED
-		author: { type: Schema.Types.ObjectId, ref:'User' }
+		author: { type: Schema.Types.ObjectId, ref: 'User' }
 		timestamp: { type: Date, default: Date.now } # submission time
 		# REQUIRED
-		assignment: { type: Schema.Types.ObjectId, +required, ref:'Assignment' }
+		assignment: { type: Schema.Types.ObjectId, +required, ref: 'Assignment' }
 		text: String # student attempt text
 		files: Buffer # student attempt file(s)?
 		school: { type: String, +required, ref: 'School' }
@@ -81,11 +81,11 @@ module.exports = (mongoose)->
 	Grade = new Schema {
 		# AUTOCREATED
 		# _id
-		author: { type: Schema.Types.ObjectId, ref:'User' }
+		author: { type: Schema.Types.ObjectId, ref: 'User' }
 		timestamp: { type: Date, default: Date.now }
 		# REQUIRED
-		assignment: { type: Schema.Types.ObjectId, ref:'Assignment' }
-		attempt: { type: Schema.Types.ObjectId, ref:'Attempt' }
+		assignment: { type: Schema.Types.ObjectId, ref: 'Assignment' }
+		attempt: { type: Schema.Types.ObjectId, ref: 'Attempt' }
 		school: { type: String, +required, ref: 'School' }
 		try: { type: Number, +required } # attempt index
 		type: { type: String, +required } # attempt/final
@@ -99,10 +99,10 @@ module.exports = (mongoose)->
 	Thread = new Schema {
 		# AUTOCREATED
 		# _id
-		author: { type: Schema.Types.ObjectId, ref:'User' }
+		author: { type: Schema.Types.ObjectId, ref: 'User' }
 		timestamp: { type: Date, default: Date.now }
 		school: { type: String, +required, ref: 'School' }
-		course: { type: Schema.Types.ObjectId, +required, ref:'Course' }
+		course: { type: Schema.Types.ObjectId, +required, ref: 'Course' }
 		# REQUIRED
 		title: String # Thread name
 		thread: String # Parent Thread
@@ -111,15 +111,15 @@ module.exports = (mongoose)->
 	Post = new Schema {
 		# AUTOCREATED
 		# _id
-		author: { type: Schema.Types.ObjectId, +required, ref:'User' }
+		author: { type: Schema.Types.ObjectId, +required, ref: 'User' }
 		authorName: { type: String, +required }
 		authorUsername: { type: String, +required }
 		timestamp: { type: Date, default: Date.now }
 		# REQUIRED
-		course: { type: Schema.Types.ObjectId, +required, ref:'Course' }
+		course: { type: Schema.Types.ObjectId, +required, ref: 'Course' }
 		text: { type: String, +required }
 		type: { type: String, +required } # blog/conference
-		thread: { type: Schema.Types.ObjectId, ref:'Thread' } # required if type conference
+		thread: { type: Schema.Types.ObjectId, ref: 'Thread' } # required if type conference
 		school: { type: String, +required, ref: 'School' }
 		# OPTIONAL
 		title: String
