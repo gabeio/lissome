@@ -13,6 +13,7 @@ require! {
 	'fs-extra' # only if needed
 	'markdown'
 	'method-override'
+	'moment'
 	'multer'
 	'serve-static' # nginx static
 	'swig' # templates
@@ -56,6 +57,12 @@ do ->
 
 # create swig |markdown filter
 swig.setFilter 'markdown', markdown.toHTML
+swig.setFilter 'toString', (input)->
+	input.toString!
+swig.setFilter 'fromNow', (input)->
+	moment(input).fromNow()
+swig.setFilter 'mformat', (input,format)->
+	moment(input).format(format)
 
 # REDIS
 rediscli = require('./redisClient')(app,\
