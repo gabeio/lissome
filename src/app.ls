@@ -71,7 +71,23 @@ mongo = require('./mongoClient')(app,\
 
 # App Settings/Middleware
 app
-	# method override needs to come first.
+	# body parser
+	.use bodyParser.urlencoded {
+		-extended
+	}
+	.use bodyParser.json!
+	.use bodyParser.text! # idk
+	.use bodyParser.raw! # idk
+	# multipart body parser
+	.use multer { # requires: enctype="multipart/form-data"
+		dest: './uploads/'
+		limits:
+			fileSize: 10000000
+			files: 10
+		-includeEmptyFields
+		-inMemory
+	}
+	# method override needs to come before csurf
 	.use method-override 'hmo' # Http-Method-Override
 	# sessions
 	.use express-session {
@@ -97,22 +113,6 @@ app
 	# .set 'views' __dirname + '/NOTviews' # /views by default
 	# static assets (html,js,css)
 	.use '/static' serveStatic './static'
-	# body parser
-	.use bodyParser.urlencoded {
-		-extended
-	}
-	.use bodyParser.json!
-	.use bodyParser.text! # idk
-	.use bodyParser.raw! # idk
-	# multipart body parser
-	.use multer { # requires: enctype="multipart/form-data"
-		dest: './uploads/'
-		limits:
-			fileSize: 10000000
-			files: 10
-		-includeEmptyFields
-		-inMemory
-	}
 	# Cross Site Request Forgery
 	# .use csurf {
 	# 	secretLength: 32
