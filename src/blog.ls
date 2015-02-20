@@ -64,7 +64,7 @@ module.exports = (app)->
 				}
 				# if result > 1
 				# 	...
-				res.locals.posts = result
+				res.locals.posts = _.sortBy result, 'timestamp' .reverse!
 				next!
 			else
 				next!
@@ -250,11 +250,11 @@ module.exports = (app)->
 							done err, posts
 				]
 				posts = _.flatten posts, true
-				res.render 'blog', blog: posts
+				res.render 'blog', blog: _.sortBy posts, 'timestamp' .reverse!
 			else
 				err, posts <- Post.find {
 					'course': mongoose.Types.ObjectId res.locals.course._id
 					'type':'blog'
 				}
-				res.locals.blog = posts
+				res.locals.blog = _.sortBy posts, 'timestamp' .reverse!
 				res.render 'blog'
