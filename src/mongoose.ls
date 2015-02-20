@@ -11,66 +11,70 @@ module.exports = (app)->
 	Course = mongoose.model 'Course' schemas.Course
 	Assignment = mongoose.model 'Assignment' schemas.Assignment
 	Attempt = mongoose.model 'Attempt' schemas.Attempt
-	Grade = mongoose.model 'Grade' schemas.Grade
+	# Grade = mongoose.model 'Grade' schemas.Grade
 	Thread = mongoose.model 'Thread' schemas.Thread
 	Post = mongoose.model 'Post' schemas.Post
 	async.parallel [
 		->
-			User.find().populate('creator').exec (err, users)->
-				if err
-					winston.error 'User populate'
+			err, results <- User.find!.populate('creator').exec (err, users)->
+			if err
+				winston.error 'User populate:creator'
 		->
-			Course.find().populate('author').exec (err, courses)->
-				if err
-					winston.error 'Course populate'
+			err, results <- Course.find!.populate('author').exec
+			if err
+				winston.error 'Course populate:author'
 		->
-			Course.find().populate('faculty').exec (err, courses)->
-				if err
-					winston.error 'Course populate'
+			err, results <- Course.find!.populate('faculty').exec
+			if err
+				winston.error 'Course populate:faculty'
 		->
-			Course.find().populate('students').exec (err, courses)->
-				if err
-					winston.error 'Course populate'
+			err, results <- Course.find!.populate('students').exec
+			if err
+				winston.error 'Course populate:students'
 		->
-			Assignment.find().populate('author').exec (err, assignments)->
-				if err
-					winston.error 'Assignment populate'
+			err, results <- Assignment.find!.populate('author').exec
+			if err
+				winston.error 'Assignment populate:author'
 		->
-			Assignment.find().populate('course').exec (err, assignments)->
-				if err
-					winston.error 'Assignment populate'
+			err, results <- Assignment.find!.populate('course').exec
+			if err
+				winston.error 'Assignment populate:course'
 		->
-			Attempt.find().populate('author').exec (err, attempts)->
-				if err
-					winston.error 'Attempt populate'
+			err, results <- Attempt.find!.populate('author').exec
+			if err
+				winston.error 'Attempt populate:author'
 		->
-			Grade.find().populate('author').exec (err, grades)->
-				if err
-					winston.error 'Grade populate'
+			err, results <- Attempt.find!.populate('grader').exec
+			if err
+				winston.error 'Attempt populate:grader'
+		# ->
+		# 	err, results <- Grade.find!.populate('author').exec (err, grades)->
+		# 	if err
+		# 		winston.error 'Grade populate'
+		# ->
+		# 	err, results <- Grade.find!.populate('attempt').exec (err, grades)->
+		# 		if err
+		# 			winston.error 'Grade populate'
+		# ->
+		# 	err, results <- Grade.find!.populate('assignment').exec (err, grades)->
+		# 		if err
+		# 			winston.error 'Grade populate'
 		->
-			Grade.find().populate('attempt').exec (err, grades)->
-				if err
-					winston.error 'Grade populate'
+			err, results <- Thread.find!.populate('author').exec
+			if err
+				winston.error 'Thread populate'
 		->
-			Grade.find().populate('assignment').exec (err, grades)->
-				if err
-					winston.error 'Grade populate'
+			err, results <- Post.find!.populate('author').exec
+			if err
+				winston.error 'Post populate'
 		->
-			Thread.find().populate('author').exec (err, threads)->
-				if err
-					winston.error 'Thread populate'
+			err, results <- Post.find!.populate('course').exec
+			if err
+				winston.error 'Post populate'
 		->
-			Post.find().populate('author').exec (err, posts)->
-				if err
-					winston.error 'Post populate'
-		->
-			Post.find().populate('course').exec (err, posts)->
-				if err
-					winston.error 'Post populate'
-		->
-			Post.find().populate('thread').exec (err, posts)->
-				if err
-					winston.error 'Post populate'
+			err, results <- Post.find!.populate('thread').exec
+			if err
+				winston.error 'Post populate'
 	]
 	# setup school if it's not already setup
 	School = mongoose.model 'School', schemas.School
@@ -90,7 +94,7 @@ module.exports = (app)->
 		Course: Course
 		Assignment: Assignment
 		Attempt: Attempt
-		Grade: Grade
+		# Grade: Grade
 		Thread: Thread
 		Post: Post
 	}
