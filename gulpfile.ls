@@ -30,8 +30,10 @@ gulp.task 'build' ['clean'] (done)->
 		.pipe livescript bare:true
 		.on 'error' -> throw it
 		.pipe gulp.dest './lib/'
-		/*.on 'end' ->
-			done*/
+	gulp.src './src/frontend/*.ls'
+		.pipe livescript bare:true
+		.on 'error' -> throw it
+		.pipe gulp.dest './static/custom/'
 
 /*gulp.task 'clean-tests' (done)->
 	del './test/*.js'*/
