@@ -57,13 +57,11 @@ module.exports = (app)->
 			next!
 		.get (req, res, next)->
 			if req.params.action in ['edit','delete'] and req.params.unique?
-				console.log req.params.unique
 				err, result <- Post.find {
 					'course': mongoose.Types.ObjectId(res.locals.course._id)
 					'type': 'blog'
 					'title': req.params.unique
 				}
-				console.log 'edit/del', result
 				# if result > 1
 				# 	...
 				res.locals.posts = result
@@ -71,7 +69,6 @@ module.exports = (app)->
 			else
 				next!
 		.get (req, res, next)->
-			console.log 'got here'
 			res.locals.blog = true
 			switch req.params.action
 			| 'new'
