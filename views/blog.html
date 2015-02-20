@@ -1,21 +1,21 @@
 {% extends 'base.html' %}
 
-{%- block head -%}
-	<title>Blog - {{ school }}</title>
-{%- endblock -%}
+{% block head %}
+		<title>Blog - {{ school }}</title>
+{% endblock %}
 
-{%- block body -%}
+{% block body %}
 	<div class="container-fluid">
-		{% include 'navbar.html' %}
-		{%- if create %}
+	{% include 'navbar.html' %}
+	{% if create %}
 		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="#" enctype="multipart/form-data">
-			{%- if success == 'yes' -%}
+			{% if success == 'yes' %}
 			<div class="form-group">
 				<div class="alert alert-success" role="alert">
 					Blog post <strong>created</strong> successfully.
 				</div>
 			</div>
-			{%- endif -%}
+			{% endif %}
 			<div class="form-group">
 				<label for="formTitle">Title</label>
 				<input type="text" class="form-control" id="formTitle" name="title" />
@@ -32,79 +32,95 @@
 				<button type="submit" class="btn btn-default">Submit</button>
 			</div>
 		</form>
-		{%- elif edit -%}
-			{% for post in posts %}
-		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?hmo=PUT" enctype="multipart/form-data">
-			{%- if success == 'yes' -%}
-			<div class="form-group">
-				<div class="alert alert-success" role="alert">
-					Blog post <strong>updated</strong> successfully.
+	{% elif edit %}
+		{% for post in posts %}
+			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?hmo=PUT" enctype="multipart/form-data">
+			{% if success == 'yes' %}
+				<div class="form-group">
+					<div class="alert alert-success" role="alert">
+						Blog post <strong>updated</strong> successfully.
+					</div>
 				</div>
-			</div>
-			{%- endif -%}
-			<input type="hidden" name="pid" value="{{ post._id|toString }}" />
-			<div class="form-group">
-				<label for="formTitle">Title</label>
-				<input type="text" class="form-control" id="formTitle" name="title" value="{{ post.title|url_decode }}" />
-			</div>
-			<div class="form-group">
-				<label for="formBody">Body</label>
-				<textarea class="form-control" id="formBody" name="text">{{ post.text }}</textarea>
-			</div>
-			<div class="form-group">
-				<label for="formUpload">Files</label>
-				<input type="file" id="formUpload" name="files" />
-			</div>
-			<div class="form-group">
-				<button type="submit" class="btn btn-default">Update</button>
-			</div>
-		</form>
-			{% endfor %}
-		{%- elif del -%}
-			{% for post in posts %}
-		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?hmo=DELETE" enctype="multipart/form-data">
-			{%- if success == 'yes' -%}
-			<div class="form-group">
-				<div class="alert alert-success" role="alert">
-					Blog post <strong>deleted</strong> successfully.
-				</div>
-			</div>
-			{%- endif -%}
-			<div class="col-xs-12 well">
+			{% endif %}
 				<input type="hidden" name="pid" value="{{ post._id|toString }}" />
-				<div class="form-group pull-right">
-					<!-- <div class="pull-right"> -->
-					<a href="/{{ course.id }}/blog" class="btn btn-default">No!</a>
-					<button type="submit" class="btn btn-danger">Delete</button>
+				<div class="form-group">
+					<label for="formTitle">Title</label>
+					<input type="text" class="form-control" id="formTitle" name="title" value="{{ post.title|url_decode }}" />
 				</div>
-				<h2>{{ post.title|url_decode }}</h2>
-				{{ post.text|markdown|safe }}
-				<p class="text-muted"><span class="pull-left" alt="{{ post.authorUsername }}">{{ post.authorName }}</span>
-				<span class="pull-right">{{ post.timestamp|date('F jS h:m a') }}</span></p>
+				<div class="form-group">
+					<label for="formBody">Body</label>
+					<textarea class="form-control" id="formBody" name="text">{{ post.text }}</textarea>
+				</div>
+				<div class="form-group">
+					<label for="formUpload">Files</label>
+					<input type="file" id="formUpload" name="files" />
+				</div>
+				<div class="form-group">
+					<button type="submit" class="btn btn-default">Update</button>
+				</div>
+			</form>
+		{% endfor %}
+	{% elif del %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>Delete Post{% if posts.length > 1 %}s{% endif %}</h3>
+				</div>
+				{#
+				MAYBE REPLACE WITH DELETE ALL BUTTON
+				<div class="pull-right" style="padding-top: 8px;">
+					<a href="/{{ course.id }}/blog/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span></a>
+				</div>
+				#}
 			</div>
-		</form>
-			{% endfor %}
-		{%- else %}
+		</div>
+		{% for post in posts %}
+		<div class="row">
+			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?hmo=DELETE" enctype="multipart/form-data">
+				{% if success == 'yes' %}
+				<div class="form-group">
+					<div class="alert alert-success" role="alert">
+						Blog post <strong>deleted</strong> successfully.
+					</div>
+				</div>
+				{% endif %}
+				<div class="panel panel-default">
+					<input type="hidden" name="pid" value="{{ post._id|toString }}" />
+					<div class="panel-heading clearfix">
+						<h2 class="panel-title pull-left" style="padding-top: 10px;">{{ post.title|url_decode }}</h2>
+						<div class="pull-right">
+							<div class="btn-group">
+								<button type="submit" class="btn btn-danger">Delete</button>
+								<a href="/{{ course.id }}/blog" class="btn btn-default">No!</a>
+							</div>
+						</div>
+					</div>
+					<div class="panel-body">{{ post.text|markdown|safe }}</div>
+					<div class="panel-footer">{{ post.authorName }}<span class="pull-right">{{ post.timestamp|fromNow }}</span></div>
+				</div>
+			</form>
+		</div>
+		{% endfor %}
+	{% else %}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<div class="pull-left">
 					<h3>Blog</h3>
 				</div>
-				{%- if 2 <= auth -%}
+				{% if 2 <= auth %}
 				<div class="pull-right" style="padding-top: 8px;">
 					<a href="/{{ course.id }}/blog/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span></a>
 				</div>
-				{%- endif -%}
+				{% endif %}
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				{%- for entry in blog -%}
+				{% for entry in blog %}
 				<div class="panel panel-default">
 					<div class="panel-heading clearfix">
-						<h2 class="panel-title pull-left"{%- if 2 <= auth -%} style="padding-top: 10px;"{% endif %}>{{ entry.title|url_decode }}</h2>
-						<!-- <h2 class="panel-title">{{ entry.title|url_decode }}</h2> -->
-						{%- if 2 <= auth -%}
+						<h2 class="panel-title pull-left"{% if 2 <= auth %} style="padding-top: 10px;"{% endif %}>{{ entry.title|url_decode }}</h2>
+						{% if 2 <= auth %}
 						<div class="pull-right">
 							<div class="dropdown">
 								<button class="btn btn-default dropdown-toggle" type="button" id="blogPostMenu" data-toggle="dropdown" aria-expanded="true">
@@ -123,29 +139,11 @@
 						{% endif %}
 					</div>
 					<div class="panel-body">{{ entry.text|markdown|safe }}</div>
-					<div class="panel-footer">{{ entry.authorName }}
-						{#span class="pull-left" alt="{{ entry.authorUsername }}">{{ entry.authorName }}</span>#}
-						<span class="pull-right">{{ entry.timestamp|fromNow }}</span>
-					</div>
+					<div class="panel-footer">{{ entry.authorName }}<span class="pull-right">{{ entry.timestamp|fromNow }}</span></div>
 				</div>
-				{%- endfor -%}
+				{% endfor %}
 			</div>
 		</div>
-		{% endif %}
-		{# for entry use
-		<div class="row">
-			{%- for entry in blog|reverse -%}
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				{%- if create %}<input type="hidden" name="uuid" value="{{ entry.uuid }}" />{% endif -%}
-				<h2><input type="text" value="{{ entry.title }}" name="title" /></h2>
-				<textarea name="text">{{ entry.text|safe }}</textarea>
-				<input type="files" name="files" />
-				<p class="text-muted">{{ entry.author }} {{ entry.time|date('F jS h:m:s') }}</p>
-				<button class="button danger-button">delete</button>
-			</div>
-			{%- endfor -%}
-		</div>
-		{%- endif -%}#}
+	{% endif %}
 	</div>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js"></script>
-{%- endblock -%}
+{% endblock %}
