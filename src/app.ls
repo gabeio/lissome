@@ -11,7 +11,7 @@ require! {
 	'express-partial-response'
 	'express-session' # session
 	'fs-extra' # only if needed
-	'markdown'
+	'marked'
 	'method-override'
 	'moment'
 	'multer'
@@ -25,7 +25,6 @@ RedisStore = connect-redis express-session
 argv = yargs.argv
 app = module.exports = express!
 fs = fsExtra
-markdown = markdown.markdown
 
 # load needed libs into app locals
 app
@@ -56,7 +55,7 @@ do ->
 		console.log 'redisauth env undefined\ntrying null anyway...'
 
 # create swig |markdown filter
-swig.setFilter 'markdown', markdown.toHTML
+swig.setFilter 'markdown', marked
 swig.setFilter 'toString', (input)->
 	input.toString!
 swig.setFilter 'fromNow', (input)->
@@ -119,8 +118,8 @@ app
 	.set 'view engine' 'html'
 	# .set 'views' __dirname + '/NOTviews' # /views by default
 	# static assets (html,js,css)
-	.use '/static' serveStatic './static' # static
-	.use '/assets' serveStatic './assets'
+	.use '/static' serveStatic './public/static' # static
+	.use '/assets' serveStatic './public/assets'
 	# Cross Site Request Forgery
 	# .use csurf {
 	# 	secretLength: 32
