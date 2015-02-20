@@ -11,79 +11,107 @@ module.exports = (app)->
 	Course = app.locals.models.Course
 	Post = app.locals.models.Post
 	app
-		..route '/:course/:blog(blog|b)/:id?/:action(new|edit)'
+		..route '/:course/:blog(blog|b)/:action(new|edit|delete)/:unique?'
 		.all (req, res, next)->
 			res.locals.needs = 2
 			app.locals.authorize req, res, next
 		.all (req, res, next)->
 			res.locals.on = 'blog'
-			switch req.session.auth
-			| 3
-				err, result <- Course.findOne {
-					'id': req.params.course
-					'school': app.locals.school
-				}
-				if err
-					winston.error 'course:findOne:blog', err
-				else
-					if !result? or result.length is 0
-						next new Error 'NOT FOUND'
+			<- async.parallel [
+				(done)->
+					if req.session.auth is 3
+						err, result <- Course.findOne {
+							'id': req.params.course
+							'school': app.locals.school
+						}
+						if err
+							winston.error 'course:findOne:blog:auth3', err
+							next new Error 'INTERNAL'
+						else
+							if !result? or result.length is 0
+								next new Error 'NOT FOUND'
+							else
+								res.locals.course = result
+								done!
 					else
-						res.locals.course = result
-						next!
-			| 2
-				err, result <- Course.findOne {
-					'id': req.params.course
-					'school': app.locals.school
-					'faculty': mongoose.Types.ObjectId(req.session.uid)
-				}
-				if err
-					winston.error 'course:findOne:blog', err
-				else
-					if !result? or result.length is 0
-						next new Error 'NOT FOUND'
+						done!
+				(done)->
+					if req.session.auth is 2
+						err, result <- Course.findOne {
+							'id': req.params.course
+							'school': app.locals.school
+							'faculty': mongoose.Types.ObjectId req.session.uid
+						}
+						if err
+							winston.error 'course:findOne:blog:auth2', err
+							next new Error 'INTERNAL'
+						else
+							if !result? or result.length is 0
+								next new Error 'NOT FOUND'
+							else
+								res.locals.course = result
+								done!
 					else
-						res.locals.course = result
-						next!
-			| _
-				next new Error 'UNAUTHORIZED'
-		.get (req, res, next)->
-			# err, posts <- Post.find {
-			# 	'course': mongoose.Types.ObjectId(res.locals.course._id)
-			# 	'type': 'blog'
-			# }
-			# console.log 'posts',posts
-			# res.locals.blog = posts
-			res.render 'blog', { +create, 'blog':true, 'on':'newblog' }
-		.post (req, res, next)->
-			var authorName, authorUsername
-			async.parallel [
-				->
-					res.render 'blog', { +create, 'blog':true, 'on':'newblog', success:'yes' } # return
-				->
-					authorUsername := req.session.username
-					authorName := req.session.firstName+" "+req.session.lastName
-					post = new Post {
-						# uuid: res.locals.postuuid
-						title: req.body.title
-						text: req.body.body
-						files: req.body.files
-						author: mongoose.Types.ObjectId req.session.uid
-						authorName: authorName
-						authorUsername: authorUsername
-						tags: []
-						type: 'blog'
-						school: app.locals.school
-						course: mongoose.Types.ObjectId res.locals.course._id
-					}
-					err, post <- post.save
-					if err?
-						winston.error 'blog post save', err
+						done!
 			]
+			next!
+		.get (req, res, next)->
+			if req.params.action in ['edit','delete'] and req.params.unique?
+				console.log req.params.unique
+				err, result <- Post.find {
+					'course': mongoose.Types.ObjectId(res.locals.course._id)
+					'type': 'blog'
+					'title': req.params.unique
+				}
+				console.log 'edit/del', result
+				# if result > 1
+				# 	...
+				res.locals.posts = result
+				next!
+			else
+				next!
+		.get (req, res, next)->
+			console.log 'got here'
+			res.locals.blog = true
+			switch req.params.action
+			| 'new'
+				res.render 'blog', { +create, on:'newblog' }
+			| 'edit'
+				res.render 'blog', { on:'editblog', edit:true }
+			| 'delete'
+				res.render 'blog', { on:'deleteblog', del:true }
+		.post (req, res, next)->
+			if req.params.action is 'new'
+				var authorName, authorUsername
+				async.parallel [
+					->
+						res.render 'blog', { +create, 'blog':true, 'on':'newblog', success:'yes' } # return
+					->
+						authorUsername := req.session.username
+						authorName := req.session.firstName+" "+req.session.lastName
+						post = new Post {
+							# uuid: res.locals.postuuid
+							title: encodeURIComponent req.body.title
+							text: req.body.body
+							files: req.body.files
+							author: mongoose.Types.ObjectId req.session.uid
+							authorName: authorName
+							authorUsername: authorUsername
+							tags: []
+							type: 'blog'
+							school: app.locals.school
+							course: mongoose.Types.ObjectId res.locals.course._id
+						}
+						err, post <- post.save
+						if err?
+							winston.error 'blog post save', err
+				]
+			else
+				next new Error 'probably edit gone awry'
 		.put (req, res, next)->
 			async.parallel [
 				->
-					res.redirect '#'
+					res.redirect "/#{res.locals.course.id}/blog/edit/#{req.params.unique}"
 				->
 					err, post <- Post.findOneAndUpdate {
 						'_id': mongoose.Types.ObjectId req.body.pid
@@ -91,8 +119,8 @@ module.exports = (app)->
 						'course': mongoose.Types.ObjectId res.locals.course._id
 						'type': 'blog'
 					}, {
-						'title': res.body.title
-						'text': res.body.text
+						'title': req.body.title
+						'text': req.body.text
 					}
 					if err
 						winston.error 'blog post update', err
@@ -100,7 +128,7 @@ module.exports = (app)->
 		.delete (req, res, next)->
 			async.parallel [
 				->
-					res.redirect '#'
+					res.redirect "/#{res.locals.course.id}/blog"
 				->
 					err, post <- Post.remove {
 						'_id': mongoose.Types.ObjectId req.body.pid
@@ -111,7 +139,7 @@ module.exports = (app)->
 					if err
 						winston.error 'blog post delete', err
 			]
-		..route '/:course/blog/:unique?'
+		..route '/:course/blog/:action(search)?/:unique?'
 		.all (req, res, next)->
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
@@ -140,7 +168,7 @@ module.exports = (app)->
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
-							'faculty': mongoose.Types.ObjectId(req.session.uid)
+							'faculty': mongoose.Types.ObjectId req.session.uid
 						}
 						if err
 							winston.error 'course:findOne:blog:auth2', err
@@ -158,7 +186,7 @@ module.exports = (app)->
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
-							'students': mongoose.Types.ObjectId(req.session.uid)
+							'students': mongoose.Types.ObjectId req.session.uid
 						}
 						if err
 							winston.error 'course:findOne:blog:auth1', err
@@ -196,7 +224,15 @@ module.exports = (app)->
 						Post.find {
 							'course': mongoose.Types.ObjectId(res.locals.course._id)
 							'type': 'blog'
-							'title': req.params.unique
+							'text': new RegExp req.params.unique, 'i'
+						}, (err, posts)->
+							done err, posts
+					(done)->
+						# search titles
+						Post.find {
+							'course': mongoose.Types.ObjectId(res.locals.course._id)
+							'type': 'blog'
+							'title': new RegExp req.params.unique, 'i'
 						}, (err, posts)->
 							done err, posts
 					(done)->
@@ -212,7 +248,7 @@ module.exports = (app)->
 						Post.find {
 							'course': mongoose.Types.ObjectId(res.locals.course._id)
 							'type': 'blog'
-							'authorName': req.params.unique
+							'authorName': new RegExp req.params.unique, 'i'
 						}, (err, posts)->
 							done err, posts
 				]
@@ -223,6 +259,5 @@ module.exports = (app)->
 					'course': mongoose.Types.ObjectId res.locals.course._id
 					'type':'blog'
 				}
-				console.log posts
 				res.locals.blog = posts
 				res.render 'blog'

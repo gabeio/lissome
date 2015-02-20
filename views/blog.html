@@ -7,52 +7,12 @@
 {%- block body -%}
 	<div class="container-fluid">
 		{% include 'navbar.html' %}
-		{%- if !create %}
-		<div class="row">
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				<div class="pull-left">
-					<h3>Blog</h3>
-				</div>
-				{% if 2 <= auth %}<div class="pull-right">
-					<a href="/{{ course.id }}/blog/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span></a>
-				</div>{% endif %}
-				{%- for entry in blog -%}
-				<div class="col-xs-12 well">
-					{%- if 2 <= auth -%}
-					<div class="pull-right">
-						<div class="dropdown">
-							<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
-								<span class="glyphicon glyphicon-cog"></span>
-								<span class="caret"></span>
-							</button>
-							<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
-								<li role="presentation"><a role="menuitem" tabindex="-1" href="/{{ course.id }}/blog/{{ entry.title }}/edit"><span class="glyphicon glyphicon-edit"></span> Edit</a></li>
-								<li role="presentation"><a role="menuitem" tabindex="-1" href="/{{ course.id }}/blog/{{ entry.title }}"><span class="glyphicon glyphicon-remove"></span> Delete</a></li>
-							</ul>
-						</div>
-					</div>
-					{% endif %}
-					<h2>{{ entry.title }}</h2>
-					{{ entry.text|markdown|safe }}
-					<p class="text-muted"><span class="pull-left" alt="{{ entry.authorUsername }}">{{ entry.authorName }}</span>
-					<span class="pull-right">{{ entry.timestamp|date('F jS h:m a') }}</span></p>
-					<hr />
-				</div>
-				{%- endfor -%}
-			</div>
-		</div>
-		{%- else %}
-		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="#">
+		{%- if create %}
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="#" enctype="multipart/form-data">
 			{%- if success == 'yes' -%}
 			<div class="form-group">
 				<div class="alert alert-success" role="alert">
-					Blog post created successfully.
-				</div>
-			</div>
-			{%- elif success == 'no' -%}
-			<div class="form-group">
-				<div class="alert alert-danger" role="alert">
-					Blog post failed to be created successfully.
+					Blog post <strong>created</strong> successfully.
 				</div>
 			</div>
 			{%- endif -%}
@@ -72,6 +32,94 @@
 				<button type="submit" class="btn btn-default">Submit</button>
 			</div>
 		</form>
+		{%- elif edit -%}
+			{% for post in posts %}
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?hmo=PUT" enctype="multipart/form-data">
+			{%- if success == 'yes' -%}
+			<div class="form-group">
+				<div class="alert alert-success" role="alert">
+					Blog post <strong>updated</strong> successfully.
+				</div>
+			</div>
+			{%- endif -%}
+			<input type="hidden" name="pid" value="{{ post._id|toString }}" />
+			<div class="form-group">
+				<label for="formTitle">Title</label>
+				<input type="text" class="form-control" id="formTitle" name="title" value="{{ post.title|url_decode }}" />
+			</div>
+			<div class="form-group">
+				<label for="formBody">Body</label>
+				<textarea class="form-control" id="formBody" name="text">{{ post.text }}</textarea>
+			</div>
+			<div class="form-group">
+				<label for="formUpload">Files</label>
+				<input type="file" id="formUpload" name="files" />
+			</div>
+			<div class="form-group">
+				<button type="submit" class="btn btn-default">Update</button>
+			</div>
+		</form>
+			{% endfor %}
+		{%- elif del -%}
+			{% for post in posts %}
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?hmo=DELETE" enctype="multipart/form-data">
+			{%- if success == 'yes' -%}
+			<div class="form-group">
+				<div class="alert alert-success" role="alert">
+					Blog post <strong>deleted</strong> successfully.
+				</div>
+			</div>
+			{%- endif -%}
+			<div class="col-xs-12 well">
+				<input type="hidden" name="pid" value="{{ post._id|toString }}" />
+				<div class="form-group pull-right">
+					<!-- <div class="pull-right"> -->
+					<a href="/{{ course.id }}/blog" class="btn btn-default">No!</a>
+					<button type="submit" class="btn btn-danger">Delete</button>
+				</div>
+				<h2>{{ post.title|url_decode }}</h2>
+				{{ post.text|markdown|safe }}
+				<p class="text-muted"><span class="pull-left" alt="{{ post.authorUsername }}">{{ post.authorName }}</span>
+				<span class="pull-right">{{ post.timestamp|date('F jS h:m a') }}</span></p>
+			</div>
+		</form>
+			{% endfor %}
+		{%- else %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>Blog</h3>
+				</div>
+				{% if 2 <= auth %}<div class="pull-right">
+					<a href="/{{ course.id }}/blog/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span></a>
+				</div>{% endif %}
+				{%- for entry in blog -%}
+				<div class="col-xs-12 well">
+					{%- if 2 <= auth -%}
+					<div class="pull-right">
+						<div class="dropdown">
+							<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+								<span class="glyphicon glyphicon-cog"></span>
+							</button>
+							<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
+								<li role="presentation">
+									<a role="menuitem" tabindex="-1" href="/{{ course.id }}/blog/edit/{{ entry.title|url_encode }}"><span class="glyphicon glyphicon-edit"></span> Edit</a>
+								</li>
+								<li role="presentation">
+									<a role="menuitem" tabindex="-1" href="/{{ course.id }}/blog/delete/{{ entry.title|url_encode }}"><span class="glyphicon glyphicon-remove"></span> Delete</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+					{% endif %}
+					<h2>{{ entry.title|url_decode }}</h2>
+					{{ entry.text|markdown|safe }}
+					<p class="text-muted"><span class="pull-left" alt="{{ entry.authorUsername }}">{{ entry.authorName }}</span>
+					<span class="pull-right">{{ entry.timestamp|fromNow }}{#|date('F jS h:m a', -300)#}</span></p>
+				</div>
+				{%- endfor -%}
+			</div>
+		</div>
 		{% endif %}
 		{# for entry use
 		<div class="row">
