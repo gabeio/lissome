@@ -1,30 +1,28 @@
 require! {
 	'chai' # assert lib
-	'supertest' # request lib
+	'supertest'
 	'del' # delete
 	'async'
 }
-app = require '../lib/app'
 req = supertest
 expect = chai.expect
 assert = chai.assert
 should = chai.should!
-var agent
-describe "Base" ->
-	before (done)-> # setup basic user
+var app, agent, student, faculty, admin
+describe "Core" ->
+	before (done)->
+		app := require '../lib/app'
+		done!
+	before (done)-> # setup user agents
 		agent := req.agent app
+		student := req.agent app
+		faculty := req.agent app
+		admin := req.agent app
 		done!
 	before (done)->
+		# this is to allow db connection/app setup
 		this.timeout 0
-		console.log '\tpausing to allow mongodb connection'
-		/*readyState = setInterval (done)->
-			console.log app.locals.db.readyState
-			if app.locals.db?
-				if app.locals.db.readyState is 1
-					clearInterval readyState
-					done
-		, 100*/
-		setTimeout done, 2000
+		setTimeout done, 5000
 
 	describe "Index", (...)->
 		it "should respond to a GET", (done)->
@@ -32,7 +30,7 @@ describe "Base" ->
 				.get '/'
 				.end (err, res)->
 					expect res.status .to.equal 302
-					/*expect res.body .to.not.be.a 'null'*/
+					# expect res.body .to.not.be ''
 					done err
 		it "should error to a POST", (done)->
 			agent
@@ -52,16 +50,31 @@ describe "Base" ->
 				.end (err, res)->
 					expect res.status .to.not.equal 200
 					done err
-		it.skip "should be a dashboard for student"
-		it.skip "should be a dashboard for faculty"
-		it.skip "should be a dashboard for admin"
-
-	describe "Login/Logout", (...)->
-		afterEach (done)->
-			agent
-				.get '/logout'
-				.end (err, res)->
-					done err
+	describe "Login", (...)->
+		afterEach (complete)->
+			<- async.parallel [
+				(done)->
+					agent
+						.get '/logout'
+						.end (err, res)->
+							done err
+				(done)->
+					student
+						.get '/logout'
+						.end (err, res)->
+							done err
+				(done)->
+					faculty
+						.get '/logout'
+						.end (err, res)->
+							done err
+				(done)->
+					admin
+						.get '/logout'
+						.end (err, res)->
+							done err
+			]
+			complete!
 		it "should respond to a GET", (done)->
 			agent
 				.get '/login'
@@ -69,92 +82,84 @@ describe "Base" ->
 					expect res.status .to.equal 200
 					# expect res.text .to.
 					done err
-		it "should login with valid student credentials w/o type", (done)->
-			agent
-				.post '/login'
-				.send {
-					'username': 'Student'
-					'password': 'password'
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
-		it "should login with valid student credentials w/ type", (done)->
-			agent
-				.post '/login'
-				.send {
-					'username': 'Student'
-					'password': 'password'
-					'type': 'Student'
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
-		it "should login with valid faculty credentials", (done)->
-			agent
-				.post '/login'
-				.send {
-					'username': 'Faculty'
-					'password': 'password'
-					'type': 'Faculty'
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
-		it "should login with valid admin credentials", (done)->
-			agent
-				.post '/login'
-				.send {
-					'username': 'Admin'
-					'password': 'password'
-					'type': 'Admin'
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
+		it "should login with valid credentials", (done)->
+			err <- async.parallel [
+				(cont)->
+					student
+						.post '/login'
+						.send {
+							'username': 'Student'
+							'password': 'password'
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							cont err
+				(cont)->
+					faculty
+						.post '/login'
+						.send {
+							'username': 'Faculty'
+							'password': 'password'
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							cont err
+				(cont)->
+					admin
+						.post '/login'
+						.send {
+							'username': 'Admin'
+							'password': 'password'
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							cont err
+			]
+			done err
 		it "shouldn't matter how the user caps the username (student)", (done)->
-			agent
+			student
 				.post '/login'
 				.send {
 					'username': 'stuDENT'
 					'password': 'password'
-					'type': 'stuDENT'
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
 					done err
 		it "shouldn't matter how the user caps the username (faculty)", (done)->
-			agent
+			faculty
 				.post '/login'
 				.send {
 					'username': 'facULTY'
 					'password': 'password'
-					'type': 'FACULTY'
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
 					done err
 		it "shouldn't matter how the user caps the username (admin)", (done)->
-			agent
+			admin
 				.post '/login'
 				.send {
 					'username': 'adMIN'
 					'password': 'password'
-					'type': 'ADMIN'
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
 					done err
-		it "should ignore everything else to login w/o credentials", (done)->
-			agent
-				.put '/login'
-				.send {
-					'username':'gibberish'
-					'password':'idk'
-					'anything':'else'
-				}
-				.end (err, res)->
-					expect res.status .to.not.equal 200
+		it "should ignore put/delete to login as outside", (done)->
+			err <- async.parallel [
+				(cont)->
+					agent
+						.put '/login'
+						.send {
+							'username':'gibberish'
+							'password':'idk'
+							'anything':'else'
+						}
+						.end (err, res)->
+							expect res.status .to.not.equal 200
+							cont err
+				(cont)->
 					agent
 						.delete '/login'
 						.send {
@@ -164,26 +169,31 @@ describe "Base" ->
 						}
 						.end (err, res)->
 							expect res.status .to.not.equal 200
-							done err
-		it "should ignore everything else to login w/ student credentials", (done)->
-			agent
+							cont err
+			]
+			done err
+		it "should ignore put/delete to login as student", (done)->
+			student
 				.post '/login'
 				.send {
 					'username': 'stuDENT'
 					'password': 'password'
-					'type': 'stuDENT'
 				}
 				.end (err, res)->
-					agent
-						.put '/login'
-						.send {
-							'username':'gibberish'
-							'password':'idk'
-							'anything':'else'
-						}
-						.end (err, res)->
-							expect res.status .to.not.equal 200
-							agent
+					err <- async.parallel [
+						(cont)->
+							student
+								.put '/login'
+								.send {
+									'username':'gibberish'
+									'password':'idk'
+									'anything':'else'
+								}
+								.end (err, res)->
+									expect res.status .to.not.equal 200
+									cont err
+						(cont)->
+							student
 								.delete '/login'
 								.send {
 									'username':'gibberish'
@@ -192,26 +202,31 @@ describe "Base" ->
 								}
 								.end (err, res)->
 									expect res.status .to.not.equal 200
-									done err
-		it "should ignore everything else to login w/ faculty credentials", (done)->
-			agent
+									cont err
+					]
+					done err
+		it "should ignore put/delete to login as faculty", (done)->
+			faculty
 				.post '/login'
 				.send {
 					'username': 'Faculty'
 					'password': 'password'
-					'type': 'Faculty'
 				}
 				.end (err, res)->
-					agent
-						.put '/login'
-						.send {
-							'username':'gibberish'
-							'password':'idk'
-							'anything':'else'
-						}
-						.end (err, res)->
-							expect res.status .to.not.equal 200
-							agent
+					err <- async.parallel [
+						(cont)->
+							faculty
+								.put '/login'
+								.send {
+									'username':'gibberish'
+									'password':'idk'
+									'anything':'else'
+								}
+								.end (err, res)->
+									expect res.status .to.not.equal 200
+									cont err
+						(cont)->
+							faculty
 								.delete '/login'
 								.send {
 									'username':'gibberish'
@@ -220,26 +235,31 @@ describe "Base" ->
 								}
 								.end (err, res)->
 									expect res.status .to.not.equal 200
-									done err
-		it "should ignore everything else to login w/ admin credentials", (done)->
-			agent
+									cont err
+					]
+					done err
+		it "should ignore put/delete to login as admin", (done)->
+			admin
 				.post '/login'
 				.send {
 					'username': 'Admin'
 					'password': 'password'
-					'type': 'Admin'
 				}
 				.end (err, res)->
-					agent
-						.put '/login'
-						.send {
-							'username':'gibberish'
-							'password':'idk'
-							'anything':'else'
-						}
-						.end (err, res)->
-							expect res.status .to.not.equal 200
-							agent
+					err <- async.parallel [
+						(cont)->
+							admin
+								.put '/login'
+								.send {
+									'username':'gibberish'
+									'password':'idk'
+									'anything':'else'
+								}
+								.end (err, res)->
+									expect res.status .to.not.equal 200
+									cont err
+						(cont)->
+							admin
 								.delete '/login'
 								.send {
 									'username':'gibberish'
@@ -248,44 +268,44 @@ describe "Base" ->
 								}
 								.end (err, res)->
 									expect res.status .to.not.equal 200
-									done err
+									cont err
+					]
+					done err
 		it "should fail for a blank student", (done)->
-			agent
+			student
 				.post '/login'
 				.send {
 					'username': ''
 					'password': ''
 				}
 				.end (err, res)->
-					expect res.text .to.have.string 'username not found'
+					expect res.text .to.have.string 'bad login credentials'
 					expect res.headers.location .to.be.an 'undefined'
 					done err
 		it "should fail for a blank faculty", (done)->
-			agent
+			faculty
 				.post '/login'
 				.send {
 					'username': ''
 					'password': ''
-					'type':'Faculty'
 				}
 				.end (err, res)->
-					expect res.text .to.have.string 'username not found'
+					expect res.text .to.have.string 'bad login credentials'
 					expect res.headers.location .to.be.an 'undefined'
 					done err
 		it "should fail for a blank admin", (done)->
-			agent
+			admin
 				.post '/login'
 				.send {
 					'username': ''
 					'password': ''
-					'type':'Admin'
 				}
 				.end (err, res)->
-					expect res.text .to.have.string 'username not found'
+					expect res.text .to.have.string 'bad login credentials'
 					expect res.headers.location .to.be.an 'undefined'
 					done err
 		it "should fail for a good student username bad password", (done)->
-			agent
+			student
 				.post '/login'
 				.send {
 					'username': 'Student'
@@ -295,67 +315,62 @@ describe "Base" ->
 					expect res.text .to.have.string 'bad login credentials'
 					done err
 		it "should fail for a good faculty username bad password", (done)->
-			agent
+			faculty
 				.post '/login'
 				.send {
 					'username': 'Faculty'
 					'password': ''
-					'type':'Faculty'
 				}
 				.end (err, res)->
 					expect res.text .to.have.string 'bad login credentials'
 					done err
 		it "should fail for a good admin username bad password", (done)->
-			agent
+			admin
 				.post '/login'
 				.send {
 					'username': 'Admin'
 					'password': ''
-					'type':'Admin'
 				}
 				.end (err, res)->
 					expect res.text .to.have.string 'bad login credentials'
 					done err
-
-	describe "Course", (...)->
-		# before (done)->
-		it "should allow a student to access their classes", (done)->
-			agent
-				.post '/login'
-				.send {
-					'username': 'Student'
-					'password': 'password'
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					agent
-						.get '/cps1234'
+		it "shouldn't crash for just username defined", (done)->
+			err <- async.parallel [
+				(cont)->
+					student
+						.post '/login'
+						.send {
+							'username':'student'
+						}
 						.end (err, res)->
-							expect res.status .to.equal 200
-							done err
-		it "should not allow a student should NOT be able to access any other classes", (done)->
-			agent
-				.post '/login'
-				.send {
-					'username': 'Student'
-					'password': 'password'
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					agent
-						.get '/cps4601'
+							# expect res.text .to.not.be ''
+							expect res.text .to.have.string 'bad login credentials'
+							# expect res.status .to.equal 401
+							cont err
+				(cont)->
+					faculty
+						.post '/login'
+						.send {
+							'username':'faculty'
+						}
 						.end (err, res)->
-							expect res.status .to.not.equal 200
-							done err
-		it "should allow a teacher should be able to edit their classes"
-		it "should allow a teacher should NOT be ablt to edit any other classes"
-		it "should allow an admin should be able to edit any class"
+							# expect res.text .to.not.be ''
+							expect res.text .to.have.string 'bad login credentials'
+							# expect res.status .to.equal 401
+							cont err
+				(cont)->
+					admin
+						.post '/login'
+						.send {
+							'username':'admin'
+						}
+						.end (err, res)->
+							# expect res.text .to.not.be ''
+							expect res.text .to.have.string 'bad login credentials'
+							# expect res.status .to.equal 401
+							cont err
+			]
+			done err
 
-	describe "Dashboard", (...)->
-		it.skip "should show any changes to any classes a student presently enrolled in", (done)->
-
-	after (done)->
-		this.timeout 0
-		app.locals.mongo.close!
-		# app.locals.redis.close! # check if this works
-		done!
+	# describe "Dashboard", (...)->
+	# 	it.skip "should show any changes to any classes a student presently enrolled in"	
