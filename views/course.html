@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
-{%- block head -%}
+{% block head %}
 	<title>{{ course.title }} - {{ school }}</title>
-{%- endblock -%}
+{% endblock %}
 
-{%- block body -%}
+{% block body %}
 	<div class="container-fluid">
 		{% include 'navbar.html' %}
 		<div class="row">
@@ -19,4 +19,4 @@
 			</div>
 		</div>
 	</div>
-{%- endblock -%}
+{% endblock %}
