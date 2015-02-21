@@ -14,6 +14,7 @@ require! {
 	'markdown-it'
 	'method-override'
 	'moment'
+	'moment-timezone'
 	'multer'
 	'serve-static' # nginx static
 	'swig' # templates
@@ -21,11 +22,17 @@ require! {
 	'winston'
 	'yargs' # --var val
 }
+var timezone
 RedisStore = connect-redis express-session
 argv = yargs.argv
 app = module.exports = express!
 fs = fsExtra
-md = new markdown-it!
+md = new markdown-it {
+	html: false
+	xhtml: false
+	linkify: true
+	typographer: true
+}
 
 # load needed libs into app locals
 app
@@ -41,19 +48,28 @@ app
 /* istanbul ignore next this is just for assurance the env vars are defined */
 do ->
 	if !process.env.cookie? and !argv.cookie?
-		console.log 'REQUIRES COOKIE SECRET'
+		console.log "REQUIRES COOKIE SECRET"
 		process.exit 1
 	if !process.env.school? and !argv.school?
-		console.log 'REQUIRES SCHOOL NAME'
+		console.log "REQUIRES SCHOOL NAME"
 		process.exit 1
+	if !process.env.timezone? and !process.env.TIMEZONE? and !argv.timezone?
+		console.log "REQUIRES SCHOOL TIMEZONE"
+		process.exit 1
+	else
+		if moment.tz.zone(process.env.timezone or process.env.TIMEZONE or argv.timezone)
+			app.locals.timezone = process.env.timezone or process.env.TIMEZONE or argv.timezone
+		else
+			console.log "Unknown Timezone; crashing..."
+			process.exit 1
 	if !process.env.mongo? and !process.env.MONGOURL? and !argv.mongo?
-		console.log 'mongo env undefined\ntrying localhost anyway...'
+		console.log "mongo env undefined\ntrying localhost anyway..."
 	if !process.env.redishost? and !process.env.REDISHOST? and !argv.redishost?
-		console.log 'redishost env undefined\ntrying localhost anyway...'
+		console.log "redishost env undefined\ntrying localhost anyway..."
 	if !process.env.redisport? and !process.env.REDISPORT? and !argv.redisport?
-		console.log 'redishost env undefined\ntrying default anyway...'
+		console.log "redishost env undefined\ntrying default anyway..."
 	if !process.env.redisauth? and !process.env.REDISAUTH? and !argv.redisauth?
-		console.log 'redisauth env undefined\ntrying null anyway...'
+		console.log "redisauth env undefined\ntrying null anyway..."
 
 # create swig |markdown filter
 swig.setFilter 'markdown', (input)->
@@ -62,8 +78,10 @@ swig.setFilter 'toString', (input)->
 	input.toString!	
 swig.setFilter 'fromNow', (input)->
 	moment(input).fromNow()
-swig.setFilter 'mformat', (input,format)->
-	moment(input).format(format)
+swig.setFilter 'calendar', (input)->
+	moment(input).calendar()
+swig.setFilter 'timezone', (input)->
+	moment.tz(input, "America/New_York").clone().tz(app.locals.timezone).toString!
 
 # REDIS
 rediscli = require('./redisClient')(app,\
