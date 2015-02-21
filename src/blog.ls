@@ -11,7 +11,7 @@ module.exports = (app)->
 	Course = app.locals.models.Course
 	Post = app.locals.models.Post
 	app
-		..route '/:course/:blog(blog|b)/:action(new|edit|delete)/:unique?'
+		..route '/:course/:blog(blog|b)/:action(new|edit|delete|deleteall)/:unique?'
 		.all (req, res, next)->
 			res.locals.needs = 2
 			app.locals.authorize req, res, next
@@ -127,14 +127,25 @@ module.exports = (app)->
 				->
 					res.redirect "/#{res.locals.course.id}/blog"
 				->
-					err, post <- Post.remove {
-						'_id': mongoose.Types.ObjectId req.body.pid
-						'school': app.locals.school
-						'course': mongoose.Types.ObjectId res.locals.course._id
-						'type': 'blog'
-					}
-					if err
-						winston.error 'blog post delete', err
+					if req.params.action is "delete"
+						err, post <- Post.remove {
+							'_id': mongoose.Types.ObjectId req.body.pid
+							'school': app.locals.school
+							'course': mongoose.Types.ObjectId res.locals.course._id
+							'type': 'blog'
+						}
+						if err
+							winston.error 'blog post delete', err
+				->
+					if req.params.action is "deleteall"
+						err, post <- Post.remove {
+							'title': req.params.unique
+							'school': app.locals.school
+							'course': mongoose.Types.ObjectId res.locals.course._id
+							'type': 'blog'
+						}
+						if err
+							winston.error 'blog post delete', err
 			]
 		..route '/:course/blog/:action(search)?/:unique?'
 		.all (req, res, next)->
