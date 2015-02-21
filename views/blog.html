@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block head %}
-		<title>Blog - {{ school }}</title>
+		<title>Blog - {{ course.title }} - {{ school }}</title>
 {% endblock %}
 
 {% block body %}
@@ -96,7 +96,7 @@
 						</div>
 					</div>
 					<div class="panel-body">{{ post.text|markdown|safe }}</div>
-					<div class="panel-footer">{{ post.authorName }}<span class="pull-right">{{ post.timestamp|fromNow }}</span></div>
+					<div class="panel-footer"><span title="{{ post.authorUsername }}">{{ post.authorName }}</span><span class="pull-right" title="{{ post.timestamp|timezone }}">{{ post.timestamp|fromNow }}</span></div>
 				</div>
 			</form>
 		</div>
@@ -105,7 +105,7 @@
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<div class="pull-left">
-					<h3>Blog</h3>
+					<h3>{{ course.title }} - Blog</h3>
 				</div>
 				{% if 2 <= auth %}
 				<div class="pull-right" style="padding-top: 8px;">
@@ -139,7 +139,7 @@
 						{% endif %}
 					</div>
 					<div class="panel-body">{{ post.text|markdown|safe }}</div>
-					<div class="panel-footer">{{ post.authorName }}<span class="pull-right">{{ post.timestamp|fromNow }}</span></div>
+					<div class="panel-footer"><span title="{{ post.authorUsername }}">{{ post.authorName }}</span><span class="pull-right" title="{{ post.timestamp|timezone }}">{{ post.timestamp|fromNow }}</span></div>
 				</div>
 				{% endfor %}
 			</div>
