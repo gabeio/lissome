@@ -32,7 +32,7 @@
 	<div class="row">
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 			<ol class="breadcrumb">
-				{% if on == 'dash' %}<li class="active">Home</li>{% else %}<li><a href="/">Home</a></li>{% endif %}
+				{% if on == 'dash' %}<li class="active">Dash</li>{% else %}<li><a href="/">Dash</a></li>{% endif %}
 				{% if course and on !== 'course' %}<li><a href="/{{ course.id }}">{{ course.title }}</a></li>{% endif %}
 				{% if blog and on !== 'blog' %}<li><a href="/{{ course.id }}/blog">Blog</a></li>{% endif %}
 				{% if on == 'course' %}<li class="active">{{ course.title }}</li>
