@@ -18,8 +18,7 @@ module.exports = (app,mongohost,mongouser,mongopass)->
 	mongo.on 'open' (err)->
 		if err
 			winston.info 'mongo:err: ' + err
-		if !module.parent
-			winston.info 'mongo:open'
+		winston.info 'mongo:open'
 	# if app.locals.testing is true
 	app.locals.mongo = mongo # save connection object in app level variables
 	return mongo
