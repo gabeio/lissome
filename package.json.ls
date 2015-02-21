@@ -1,9 +1,9 @@
-name: 'smrtboard'
+name: 'lissome'
 version: '0.0.0a'
 
 private: true
 
-bugs: 'https://github.com/gabeio/smrtboard/issues'
+bugs: 'https://github.com/gabeio/lissome/issues'
 
 engines:
 	node: '>= 0.10.0'
@@ -17,7 +17,7 @@ scripts:
 
 repository:
 	type: 'git'
-	url: 'git://github.com/gabeio/smrtboard.git'
+	url: 'git://github.com/gabeio/lissome.git'
 
 dependencies:
 	"async": '~0.9.0'
