@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		{%- block meta %}{% endblock -%} {# if meta description/keywords load it here. #}
+		{% block meta %}{% endblock %} {# if meta description/keywords load it here. #}
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0{% if no_scale %}, minimum-scale=1, maximum-scale=1, user-scalable=no{% endif %}">
 		<link href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css" rel="stylesheet"><!-- TODO: make local asset -->
@@ -22,7 +22,7 @@
 {% include 'scripts.html' ignore missing %} {# load global scripts #}
 {% block scripts %}{% endblock %} {# load page scripts #}
 	</body>
-</html>{%- spaceless %}
+</html>{% spaceless %}
 {#
 IMPORTS:
 	sytles.html: app global css (ie: bootstrap or foundation)
@@ -35,4 +35,4 @@ BLOCKS:
 	body: content
 	scripts: loaded last so if not needed never is loaded
 #}
-{% endspaceless -%}
+{% endspaceless %}
