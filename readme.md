@@ -2,7 +2,7 @@ Smrtboard
 =======
 
 [![Build Status](https://magnum.travis-ci.com/gabeio/smrtboard.svg?token=8ysSVLsN3qoWuWWmeBwM&branch=develop)](https://magnum.travis-ci.com/gabeio/smrtboard)
-[![Dependency Status](https://gemnasium.com/20669af5ef14f415a6403154eba8562b.svg)](https://gemnasium.com/gabeio/smrtboard)
+[![Dependency Status](https://gemnasium.com/feee31ec6a8bc2286a63441e57234d8f.svg)](https://gemnasium.com/gabeio/lissome)
 [![Coverage Status](https://coveralls.io/repos/gabeio/smrtboard/badge.svg?branch=develop)](https://coveralls.io/r/gabeio/smrtboard?branch=develop)
 
 process.env
