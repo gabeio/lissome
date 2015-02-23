@@ -1,15 +1,18 @@
 require! {
-	'chai' # assert lib
-	'supertest' # request lib
-	'del' # delete
 	'async'
+	'chai' # assert lib
+	'del' # delete
+	'lodash'
+	'supertest' # request lib
 }
 app = require '../lib/app'
+_ = lodash
 req = supertest
 expect = chai.expect
 assert = chai.assert
 should = chai.should!
-var agent, student, faculty, admin
+var agent, student, faculty, admin, blogpid
+blogpid = []
 agent = req.agent app
 student = req.agent app
 faculty = req.agent app
@@ -119,7 +122,7 @@ describe "Course" ->
 					done err
 		it "should allow admin to create new posts", (done)->
 			admin
-				.post '/cps1234/blog/new'
+				.post '/cps4601/blog/new'
 				.send {
 					'title':'title'
 					'body':'body'
@@ -127,3 +130,119 @@ describe "Course" ->
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
+		it "setting up for testing edit/delete", (done)->
+			err <- async.parallel [
+				->
+					admin
+						.post '/test/getpid/cps1234'
+						.send {}
+						.end (err, res)->
+							blogpid.0 := res.body.0._id
+							done err
+				->
+					admin
+						.post '/test/getpid/cps4601'
+						.send {}
+						.end (err, res)->
+							blogpid.1 := res.body.0._id
+							done err
+			]
+				# get a pid to a post here
+		it "should not allow student in the course to edit or delete blog posts", (done)->
+			err <- async.parallel [
+				(cont)->
+					student
+						.post '/cps1234/blog/title?hmo=PUT'
+						.send {
+							'pid':blogpid.0
+							'title':'anything'
+							'text':'anything'
+						}
+						.end (err, res)->
+							expect res.status .to.not.equal 200
+							cont err
+				(cont)->
+					student
+						.post '/cps1234/blog/title?hmo=DELETE'
+						.send {
+							'pid':blogpid.0
+							'title':'anything'
+							'text':'anything'
+						}
+						.end (err, res)->
+							expect res.status .to.not.equal 200
+							cont err
+			]
+			done err
+		it "should not allow student not in the course to edit or delete blog posts", (done)->
+			err <- async.parallel [
+				(cont)->
+					student
+						.post '/cps4601/blog/title?hmo=PUT'
+						.send {
+							'pid':blogpid.1
+							'title':'anything'
+							'text':'anything'
+						}
+						.end (err, res)->
+							expect res.status .to.not.equal 200
+							cont err
+				(cont)->
+					student
+						.post '/cps4601/blog/title?hmo=DELETE'
+						.send {
+							'pid':blogpid.1
+							'title':'anything'
+							'text':'anything'
+						}
+						.end (err, res)->
+							expect res.status .to.not.equal 200
+							cont err
+			]
+			done err
+		it "should allow faculty in the the course to edit or delete blog posts", (done)->
+			err <- async.parallel [
+				(cont)->
+					faculty
+						.post '/cps1234/blog/title?hmo=PUT'
+						.send {
+							'pid':blogpid.0
+							'title':'anything'
+							'text':'anything'
+						}
+						.end (err, res)->
+							expect res.status .to.equal 200
+							cont err
+				(cont)->
+					faculty
+						.post '/cps1234/blog/title?hmo=DELETE'
+						.send {
+							'pid':blogpid.0
+							'title':'anything'
+							'text':'anything'
+						}
+						.end (err, res)->
+							expect res.status .to.equal 200
+							cont err
+			]
+			done err
+		it.skip "should not allow faculty not in the the course to edit or delete blog posts", (done)->
+			err <- async.parallel [
+				(cont)->
+					faculty
+						.post '/cps4601/blog/title?hmo=PUT'
+				(cont)->
+					faculty
+						.post '/cps4601/blog/title?hmo=DELETE'
+			]
+			done err
+		it.skip "should allow admin to edit or delete blog posts", (done)->
+			err <- async.parallel [
+				(cont)->
+					admin
+						.post '/cps1234/blog/title?hmo=PUT'
+				(cont)->
+					admin
+						.post '/cps1234/blog/title?hmo=DELETE'
+			]
+			done err
