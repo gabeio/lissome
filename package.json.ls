@@ -1,5 +1,5 @@
 name: 'lissome'
-version: '0.0.0a'
+version: '0.0.1'
 
 private: true
 
