@@ -15,6 +15,7 @@ process.env
 - redishost|REDISHOST = the redis host
 - redisport|REDISPORT = the port redis is running on
 - redisauth|REDISAUTH = the auth for redis
+- redisdb|REDISDB = the db index redis connects to
 
 auth levels
 ===========
@@ -22,5 +23,3 @@ auth levels
 - 1 = student
 - 2 = faculty
 - 3 = admin
-- 4 = su|root
-- 5 = support needed.
