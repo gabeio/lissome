@@ -33,7 +33,7 @@ dependencies:
 	"fs-extra": '~0.16.3'
 	"hiredis": '~0.2.0'
 	"LiveScript": '~1.3.1'
-	"lodash": '~3.2.0'
+	"lodash": '~3.3.0'
 	"markdown-it": '~3.0.6'
 	"method-override": '~2.3.1'
 	"moment": '~2.9.0'
@@ -46,7 +46,7 @@ dependencies:
 	"swig": '~1.4.2'
 	"uuid": '~2.0.1'
 	"winston": '~0.9.0'
-	"yargs": '~3.1.0'
+	"yargs": '~3.2.1'
 
 devDependencies:
 	"chai": '~2.0.0'
