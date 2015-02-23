@@ -147,7 +147,7 @@ module.exports = (app)->
 						if err
 							winston.error 'blog post delete', err
 			]
-		..route '/:course/blog/:action(search)?/:unique?'
+		..route '/:course/:blog(blog|b)/:action(search)?/:unique?'
 		.all (req, res, next)->
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
