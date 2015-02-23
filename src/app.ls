@@ -87,7 +87,8 @@ swig.setFilter 'timezone', (input)->
 rediscli = require('./redisClient')(app,\
 	(process.env.redishost||process.env.REDISHOST||argv.redishost||'localhost'),\
 	(process.env.redisport||process.env.REDISPORT||argv.redisport||6379),\
-	(process.env.redisauth||process.env.REDISAUTH||argv.redisauth||void))
+	(process.env.redisauth||process.env.REDISAUTH||argv.redisauth||void),\
+	(process.env.redisdb||process.env.REDISDB||argv.redisdb||0))
 
 # MONGOOSE
 mongo = require('./mongoClient')(app,\

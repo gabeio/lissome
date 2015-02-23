@@ -1,4 +1,4 @@
-module.exports = (app,redishost,redisport,redisauth)->
+module.exports = (app,redishost,redisport,redisauth,redisdb)->
 	require! {
 		'redis'
 		'winston'
@@ -10,11 +10,13 @@ module.exports = (app,redishost,redisport,redisauth)->
 		}
 	else
 		rediscli = redis.createClient redisport, redishost, {}
-	rediscli.on "open", ->
-		winston.info "redis:open"
 	rediscli.on "connect", ->
 		winston.info "redis:connected"
 		app.locals.redis = rediscli
+		err <- rediscli.select redisdb
+		if err
+			winston.info 'redis:db', err
+		winston.info "using #{redisdb}"
 	rediscli.on "ready", ->
 		winston.info "redis:ready"
 	rediscli.on "disconnect", ->
