@@ -5,11 +5,11 @@ module.exports = (app)->
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
 		.get (req, res, next)->
-			res.send 'course:assignments:index > '+JSON.stringify req.params
+			res.render 'assignments'
 
 		..route '/:course/assignments/:action(new|edit|delete|grade)?/:unique?/:version?'
 		.all (req, res, next)->
 			res.locals.needs = 2
 			app.locals.authorize req, res, next
 		.get (req, res, next)->
-			res.send 'course:assignments:edit > '+JSON.stringify req.params
+			res.render 'assignments'
