@@ -10,7 +10,7 @@ module.exports = (app)->
 	Thread = app.locals.models.Thread
 	Post = app.locals.models.Post
 	app
-		..route '/:course/:conf(conference|conf|c)/:thread?'
+		..route '/:course/:conf(conference|conf|c)/:action(new|edit|delete)?/:thread?'
 		.all (req, res, next)->
 			# auth level check
 			res.locals.needs = 1
@@ -25,6 +25,7 @@ module.exports = (app)->
 							'id': req.params.course
 							'school': app.locals.school
 						}
+						/* istanbul ignore if */
 						if err
 							winston.error 'course:findOne:blog:auth3', err
 							next new Error 'INTERNAL'
@@ -43,6 +44,7 @@ module.exports = (app)->
 							'school': app.locals.school
 							'faculty': mongoose.Types.ObjectId(req.session.uid)
 						}
+						/* istanbul ignore if */
 						if err
 							winston.error 'course:findOne:blog:auth2', err
 							next new Error 'INTERNAL'
@@ -61,6 +63,7 @@ module.exports = (app)->
 							'school': app.locals.school
 							'students': mongoose.Types.ObjectId(req.session.uid)
 						}
+						/* istanbul ignore if */
 						if err
 							winston.error 'course:findOne:blog:auth1', err
 							next new Error 'INTERNAL'
@@ -83,6 +86,7 @@ module.exports = (app)->
 							'course': mongoose.Types.ObjectId res.locals.course._id
 							'type':'conference'
 						}
+						/* istanbul ignore if */
 						if err
 							winston.error 'course:findOne:blog:auth1', err
 							next new Error 'INTERNAL'
@@ -97,6 +101,7 @@ module.exports = (app)->
 							'course': mongoose.Types.ObjectId res.locals.course._id
 							# 'type':'blog'
 						}
+						/* istanbul ignore if */
 						if err
 							winston.error 'course:findOne:blog:auth1', err
 							next new Error 'INTERNAL'

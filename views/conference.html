@@ -17,6 +17,27 @@
 				</div>
 			</div>
 		</div>
+		{% if create %}
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" enctype="multipart/form-data">
+			<div class="form-group">
+				<label for="formTitle">Title</label>
+				<input type="text" class="form-control" id="formTitle" name="title" autofocus />
+			</div>
+			<div class="form-group">
+				<label for="formBody">Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
+				<textarea class="form-control" id="formBody" name="body" rows="7"></textarea>
+			</div>
+		</form>
+		{% elif cont %}
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" enctype="multipart/form-data">
+			<div class="form-group">
+				<label for="formBody">Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
+				<textarea class="form-control" id="formBody" name="body" rows="7"></textarea>
+			</div>
+		</form>
+		{% elif edit %}
+
+		{% else %}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				{% if threads %}
@@ -43,5 +64,6 @@
 				{% endif %}
 			</div>
 		</div>
+		{% endif %}
 	</div>
 {% endblock %}
