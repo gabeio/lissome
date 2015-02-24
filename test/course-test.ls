@@ -68,6 +68,16 @@ describe "Course" ->
 		it "should allow a teacher should NOT be ablt to edit any other classes"
 		it "should allow an admin should be able to edit any class"
 	describe "Blog", (...)->
+		beforeEach (done)->
+			admin
+				.post '/cps1234/blog/new'
+				.send {
+					'title':'title'
+					'text':'text'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
 		it "should be visible to student in the course", (done)->
 			student
 				.get '/cps1234/blog'
@@ -469,16 +479,6 @@ describe "Course" ->
 			done err
 		it "should allow admin to edit or delete blog posts", (done)->
 			err <- async.parallel [
-				(cont)->
-					admin
-						.post '/cps1234/blog/new'
-						.send {
-							'title':'title'
-							'text':'text'
-						}
-						.end (err, res)->
-							expect res.status .to.equal 200
-							cont err
 				(cont)->
 					admin
 						.get '/cps1234/blog/edit/title'
