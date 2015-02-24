@@ -31,25 +31,28 @@ describe "Core" ->
 			agent
 				.get '/'
 				.end (err, res)->
+					expect res.header.location .to.equal '/login'
 					expect res.status .to.equal 302
-					# expect res.body .to.not.be ''
 					done err
 		it "should error to a POST", (done)->
 			agent
 				.post '/'
 				.end (err, res)->
+					expect res.header.location .to.equal '/login'
 					expect res.status .to.not.equal 200
 					done err
 		it "should error to a PUT", (done)->
 			agent
 				.put '/'
 				.end (err, res)->
+					expect res.header.location .to.equal '/login'
 					expect res.status .to.not.equal 200
 					done err
 		it "should error to a DELETE", (done)->
 			agent
 				.delete '/'
 				.end (err, res)->
+					expect res.header.location .to.equal '/login'
 					expect res.status .to.not.equal 200
 					done err
 	describe "Login", (...)->
@@ -373,6 +376,65 @@ describe "Core" ->
 							cont err
 			]
 			done err
-
+	describe "Dashboard", (...)->
+		before (done)->
+			err <- async.parallel [
+				(cont)->
+					student
+						.post '/login'
+						.send {
+							'username': 'Student'
+							'password': 'password'
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							cont err
+				(cont)->
+					faculty
+						.post '/login'
+						.send {
+							'username': 'Faculty'
+							'password': 'password'
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							cont err
+				(cont)->
+					admin
+						.post '/login'
+						.send {
+							'username': 'Admin'
+							'password': 'password'
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							cont err
+			]
+			done err
+		it "should display your courses", (done)->
+			err <- async.parallel [
+				(cont)->
+					student
+						.get '/'
+						.end (err, res)->
+							expect res.status .to.equal 200
+							expect res.text .to.have.string 'Your Courses'
+							cont err
+				(cont)->
+					faculty
+						.get '/'
+						.end (err, res)->
+							expect res.status .to.equal 200
+							expect res.text .to.have.string 'Your Courses'
+							cont err
+				(cont)->
+					admin
+						.get '/'
+						.end (err, res)->
+							expect res.status .to.equal 200
+							expect res.text .to.have.string 'Your Courses'
+							cont err
+			]
+			done err
 	# describe "Dashboard", (...)->
 	# 	it.skip "should show any changes to any classes a student presently enrolled in"	
