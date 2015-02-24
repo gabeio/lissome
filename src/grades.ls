@@ -5,4 +5,4 @@ module.exports = (app)->
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
 		.get (req, res, next)->
-			res.send 'course:grades:index > '+JSON.stringify req.params
+			res.render 'grades'
