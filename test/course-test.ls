@@ -479,22 +479,22 @@ describe "Course" ->
 			done err
 		it "should allow admin to edit or delete blog posts", (done)->
 			err <- async.parallel [
-				(cont)->
-					admin
-						.get '/cps1234/blog/edit/title'
-						.end (err, res)->
-							expect res.status .to.equal 200
-							if res.status != 200
-								console.log 'a'
-							cont err
-				(cont)->
-					admin
-						.get '/cps1234/blog/delete/title'
-						.end (err, res)->
-							expect res.status .to.equal 200
-							if res.status != 200
-								console.log 'b'
-							cont err
+				# (cont)->
+				# 	admin
+				# 		.get '/cps1234/blog/edit/title'
+				# 		.end (err, res)->
+				# 			expect res.status .to.equal 200
+				# 			if res.status != 200
+				# 				console.log 'a'
+				# 			cont err
+				# (cont)->
+				# 	admin
+				# 		.get '/cps1234/blog/delete/title'
+				# 		.end (err, res)->
+				# 			expect res.status .to.equal 200
+				# 			if res.status != 200
+				# 				console.log 'b'
+				# 			cont err
 				# (cont)->
 				# 	admin
 				# 		.get '/cps4601/blog/edit/title'
