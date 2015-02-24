@@ -24,10 +24,12 @@ module.exports = (app)->
 							'id': req.params.course
 							'school': app.locals.school
 						}
+						/* istanbul ignore if */
 						if err
 							winston.error 'course:findOne:blog:auth3', err
 							next new Error 'INTERNAL'
 						else
+							/* istanbul ignore if */
 							if !result? or result.length is 0
 								next new Error 'NOT FOUND'
 							else
@@ -42,10 +44,12 @@ module.exports = (app)->
 							'school': app.locals.school
 							'faculty': mongoose.Types.ObjectId req.session.uid
 						}
+						/* istanbul ignore if */
 						if err
 							winston.error 'course:findOne:blog:auth2', err
 							next new Error 'INTERNAL'
 						else
+							/* istanbul ignore if */
 							if !result? or result.length is 0
 								next new Error 'NOT FOUND'
 							else
@@ -56,16 +60,19 @@ module.exports = (app)->
 			]
 			next!
 		.get (req, res, next)->
-			if req.params.action in ['edit','delete'] and req.params.unique?
-				err, result <- Post.find {
-					'course': mongoose.Types.ObjectId(res.locals.course._id)
-					'type': 'blog'
-					'title': req.params.unique
-				}
-				# if result > 1
-				# 	...
-				res.locals.posts = _.sortBy result, 'timestamp' .reverse!
-				next!
+			if req.params.action in ['edit','delete']
+				if !req.params.unique?
+					res.redirect "/#{res.locals.course.id}/blog"
+				else
+					err, result <- Post.find {
+						'course': mongoose.Types.ObjectId(res.locals.course._id)
+						'type': 'blog'
+						'title': req.params.unique
+					}
+					# if result > 1
+					# 	...
+					res.locals.posts = _.sortBy result, 'timestamp' .reverse!
+					next!
 			else
 				next!
 		.get (req, res, next)->
@@ -78,49 +85,60 @@ module.exports = (app)->
 			| 'delete'
 				res.render 'blog', { on:'deleteblog', del:true }
 		.post (req, res, next)->
+			var authorName, authorUsername
+			/* istanbul ignore else */
 			if req.params.action is 'new'
-				var authorName, authorUsername
 				async.parallel [
 					->
-						res.render 'blog', { +create, 'blog':true, 'on':'newblog', success:'yes' } # return
+						if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
+							res.render 'blog', { +create, 'blog':true, 'on':'newblog', success:'yes' } # return
+						else
+							res.status 400 .render 'blog', { +create, 'blog':true, 'on':'newblog', success:'no', stuff: req.body}
 					->
-						authorUsername := req.session.username
-						authorName := req.session.firstName+" "+req.session.lastName
-						post = new Post {
-							# uuid: res.locals.postuuid
-							title: encodeURIComponent req.body.title
-							text: req.body.body
-							files: req.body.files
-							author: mongoose.Types.ObjectId req.session.uid
-							authorName: authorName
-							authorUsername: authorUsername
-							tags: []
-							type: 'blog'
-							school: app.locals.school
-							course: mongoose.Types.ObjectId res.locals.course._id
-						}
-						err, post <- post.save
-						if err?
-							winston.error 'blog post save', err
+						if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
+							authorUsername := req.session.username
+							authorName := req.session.firstName+" "+req.session.lastName
+							post = new Post {
+								# uuid: res.locals.postuuid
+								title: encodeURIComponent req.body.title
+								text: req.body.text
+								# files: req.body.files
+								author: mongoose.Types.ObjectId req.session.uid
+								authorName: authorName
+								authorUsername: authorUsername
+								tags: []
+								type: 'blog'
+								school: app.locals.school
+								course: mongoose.Types.ObjectId res.locals.course._id
+							}
+							err, post <- post.save
+							/* istanbul ignore if */
+							if err?
+								winston.error 'blog post save', err
 				]
 			else
 				next new Error 'probably edit gone awry'
 		.put (req, res, next)->
 			async.parallel [
 				->
-					res.redirect "/#{res.locals.course.id}/blog/edit/#{req.params.unique}"
+					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
+						res.redirect "/#{res.locals.course.id}/blog/edit/#{req.params.unique}"
+					else
+						res.status 400 .render 'blog', { +create, 'blog':true, 'on':'editblog', success:'no', stuff: req.body}
 				->
-					err, post <- Post.findOneAndUpdate {
-						'_id': mongoose.Types.ObjectId req.body.pid
-						'school': app.locals.school
-						'course': mongoose.Types.ObjectId res.locals.course._id
-						'type': 'blog'
-					}, {
-						'title': req.body.title
-						'text': req.body.text
-					}
-					if err
-						winston.error 'blog post update', err
+					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
+						err, post <- Post.findOneAndUpdate {
+							'_id': mongoose.Types.ObjectId req.body.pid
+							'school': app.locals.school
+							'course': mongoose.Types.ObjectId res.locals.course._id
+							'type': 'blog'
+						}, {
+							'title': req.body.title
+							'text': req.body.text
+						}
+						/* istanbul ignore if */
+						if err
+							winston.error 'blog post update', err
 			]
 		.delete (req, res, next)->
 			async.parallel [
@@ -134,16 +152,18 @@ module.exports = (app)->
 							'course': mongoose.Types.ObjectId res.locals.course._id
 							'type': 'blog'
 						}
+						/* istanbul ignore if */
 						if err
 							winston.error 'blog post delete', err
 				->
-					if req.params.action is "deleteall"
+					if req.params.action is "deleteall" and req.params.unique?
 						err, post <- Post.remove {
 							'title': req.params.unique
 							'school': app.locals.school
 							'course': mongoose.Types.ObjectId res.locals.course._id
 							'type': 'blog'
 						}
+						/* istanbul ignore if */
 						if err
 							winston.error 'blog post delete', err
 			]
@@ -160,10 +180,12 @@ module.exports = (app)->
 							'id': req.params.course
 							'school': app.locals.school
 						}
+						/* istanbul ignore if */
 						if err
 							winston.error 'course:findOne:blog:auth3', err
 							next new Error 'INTERNAL'
 						else
+							/* istanbul ignore if */
 							if !result? or result.length is 0
 								next new Error 'NOT FOUND'
 							else
@@ -178,10 +200,12 @@ module.exports = (app)->
 							'school': app.locals.school
 							'faculty': mongoose.Types.ObjectId req.session.uid
 						}
+						/* istanbul ignore if */
 						if err
 							winston.error 'course:findOne:blog:auth2', err
 							next new Error 'INTERNAL'
 						else
+							/* istanbul ignore if */
 							if !result? or result.length is 0
 								next new Error 'NOT FOUND'
 							else
@@ -196,10 +220,12 @@ module.exports = (app)->
 							'school': app.locals.school
 							'students': mongoose.Types.ObjectId req.session.uid
 						}
+						/* istanbul ignore if */
 						if err
 							winston.error 'course:findOne:blog:auth1', err
 							next new Error 'INTERNAL'
 						else
+							/* istanbul ignore if */
 							if !result? or result.length is 0
 								next new Error 'NOT FOUND'
 							else
@@ -211,12 +237,11 @@ module.exports = (app)->
 			next!
 		.get (req, res, next)->
 			res.locals.blog = []
-			if req.params.unique?
+			if req.params.action is 'search' and req.params.unique?
 				err, posts <- async.parallel [
 					# (done)->
 					# 	# search date
 					# 	if moment(req.params.unique).isValid!
-					# 		console.log 'c'
 					# 		err, posts <- Post.find {
 					# 			'course':mongoose.Types.ObjectId(res.locals.course._id)
 					# 			'type':'blog'
@@ -224,7 +249,6 @@ module.exports = (app)->
 					# 		}
 					# 		for post in posts
 					# 			res.locals.blog.push post
-					# 		console.log 'd'
 					# 		done!
 					# 	# if it's not a date don't do the search
 					(done)->
@@ -261,7 +285,8 @@ module.exports = (app)->
 							done err, posts
 				]
 				posts = _.flatten posts, true
-				res.render 'blog', blog: _.sortBy posts, 'timestamp' .reverse!
+				posts = if posts.length isnt 0 then _.sortBy posts, 'timestamp' .reverse!
+				res.render 'blog', blog: posts
 			else
 				err, posts <- Post.find {
 					'course': mongoose.Types.ObjectId res.locals.course._id
