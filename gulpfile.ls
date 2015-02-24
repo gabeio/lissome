@@ -16,7 +16,7 @@ gulp.task 'default' ['build'] (done)->
 	done
 
 gulp.task 'clean' (done)->
-	del '*.js'
+	del './lib/*.js'
 	done!
 
 gulp.task 'build-gulp' (done)->
@@ -26,15 +26,16 @@ gulp.task 'build-gulp' (done)->
 		.pipe gulp.dest './'
 
 gulp.task 'build' ['clean'] (done)->
-	gulp.src './src/*.ls'
+	gulp
+		..src './src/*.ls'
 		.pipe livescript bare:true
 		.on 'error' -> throw it
 		.pipe gulp.dest './lib/'
-	gulp.src './src/frontend/*.ls'
+		..src './src/frontend/*.ls'
 		.pipe livescript bare:true
 		.on 'error' -> throw it
 		.pipe gulp.dest './public/assets/custom/'
-	gulp.src './*.json.ls'
+		..src './*.json.ls'
 		.pipe livescript!
 		.on 'error' -> throw it
 		.pipe gulp.dest './'
