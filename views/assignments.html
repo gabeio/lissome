@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block head %}
-	<title>Conference - {{ course.title }} - {{ school }}</title>
+	<title>Assignments - {{ course.title }} - {{ school }}</title>
 {% endblock %}
 
 {% block body %}
@@ -10,37 +10,34 @@
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<div class="pull-left">
-					<h3>{{ course.title }} - Conference</h3>
+					<h3>{{ course.title }} - Assignments</h3>
 				</div>
+				{% if 2 <= auth %}
 				<div class="pull-right" style="padding-top: 8px;">
-					<a href="/{{ course.id }}/conference/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span></a>
+					<a href="/{{ course.id }}/assignments/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span></a>
 				</div>
+				{% endif %}
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				{% if threads %}
-				<h4><small>Threads</small></h4>
 				<ul class="list-group">
-					{% for thread in threads %}
+				{% for thread in threads %}
 					<a class="list-group-item" href="/{{ thread._id }}">{{ thread.title }}</a>
-					{% endfor %}
+				{% endfor %}
 				</ul>
-				{% endif %}
-				{% if posts %}
 				{% for post in posts %}
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h3 class="panel-title">{{ post.title }}</h3>
 					</div>
-					<div class="panel-body">{{ post.text|markdown|safe }}</div>
+					<div class="panel-body">{{ entry.text|markdown|safe }}</div>
 					<div class="panel-footer">
-						<span class="pull-left" title="{{ post.authorUsername }}">{{ post.authorName }}</span>
-						<span class="pull-right">{{ post.timestamp|date('F jS h:m a') }}</span>
+						<span class="pull-left" alt="{{ entry.authorUsername }}">{{ entry.authorName }}</span>
+						<span class="pull-right">{{ entry.timestamp|date('F jS h:m a') }}</span>
 					</div>
 				</div>
 				{% endfor %}
-				{% endif %}
 			</div>
 		</div>
 	</div>
