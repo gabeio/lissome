@@ -7,7 +7,7 @@ module.exports = (app)->
 	require('./dashboard')(app) 	# user dashboard
 	require('./course')(app) 		# course index/edit
 	require('./assignments')(app) 	# hw/projects/other
+	require('./grades')(app)		# assignment/grades view (mostly for students)
 	require('./conference')(app) 	# community chat/forum(single level/maybe 2 level)
-	# require('./dm')(app) 			# direct to teacher/student
 	require('./blog')(app) 			# updates/rants/etc
 	require('./error')(app) 		# after all catch errors
