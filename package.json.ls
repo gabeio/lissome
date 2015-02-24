@@ -49,7 +49,7 @@ dependencies:
 	"yargs": '~3.2.1'
 
 devDependencies:
-	"chai": '~2.0.0'
+	"chai": '~2.1.0'
 	"coveralls": '~2.11.2'
 	"del": '~1.1.1'
 	"gulp": '~3.8.10'
