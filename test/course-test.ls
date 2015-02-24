@@ -85,7 +85,7 @@ describe "Course" ->
 				.post '/cps1234/blog/new'
 				.send {
 					'title':'title'
-					'body':'body'
+					'body':'student'
 				}
 				.end (err, res)->
 					expect res.status .to.not.equal 200
@@ -95,7 +95,7 @@ describe "Course" ->
 				.post '/cps4601/blog/new'
 				.send {
 					'title':'title'
-					'body':'body'
+					'body':'student'
 				}
 				.end (err, res)->
 					expect res.status .to.not.equal 200
@@ -105,7 +105,7 @@ describe "Course" ->
 				.post '/cps1234/blog/new'
 				.send {
 					'title':'title'
-					'body':'body'
+					'body':'faculty'
 				}
 				.end (err, res)->
 					expect res.status .to.equal 200
@@ -115,62 +115,75 @@ describe "Course" ->
 				.post '/cps4601/blog/new'
 				.send {
 					'title':'title'
-					'body':'body'
+					'body':'bad faculty'
 				}
 				.end (err, res)->
 					expect res.status .to.not.equal 200
 					done err
-		it "should allow admin to create new posts", (done)->
-			admin
-				.post '/cps4601/blog/new'
-				.send {
-					'title':'title'
-					'body':'body'
-				}
-				.end (err, res)->
-					expect res.status .to.equal 200
-					done err
+		it "should allow admin to create new posts in any course", (done)->
+			err <- async.parallel [
+				(cont)->
+					admin
+						.post '/cps4601/blog/new'
+						.send {
+							'title':'title'
+							'body':'admin'
+						}
+						.end (err, res)->
+							expect res.status .to.equal 200
+							cont err
+				(cont)->
+					admin
+						.post '/cps1234/blog/new'
+						.send {
+							'title':'title'
+							'body':'admin'
+						}
+						.end (err, res)->
+							expect res.status .to.equal 200
+							cont err
+			]
+			done err
 		it "setting up for testing edit/delete", (done)->
 			err <- async.parallel [
-				->
+				(cont)->
 					admin
 						.post '/test/getpid/cps1234'
 						.send {}
 						.end (err, res)->
 							blogpid.0 := res.body.0._id
-							done err
-				->
+							cont err
+				(cont)->
 					admin
 						.post '/test/getpid/cps4601'
 						.send {}
 						.end (err, res)->
 							blogpid.1 := res.body.0._id
-							done err
+							cont err
 			]
+			done err
 				# get a pid to a post here
 		it "should not allow student in the course to edit or delete blog posts", (done)->
 			err <- async.parallel [
 				(cont)->
 					student
-						.post '/cps1234/blog/title?hmo=PUT'
+						.post '/cps1234/blog/edit/title?hmo=PUT'
 						.send {
 							'pid':blogpid.0
 							'title':'anything'
 							'text':'anything'
 						}
 						.end (err, res)->
-							expect res.status .to.not.equal 200
+							expect res.header.location .to.equal '/'
 							cont err
 				(cont)->
 					student
-						.post '/cps1234/blog/title?hmo=DELETE'
+						.post '/cps1234/blog/delete/title?hmo=DELETE'
 						.send {
 							'pid':blogpid.0
-							'title':'anything'
-							'text':'anything'
 						}
 						.end (err, res)->
-							expect res.status .to.not.equal 200
+							expect res.header.location .to.equal '/'
 							cont err
 			]
 			done err
@@ -178,25 +191,23 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					student
-						.post '/cps4601/blog/title?hmo=PUT'
+						.post '/cps4601/blog/edit/title?hmo=PUT'
 						.send {
 							'pid':blogpid.1
 							'title':'anything'
 							'text':'anything'
 						}
 						.end (err, res)->
-							expect res.status .to.not.equal 200
+							expect res.header.location .to.equal '/'
 							cont err
 				(cont)->
 					student
-						.post '/cps4601/blog/title?hmo=DELETE'
+						.post '/cps4601/blog/delete/title?hmo=DELETE'
 						.send {
 							'pid':blogpid.1
-							'title':'anything'
-							'text':'anything'
 						}
 						.end (err, res)->
-							expect res.status .to.not.equal 200
+							expect res.header.location .to.equal '/'
 							cont err
 			]
 			done err
@@ -204,45 +215,77 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					faculty
-						.post '/cps1234/blog/title?hmo=PUT'
+						.post '/cps1234/blog/edit/title?hmo=PUT'
+						.send {
+							'pid':blogpid.0
+							'title':'anything'
+							'text':'faculty edit'
+						}
+						.end (err, res)->
+							expect res.header.location .to.equal '/cps1234/blog/edit/title'
+							expect res.status .to.equal 302
+							cont err
+				(cont)->
+					faculty
+						.post '/cps1234/blog/delete/title?hmo=DELETE'
+						.send {
+							'pid':blogpid.0
+						}
+						.end (err, res)->
+							expect res.header.location .to.equal '/cps1234/blog'
+							expect res.status .to.equal 302
+							cont err
+			]
+			done err
+		it "should not allow faculty not in the the course to edit or delete blog posts", (done)->
+			err <- async.parallel [
+				(cont)->
+					faculty
+						.post '/cps4601/blog/edit/title?hmo=PUT'
 						.send {
 							'pid':blogpid.0
 							'title':'anything'
 							'text':'anything'
 						}
 						.end (err, res)->
-							expect res.status .to.equal 200
+							expect res.header.location .to.not.equal '/cps4601/blog/edit/title'
+							expect res.status .to.not.equal 302
 							cont err
 				(cont)->
 					faculty
-						.post '/cps1234/blog/title?hmo=DELETE'
+						.post '/cps4601/blog/delete/title?hmo=DELETE'
+						.send {
+							'pid':blogpid.0
+						}
+						.end (err, res)->
+							expect res.header.location .to.not.equal '/cps4601/blog'
+							expect res.status .to.not.equal 302
+							cont err
+			]
+			done err
+		it "should allow admin to edit or delete blog posts", (done)->
+			err <- async.parallel [
+				(cont)->
+					admin
+						.post '/cps1234/blog/edit/title?hmo=PUT'
 						.send {
 							'pid':blogpid.0
 							'title':'anything'
 							'text':'anything'
 						}
 						.end (err, res)->
-							expect res.status .to.equal 200
+							expect res.header.location .to.equal '/cps1234/blog/edit/title'
+							expect res.status .to.equal 302
 							cont err
-			]
-			done err
-		it.skip "should not allow faculty not in the the course to edit or delete blog posts", (done)->
-			err <- async.parallel [
-				(cont)->
-					faculty
-						.post '/cps4601/blog/title?hmo=PUT'
-				(cont)->
-					faculty
-						.post '/cps4601/blog/title?hmo=DELETE'
-			]
-			done err
-		it.skip "should allow admin to edit or delete blog posts", (done)->
-			err <- async.parallel [
 				(cont)->
 					admin
-						.post '/cps1234/blog/title?hmo=PUT'
-				(cont)->
-					admin
-						.post '/cps1234/blog/title?hmo=DELETE'
+						.post '/cps1234/blog/delete/title?hmo=DELETE'
+						.send {
+							'pid':blogpid.0
+						}
+						.end (err, res)->
+							expect res.header.location .to.equal '/cps1234/blog'
+							expect res.status .to.equal 302
+							cont err
 			]
 			done err
