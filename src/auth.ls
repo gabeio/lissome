@@ -9,6 +9,7 @@ module.exports = (app)->
 				next new Error 'UNAUTHORIZED'
 			else
 				# req.session.auth = (1|2|3|4)
+				/* istanbul ignore if it only should happen in development */
 				if !res.locals.needs?
 					winston.error "!needs? #{req.originalUrl}"
 					# next new Error 'UNKNOWN NEEDS'
