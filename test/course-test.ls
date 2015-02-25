@@ -218,6 +218,10 @@ describe "Course" ->
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
+			]
+			done err
+		it "should not crash when searching (more)", (done)->
+			err <- async.parallel [
 				(cont)->
 					student
 						.get '/cps1234/blog/search/not a title'
@@ -323,7 +327,7 @@ describe "Course" ->
 							cont err
 			]
 			done err
-		it "should allow faculty in the the course to edit or delete blog posts", (done)->
+		it "should allow faculty in the course to see the blog's edit or delete view", (done)->
 			err <- async.parallel [
 				(cont)->
 					faculty
@@ -337,6 +341,10 @@ describe "Course" ->
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
+			]
+			done err
+		it "should allow faculty in the course to actually edit or delete the blog posts", (done)->
+			err <- async.parallel [
 				(cont)->
 					faculty
 						.post '/cps1234/blog/edit/title?hmo=PUT'
@@ -419,19 +427,18 @@ describe "Course" ->
 							cont err
 			]
 			done err
-	describe "Blog extremes", (...)->
-		beforeEach (done)->
-			admin
-				.post '/cps1234/blog/new'
-				.send {
-					'title':'title'
-					'text':'text'
-				}
-				.end (err, res)->
-					expect res.status .to.equal 200
-					setTimeout ->
-						done err
-					, 200
+		# beforeEach (done)->
+		# 	admin
+		# 		.post '/cps1234/blog/new'
+		# 		.send {
+		# 			'title':'title'
+		# 			'text':'text'
+		# 		}
+		# 		.end (err, res)->
+		# 			expect res.status .to.equal 200
+		# 			setTimeout ->
+		# 				done err
+		# 			, 200
 		it "should not allow blank blog fields", (done)->
 			err <- async.parallel [
 				(cont)->
