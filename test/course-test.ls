@@ -570,7 +570,7 @@ describe "Course" ->
 							cont err
 				(cont)->
 					faculty
-						.get '/cps1234/blog/edit'
+						.get '/cps1234/blog/edit/que'
 						.end (err, res)->
 							# console.log res
 							expect res.header.location .to.equal '/cps1234/blog'
@@ -578,7 +578,7 @@ describe "Course" ->
 							cont err
 				(cont)->
 					faculty
-						.get '/cps1234/blog/delete'
+						.get '/cps1234/blog/delete/que'
 						.end (err, res)->
 							expect res.header.location .to.equal '/cps1234/blog'
 							expect res.status .to.equal 302
