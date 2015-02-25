@@ -68,6 +68,17 @@ describe "Course" ->
 		it "should allow a teacher should NOT be ablt to edit any other classes"
 		it "should allow an admin should be able to edit any class"
 	describe "Blog", (...)->
+		beforeEach (done)->
+			admin
+				.post '/test/postblog'
+				.send {
+					'course':'cps1234'
+					'title':'title'
+					'text':'text'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
 		it "should be visible to student in the course", (done)->
 			student
 				.get '/cps1234/blog'
@@ -427,18 +438,6 @@ describe "Course" ->
 							cont err
 			]
 			done err
-		# beforeEach (done)->
-		# 	admin
-		# 		.post '/cps1234/blog/new'
-		# 		.send {
-		# 			'title':'title'
-		# 			'text':'text'
-		# 		}
-		# 		.end (err, res)->
-		# 			expect res.status .to.equal 200
-		# 			setTimeout ->
-		# 				done err
-		# 			, 200
 		it "should not allow blank blog fields", (done)->
 			err <- async.parallel [
 				(cont)->

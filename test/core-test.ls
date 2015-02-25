@@ -24,7 +24,7 @@ describe "Core" ->
 	before (done)->
 		# this is to allow db connection/app setup
 		this.timeout 0
-		setTimeout done, 5000
+		setTimeout done, 2000
 
 	describe "Index", (...)->
 		it "should respond to a GET", (done)->

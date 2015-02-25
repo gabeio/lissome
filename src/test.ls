@@ -49,5 +49,34 @@ module.exports = (app)->
 						next new Error 'INTERNAL'
 					else
 						res.json result
+			| 'postblog'
+				err, result <- Course.findOne {
+					'id': req.body.course
+					'school': app.locals.school
+				}
+				if err
+					winston.error 'course:findOne:blog:auth3', err
+					next new Error 'INTERNAL'
+				else
+					if !result? or result.length is 0
+						next new Error 'NOT FOUND'
+					else
+						res.locals.course = result
+						authorUsername = req.session.username
+						authorName = req.session.firstName+" "+req.session.lastName
+						post = new Post {
+							title: encodeURIComponent req.body.title
+							text: req.body.text
+							# files: req.body.files
+							author: mongoose.Types.ObjectId req.session.uid
+							authorName: authorName
+							authorUsername: authorUsername
+							tags: []
+							type: 'blog'
+							school: app.locals.school
+							course: mongoose.Types.ObjectId res.locals.course._id
+						}
+						err, post <- post.save
+						res.json post
 			| _
 				...
