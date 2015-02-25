@@ -68,18 +68,6 @@ describe "Course" ->
 		it "should allow a teacher should NOT be ablt to edit any other classes"
 		it "should allow an admin should be able to edit any class"
 	describe "Blog", (...)->
-		beforeEach (done)->
-			admin
-				.post '/cps1234/blog/new'
-				.send {
-					'title':'title'
-					'text':'text'
-				}
-				.end (err, res)->
-					expect res.status .to.equal 200
-					setTimeout ->
-						done err
-					, 100
 		it "should be visible to student in the course", (done)->
 			student
 				.get '/cps1234/blog'
@@ -431,6 +419,19 @@ describe "Course" ->
 							cont err
 			]
 			done err
+	describe "Blog extremes", (...)->
+		beforeEach (done)->
+			admin
+				.post '/cps1234/blog/new'
+				.send {
+					'title':'title'
+					'text':'text'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					setTimeout ->
+						done err
+					, 200
 		it "should not allow blank blog fields", (done)->
 			err <- async.parallel [
 				(cont)->
@@ -479,7 +480,7 @@ describe "Course" ->
 							cont err
 			]
 			done err
-		it "should allow admin to edit or delete blog posts", (done)->
+		it "should allow admin to see blog view of edit or delete blog posts", (done)->
 			err <- async.parallel [
 				(cont)->
 					admin
@@ -487,30 +488,32 @@ describe "Course" ->
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
-				# (cont)->
-				# 	admin
-				# 		.get '/cps1234/blog/delete/title'
-				# 		.end (err, res)->
-				# 			expect res.status .to.equal 200
-				# 			if res.status != 200
-				# 				console.log 'b'
-				# 			cont err
-				# (cont)->
-				# 	admin
-				# 		.get '/cps4601/blog/edit/title'
-				# 		.end (err, res)->
-				# 			expect res.status .to.equal 200
-				# 			if err?
-				# 				console.log 'c'
-				# 			cont err
-				# (cont)->
-				# 	admin
-				# 		.get '/cps4601/blog/delete/title'
-				# 		.end (err, res)->
-				# 			expect res.status .to.equal 200
-				# 			if err?
-				# 				console.log 'd'
-				# 			cont err
+				(cont)->
+					admin
+						.get '/cps1234/blog/delete/title'
+						.end (err, res)->
+							expect res.status .to.equal 200
+							cont err
+				(cont)->
+					admin
+						.get '/cps4601/blog/edit/title'
+						.end (err, res)->
+							expect res.status .to.equal 200
+							if err?
+								console.log 'c'
+							cont err
+				(cont)->
+					admin
+						.get '/cps4601/blog/delete/title'
+						.end (err, res)->
+							expect res.status .to.equal 200
+							if err?
+								console.log 'd'
+							cont err
+			]
+			done err
+		it "should allow admin to actually edit or delete posts", (done)->
+			err <- async.parallel [
 				(cont)->
 					admin
 						.post '/cps1234/blog/edit/title?hmo=PUT'
