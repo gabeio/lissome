@@ -121,9 +121,9 @@ module.exports = (mongoose)->
 		course: { type: Schema.Types.ObjectId, +required, ref: 'Course' }
 		text: { type: String, +required }
 		type: { type: String, +required } # blog/conference
-		thread: { type: Schema.Types.ObjectId, ref: 'Thread' } # required if type conference
 		school: { type: String, +required, ref: 'School' }
 		# OPTIONAL
+		thread: { type: Schema.Types.ObjectId, ref: 'Thread' } # required if type conference
 		title: String
 		files: Buffer
 		tags: []
