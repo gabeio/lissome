@@ -78,12 +78,14 @@ swig.setFilter 'toString', (input)->
 	input.toString!	
 swig.setFilter 'fromNow', (input)->
 	moment(input).fromNow()
+/* istanbul ignore next function while unused */
 swig.setFilter 'calendar', (input)->
 	moment(input).calendar()
 swig.setFilter 'timezone', (input)->
 	moment.tz(input, "America/New_York").clone().tz(app.locals.timezone).toString!
 
 # REDIS
+/* istanbul ignore next */
 rediscli = require('./redisClient')(app,\
 	(process.env.redishost||process.env.REDISHOST||argv.redishost||'localhost'),\
 	(process.env.redisport||process.env.REDISPORT||argv.redisport||6379),\
@@ -91,6 +93,7 @@ rediscli = require('./redisClient')(app,\
 	(process.env.redisdb||process.env.REDISDB||argv.redisdb||0))
 
 # MONGOOSE
+/* istanbul ignore next */
 mongo = require('./mongoClient')(app,\
 	(process.env.mongo||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard'),\
 	(process.env.mongouser||process.env.MONGOUSER||argv.mongouser||void),\
@@ -154,6 +157,7 @@ app
 	.use (req, res, next)->
 		async.parallel [
 			!->
+				/* istanbul ignore if remove after implementing csrf tokens around the entire site */
 				if res.locals.csrfToken? # if csurf enabled
 					res.locals.csrfToken = req.csrfToken!
 			!->
@@ -165,6 +169,7 @@ app
 		]
 
 # Production Switch
+/* istanbul ignore next switch */
 switch process.env.NODE_ENV
 | 'production'
 	# production run
