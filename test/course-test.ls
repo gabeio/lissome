@@ -77,7 +77,9 @@ describe "Course" ->
 				}
 				.end (err, res)->
 					expect res.status .to.equal 200
-					done err
+					setTimeout ->
+						done err
+					, 100
 		it "should be visible to student in the course", (done)->
 			student
 				.get '/cps1234/blog'
@@ -479,14 +481,12 @@ describe "Course" ->
 			done err
 		it "should allow admin to edit or delete blog posts", (done)->
 			err <- async.parallel [
-				# (cont)->
-				# 	admin
-				# 		.get '/cps1234/blog/edit/title'
-				# 		.end (err, res)->
-				# 			expect res.status .to.equal 200
-				# 			if res.status != 200
-				# 				console.log 'a'
-				# 			cont err
+				(cont)->
+					admin
+						.get '/cps1234/blog/edit/title'
+						.end (err, res)->
+							expect res.status .to.equal 200
+							cont err
 				# (cont)->
 				# 	admin
 				# 		.get '/cps1234/blog/delete/title'
