@@ -69,10 +69,11 @@ module.exports = (app)->
 						'type': 'blog'
 						'title': req.params.unique
 					}
-					# if result > 1
-					# 	...
-					res.locals.posts = _.sortBy result, 'timestamp' .reverse!
-					next!
+					if result.length is 0
+						res.redirect "/#{res.locals.course.id}/blog"
+					else
+						res.locals.posts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
+						next!
 			else
 				next!
 		.get (req, res, next)->
