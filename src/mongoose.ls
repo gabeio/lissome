@@ -14,6 +14,7 @@ module.exports = (app)->
 	# Grade = mongoose.model 'Grade' schemas.Grade
 	Thread = mongoose.model 'Thread' schemas.Thread
 	Post = mongoose.model 'Post' schemas.Post
+	/* istanbul ignore next if statements because they all catch db crash errors basically. */
 	async.parallel [
 		->
 			err, results <- User.find!.populate('creator').exec (err, users)->
@@ -78,7 +79,8 @@ module.exports = (app)->
 	]
 	# setup school if it's not already setup
 	School = mongoose.model 'School', schemas.School
-	School.find { name:process.env.school }, (err,school)->
+	/* istanbul ignore next fucntion because it only will run if school is not already defined. */
+	School.find { name:process.env.school }, (err, school)->
 		if err?
 			winston.error 'school:find '+util.inspect err
 		else
@@ -98,31 +100,3 @@ module.exports = (app)->
 		Thread: Thread
 		Post: Post
 	}
-	oidToAuthor = (oid,callback)->
-		console.log oid
-		console.log callback
-		author = {}
-		async.series [
-			(done)->
-				# process.nextTick ->
-				err,user <- User.findOne {
-					'_id':mongoose.Types.ObjectId(oid)
-					'school':app.locals.school
-				}
-				if err
-					winston.error 'oidToAuthor', err
-				else
-					author.username := user.username
-					author.fullName := user.firstName+" "+user.middleName+" "+user.lastName
-					done!
-			(done)->
-				console.log author.username
-				console.log author.fullName
-				callback((author.fullName||author.username))
-				done!
-		]
-		console.log 'a', author.username
-		console.log 'b', author.fullName
-		# return (author.fullName||author.username)
-
-	app.locals.swig.setFilter 'oidToAuthor', oidToAuthor
