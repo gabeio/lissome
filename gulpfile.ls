@@ -25,7 +25,7 @@ gulp.task 'build-gulp' (done)->
 		.on 'error' -> throw it
 		.pipe gulp.dest './'
 
-gulp.task 'build' ['clean'] (done)->
+gulp.task 'build' ['clean'] ->
 	gulp
 		..src './src/*.ls'
 		.pipe livescript bare:true
