@@ -11,6 +11,7 @@ require! {
 	'express-partial-response'
 	'express-session' # session
 	'fs-extra' # only if needed
+	'helmet'
 	'markdown-it'
 	'method-override'
 	'moment'
@@ -101,6 +102,7 @@ mongo = require('./mongoClient')(app,\
 
 # App Settings/Middleware
 app
+	.use helmet!
 	# body parser
 	.use bodyParser.urlencoded {
 		-extended
