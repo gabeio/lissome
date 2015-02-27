@@ -14,17 +14,18 @@ var app, agent, student, faculty, admin
 describe "Core" ->
 	before (done)->
 		app := require '../lib/app'
-		done!
+		app.locals.mongo.on 'open', ->
+			done!
 	before (done)-> # setup user agents
 		agent := req.agent app
 		student := req.agent app
 		faculty := req.agent app
 		admin := req.agent app
 		done!
-	before (done)->
-		# this is to allow db connection/app setup
-		this.timeout 0
-		setTimeout done, 2000
+	# before (done)->
+	# 	# this is to allow db connection/app setup
+	# 	this.timeout 0
+	# 	setTimeout done, 2000
 
 	describe "Index", (...)->
 		it "should respond to a GET", (done)->
