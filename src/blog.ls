@@ -79,6 +79,7 @@ module.exports = (app)->
 					if result.length is 0
 						res.redirect "/#{res.locals.course.id}/blog"
 					else
+						/* istanbul ignore next else because it's hard to test for */
 						res.locals.posts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 						next!
 			else
