@@ -6,7 +6,85 @@
 
 {% block body %}
 	<div class="container-fluid">
-		{% include 'navbar.html' %}
+	{% include 'navbar.html' %}
+	{% if submitted == 'yes' %}
+	<div class="form-group">
+		<div class="alert alert-success" role="alert">
+			Assignment <strong>submitted</strong> successfully.
+		</div>
+	</div>
+	{% elif submitted == 'no' %}
+	<div class="form-group">
+		<div class="alert alert-danger" role="alert">
+			Assignment <strong>not</strong> submitted successfully. Missing <strong>required</strong> field.
+		</div>
+	</div>
+	{% endif %}
+	{% if create %}
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="#" enctype="multipart/form-data">
+			{% if success == 'yes' %}
+			<div class="form-group">
+				<div class="alert alert-success" role="alert">
+					Assignment <strong>created</strong> successfully.
+				</div>
+			</div>
+			{% elif success == 'no' %}
+			<div class="form-group">
+				<div class="alert alert-danger" role="alert">
+					Assignment <strong>not</strong> created successfully. Missing <strong>required</strong> field.
+				</div>
+			</div>
+			{% endif %}
+			<div class="form-group">
+				<label for="formTitle">Title</label>
+				<input type="text" class="form-control" id="formTitle" name="title" value="{{ body.title }}" autofocus />
+			</div>
+			<div class="form-group">
+				<label for="formOpendate">Opens on</label>
+				<input type="date" class="form-control" id="formOpendate" name="opendate" value="{% if body %}{{ body.opendate }}{% else %}{{ Date.now()|format('YYYY-MM-D') }}{% endif %}" />
+				<input type="time" class="form-control" id="formOpentime" name="opentime" value="{% if body %}{{ body.opentime }}{% else %}{{ Date.now()|format('H:mm:ss') }}{% endif %}" />
+			</div>
+			<div class="form-group">
+				<label for="formClose" title="the date &amp; time at which the assignment is then after marked late">Closes on</label>
+				<input type="date" class="form-control" id="formClose" name="close" value="{{ body.closedate }}" />
+				<input type="time" class="form-control" id="formOpentime" name="opentime" value="{{ body.closetime }}" />
+			</div>
+			<div class="form-group">
+				<label for="formTotal" title="the total possible points without extra credit (don't include extra credit)">Total Points Possible</label>
+				<input type="number" class="form-control" id="formTotal" name="total" value="{{ body.total }}" />
+			</div>
+			<div class="form-group">
+				<label for="formTries" title="allow students to submit assignments this many times (set to zero to give grade for already completed assignment)">Allowed Tries</label>
+				<input type="number" class="form-control" id="formTries" name="tries" value="{% if body %}{{ body.tries }}{% else %}1{% endif %}" />
+			</div>
+			<div class="form-group">
+				<label for="formLate">Allow Late Submittions</label>
+				<div class="radio">
+					<label>
+						<input type="radio" name="formLate" id="late" value="yes" {% if body and body.late == true %}checked{% endif %}>Yes <small>(allow students to submit assignments after close date)</small>
+					</label>
+				</div>
+				<div class="radio">
+					<label>
+						<input type="radio" name="formLate" id="late" value="no" {% if body and body.late == false %}checked{% elif !body %}checked{% endif %}>No <small>(do <strong>NOT</strong> allow students to submit assignments after close date)</small>
+					</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="formBody">Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
+				<textarea class="form-control" id="formBody" name="text" rows="7">{{ body.text }}</textarea>
+			</div>
+			{#<div class="form-group">
+				<label for="formUpload">Files</label>
+				<input type="file" id="formUpload" name="files" />
+			</div>#}
+			<div class="form-group">
+				<button type="submit" class="btn btn-default">Submit</button>
+			</div>
+		</form>
+	{% elif edit %}
+	{% elif del %}
+	{% else %}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<div class="pull-left">
@@ -14,31 +92,46 @@
 				</div>
 				{% if 2 <= auth %}
 				<div class="pull-right" style="padding-top: 8px;">
-					<a href="/{{ course.id }}/assignments/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span></a>
+					<a href="/{{ course.id }}/assignments/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
 				</div>
 				{% endif %}
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				{% if !work %}
 				<ul class="list-group">
-				{% for thread in threads %}
-					<a class="list-group-item" href="/{{ thread._id }}">{{ thread.title }}</a>
+				{% for assignment in assignments %}
+					<a class="list-group-item" href="/{{ course.id }}/assignments/{{ assignment.title }}">{{ assignment.title }}</a>
 				{% endfor %}
 				</ul>
-				{% for post in posts %}
-				<div class="panel panel-default">
+				{% elif work %}
+				{% for assignment in assignments %}
+				<form class="panel panel-default" action="/{{ course.id }}/assignments/submit/{{ assignment.title }}" method="POST" enctype="multipart/form-data">
 					<div class="panel-heading">
-						<h3 class="panel-title">{{ post.title }}</h3>
+						<h3 class="panel-title">{{ assignment.title }}</h3>
 					</div>
-					<div class="panel-body">{{ entry.text|markdown|safe }}</div>
-					<div class="panel-footer">
-						<span class="pull-left" alt="{{ entry.authorUsername }}">{{ entry.authorName }}</span>
-						<span class="pull-right">{{ entry.timestamp|date('F jS h:m a') }}</span>
+					<div class="panel-body">{{ assignment.text|markdown|safe }}<br />
+						<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />
+						<div class="form-group">
+							<label for="formBody">Assignment Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
+							<textarea class="form-control" id="formBody" name="text" rows="7" autofocus>{{ body.text }}</textarea>
+						</div>
+						<div class="form-group">
+							<button type="submit" class="btn btn-default">Submit Assignment</button>
+						</div>
 					</div>
-				</div>
+					<div class="panel-footer"><span title="{{ assignment.authorUsername }}">{{ assignment.authorName }}</span>
+					<span class="pull-right" title="{{ assignment.timestamp|timezone }}">{{ assignment.timestamp|fromNow }}</span></div>
+					<!-- <div class="panel-footer">
+						<span class="pull-left" title="{{ assignment.authorUsername }}">{{ assignment.authorName }}</span>
+						<span class="pull-right">{{ assignment.timestamp|date('F jS h:m a') }}</span>
+					</div> -->
+				</form>
 				{% endfor %}
+				{% endif %}
 			</div>
 		</div>
+	{% endif %}
 	</div>
 {% endblock %}
