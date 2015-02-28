@@ -19,12 +19,14 @@ module.exports = (app)->
 					'username':req.body.username.toLowerCase!
 					'school':app.locals.school
 				}
+				/* istanbul ignore if */
 				if err
 					winston.err 'user:find', err
 				if !user? or user.length is 0
 					res.render 'login', { error: 'username not found' }
 				else
 					err,result <- bcrypt.compare req.body.password, user.hash
+					/* istanbul ignore if */
 					if err
 						winston.err err
 					if result is true
@@ -34,6 +36,7 @@ module.exports = (app)->
 						req.session.userid = user.id
 						req.session.uid = user._id
 						req.session.firstName = user.firstName
+						/* istanbul ignore next */
 						req.session.middleName = if user.middleName? then user.middleName
 						req.session.lastName = user.lastName
 						# req.session.courses = user.courses # find better way
