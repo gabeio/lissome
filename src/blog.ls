@@ -7,6 +7,7 @@ module.exports = (app)->
 		'winston'
 	}
 	_ = lodash
+	ObjectId = mongoose.Types.ObjectId
 	User = app.locals.models.User
 	Course = app.locals.models.Course
 	Post = app.locals.models.Post
@@ -42,7 +43,7 @@ module.exports = (app)->
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
-							'faculty': mongoose.Types.ObjectId req.session.uid
+							'faculty': ObjectId req.session.uid
 						}
 						/* istanbul ignore if */
 						if err
@@ -65,7 +66,7 @@ module.exports = (app)->
 					res.redirect "/#{res.locals.course.id}/blog"
 				else
 					err, result <- Post.find {
-						'course': mongoose.Types.ObjectId(res.locals.course._id)
+						'course': ObjectId res.locals.course._id
 						'type': 'blog'
 						'title': req.params.unique
 					}
@@ -86,7 +87,6 @@ module.exports = (app)->
 			| 'delete'
 				res.render 'blog', { on:'deleteblog', del:true }
 		.post (req, res, next)->
-			var authorName, authorUsername
 			/* istanbul ignore else */
 			if req.params.action is 'new'
 				async.parallel [
@@ -97,20 +97,18 @@ module.exports = (app)->
 							res.status 400 .render 'blog', { +create, 'blog':true, 'on':'newblog', success:'no', stuff: req.body}
 					->
 						if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
-							authorUsername := req.session.username
-							authorName := req.session.firstName+" "+req.session.lastName
 							post = new Post {
 								# uuid: res.locals.postuuid
 								title: encodeURIComponent req.body.title
 								text: req.body.text
 								# files: req.body.files
-								author: mongoose.Types.ObjectId req.session.uid
-								authorName: authorName
-								authorUsername: authorUsername
+								author: ObjectId req.session.uid
+								authorName: req.session.firstName+" "+req.session.lastName
+								authorUsername: req.session.username
 								tags: []
 								type: 'blog'
 								school: app.locals.school
-								course: mongoose.Types.ObjectId res.locals.course._id
+								course: ObjectId res.locals.course._id
 							}
 							err, post <- post.save
 							/* istanbul ignore if */
@@ -129,9 +127,9 @@ module.exports = (app)->
 				->
 					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 						err, post <- Post.findOneAndUpdate {
-							'_id': mongoose.Types.ObjectId req.body.pid
+							'_id': ObjectId req.body.pid
 							'school': app.locals.school
-							'course': mongoose.Types.ObjectId res.locals.course._id
+							'course': ObjectId res.locals.course._id
 							'type': 'blog'
 						}, {
 							'title': req.body.title
@@ -148,9 +146,9 @@ module.exports = (app)->
 				->
 					if req.params.action is "delete"
 						err, post <- Post.remove {
-							'_id': mongoose.Types.ObjectId req.body.pid
+							'_id': ObjectId req.body.pid
 							'school': app.locals.school
-							'course': mongoose.Types.ObjectId res.locals.course._id
+							'course': ObjectId res.locals.course._id
 							'type': 'blog'
 						}
 						/* istanbul ignore if */
@@ -161,7 +159,7 @@ module.exports = (app)->
 						err, post <- Post.remove {
 							'title': req.params.unique
 							'school': app.locals.school
-							'course': mongoose.Types.ObjectId res.locals.course._id
+							'course': ObjectId res.locals.course._id
 							'type': 'blog'
 						}
 						/* istanbul ignore if */
@@ -199,7 +197,7 @@ module.exports = (app)->
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
-							'faculty': mongoose.Types.ObjectId req.session.uid
+							'faculty': ObjectId req.session.uid
 						}
 						/* istanbul ignore if */
 						if err
@@ -219,7 +217,7 @@ module.exports = (app)->
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
-							'students': mongoose.Types.ObjectId req.session.uid
+							'students': ObjectId req.session.uid
 						}
 						/* istanbul ignore if */
 						if err
@@ -244,7 +242,7 @@ module.exports = (app)->
 					# 	# search date
 					# 	if moment(req.params.unique).isValid!
 					# 		err, posts <- Post.find {
-					# 			'course':mongoose.Types.ObjectId(res.locals.course._id)
+					# 			'course':ObjectId(res.locals.course._id)
 					# 			'type':'blog'
 					# 			'title':req.params.unique
 					# 		}
@@ -255,7 +253,7 @@ module.exports = (app)->
 					(done)->
 						# search titles
 						Post.find {
-							'course': mongoose.Types.ObjectId(res.locals.course._id)
+							'course': ObjectId(res.locals.course._id)
 							'type': 'blog'
 							'text': new RegExp req.params.unique, 'i'
 						}, (err, posts)->
@@ -263,7 +261,7 @@ module.exports = (app)->
 					(done)->
 						# search titles
 						Post.find {
-							'course': mongoose.Types.ObjectId(res.locals.course._id)
+							'course': ObjectId(res.locals.course._id)
 							'type': 'blog'
 							'title': new RegExp req.params.unique, 'i'
 						}, (err, posts)->
@@ -271,7 +269,7 @@ module.exports = (app)->
 					(done)->
 						# search tags
 						Post.find {
-							'course': mongoose.Types.ObjectId(res.locals.course._id)
+							'course': ObjectId(res.locals.course._id)
 							'type': 'blog'
 							'tags': req.params.unique
 						}, (err, posts)->
@@ -279,7 +277,7 @@ module.exports = (app)->
 					(done)->
 						# search authorName
 						Post.find {
-							'course': mongoose.Types.ObjectId(res.locals.course._id)
+							'course': ObjectId(res.locals.course._id)
 							'type': 'blog'
 							'authorName': new RegExp req.params.unique, 'i'
 						}, (err, posts)->
@@ -290,7 +288,7 @@ module.exports = (app)->
 				res.render 'blog', blog: posts
 			else
 				err, posts <- Post.find {
-					'course': mongoose.Types.ObjectId res.locals.course._id
+					'course': ObjectId res.locals.course._id
 					'type':'blog'
 				}
 				res.locals.blog = _.sortBy posts, 'timestamp' .reverse!
