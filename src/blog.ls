@@ -2,6 +2,7 @@ module.exports = (app)->
 	require! {
 		'async'
 		'lodash'
+		'moment'
 		'mongoose'
 		'uuid'
 		'winston'
@@ -12,7 +13,12 @@ module.exports = (app)->
 	Course = app.locals.models.Course
 	Post = app.locals.models.Post
 	app
-		..route '/:course/:blog(blog|b)/:action(new|edit|delete|deleteall)/:unique?'
+		..route '/:course/:blog(blog|b)/:unique?' # query action(new|edit|delete|deleteall)
+		.all (req, res, next)->
+			if req.query.action in ['new','edit','delete','deleteall']
+				next!
+			else
+				next 'route'
 		.all (req, res, next)->
 			res.locals.needs = 2
 			app.locals.authorize req, res, next
@@ -61,7 +67,7 @@ module.exports = (app)->
 			]
 			next!
 		.get (req, res, next)->
-			if req.params.action in ['edit','delete']
+			if req.query.action in ['edit','delete']
 				if !req.params.unique?
 					res.redirect "/#{res.locals.course.id}/blog"
 				else
@@ -79,22 +85,22 @@ module.exports = (app)->
 				next!
 		.get (req, res, next)->
 			res.locals.blog = true
-			switch req.params.action
+			switch req.query.action
 			| 'new'
-				res.render 'blog', { +create, on:'newblog' }
+				res.render 'blog', { +create, on:'newblog', success:req.query.success, action:'created' }
 			| 'edit'
-				res.render 'blog', { on:'editblog', edit:true }
+				res.render 'blog', { on:'editblog', edit:true, success:req.query.success, action:'updated' }
 			| 'delete'
-				res.render 'blog', { on:'deleteblog', del:true }
+				res.render 'blog', { on:'deleteblog', del:true, success:req.query.success, action:'deleted' }
 		.post (req, res, next)->
 			/* istanbul ignore else */
-			if req.params.action is 'new'
+			if req.query.action is 'new'
 				async.parallel [
 					->
 						if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
-							res.render 'blog', { +create, 'blog':true, 'on':'newblog', success:'yes' } # return
+							res.render 'blog', { +create, 'blog':true, 'on':'newblog', success:'yes', action:'created' } # return
 						else
-							res.status 400 .render 'blog', { +create, 'blog':true, 'on':'newblog', success:'no', stuff: req.body}
+							res.status 400 .render 'blog', { +create, 'blog':true, 'on':'newblog', success:'no', action:'created', stuff: req.body}
 					->
 						if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 							post = new Post {
@@ -116,14 +122,14 @@ module.exports = (app)->
 								winston.error 'blog post save', err
 				]
 			else
-				next new Error 'probably edit gone awry'
+				next new Error 'probably edit/delete gone awry'
 		.put (req, res, next)->
 			async.parallel [
 				->
 					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
-						res.redirect "/#{res.locals.course.id}/blog/edit/#{req.params.unique}"
+						res.redirect "/#{res.locals.course.id}/blog/#{req.params.unique}?action=edit&success=yes"
 					else
-						res.status 400 .render 'blog', { +create, 'blog':true, 'on':'editblog', success:'no', stuff: req.body}
+						res.status 400 .render 'blog', { +create, blog:true, on:'editblog', success:'no', action:'updated', stuff: req.body}
 				->
 					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 						err, post <- Post.findOneAndUpdate {
@@ -142,9 +148,9 @@ module.exports = (app)->
 		.delete (req, res, next)->
 			async.parallel [
 				->
-					res.redirect "/#{res.locals.course.id}/blog"
+					res.redirect "/#{res.locals.course.id}/blog/#{req.params.unique}?action=delete&success=yes"
 				->
-					if req.params.action is "delete"
+					if req.query.action is "delete"
 						err, post <- Post.remove {
 							'_id': ObjectId req.body.pid
 							'school': app.locals.school
@@ -155,7 +161,7 @@ module.exports = (app)->
 						if err
 							winston.error 'blog post delete', err
 				->
-					if req.params.action is "deleteall" and req.params.unique?
+					if req.query.action is "deleteall" and req.params.unique?
 						err, post <- Post.remove {
 							'title': req.params.unique
 							'school': app.locals.school
@@ -166,7 +172,7 @@ module.exports = (app)->
 						if err
 							winston.error 'blog post delete', err
 			]
-		..route '/:course/:blog(blog|b)/:action(search)?/:unique?'
+		..route '/:course/:blog(blog|b)/:unique?' # query action(search)
 		.all (req, res, next)->
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
@@ -235,27 +241,42 @@ module.exports = (app)->
 			]
 			next!
 		.get (req, res, next)->
-			res.locals.blog = []
-			if req.params.action is 'search' and req.params.unique?
+			# res.locals.blog = []
+			if req.query.search? or req.params.unique?
+				res.locals.search = if req.params.unique? then req.params.unique else req.query.search
+				console.log res.locals.search
 				err, posts <- async.parallel [
-					# (done)->
-					# 	# search date
-					# 	if moment(req.params.unique).isValid!
-					# 		err, posts <- Post.find {
-					# 			'course':ObjectId(res.locals.course._id)
-					# 			'type':'blog'
-					# 			'title':req.params.unique
-					# 		}
-					# 		for post in posts
-					# 			res.locals.blog.push post
-					# 		done!
-					# 	# if it's not a date don't do the search
+					(done)->
+						# search date
+						if res.locals.search.split('...').length is 2
+							console.log 'DATE RANGE!'
+							date0 = new Date(res.locals.search.split('...').0)
+							date1 = new Date(res.locals.search.split('...').1)
+							console.log date0
+							console.log date1
+							if moment(date0).isValid! and moment(date1).isValid!
+								err, posts <- Post.find {
+									'course':ObjectId(res.locals.course._id)
+									'type':'blog'
+									# 'title':res.locals.search
+									'timestamp':{
+										$gte: date0
+										$lt: date1
+									}
+								}
+								console.log posts
+								done err,posts
+							else
+								console.log 'bad dates'
+								done! # it's not a date range
+						else
+							done! # it's not a range
 					(done)->
 						# search titles
 						Post.find {
 							'course': ObjectId(res.locals.course._id)
 							'type': 'blog'
-							'text': new RegExp req.params.unique, 'i'
+							'text': new RegExp res.locals.search, 'i'
 						}, (err, posts)->
 							done err, posts
 					(done)->
@@ -263,7 +284,7 @@ module.exports = (app)->
 						Post.find {
 							'course': ObjectId(res.locals.course._id)
 							'type': 'blog'
-							'title': new RegExp req.params.unique, 'i'
+							'title': new RegExp res.locals.search, 'i'
 						}, (err, posts)->
 							done err, posts
 					(done)->
@@ -271,7 +292,7 @@ module.exports = (app)->
 						Post.find {
 							'course': ObjectId(res.locals.course._id)
 							'type': 'blog'
-							'tags': req.params.unique
+							'tags': res.locals.search
 						}, (err, posts)->
 							done err, posts
 					(done)->
@@ -279,12 +300,13 @@ module.exports = (app)->
 						Post.find {
 							'course': ObjectId(res.locals.course._id)
 							'type': 'blog'
-							'authorName': new RegExp req.params.unique, 'i'
+							'authorName': new RegExp res.locals.search, 'i'
 						}, (err, posts)->
 							done err, posts
 				]
-				posts = _.flatten posts, true
-				posts = if posts.length isnt 0 then _.sortBy posts, 'timestamp' .reverse!
+				posts = _.flatten _.without(posts,undefined), true
+				posts = if posts.length > 0 then _.uniq _.sortBy(posts, 'timestamp').reverse!,(input)->
+					return input.timestamp.toString!
 				res.render 'blog', blog: posts
 			else
 				err, posts <- Post.find {
