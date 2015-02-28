@@ -281,7 +281,7 @@ describe "Core" ->
 			student
 				.post '/login'
 				.send {
-					'username': ''
+					'username': 'student'
 					'password': ''
 				}
 				.end (err, res)->
@@ -292,7 +292,7 @@ describe "Core" ->
 			faculty
 				.post '/login'
 				.send {
-					'username': ''
+					'username': 'faculty'
 					'password': ''
 				}
 				.end (err, res)->
@@ -303,11 +303,22 @@ describe "Core" ->
 			admin
 				.post '/login'
 				.send {
-					'username': ''
+					'username': 'admin'
 					'password': ''
 				}
 				.end (err, res)->
 					expect res.text .to.have.string 'bad login credentials'
+					expect res.headers.location .to.be.an 'undefined'
+					done err
+		it "should fail for a bad username", (done)->
+			admin
+				.post '/login'
+				.send {
+					'username': 'who?'
+					'password': 'bad'
+				}
+				.end (err, res)->
+					expect res.text .to.have.string 'username not found'
 					expect res.headers.location .to.be.an 'undefined'
 					done err
 		it "should fail for a good student username bad password", (done)->
@@ -315,9 +326,10 @@ describe "Core" ->
 				.post '/login'
 				.send {
 					'username': 'Student'
-					'password': ''
+					'password': 'bad'
 				}
 				.end (err, res)->
+					expect res.header.location .to.be.a 'undefined'
 					expect res.text .to.have.string 'bad login credentials'
 					done err
 		it "should fail for a good faculty username bad password", (done)->
@@ -325,9 +337,10 @@ describe "Core" ->
 				.post '/login'
 				.send {
 					'username': 'Faculty'
-					'password': ''
+					'password': 'bad'
 				}
 				.end (err, res)->
+					expect res.header.location .to.be.a 'undefined'
 					expect res.text .to.have.string 'bad login credentials'
 					done err
 		it "should fail for a good admin username bad password", (done)->
@@ -335,9 +348,10 @@ describe "Core" ->
 				.post '/login'
 				.send {
 					'username': 'Admin'
-					'password': ''
+					'password': 'bad'
 				}
 				.end (err, res)->
+					expect res.header.location .to.be.a 'undefined'
 					expect res.text .to.have.string 'bad login credentials'
 					done err
 		it "shouldn't crash for just username defined", (done)->
@@ -375,6 +389,52 @@ describe "Core" ->
 							expect res.text .to.have.string 'bad login credentials'
 							# expect res.status .to.equal 401
 							cont err
+			]
+			done err
+		it "should redirect if already logged in", (done)->
+			err <- async.parallel [
+				(cont)->
+					student
+						.post '/login'
+						.send {
+							'username': 'Student'
+							'password': 'password'
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							student
+								.get '/login'
+								.end (err, res)->
+									expect res.header.location .to.equal '/'
+									cont err
+				(cont)->
+					faculty
+						.post '/login'
+						.send {
+							'username': 'Faculty'
+							'password': 'password'
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							faculty
+								.get '/login'
+								.end (err, res)->
+									expect res.header.location .to.equal '/'
+									cont err
+				(cont)->
+					admin
+						.post '/login'
+						.send {
+							'username': 'Admin'
+							'password': 'password'
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							admin
+								.get '/login'
+								.end (err, res)->
+									expect res.header.location .to.equal '/'
+									cont err
 			]
 			done err
 	describe "Dashboard", (...)->

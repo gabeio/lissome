@@ -210,15 +210,17 @@ describe "Course" ->
 			]
 			done err
 		it "should not crash when searching with date", (done)->
-			err <- async.parallel [
-				(cont)->
-					admin
-						.get '/cps1234/blog?search=Jan+1+2014...Jan+1+2015'
-						.end (err, res)->
-							expect res.status .to.equal 200
-							cont err
-			]
-			done err
+			admin
+				.get '/cps1234/blog?search=Jan+1+2014...Jan+1+2015'
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it "should not crash with garbage search date ranges", (done)->
+			admin
+				.get '/cps1234/blog?search=Jan+100+2014...Jan+200+2015'
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
 		it "should not crash when searching", (done)->
 			err <- async.parallel [
 				(cont)->
@@ -236,6 +238,12 @@ describe "Course" ->
 				(cont)->
 					admin
 						.get '/cps1234/blog?search=title'
+						.end (err, res)->
+							expect res.status .to.equal 200
+							cont err
+				(cont)->
+					admin
+						.get '/cps1234/blog/title?action=search'
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
@@ -258,6 +266,12 @@ describe "Course" ->
 				(cont)->
 					admin
 						.get '/cps1234/blog?search=not+a+title'
+						.end (err, res)->
+							expect res.status .to.equal 200
+							cont err
+				(cont)->
+					admin
+						.get '/cps1234/blog/not a title?action=search'
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
@@ -557,6 +571,39 @@ describe "Course" ->
 						.end (err, res)->
 							expect res.header.location .to.equal '/cps1234/blog?action=delete&success=yes'
 							expect res.status .to.equal 302
+							cont err
+			]
+			done err
+		it "should not allow cross contamination of new/edit/delete posts", (done)->
+			err <- async.parallel [
+				(cont)->
+					admin
+						.post '/cps1234/blog/title?action=delete&hmo=PUT'
+						.send {
+							'pid':blogpid.0
+							'title':'anything'
+							'text':'anything'
+						}
+						.end (err, res)->
+							expect res.status .to.not.equal 302
+							cont err
+				(cont)->
+					admin
+						.post '/cps1234/blog/title?action=edit&hmo=DELETE'
+						.send {
+							'pid':blogpid.0
+						}
+						.end (err, res)->
+							expect res.status .to.not.equal 302
+							cont err
+				(cont)->
+					admin
+						.post '/cps1234/blog/title?action=new&hmo=DELETE'
+						.send {
+							'pid':blogpid.0
+						}
+						.end (err, res)->
+							expect res.status .to.not.equal 302
 							cont err
 			]
 			done err
