@@ -79,6 +79,7 @@ swig.setFilter 'toString', (input)->
 	input.toString!	
 swig.setFilter 'fromNow', (input)->
 	moment(input).fromNow()
+/* istanbul ignore next function while unused */
 swig.setFilter 'format', (input, format)->
 	moment(input).format(format)
 /* istanbul ignore next function while unused */
@@ -161,7 +162,7 @@ app
 	.use (req, res, next)->
 		async.parallel [
 			!->
-				/* istanbul ignore if remove after implementing csrf tokens around the entire site */
+				/* istanbul ignore next if remove after implementing csrf tokens around the entire site */
 				if res.locals.csrfToken? and req.method.lowerCase! is 'get' # if csurf enabled
 					res.locals.csrfToken = req.csrfToken!
 			!->
