@@ -7,16 +7,18 @@
 {% block body %}
 	<div class="container-fluid">
 	{% include 'navbar.html' %}
-	{% if success == 'yes' or success == 'true' %}
-	<div class="form-group">
-		<div class="alert alert-success" role="alert">
-			Blog post <strong>{{ action }}</strong> successfully.
-		</div>
-	</div>
-	{% elif success == 'no' or success == 'false' %}
-	<div class="form-group">
-		<div class="alert alert-danger" role="alert">
-			Blog post <strong>not</strong> {{ action }} successfully. Missing required field.
+	{% if success %}
+	<div class="row">
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+			{% if success == 'yes' or success == 'true' %}
+			<div class="alert alert-success" role="alert">
+				Blog post <strong>{{ action }}</strong> successfully.
+			</div>
+			{% elif success == 'no' or success == 'false' %}
+			<div class="alert alert-danger" role="alert">
+				Blog post <strong>not</strong> {{ action }} successfully. Missing required field.
+			</div>
+			{% endif %}
 		</div>
 	</div>
 	{% endif %}
