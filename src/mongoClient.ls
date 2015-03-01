@@ -13,9 +13,10 @@ module.exports = (app,mongohost,mongouser,mongopass)->
 	mongo.on 'disconnect', ->
 		winston.warn 'mongo:disconnect\ntrying to reconnect'
 		mongo.connect!
-	mongo.on 'error', console.error.bind console, 'connection error:'
 	/* istanbul ignore next */
+	mongo.on 'error', console.error.bind console, 'connection error:'
 	mongo.on 'open' (err)->
+		/* istanbul ignore if */
 		if err
 			winston.info 'mongo:err: ' + err
 		winston.info 'mongo:open'

@@ -20,6 +20,7 @@ module.exports = (app)->
 						err, courses <- Course.find {
 							'school':app.locals.school
 						}
+						/* istanbul ignore if */
 						if err
 							winston.error 'course:find', err
 							next new Error 'INTERNAL'
@@ -34,6 +35,7 @@ module.exports = (app)->
 							'school':app.locals.school
 							'faculty':mongoose.Types.ObjectId(req.session.uid)
 						}
+						/* istanbul ignore if */
 						if err
 							winston.error 'course:find', err
 							next new Error 'INTERNAL'
@@ -48,6 +50,7 @@ module.exports = (app)->
 							'school':app.locals.school
 							'students':mongoose.Types.ObjectId(req.session.uid)
 						}
+						/* istanbul ignore if */
 						if err
 							winston.error 'course:find', err
 							next new Error 'INTERNAL'

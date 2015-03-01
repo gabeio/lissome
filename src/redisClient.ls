@@ -14,12 +14,14 @@ module.exports = (app,redishost,redisport,redisauth,redisdb)->
 		winston.info "redis:connected"
 		app.locals.redis = rediscli
 		err <- rediscli.select redisdb
+		/* istanbul ignore if */
 		if err
 			winston.info 'redis:db', err
 		winston.info "using #{redisdb}"
 	rediscli.on "ready", ->
 		winston.info "redis:ready"
+	/* istanbul ignore next */
 	rediscli.on "disconnect", ->
-		winston.warn 'mongo:disconnect\ntrying to reconnect'
+		winston.warn 'redis:disconnected\ntrying to reconnect'
 		rediscli.connect!
 	return rediscli

@@ -45,6 +45,7 @@ module.exports = (app)->
 			switch req.session.auth
 			| 1
 				err,result <- Course.findOne { 'id':req.params.course, 'school':app.locals.school, 'students': mongoose.Types.ObjectId(req.session.uid) }
+				/* istanbul ignore if */
 				if err?
 					winston.error 'course:findOne', err
 					next new Error 'INTERNAL'
@@ -56,6 +57,7 @@ module.exports = (app)->
 						next!
 			| 2
 				err,result <- Course.findOne { 'id':req.params.course, 'school':app.locals.school, 'faculty': mongoose.Types.ObjectId(req.session.uid) }
+				/* istanbul ignore if */
 				if err?
 					winston.error 'course:findOne', err
 					next new Error 'INTERNAL'
@@ -67,6 +69,7 @@ module.exports = (app)->
 						next!
 			| 3
 				err,result <- Course.findOne { 'id':req.params.course, 'school':app.locals.school }
+				/* istanbul ignore if */
 				if err?
 					winston.error 'course:findOne', err
 					next new Error 'INTERNAL'
@@ -77,6 +80,7 @@ module.exports = (app)->
 						res.locals.course = result
 						next!
 			| _
+				/* istanbul ignore next */
 				next new Error 'UNAUTHORIZED'
 		.get (req, res, next)->
 			res.render 'course'
