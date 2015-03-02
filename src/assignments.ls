@@ -89,13 +89,13 @@ module.exports = (app)->
 		.get (req, res, next)->
 			switch req.params.action
 			| 'new'
-				res.render 'assignments', { +create, on:'newassignment' }
+				res.render 'assignments', { +create, on:'newassignment', action:'created', success:req.query.success }
 			| 'edit'
-				res.render 'assignments', { +edit }
+				res.render 'assignments', { +edit, on:'editassignment', action:'updated', success:req.query.success }
 			| 'delete'
-				res.render 'assignments', { +del }
+				res.render 'assignments', { +del, on:'deleteassignment', action:'deleted', success:req.query.success }
 			| 'grade'
-				res.render 'assignments', { +grade }
+				res.render 'assignments', { +grade, on:'gradeassignment', action:'graded', success:req.query.success }
 		.post (req, res, next)->
 			<- async.parallel [
 				->
