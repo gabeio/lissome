@@ -158,7 +158,7 @@ module.exports = (app)->
 
 							}
 							if err
-								winston.error 'assignments:update', err
+								winston.error 'assignments:delete', err
 								next new Error 'INTERNAL'
 							else
 								res.render 'assignments', { +edit, on:'deleteassignment', action:'deleted', success:'yes' }
