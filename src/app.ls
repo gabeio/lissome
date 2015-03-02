@@ -1,6 +1,3 @@
-#!/usr/bin/env lsc
-# ``#!/usr/bin/env node`` # uncomment for lsc to node
-
 # Imports/Variables
 require! {
 	'async'
@@ -135,7 +132,7 @@ app
 		}
 		store: new RedisStore {
 			ttl: 604800
-			prefix: 'smrtboard'
+			prefix: app.locals.school
 			client: rediscli
 		}
 	}
