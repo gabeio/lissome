@@ -103,6 +103,9 @@ mongo = require('./mongoClient')(app,\
 # App Settings/Middleware
 app
 	.use helmet!
+	.use helmet.contentSecurityPolicy {
+		default-src: ["'self'", "assets.lissome.co"]
+	}
 	# body parser
 	.use bodyParser.urlencoded {
 		-extended
