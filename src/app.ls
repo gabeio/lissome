@@ -79,6 +79,9 @@ swig.setFilter 'toString', (input)->
 swig.setFilter 'fromNow', (input)->
 	moment(input).fromNow()
 /* istanbul ignore next function while unused */
+swig.setFilter 'format', (input,format)->
+	moment(input).format(format)
+/* istanbul ignore next function while unused */
 swig.setFilter 'calendar', (input)->
 	moment(input).calendar()
 swig.setFilter 'timezone', (input)->
