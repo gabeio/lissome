@@ -14,7 +14,12 @@ module.exports = (app)->
 	Assignment = app.locals.models.Assignment
 	Attempt = app.locals.models.Attempt
 	app
-		..route '/:course/assignments/:action(new|edit|delete|grade)/:unique?/:student?/:version?'
+		..route '/:course/assignments/:unique?/:student?/:version?' # query :: action(new|edit|delete|grade)
+		.all (req, res, next)->
+			if req.query.action in ['new','edit','delete','grade']
+				next!
+			else
+				next 'route'
 		.all (req, res, next)->
 			res.locals.needs = 2
 			app.locals.authorize req, res, next
@@ -87,7 +92,7 @@ module.exports = (app)->
 				# if result.length is 0
 				next!
 		.get (req, res, next)->
-			switch req.params.action
+			switch req.query.action
 			| 'new'
 				res.render 'assignments', { +create, on:'newassignment', action:'created', success:req.query.success }
 			| 'edit'
@@ -97,39 +102,71 @@ module.exports = (app)->
 			| 'grade'
 				res.render 'assignments', { +grade, on:'gradeassignment', action:'graded', success:req.query.success }
 		.post (req, res, next)->
-			<- async.parallel [
-				->
-					if req.params.action is "new"
-						res.redirect "/#{res.locals.course.id}/assignments"
-						# res.render 'assignments', { +create, stuff: req.body }
-				->
-					if req.params.action is "new"
-						assignment = new Assignment {
-							author: ObjectId req.session.uid
-							authorName: req.session.firstName+" "+req.session.lastName
-							authorUsername: req.session.username
-							course: ObjectId res.locals.course._id
-							title: req.body.title
-							start: req.body.open
-							end: req.body.close
-							tries: req.body.tries
-							allowLate: if req.body.late is "yes" then true else false
-							totalPoints: req.body.total
-							school: app.locals.school
-							# OPTIONAL
-							text: req.body.text
-							# files: Buffer # Require's file(s)?
-						}
-						err, assignment <- assignment.save
-						if err?
-							winston.error 'new assignment save', err
-			]
+			if req.query.action in ['new','grade'] # assure it should be a post
+				<- async.parallel [
+					->
+						if req.query.action is "new"
+							assignment = new Assignment {
+								author: ObjectId req.session.uid
+								authorName: req.session.firstName+" "+req.session.lastName
+								authorUsername: req.session.username
+								course: ObjectId res.locals.course._id
+								title: req.body.title
+								start: req.body.open
+								end: req.body.close
+								tries: req.body.tries
+								allowLate: if req.body.late is "yes" then true else false
+								totalPoints: req.body.total
+								school: app.locals.school
+								# OPTIONAL
+								text: req.body.text
+								# files: Buffer # Require's file(s)?
+							}
+							err, assignment <- assignment.save
+							if err
+								winston.error 'new assignment save', err
+								next new Error ''
+							else
+								res.render 'assignments', {+create, on:'newassignment', action:'created', success:'yes' }
+				]
+			else
+				next new Error 'INTERNAL'
 		.put (req, res, next)->
-			...
-		.delete (req, res, next)->
-			...
+			if req.query.action in ['edit'] # assure it should be a put
+				<- async.parallel [
+					->
+						if req.query.action is 'edit'
+							err, result <- Assignment.findOneAndUpdate {
+								course: res.locals.course._id
 
-		..route '/:course/assignments/:action(submit)?/:unique?/:version?'
+							}
+							if err
+								winston.error 'assignments:update', err
+								next new Error 'INTERNAL'
+							else
+								res.render 'assignments', { +edit, on:'editassignment', action:'updated', success:'yes' }
+				]
+			else
+				next new Error 'INTERNAL'
+		.delete (req, res, next)->
+			if req.query.action in ['delete'] # assure it should be a delete
+				<- async.parallel [
+					->
+						if req.query.action is 'delete'
+							err, result <- Assignment.removeOne {
+								course: res.locals.course._id
+
+							}
+							if err
+								winston.error 'assignments:update', err
+								next new Error 'INTERNAL'
+							else
+								res.render 'assignments', { +edit, on:'deleteassignment', action:'deleted', success:'yes' }
+				]
+			else
+				next new Error 'INTERNAL'
+
+		..route '/:course/assignments/:unique?/:version?' # query action(submit)
 		.all (req, res, next)->
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
@@ -246,41 +283,32 @@ module.exports = (app)->
 					res.locals.assignments = results
 					res.render 'assignments'
 		.post (req, res, next)->
-			if req.params.action is "submit" and req.body.aid? and req.body.aid isnt ""
-				# console.log 'aid', req.body.aid
-				# for assignment in res.locals.assignments
-				# 	console.log "#{assignment._id}"
-				# 	if ObjectId(req.body.aid) is assignment['_id']
-				# 		console.log 'there is'
-				assignment = _.filter res.locals.assignments, (input)->
-					return if input._id.toString! is req.body.aid then input
-				.0
-				console.log assignment['tries']
-				# console.log res.locals.attempts
-				attempts = _.filter res.locals.attempts, (input)->
-					return if input.assignment.toString! is req.body.aid then input
-				console.log attempts
-				# res.send '0'
-				# return 0
-				if req.params.action is "submit" and assignment.tries > attempts.length # only if you have more tries
-					attempt = new Attempt {
-						author: ObjectId req.session.uid
-						authorName: req.session.firstName+" "+req.session.lastName
-						authorUsername: req.session.username
-						attempt: attempts.length+1
-						assignment: ObjectId req.body.aid
-						course: ObjectId res.locals.course._id
-						text: req.body.text
-						# files: Buffer # student attempt file(s)?
-						school: app.locals.school
-					}
-					err,attempt <- attempt.save
-					if err
-						winston.error 'attempt:save', err
-						next new Error 'INTERNAL'
-					else
-						res.render 'assignments', { submitted: 'yes' }
-				else
-					next new Error 'NO MORE ATTEMPTS ALLOWED'
-			else
-				next!
+			...
+			# if req.query.action is "submit" and req.body.aid? and req.body.aid isnt ""
+			# 	assignment = _.filter res.locals.assignments, (input)->
+			# 		return if input._id.toString! is req.body.aid then input
+			# 	.0
+			# 	attempts = _.filter res.locals.attempts, (input)->
+			# 		return if input.assignment.toString! is req.body.aid then input
+			# 	if req.query.action is "submit" and assignment.tries > attempts.length # only if you have more tries
+			# 		attempt = new Attempt {
+			# 			author: ObjectId req.session.uid
+			# 			authorName: req.session.firstName+" "+req.session.lastName
+			# 			authorUsername: req.session.username
+			# 			attempt: attempts.length+1
+			# 			assignment: ObjectId req.body.aid
+			# 			course: ObjectId res.locals.course._id
+			# 			text: req.body.text
+			# 			# files: Buffer # student attempt file(s)?
+			# 			school: app.locals.school
+			# 		}
+			# 		err,attempt <- attempt.save
+			# 		if err
+			# 			winston.error 'attempt:save', err
+			# 			next new Error 'INTERNAL'
+			# 		else
+			# 			res.render 'assignments', { submitted: 'yes' }
+			# 	else
+			# 		next new Error 'NO MORE ATTEMPTS ALLOWED'
+			# else
+			# 	next!
