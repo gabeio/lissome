@@ -156,7 +156,7 @@ module.exports = (app)->
 						res.redirect "/#{res.locals.course.id}/blog?action=delete&success=yes"
 					->
 						if req.query.action is 'delete'
-							err, post <- Post.remove {
+							err, post <- Post.findOneAndRemove {
 								'_id': ObjectId req.body.pid
 								'school': app.locals.school
 								'course': ObjectId res.locals.course._id
