@@ -27,7 +27,7 @@ dependencies:
 	"connect-redis": '~2.2.0'
 	"cookie-parser": '~1.3.4'
 	"csurf": '~1.7.0'
-	"express": '~4.12.1'
+	"express": '~4.12.2'
 	"express-partial-response": '~0.3.4'
 	"express-session": '~1.10.3'
 	"fs-extra": '~0.16.3'
