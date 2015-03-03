@@ -16,6 +16,7 @@ module.exports = (app)->
 	app
 		..route '/:course/assignments/:unique?/:student?/:version?' # query :: action(new|edit|delete|grade)
 		.all (req, res, next)->
+			req.query.action = req.query.action.toLowerCase!
 			if req.query.action in ['new','edit','delete','grade']
 				next!
 			else
@@ -81,15 +82,14 @@ module.exports = (app)->
 			else
 				next!
 		.get (req, res, next)->
-			err, result <- Assignment.find {
+			err, assignments <- Assignment.find {
 				course: ObjectId res.locals.course._id
 			}
 			if err
 				winston.error 'assignments:find', err
 				next new Error 'INTERNAL'
 			else
-				res.locals.assignments = result
-				# if result.length is 0
+				res.locals.assignments = assignments
 				next!
 		.get (req, res, next)->
 			switch req.query.action
@@ -128,6 +128,9 @@ module.exports = (app)->
 								next new Error ''
 							else
 								res.render 'assignments', {+create, on:'newassignment', action:'created', success:'yes' }
+					->
+						if req.query.action is "grade"
+							...
 				]
 			else
 				next new Error 'INTERNAL'
@@ -137,8 +140,11 @@ module.exports = (app)->
 					->
 						if req.query.action is 'edit'
 							err, result <- Assignment.findOneAndUpdate {
-								course: res.locals.course._id
-
+								'course': res.locals.course._id
+								'_id': ObjectId req.body.aid
+							},{
+								'title': req.body.title
+								'body': req.body.body
 							}
 							if err
 								winston.error 'assignments:update', err
@@ -153,9 +159,9 @@ module.exports = (app)->
 				<- async.parallel [
 					->
 						if req.query.action is 'delete'
-							err, result <- Assignment.removeOne {
+							err, result <- Assignment.findOneAndRemove {
 								course: res.locals.course._id
-
+								_id: ObjectId req.body.aid
 							}
 							if err
 								winston.error 'assignments:delete', err

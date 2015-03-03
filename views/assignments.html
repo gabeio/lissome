@@ -7,6 +7,8 @@
 {% block body %}
 	<div class="container-fluid">
 	{% include 'navbar.html' %}
+	{% if success %}
+	<div class="row"><div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 	{% if success == 'yes' %}
 	<div class="form-group">
 		<div class="alert alert-success" role="alert">
@@ -19,22 +21,23 @@
 			Assignment <strong>not</strong> {{ action }} successfully. Missing <strong>required</strong> field.
 		</div>
 	</div>
-	{% endif %}
+	{% endif %}{# success:yes?no #}
+	</div></div>
+	{% endif %}{# success? #}
 	{% if create %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>{{ course.title }} - Assignments</h3>
+				</div>
+				{% if 2 <= auth %}
+				<div class="pull-right" style="padding-top: 8px;">
+					<a href="/{{ course.id }}/assignments/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
+				</div>
+				{% endif %}
+			</div>
+		</div>
 		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="#" enctype="multipart/form-data">
-			{% if success == 'yes' %}
-			<div class="form-group">
-				<div class="alert alert-success" role="alert">
-					Assignment <strong>created</strong> successfully.
-				</div>
-			</div>
-			{% elif success == 'no' %}
-			<div class="form-group">
-				<div class="alert alert-danger" role="alert">
-					Assignment <strong>not</strong> created successfully. Missing <strong>required</strong> field.
-				</div>
-			</div>
-			{% endif %}
 			<div class="form-group">
 				<label for="formTitle">Title</label>
 				<input type="text" class="form-control" id="formTitle" name="title" value="{{ body.title }}" autofocus />
@@ -83,8 +86,101 @@
 			</div>
 		</form>
 	{% elif edit %}
+		{# edit assignment #}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>{{ course.title }} - Assignments</h3>
+				</div>
+				{% if 2 <= auth %}
+				<div class="pull-right" style="padding-top: 8px;">
+					<a href="/{{ course.id }}/assignments/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="#" enctype="multipart/form-data">
+			<div class="form-group">
+				<label for="formTitle">Title</label>
+				<input type="text" class="form-control" id="formTitle" name="title" value="{{ body.title }}" autofocus />
+			</div>
+			<div class="form-group">
+				<label for="formOpendate">Opens on</label>
+				<input type="date" class="form-control" id="formOpendate" name="opendate" value="{% if body %}{{ body.opendate }}{% else %}{{ Date.now()|format('YYYY-MM-D') }}{% endif %}" />
+				<input type="time" class="form-control" id="formOpentime" name="opentime" value="{% if body %}{{ body.opentime }}{% else %}{{ Date.now()|format('H:mm:ss') }}{% endif %}" />
+			</div>
+			<div class="form-group">
+				<label for="formClose" title="the date &amp; time at which the assignment is then after marked late">Closes on</label>
+				<input type="date" class="form-control" id="formClose" name="close" value="{{ body.closedate }}" />
+				<input type="time" class="form-control" id="formOpentime" name="opentime" value="{{ body.closetime }}" />
+			</div>
+			<div class="form-group">
+				<label for="formTotal" title="the total possible points without extra credit (don't include extra credit)">Total Points Possible</label>
+				<input type="number" class="form-control" id="formTotal" name="total" value="{{ body.total }}" />
+			</div>
+			<div class="form-group">
+				<label for="formTries" title="allow students to submit assignments this many times (set to zero to give grade for already completed assignment)">Allowed Tries</label>
+				<input type="number" class="form-control" id="formTries" name="tries" value="{% if body %}{{ body.tries }}{% else %}1{% endif %}" />
+			</div>
+			<div class="form-group">
+				<label for="formLate">Allow Late Submittions</label>
+				<div class="radio">
+					<label>
+						<input type="radio" name="formLate" id="late" value="yes" {% if body and body.late == true %}checked{% endif %}>Yes <small>(allow students to submit assignments after close date)</small>
+					</label>
+				</div>
+				<div class="radio">
+					<label>
+						<input type="radio" name="formLate" id="late" value="no" {% if body and body.late == false %}checked{% elif !body %}checked{% endif %}>No <small>(do <strong>NOT</strong> allow students to submit assignments after close date)</small>
+					</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="formBody">Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
+				<textarea class="form-control" id="formBody" name="text" rows="7">{{ body.text }}</textarea>
+			</div>
+			{#<div class="form-group">
+				<label for="formUpload">Files</label>
+				<input type="file" id="formUpload" name="files" />
+			</div>#}
+			<div class="form-group">
+				<button type="submit" class="btn btn-default">Submit</button>
+			</div>
+		</form>
 	{% elif del %}
-	{% else %}
+		{# delete assignment#}
+		<div class="row">
+			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="/{{ course.id }}/blog/{{ posts[0].title }}?action=deleteall&hmo=DELETE" enctype="multipart/form-data">
+				<div class="pull-left">
+					<h3>{{ course.title }} - Delete Assignment{% if posts.length > 1 %}s{% endif %}</h3>
+				</div>
+				<div class="pull-right" style="padding-top: 8px;">
+					<button type="submit" class="btn btn-default" title="Delete All"><span class="glyphicon glyphicon-trash"></span> Delete All</button>
+				</div>
+			</form>
+		</div>
+		{% for post in posts %}
+		<div class="row">
+			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=delete&hmo=DELETE" enctype="multipart/form-data">
+				<div class="panel panel-default">
+					<input type="hidden" name="pid" value="{{ post._id|toString }}" />
+					<div class="panel-heading clearfix">
+						<h2 class="panel-title pull-left" style="padding-top: 10px;">{{ post.title|url_decode }}</h2>
+						<div class="pull-right">
+							<div class="btn-group">
+								<button type="submit" class="btn btn-danger">Delete</button>
+								<a href="/{{ course.id }}/blog" class="btn btn-default">No!</a>
+							</div>
+						</div>
+					</div>
+					<div class="panel-body">{{ post.text|markdown|safe }}</div>
+					<div class="panel-footer"><span title="{{ post.authorUsername }}">{{ post.authorName }}</span><span class="pull-right" title="{{ post.timestamp|timezone }}">{{ post.timestamp|fromNow }}</span></div>
+				</div>
+			</form>
+		</div>
+		{% endfor %}
+	{% elif assignlist %}
+		{# list assignments #}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<div class="pull-left">
@@ -99,13 +195,52 @@
 		</div>
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				{% if !work %}
 				<ul class="list-group">
 				{% for assignment in assignments %}
 					<a class="list-group-item" href="/{{ course.id }}/assignments/{{ assignment.title }}">{{ assignment.title }}</a>
 				{% endfor %}
 				</ul>
-				{% elif work %}
+			</div>
+		</div>
+	{% elif studentlist%}
+		{# list students #}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>{{ course.title }} - Assignments</h3>
+				</div>
+				{% if 2 <= auth %}
+				<div class="pull-right" style="padding-top: 8px;">
+					<a href="/{{ course.id }}/assignments/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ul class="list-group">
+				{% for student in students %}
+					<a class="list-group-item" href="/{{ course.id }}/assignments/{{ student.name }}">{{ student.name }}</a>
+				{% endfor %}
+				</ul>
+			</div>
+		</div>
+	{% elif view %}
+		{# assignment #}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>{{ course.title }} - Assignments</h3>
+				</div>
+				{% if 2 <= auth %}
+				<div class="pull-right" style="padding-top: 8px;">
+					<a href="/{{ course.id }}/assignments/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				{% for assignment in assignments %}
 				<form class="panel panel-default" action="/{{ course.id }}/assignments/submit/{{ assignment.title }}" method="POST" enctype="multipart/form-data">
 					<div class="panel-heading">
@@ -123,15 +258,12 @@
 					</div>
 					<div class="panel-footer"><span title="{{ assignment.authorUsername }}">{{ assignment.authorName }}</span>
 					<span class="pull-right" title="{{ assignment.timestamp|timezone }}">{{ assignment.timestamp|fromNow }}</span></div>
-					<!-- <div class="panel-footer">
-						<span class="pull-left" title="{{ assignment.authorUsername }}">{{ assignment.authorName }}</span>
-						<span class="pull-right">{{ assignment.timestamp|date('F jS h:m a') }}</span>
-					</div> -->
 				</form>
 				{% endfor %}
-				{% endif %}
 			</div>
 		</div>
+	{% else %}
+		I don't know how you got here
 	{% endif %}
 	</div>
 {% endblock %}
