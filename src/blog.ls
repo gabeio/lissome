@@ -75,7 +75,7 @@ module.exports = (app)->
 						'course': ObjectId res.locals.course._id
 						'type': 'blog'
 						'title': req.params.unique
-					}
+					} .populate('author').exec
 					if result.length is 0
 						res.redirect "/#{res.locals.course.id}/blog"
 					else
@@ -266,7 +266,7 @@ module.exports = (app)->
 										$gte: date0
 										$lt: date1
 									}
-								}
+								} .populate('author').exec
 								done err,posts
 							else
 								done! # it's not a date range
@@ -274,36 +274,36 @@ module.exports = (app)->
 							done! # it's not a range
 					(done)->
 						# search text
-						Post.find {
+						err, posts <- Post.find {
 							'course': ObjectId(res.locals.course._id)
 							'type': 'blog'
 							'text': new RegExp res.locals.search, 'i'
-						}, (err, posts)->
-							done err, posts
+						} .populate('author').exec#, (err, posts)->
+						done err, posts
 					(done)->
 						# search titles
-						Post.find {
+						err, posts <- Post.find {
 							'course': ObjectId(res.locals.course._id)
 							'type': 'blog'
 							'title': new RegExp res.locals.search, 'i'
-						}, (err, posts)->
-							done err, posts
+						} .populate('author').exec#, (err, posts)->
+						done err, posts
 					(done)->
 						# search tags
-						Post.find {
+						err, posts <- Post.find {
 							'course': ObjectId(res.locals.course._id)
 							'type': 'blog'
 							'tags': res.locals.search
-						}, (err, posts)->
-							done err, posts
+						} .populate('author').exec#, (err, posts)->
+						done err, posts
 					(done)->
 						# search authorName
-						Post.find {
+						err, posts <- Post.find {
 							'course': ObjectId(res.locals.course._id)
 							'type': 'blog'
 							'authorName': new RegExp res.locals.search, 'i'
-						}, (err, posts)->
-							done err, posts
+						} .populate('author').exec#, (err, posts)->
+						done err, posts
 				]
 				posts = _.flatten _.without(posts,undefined), true
 				posts = if posts.length > 0 then _.uniq _.sortBy(posts, 'timestamp').reverse!,(input)->
@@ -313,6 +313,6 @@ module.exports = (app)->
 				err, posts <- Post.find {
 					'course': ObjectId res.locals.course._id
 					'type':'blog'
-				}
+				} .populate('author').exec
 				res.locals.blog = _.sortBy posts, 'timestamp' .reverse!
 				res.render 'blog'

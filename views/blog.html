@@ -94,7 +94,7 @@
 						</div>
 					</div>
 					<div class="panel-body">{{ post.text|markdown|safe }}</div>
-					<div class="panel-footer"><span title="{{ post.authorUsername }}">{{ post.authorName }}</span><span class="pull-right" title="{{ post.timestamp|timezone }}">{{ post.timestamp|fromNow }}</span></div>
+					<div class="panel-footer"><span title="{{ post.author.username }}">{{ post.author.firstName }} {{ post.author.lastName }}</span><span class="pull-right" title="{{ post.timestamp|timezone }}">{{ post.timestamp|fromNow }}</span></div>
 				</div>
 			</form>
 		</div>
@@ -145,7 +145,7 @@
 						{% endif %}
 					</div>
 					<div class="panel-body">{{ post.text|markdown|safe }}</div>
-					<div class="panel-footer"><span title="{{ post.authorUsername }}">{{ post.authorName }}</span><span class="pull-right" title="{{ post.timestamp|timezone }}">{{ post.timestamp|fromNow }}</span></div>
+					<div class="panel-footer"><span title="{{ post.author.username }}">{{ post.author.firstName }} {{ post.author.lastName }}</span><span class="pull-right" title="{{ post.timestamp|timezone }}">{{ post.timestamp|fromNow }}</span></div>
 				</div>
 				{% endfor %}
 			</div>
