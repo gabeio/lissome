@@ -99,7 +99,8 @@
 				{% endif %}
 			</div>
 		</div>
-		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="#" enctype="multipart/form-data">
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?hmo=PUT&action=edit" enctype="multipart/form-data">
+			<input type="hidden" name="aid" value="{{ body._id|toString }}" />
 			<div class="form-group">
 				<label for="formTitle">Title</label>
 				<input type="text" class="form-control" id="formTitle" name="title" value="{{ body.title }}" autofocus />
