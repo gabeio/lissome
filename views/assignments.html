@@ -32,12 +32,12 @@
 				</div>
 				{% if 2 <= auth %}
 				<div class="pull-right" style="padding-top: 8px;">
-					<a href="/{{ course.id }}/assignments/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
+					<a href="/{{ course.id }}/assignments?action=new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
 				</div>
 				{% endif %}
 			</div>
 		</div>
-		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="#" enctype="multipart/form-data">
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=new" enctype="multipart/form-data">
 			<div class="form-group">
 				<label for="formTitle">Title</label>
 				<input type="text" class="form-control" id="formTitle" name="title" value="{{ body.title }}" autofocus />
@@ -86,7 +86,7 @@
 			</div>
 		</form>
 	{% elif edit %}
-		{# edit assignment #}
+		{# edit assignment(s) #}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<div class="pull-left">
@@ -94,7 +94,7 @@
 				</div>
 				{% if 2 <= auth %}
 				<div class="pull-right" style="padding-top: 8px;">
-					<a href="/{{ course.id }}/assignments/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
+					<a href="/{{ course.id }}/assignments?action=new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
 				</div>
 				{% endif %}
 			</div>
@@ -103,21 +103,21 @@
 			<input type="hidden" name="aid" value="{{ body._id|toString }}" />
 			<div class="form-group">
 				<label for="formTitle">Title</label>
-				<input type="text" class="form-control" id="formTitle" name="title" value="{{ body.title }}" autofocus />
+				<input type="text" class="form-control" id="formTitle" name="title" value="{{ body.title|url_decode }}" autofocus />
 			</div>
 			<div class="form-group">
 				<label for="formOpendate">Opens on</label>
 				<input type="date" class="form-control" id="formOpendate" name="opendate" value="{% if body %}{{ body.start|format('YYYY-MM-D') }}{% else %}{{ Date.now()|format('YYYY-MM-D') }}{% endif %}" />
-				<input type="time" class="form-control" id="formOpentime" name="opentime" value="{% if body %}{{ body.start|format('H:mm:s') }}{% else %}{{ Date.now()|format('H:mm:ss') }}{% endif %}" />
+				<input type="time" class="form-control" id="formOpentime" name="opentime" value="{% if body %}{{ body.start|format('H:mm:ss') }}{% else %}{{ Date.now()|format('H:mm:ss') }}{% endif %}" />
 			</div>
 			<div class="form-group">
 				<label for="formClose" title="the date &amp; time at which the assignment is then after marked late">Closes on</label>
 				<input type="date" class="form-control" id="formClose" name="closedate" value="{{ body.closedate|format('YYYY-MM-D') }}" />
-				<input type="time" class="form-control" id="formOpentime" name="closetime" value="{{ body.closetime|format('H:mm:s') }}" />
+				<input type="time" class="form-control" id="formOpentime" name="closetime" value="{{ body.closetime|format('H:mm:ss') }}" />
 			</div>
 			<div class="form-group">
 				<label for="formTotal" title="the total possible points without extra credit (don't include extra credit)">Total Points Possible</label>
-				<input type="number" class="form-control" id="formTotal" name="total" value="{{ body.total }}" />
+				<input type="number" class="form-control" id="formTotal" name="total" value="{{ body.totalPoints }}" />
 			</div>
 			<div class="form-group">
 				<label for="formTries" title="allow students to submit assignments this many times (set to zero to give grade for already completed assignment)">Allowed Tries</label>
@@ -149,38 +149,158 @@
 			</div>
 		</form>
 	{% elif del %}
-		{# delete assignment#}
+		{# delete assignment(s) #}
 		<div class="row">
-			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="/{{ course.id }}/blog/{{ posts[0].title }}?action=deleteall&hmo=DELETE" enctype="multipart/form-data">
+			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="/{{ course.id }}/assignments/{{ assignments[0].title }}?action=deleteall&hmo=DELETE" enctype="multipart/form-data">
 				<div class="pull-left">
-					<h3>{{ course.title }} - Delete Assignment{% if posts.length > 1 %}s{% endif %}</h3>
+					<h3>{{ course.title }} - Delete Assignment{% if assignments.length > 1 %}s{% endif %}</h3>
 				</div>
 				<div class="pull-right" style="padding-top: 8px;">
 					<button type="submit" class="btn btn-default" title="Delete All"><span class="glyphicon glyphicon-trash"></span> Delete All</button>
 				</div>
 			</form>
 		</div>
-		{% for post in posts %}
+		{% for assignment in assignments %}
 		<div class="row">
 			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=delete&hmo=DELETE" enctype="multipart/form-data">
 				<div class="panel panel-default">
-					<input type="hidden" name="pid" value="{{ post._id|toString }}" />
+					<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />
 					<div class="panel-heading clearfix">
-						<h2 class="panel-title pull-left" style="padding-top: 10px;">{{ post.title|url_decode }}</h2>
+						<h2 class="panel-title pull-left" style="padding-top: 10px;">{{ assignment.title|url_decode }}</h2>
 						<div class="pull-right">
 							<div class="btn-group">
 								<button type="submit" class="btn btn-danger">Delete</button>
-								<a href="/{{ course.id }}/blog" class="btn btn-default">No!</a>
+								<a href="/{{ course.id }}/assignments" class="btn btn-default">No!</a>
 							</div>
 						</div>
 					</div>
-					<div class="panel-body">{{ post.text|markdown|safe }}</div>
-					<div class="panel-footer"><span title="{{ post.authorUsername }}">{{ post.authorName }}</span><span class="pull-right" title="{{ post.timestamp|timezone }}">{{ post.timestamp|fromNow }}</span></div>
+					<div class="panel-body">{{ assignment.text|markdown|safe }}</div>
+					<div class="panel-footer"><span title="{{ assignment.author.username }}">{{ assignment.author.firstName }} {{ assignment.author.lastName }}</span><span class="pull-right" title="{{ assignment.timestamp|timezone }}">{{ assignment.timestamp|fromNow }}</span></div>
 				</div>
 			</form>
 		</div>
 		{% endfor %}
-	{% elif assignlist %}
+	{% elif list %}
+		{# show assignment & list attempts #}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>{{ course.title }} - Assignments</h3>
+				</div>
+			</div>
+		</div>
+		{% for assignment in assignments%}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>{{ assignment.title|url_decode }}</h3>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="panel panel-default">
+					<div class="panel-heading clearfix">
+						{# <h3 class="panel-title">{{ assignment.title }}</h3> #}
+						<h2 class="panel-title pull-left" style="padding-top: 10px;">{{ assignment.title|url_decode }}</h2>
+						<div class="pull-right">
+							<div class="dropdown">
+								<button class="btn btn-default dropdown-toggle" type="button" id="blogPostMenu" data-toggle="dropdown" aria-expanded="true">
+									<span class="glyphicon glyphicon-cog"></span>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
+									<li role="presentation">
+										<a role="menuitem" href="/{{ course.id }}/assignments/{{ assignment.title }}?action=edit"><span class="glyphicon glyphicon-edit"></span> Edit</a>
+									</li>
+									<li role="presentation">
+										<a role="menuitem" href="/{{ course.id }}/assignments/{{ assignment.title }}?action=delete"><span class="glyphicon glyphicon-remove"></span> Delete</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="panel-body">
+						{{ assignment.text|markdown|safe }}
+					</div>
+					<div class="panel-footer"><span title="{{ assignment.author.username }}">{{ assignment.author.firstName }} {{ assignment.author.lastName }}</span>
+					<span class="pull-right" title="{{ assignment.timestamp|timezone }}">{{ assignment.timestamp|fromNow }}</span></div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>Attempts</h3>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ul class="list-group">
+				{% for attempt in attempts %}
+					<a class="list-group-item" href="/{{ course.id }}/assignments/{{ attempt.assignment.title }}/{{ attempt._id|toString }}?action=view">{{ attempt.author.firstName }} {{ attempt.author.lastName }}</a>
+				{% endfor %}
+				</ul>
+			</div>
+		</div>
+		{% endfor %}
+	{% elif viewattempt %}
+		{# view an attempt #}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>{{ course.title }} - Assignments - {{ assignments[0].title|url_decode }} - {{ attempt.author.firstName }} {{ attempt.author.lastName }}</h3>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">{{ assignments[0].title|url_decode }}</h3>
+					</div>
+					<div class="panel-body">{{ attempt.text|markdown|safe }}</div>
+					<div class="panel-footer"><span title="{{ attempt.author.username }}">{{ attempt.author.firstName }} {{ attempt.author.lastName }}</span>
+					<span class="pull-right" title="{{ attempt.timestamp|timezone }}">{{ attempt.timestamp|fromNow }}</span></div>
+				</div>
+			</div>
+		</div>
+	{% elif viewassignment %}
+		{# student only #}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>{{ course.title }} - Assignments - {{ assignment.title|url_decode }}</h3>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">{{ assignment.title|url_decode }}</h3>
+					</div>
+					<div class="panel-body">
+						{{ assignment.text|markdown|safe }}
+					</div>
+					<div class="panel-footer"><span title="{{ assignment.author.username }}">{{ assignment.author.firstName }} {{ assignment.author.lastName }}</span>
+					<span class="pull-right" title="{{ assignment.timestamp|timezone }}">{{ assignment.timestamp|fromNow }}</span></div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<form method="POST" action="?action=submit" class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />
+				<div class="form-group">
+					<label for="formBody">Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
+					<textarea class="form-control" id="formBody" name="text" rows="7">{{ body.text }}</textarea>
+				</div>
+				<div class="form-group">
+					<button type="submit" class="btn btn-default">Submit</button>
+				</div>
+			</form>
+		</div>
+	{% else %}
 		{# list assignments #}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
@@ -189,7 +309,7 @@
 				</div>
 				{% if 2 <= auth %}
 				<div class="pull-right" style="padding-top: 8px;">
-					<a href="/{{ course.id }}/assignments/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
+					<a href="/{{ course.id }}/assignments?action=new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
 				</div>
 				{% endif %}
 			</div>
@@ -198,73 +318,11 @@
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<ul class="list-group">
 				{% for assignment in assignments %}
-					<a class="list-group-item" href="/{{ course.id }}/assignments/{{ assignment.title }}">{{ assignment.title }}</a>
+					<a class="list-group-item" {% if 2 <= auth %}href="/{{ course.id }}/assignments/{{ assignment.title }}?action=list"{% else %}href="/{{ course.id }}/assignments/{{ assignment.title }}"{% endif %}>{{ assignment.title|url_decode }}</a>
 				{% endfor %}
 				</ul>
 			</div>
 		</div>
-	{% elif studentlist%}
-		{# list students #}
-		<div class="row">
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				<div class="pull-left">
-					<h3>{{ course.title }} - Assignments</h3>
-				</div>
-				{% if 2 <= auth %}
-				<div class="pull-right" style="padding-top: 8px;">
-					<a href="/{{ course.id }}/assignments/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
-				</div>
-				{% endif %}
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				<ul class="list-group">
-				{% for student in students %}
-					<a class="list-group-item" href="/{{ course.id }}/assignments/{{ student.name }}">{{ student.name }}</a>
-				{% endfor %}
-				</ul>
-			</div>
-		</div>
-	{% elif view %}
-		{# assignment #}
-		<div class="row">
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				<div class="pull-left">
-					<h3>{{ course.title }} - Assignments</h3>
-				</div>
-				{% if 2 <= auth %}
-				<div class="pull-right" style="padding-top: 8px;">
-					<a href="/{{ course.id }}/assignments/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
-				</div>
-				{% endif %}
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				{% for assignment in assignments %}
-				<form class="panel panel-default" action="/{{ course.id }}/assignments/submit/{{ assignment.title }}" method="POST" enctype="multipart/form-data">
-					<div class="panel-heading">
-						<h3 class="panel-title">{{ assignment.title }}</h3>
-					</div>
-					<div class="panel-body">{{ assignment.text|markdown|safe }}<br />
-						<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />
-						<div class="form-group">
-							<label for="formBody">Assignment Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
-							<textarea class="form-control" id="formBody" name="text" rows="7" autofocus>{{ body.text }}</textarea>
-						</div>
-						<div class="form-group">
-							<button type="submit" class="btn btn-default">Submit Assignment</button>
-						</div>
-					</div>
-					<div class="panel-footer"><span title="{{ assignment.authorUsername }}">{{ assignment.authorName }}</span>
-					<span class="pull-right" title="{{ assignment.timestamp|timezone }}">{{ assignment.timestamp|fromNow }}</span></div>
-				</form>
-				{% endfor %}
-			</div>
-		</div>
-	{% else %}
-		I don't know how you got here
 	{% endif %}
 	</div>
 {% endblock %}
