@@ -73,7 +73,7 @@ do ->
 swig.setFilter 'markdown', (input)->
 	md.render input
 swig.setFilter 'toString', (input)->
-	input.toString!	
+	input.toString!
 swig.setFilter 'fromNow', (input)->
 	moment(input).fromNow()
 /* istanbul ignore next function while unused */
