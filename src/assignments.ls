@@ -171,6 +171,8 @@ module.exports = (app)->
 								else
 									res.locals.attempts = result
 									done!
+			]
+			next!
 		.get (req, res, next)->
 			res.render 'assignments'
 		.put (req, res, next)->
