@@ -19,7 +19,7 @@ gulp.task 'clean' (done)->
 	del './lib/*.js'
 	done!
 
-gulp.task 'build-gulp' (done)->
+gulp.task 'build-gulp' ->
 	gulp.src './gulpfile.ls'
 		.pipe livescript bare:true
 		.on 'error' -> throw it
@@ -43,19 +43,23 @@ gulp.task 'build' ['clean'] ->
 /*gulp.task 'clean-tests' (done)->
 	del './test/*.js'*/
 
-gulp.task 'build-tests' (done)-> # ['clean-tests']
+gulp.task 'build-tests' -> # ['clean-tests']
 	gulp.src './test/*.ls'
 		.pipe livescript bare:true
 		.on 'error' -> throw it
 		.pipe gulp.dest './test/'
+		# .on 'end' ->
+		# 	done
 
-gulp.task 'run-tests' ['build-tests', 'build'] (done)->
+gulp.task 'run-tests' ['build', 'build-tests'] ->
 	gulp.src './test/*.js'
 		.pipe mocha!
-		.on 'end' ->
-			process.exit!
-		.on 'error' ->
-			process.exit 1
+		# .on 'error' ->
+		# 	throw it
+		# .on 'end' ->
+		# 	process.exit!
+		# .on 'error' ->
+		# 	process.exit 1
 
 gulp.task 'watch-run-tests' ['build-tests', 'build'] (done)->
 	gulp.src './test/*.js'
@@ -63,7 +67,7 @@ gulp.task 'watch-run-tests' ['build-tests', 'build'] (done)->
 		.on 'end' ->
 			done
 
-gulp.task 'report' (done)->
+gulp.task 'report' ->
 	gulp.src 'coverage/**/lcov.info'
 		.pipe coveralls!
 

@@ -29,13 +29,14 @@
 			</div>
 		</nav>
 	</div>
-	<div class="row">
+	{# <div class="row">
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 			<ol class="breadcrumb">
 				{% if on == 'dash' %}<li class="active">Dash</li>{% else %}<li><a href="/">Dash</a></li>{% endif %}
 				{% if course and on !== 'course' %}<li><a href="/{{ course.id }}">{{ course.title }}</a></li>{% endif %}
 				{% if blog and on !== 'blog' %}<li><a href="/{{ course.id }}/blog">Blog</a></li>{% endif %}
-				{% if assignments and on !== 'assignments' %}<li><a href="/{{ course.id }}/assignments">Assignments</a></li>{% endif %}
+				{% if assignment and on !== 'assignments' %}<li><a href="/{{ course.id }}/assignments">Assignments</a></li>{% endif %}
+				{% if attempt and on !== 'attempt' %}<li><a href="/{{ course.id }}/assignments/{{ assignments[0].title }}?action=list">{{ assignment.title|url_decode }}</a></li>{% endif %}
 				{% if on == 'course' %}<li class="active">{{ course.title }}</li>
 				{% elif on == 'blog' %}<li class="active">Blog</li>
 				{% elif on == 'assignments' %}<li class="active">Assignments</li>
@@ -43,6 +44,8 @@
 				{% elif on == 'editassignment' %}<li class="active">Edit Assignment</li>
 				{% elif on == 'deleteassignment' %}<li class="active">Delete Assignment</li>
 				{% elif on == 'gradeassignment' %}<li class="active">Grading Assignment</li>
+				{% elif on == 'listattempts' %}<li class="active">Attempts List</li>
+				{% elif on == 'viewattempt' %}<li class="active">View Attempt</li>
 				{% elif on == 'assignment' %}<li class="active">{{ assignment.title }}</li>
 				{% elif on == 'newblog' %}<li class="active">New Post</li>
 				{% elif on == 'editblog' %}<li class="active">Edit Post</li>
@@ -50,8 +53,9 @@
 				{% elif on == 'conference' %}<li class="active">Conference</li>
 				{% elif on == 'preferences' %}<li class="active">Preferences</li>
 				{% elif on == 'settings' %}<li class="active">Settings</li>
-				{% elif on == 'newblog' %}<li class="active">New Post</li>{% endif %}
+				{% elif on == 'newblog' %}<li class="active">New Post</li>
+				{% endif %}
 			</ol>
 		</div>
-	</div>
+	</div> #}
 {% endblock %}
