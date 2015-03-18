@@ -35,7 +35,7 @@ dependencies:
 	"hiredis": '~0.2.0'
 	"LiveScript": '~1.3.1'
 	"lodash": '~3.5.0'
-	"markdown-it": '~3.0.6'
+	"markdown-it": '~4.0.1'
 	"method-override": '~2.3.1'
 	"moment": '~2.9.0'
 	"moment-timezone": '~0.3.0'
