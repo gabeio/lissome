@@ -69,7 +69,7 @@ module.exports = (app)->
 							'id': req.params.course
 							'school': app.locals.school
 							'students': ObjectId req.session.uid
-						}
+						} .populate('students').exec
 						/* istanbul ignore if */
 						if err
 							winston.error 'course:findOne:assignments:auth1', err
@@ -94,7 +94,7 @@ module.exports = (app)->
 					title: req.params.unique
 					course: ObjectId res.locals.course._id
 					school: app.locals.school
-				}
+				} .populate('author').exec
 
 			else
 				# find assignments
@@ -102,7 +102,7 @@ module.exports = (app)->
 					title: req.params.unique
 					course: ObjectId res.locals.course._id
 					school: app.locals.school
-				}
+				} .populate('author').exec
 		.all (req, res, next)->
 			# split student|faculty
 			# get attempt_id
@@ -114,7 +114,7 @@ module.exports = (app)->
 							# findOne attempt
 							err, results <- Attempt.findOne {
 								course: ObjectId res.locals.course._id
-							}
+							} .populate('author').exec
 							if err
 								winston.error '', err
 								next new Error 'INTERNAL'
@@ -128,7 +128,7 @@ module.exports = (app)->
 							# find attempts
 							err, results <- Attempt.find {
 								course: ObjectId res.locals.course._id
-							}
+							} .populate('author').exec
 							if err
 								winston.error '', err
 								next new Error 'INTERNAL'
@@ -146,7 +146,7 @@ module.exports = (app)->
 							err, results <- Attempt.findOne {
 								course: ObjectId res.locals.course._id
 								author: ObjectId req.session.uid
-							}
+							} .populate('author').exec
 							if err
 								winston.error '', err
 								next new Error 'INTERNAL'
@@ -161,7 +161,7 @@ module.exports = (app)->
 							err, results <- Attempt.find {
 								course: ObjectId res.locals.course._id
 								author: ObjectId req.session.uid
-							}
+							} .populate('author').exec
 							if err
 								winston.error '', err
 								next new Error 'INTERNAL'
