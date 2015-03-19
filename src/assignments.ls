@@ -69,7 +69,8 @@ module.exports = (app)->
 			console.log 'C'
 			# do for every request
 			# get assign_id
-			if req.params.assign? and req.params.assign isnt ""
+			if req.params.assign?
+				console.log 'C1'
 				# find assignment(s) w/ title
 				err, result <- Assignment.find {
 					school: app.locals.school
@@ -80,6 +81,7 @@ module.exports = (app)->
 				res.locals.assignments = result
 				next!
 			else
+				console.log 'C2'
 				# find all assignments
 				err, result <- Assignment.find {
 					school: app.locals.school
@@ -95,7 +97,7 @@ module.exports = (app)->
 				(done)->
 					# faculty+
 					if req.session.auth >= 2
-						if req.params.attempt? and req.params.attempt isnt ""
+						if req.params.attempt?
 							# findOne attempt
 							err, result <- Attempt.findOne {
 								_id: ObjectId req.params.attempt
@@ -115,7 +117,7 @@ module.exports = (app)->
 				(done)->
 					# student
 					if req.session.auth is 1
-						if req.params.attempt? and req.params.attempt isnt ""
+						if req.params.attempt?
 							# findOne attempt
 							err, result <- Attempt.findOne {
 								_id: ObjectId req.params.attempt
@@ -146,7 +148,14 @@ module.exports = (app)->
 			console.log 'query::action',req.query.action
 			switch req.query.action
 			| undefined
-				res.render 'assignments'
+				if req.params.assign?
+					# show assignment details & attempt field
+					res.render 'assignments', {+view}
+				else
+					# show list of assignments by title
+					res.render 'assignments'
+			| 'attempt'
+				res.send 'create new attempt'
 			| _
 				next!
 		.post (req, res, next)->
@@ -187,6 +196,7 @@ module.exports = (app)->
 				'_id': ObjectId req.body.aid
 				'school': app.locals.school
 				'course': ObjectId res.locals.course._id
+				# don't check for author as me might not be...
 			}, {
 				title: req.body.title
 				text: req.body.text
@@ -212,6 +222,7 @@ module.exports = (app)->
 					allowLate: if req.body.allowLate is "true" then true else false
 					totalPoints: req.body.total
 					# unchangeable
+					author: ObjectId req.session.uid
 					course: res.locals.course._id
 					school: app.locals.school
 				}
@@ -221,16 +232,19 @@ module.exports = (app)->
 					delete assign.start
 				if !moment(res.locals.end).isValid!
 					delete assign.end
-				assignment = new Assignment 
+				assignment = new Assignment assign
 				err, assignment <- assignment.save
 				/* istanbul ignore if */
 				if err?
+					console.log err
+					res.send 'error'
+				else
 					res.send 'OK'
 			| 'grade'
 				err, attempt <- Attempt.findOneAndUpdate {
-					'_id': ObjectId req.body.aid
 					'school': app.locals.school
 					'course': ObjectId res.locals.course._id
+					'_id': ObjectId req.body.aid
 				}, {
 					points: res.body.points
 				}
