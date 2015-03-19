@@ -27,17 +27,18 @@
 	<div class="row">
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 			<div class="pull-left">
-				<h3>{{ course.title }} - Assignments{% if assignments.length > 1 && assignments[0].title == assignments[1].title %} - {{assignments[0].title}}{% endif %}</h3>
+				<h3>{{ course.title }} - Assignments</h3>
 			</div>
 			{% if 2 <= auth %}
 			<div class="pull-right" style="padding-top: 8px;">
-				<a href="/{{ course.id }}/assignments/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
+				<a href="/{{ course.id }}/assignments?action=new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
 			</div>
 			{% endif %}
 		</div>
 	</div>
 	{% if create %}
 		{# create new assignment #}
+		create
 		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="#" enctype="multipart/form-data">
 			<div class="form-group">
 				<label for="formTitle">Title</label>
@@ -88,6 +89,7 @@
 		</form>
 	{% elif edit %}
 		{# edit assignment #}
+		edit
 		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="#" enctype="multipart/form-data">
 			<div class="form-group">
 				<label for="formTitle">Title</label>
@@ -138,6 +140,7 @@
 		</form>
 	{% elif del %}
 		{# delete assignment#}
+		del
 		{% for post in posts %}
 		<div class="row">
 			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=delete&hmo=DELETE" enctype="multipart/form-data">
@@ -158,8 +161,9 @@
 			</form>
 		</div>
 		{% endfor %}
-	{% elif attempts %}
+	{% elif attempt %}
 		{# list attempts w/ assignment #}
+		attempts
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<ul class="list-group">
@@ -171,6 +175,7 @@
 		</div>
 	{% elif view %}
 		{# view assignment(s) w/ title #}
+		view
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				{% for assignment in assignments %}{# incase multiple assignments are named the same thing #}
@@ -189,7 +194,7 @@
 							<button type="submit" class="btn btn-default">Submit Assignment</button>
 						</div>
 					</div>
-					<div class="panel-footer"><span title="{{ assignment.authorUsername }}">{{ assignment.authorName }}</span>
+					<div class="panel-footer"><span title="{{ assignment.author.username }}">{{ assignment.author.firstName }} {{ assignment.author.lastName }}</span>
 					<span class="pull-right" title="{{ assignment.timestamp|timezone }}">{{ assignment.timestamp|fromNow }}</span></div>
 				</form>
 				{% endfor %}
@@ -197,6 +202,7 @@
 		</div>
 	{% else %}
 		{# list assignments #}
+		else
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<ul class="list-group">
