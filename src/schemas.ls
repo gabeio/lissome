@@ -52,8 +52,6 @@ module.exports = (mongoose)->
 	Assignment = new Schema {
 		# AUTOCREATED
 		author: { type: Schema.Types.ObjectId, +required, ref: 'User' }
-		authorName: { type: String, +required }
-		authorUsername: { type: String, +required }
 		timestamp: { type: Date, default: Date.now } # created
 		# REQUIRED
 		course: { type: Schema.Types.ObjectId, +required, ref: 'Course' }
@@ -72,8 +70,6 @@ module.exports = (mongoose)->
 	Attempt = new Schema {
 		# AUTOCREATED
 		author: { type: Schema.Types.ObjectId, +required, ref: 'User' } # student who submitted it
-		# authorName: { type: String, +required }
-		# authorUsername: { type: String, +required }
 		timestamp: { type: Date, default: Date.now } # submission time
 		# REQUIRED
 		attempt: Number
