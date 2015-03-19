@@ -253,13 +253,17 @@ module.exports = (app)->
 		.delete (req, res, next)->
 			console.log 'K'
 			# handle delete assignment (faculty+)
-			err, assignment <- Assignment.remove {
-				'_id': ObjectId req.body.aid
-				'school': app.locals.school
-				'course': mongoose.Types.ObjectId res.locals.course._id
-			}
-			if err?
-				console.error err
-				next new Error 'Mongo Error'
-			else
-				res.send 'deleted!'
+			switch req.query.action
+			| 'delete'
+				err, assignment <- Assignment.remove {
+					'_id': ObjectId req.body.aid
+					'school': app.locals.school
+					'course': mongoose.Types.ObjectId res.locals.course._id
+				}
+				if err?
+					console.error err
+					next new Error 'Mongo Error'
+				else
+					res.send 'deleted!'
+			| _
+				next!
