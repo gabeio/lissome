@@ -3,8 +3,8 @@ git:
     depth: 10
 language: node_js
 node_js:
-    - 'iojs-v1.4.3'
     - 'iojs-v1.5.1'
+    - 'iojs-v1.6.0'
     - '0.10'
     - '0.12'
 sudo: false
