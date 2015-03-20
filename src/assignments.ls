@@ -102,14 +102,14 @@ module.exports = (app)->
 							err, result <- Attempt.findOne {
 								_id: ObjectId req.params.attempt
 								course: ObjectId res.locals.course._id
-							} .populate('author').exec
+							} .populate('assignment').populate('author').exec
 							res.locals.attempts = result
 							done!
 						else
 							# find attempts
 							err, result <- Attempt.find {
 								course: ObjectId res.locals.course._id
-							} .populate('author').exec
+							} .populate('assignment').populate('author').exec
 							res.locals.attempts = result
 							done!
 					else
@@ -123,7 +123,7 @@ module.exports = (app)->
 								_id: ObjectId req.params.attempt
 								course: ObjectId res.locals.course._id
 								author: ObjectId req.session.uid
-							} .populate('author').exec
+							} .populate('assignment').populate('author').exec
 							res.locals.attempts = result
 							done!
 						else
@@ -131,7 +131,7 @@ module.exports = (app)->
 							err, result <- Attempt.find {
 								course: ObjectId res.locals.course._id
 								author: ObjectId req.session.uid
-							} .populate('author').exec
+							} .populate('assignment').populate('author').exec
 							res.locals.attempts = result
 							done!
 					else

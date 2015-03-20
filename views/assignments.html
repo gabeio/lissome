@@ -177,15 +177,31 @@
 		</div>
 	{% elif view %}
 		{# view assignment(s) w/ title #}
-		view
+		{% for assignment in assignments %}{# incase multiple assignments are named the same thing #}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				{% for assignment in assignments %}{# incase multiple assignments are named the same thing #}
-				<form class="panel panel-default" action="/{{ course.id }}/assignments/submit/{{ assignment.title }}" method="POST" enctype="multipart/form-data">
+				<form class="panel panel-default" action="/{{ course.id }}/assignments/{{ assignment.title }}?action=attempt" method="POST" enctype="multipart/form-data">
 					{# embed assignment_id in form (incase there are multiple assignments don't modify/attempt the wrong one.) #}
 					<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />
-					<div class="panel-heading">
-						<h3 class="panel-title">{{ assignment.title }}</h3>
+					<div class="panel-heading clearfix">
+						<h3 class="panel-title pull-left"{% if 2 <= auth %} style="padding-top: 10px;"{% endif %}>{{ assignment.title }}</h3>
+						{% if 2 <= auth %}
+						<div class="pull-right">
+							<div class="dropdown">
+								<button class="btn btn-default dropdown-toggle" type="button" id="blogPostMenu" data-toggle="dropdown" aria-expanded="true">
+									<span class="glyphicon glyphicon-cog"></span>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
+									<li role="presentation">
+										<a role="menuitem" href="/{{ course.id }}/assignments/{{ assignment.title|url_encode }}?action=edit"><span class="glyphicon glyphicon-edit"></span> Edit</a>
+									</li>
+									<li role="presentation">
+										<a role="menuitem" href="/{{ course.id }}/assignments/{{ assignment.title|url_encode }}?action=delete"><span class="glyphicon glyphicon-remove"></span> Delete</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+						{% endif %}
 					</div>
 					<div class="panel-body">{{ assignment.text|markdown|safe }}<br />
 						<div class="form-group">
@@ -199,9 +215,27 @@
 					<div class="panel-footer"><span title="{{ assignment.author.username }}">{{ assignment.author.firstName }} {{ assignment.author.lastName }}</span>
 					<span class="pull-right" title="{{ assignment.timestamp|timezone }}">{{ assignment.timestamp|fromNow }}</span></div>
 				</form>
-				{% endfor %}
 			</div>
 		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>Attempts</h3>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ul class="list-group">
+				{% for attempt in attempts %}
+				{% if attempt.assignment._id|toString == assignment._id|toString %}
+					<a class="list-group-item" href="/{{ course.id }}/assignments/{{ attempt.assignment.title }}/{{ attempt._id|toString }}?action=view">{{ attempt.author.firstName }} {{ attempt.author.lastName }}</a>
+				{% endif %}
+				{% endfor %}
+				</ul>
+			</div>
+		</div>
+		{% endfor %}
 	{% else %}
 		{# list assignments #}
 		else
