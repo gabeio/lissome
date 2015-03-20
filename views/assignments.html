@@ -89,46 +89,47 @@
 		</form>
 	{% elif edit %}
 		{# edit assignment #}
-		edit
-		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="#" enctype="multipart/form-data">
+		{% for assignment in assignments %}
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?hmo=put&action=edit" enctype="multipart/form-data">
+			<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />
 			<div class="form-group">
 				<label for="formTitle">Title</label>
-				<input type="text" class="form-control" id="formTitle" name="title" value="{{ body.title }}" autofocus />
+				<input type="text" class="form-control" id="formTitle" name="title" value="{{ assignment.title }}" autofocus />
 			</div>
 			<div class="form-group">
 				<label for="formOpendate">Opens on</label>
-				<input type="date" class="form-control" id="formOpendate" name="opendate" value="{% if body %}{{ body.opendate }}{% else %}{{ Date.now()|format('YYYY-MM-D') }}{% endif %}" />
-				<input type="time" class="form-control" id="formOpentime" name="opentime" value="{% if body %}{{ body.opentime }}{% else %}{{ Date.now()|format('H:mm:ss') }}{% endif %}" />
+				<input type="date" class="form-control" id="formOpendate" name="opendate" value="{{ assignment.start|format('YYYY-MM-DD') }}" />
+				<input type="time" class="form-control" id="formOpentime" name="opentime" value="{{ assignment.start|format('HH:mm:ss') }}" />
 			</div>
 			<div class="form-group">
 				<label for="formClose" title="the date &amp; time at which the assignment is then after marked late">Closes on</label>
-				<input type="date" class="form-control" id="formClose" name="close" value="{{ body.closedate }}" />
-				<input type="time" class="form-control" id="formOpentime" name="opentime" value="{{ body.closetime }}" />
+				<input type="date" class="form-control" id="formClose" name="closedate" value="{{ assignment.end|format('YYYY-MM-DD') }}" />
+				<input type="time" class="form-control" id="formOpentime" name="closetime" value="{{ assignment.end|format('HH:mm:ss') }}" />
 			</div>
 			<div class="form-group">
 				<label for="formTotal" title="the total possible points without extra credit (don't include extra credit)">Total Points Possible</label>
-				<input type="number" class="form-control" id="formTotal" name="total" value="{{ body.total }}" />
+				<input type="number" class="form-control" id="formTotal" name="total" value="{{ assignment.totalPoints }}" />
 			</div>
 			<div class="form-group">
 				<label for="formTries" title="allow students to submit assignments this many times (set to zero to give grade for already completed assignment)">Allowed Tries</label>
-				<input type="number" class="form-control" id="formTries" name="tries" value="{% if body %}{{ body.tries }}{% else %}1{% endif %}" />
+				<input type="number" class="form-control" id="formTries" name="tries" value="{{ assignment.tries }}" />
 			</div>
 			<div class="form-group">
 				<label for="formLate">Allow Late Submittions</label>
 				<div class="radio">
 					<label>
-						<input type="radio" name="formLate" id="late" value="yes" {% if body and body.late == true %}checked{% endif %}>Yes <small>(allow students to submit assignments after close date)</small>
+						<input type="radio" name="late" id="formLate" value="yes" {% if assignment.allowLate == true %}checked{% endif %}>Yes <small>(allow students to submit assignments after close date)</small>
 					</label>
 				</div>
 				<div class="radio">
 					<label>
-						<input type="radio" name="formLate" id="late" value="no" {% if body and body.late == false %}checked{% elif !body %}checked{% endif %}>No <small>(do <strong>NOT</strong> allow students to submit assignments after close date)</small>
+						<input type="radio" name="late" id="formLate" value="no" {% if assignment.allowLate == false %}checked{% endif %}>No <small>(do <strong>NOT</strong> allow students to submit assignments after close date)</small>
 					</label>
 				</div>
 			</div>
 			<div class="form-group">
 				<label for="formBody">Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
-				<textarea class="form-control" id="formBody" name="text" rows="7">{{ body.text }}</textarea>
+				<textarea class="form-control" id="formBody" name="text" rows="7">{{ assignment.text }}</textarea>
 			</div>
 			{#<div class="form-group">
 				<label for="formUpload">Files</label>

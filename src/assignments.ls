@@ -192,22 +192,42 @@ module.exports = (app)->
 		.put (req, res, next)->
 			console.log 'I'
 			# handle edit assignment
-			err, assignment <- Assignment.findOneAndUpdate {
-				'_id': ObjectId req.body.aid
-				'school': app.locals.school
-				'course': ObjectId res.locals.course._id
-				# don't check for author as me might not be...
-			}, {
-				title: req.body.title
-				text: req.body.text
-				start: res.body.start
-				end: res.body.end
-				tries: req.body.tries
-				allowLate: if req.body.allowLate is "true" then true else false
-				totalPoints: req.body.total
-			}
-			if err
-				winston.error 'assignment update', err
+			switch req.query.action
+			| 'edit'
+				res.locals.start = new Date(req.body.opendate+" "+req.body.opentime)
+				res.locals.end = new Date(req.body.closedate+" "+req.body.closetime)
+				assign = {
+					title: req.body.title
+					text: req.body.text
+					start: res.locals.start
+					end: res.locals.end
+					tries: req.body.tries
+					allowLate: if req.body.late is "yes" then true else false
+					totalPoints: req.body.total
+				}
+				if !req.body.total?
+					console.log 'I1'
+					delete assign.totalPoints
+				if !moment(res.locals.start).isValid!
+					console.log 'I2'
+					delete assign.start
+				if !moment(res.locals.end).isValid!
+					console.log 'I3'
+					delete assign.end
+				err, assignment <- Assignment.findOneAndUpdate {
+					'_id': ObjectId req.body.aid
+					'school': app.locals.school
+					'course': ObjectId res.locals.course._id
+					# don't check for author as me might not be...
+				}, assign
+				if err?
+					console.log 'I4'
+					winston.error 'assignment update', err
+				else
+					console.log 'I5'
+					res.send 'updated!'
+			| _
+				next!
 		.post (req, res, next)->
 			console.log 'J'
 			# handle new assignment
