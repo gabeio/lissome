@@ -60,5 +60,5 @@ devDependencies:
 	"istanbul": '~0.3.5'
 	"mocha": '~2.2.1'
 	"nodemon": '~1.3.1'
-	"response-time": '~2.2.0'
+	"response-time": '~2.3.0'
 	"supertest": '~0.15.0'
