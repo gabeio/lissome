@@ -92,23 +92,35 @@ module.exports = (app)->
 		.all (req, res, next)->
 			console.log 'D'
 			# split student|faculty
+			# pluck only _id off of all assignments
+			plucked = _.pluck res.locals.assignments, '_id'
+			console.log 'pluck', plucked
+			console.log 'typeof plucked', typeof plucked.0
+			# convert all assignment._id's to ObjectIds
+			assignments = _.map plucked, ObjectId
+			console.log 'mapped', assignments
 			# get attempt_id
 			<- async.parallel [
 				(done)->
 					# faculty+
 					if req.session.auth >= 2
+						console.log 'D1'
 						if req.params.attempt?
+							console.log 'D11'
 							# findOne attempt
 							err, result <- Attempt.findOne {
-								_id: ObjectId req.params.attempt
 								course: ObjectId res.locals.course._id
+								# assignment: {$in: assignments}
+								_id: ObjectId req.params.attempt
 							} .populate('assignment').populate('author').exec
 							res.locals.attempts = result
 							done!
 						else
+							console.log 'D12'
 							# find attempts
 							err, result <- Attempt.find {
 								course: ObjectId res.locals.course._id
+								# assignment: {$in: assignments}
 							} .populate('assignment').populate('author').exec
 							res.locals.attempts = result
 							done!
@@ -117,19 +129,24 @@ module.exports = (app)->
 				(done)->
 					# student
 					if req.session.auth is 1
+						console.log 'D2'
 						if req.params.attempt?
+							console.log 'D21'
 							# findOne attempt
 							err, result <- Attempt.findOne {
-								_id: ObjectId req.params.attempt
 								course: ObjectId res.locals.course._id
+								# assignment: {$in: assignments}
 								author: ObjectId req.session.uid
+								_id: ObjectId req.params.attempt
 							} .populate('assignment').populate('author').exec
 							res.locals.attempts = result
 							done!
 						else
+							console.log 'D22'
 							# find attempts
 							err, result <- Attempt.find {
 								course: ObjectId res.locals.course._id
+								# assignment: {$in: assignments}
 								author: ObjectId req.session.uid
 							} .populate('assignment').populate('author').exec
 							res.locals.attempts = result
@@ -149,8 +166,12 @@ module.exports = (app)->
 			switch req.query.action
 			| undefined
 				if req.params.assign?
-					# show assignment details & attempt field
-					res.render 'assignments', {+view}
+					if req.params.attempt?
+						# show attempt
+						res.render 'assignments', {+attempt}
+					else
+						# show assignment details & attempt field
+						res.render 'assignments', {+view}
 				else
 					# show list of assignments by title
 					res.render 'assignments'
@@ -161,17 +182,21 @@ module.exports = (app)->
 		.post (req, res, next)->
 			console.log 'F'
 			# handle new attempt
-			if req.params.assign?
+			if req.params.assign? && req.query.action is 'attempt'
 				attempt = new Attempt {
 					assignment: req.body.aid
 					course: res.locals.course._id
 					text: req.body.text
 					school: app.locals.school
+					author: ObjectId req.session.uid
 				}
 				err, attempt <- attempt.save
 				/* istanbul ignore if */
 				if err?
-					res.send 'OK'
+					console.error err
+					next new Error 'Mongo Error'
+				else
+					res.send 'attempted!'
 			else
 				next! # not attempt
 		.all (req, res, next)->
@@ -233,21 +258,22 @@ module.exports = (app)->
 			# handle new assignment
 			switch req.query.action
 			| 'new'
+				console.log 'J1'
+				res.locals.start = new Date(req.body.opendate+" "+req.body.opentime)
+				res.locals.end = new Date(req.body.closedate+" "+req.body.closetime)
 				assign = {
 					title: req.body.title
 					text: req.body.text
 					start: res.locals.start
 					end: res.locals.end
 					tries: req.body.tries
-					allowLate: if req.body.allowLate is "true" then true else false
+					allowLate: if req.body.allowLate is "yes" then true else false
 					totalPoints: req.body.total
 					# unchangeable
 					author: ObjectId req.session.uid
 					course: res.locals.course._id
 					school: app.locals.school
 				}
-				res.locals.start = new Date(req.body.opendate+" "+req.body.opentime)
-				res.locals.end = new Date(req.body.closedate+" "+req.body.closetime)
 				if !moment(res.locals.start).isValid!
 					delete assign.start
 				if !moment(res.locals.end).isValid!
@@ -256,18 +282,25 @@ module.exports = (app)->
 				err, assignment <- assignment.save
 				/* istanbul ignore if */
 				if err?
-					console.log err
-					res.send 'error'
+					console.error err
+					next new Error 'Mongo Error'
 				else
-					res.send 'OK'
+					res.send 'created!'
 			| 'grade'
+				console.log 'J2'
 				err, attempt <- Attempt.findOneAndUpdate {
 					'school': app.locals.school
 					'course': ObjectId res.locals.course._id
 					'_id': ObjectId req.body.aid
 				}, {
-					points: res.body.points
+					'points': req.body.points
 				}
+				console.log attempt
+				if err?
+					console.error err
+					next new Error 'Mongo Error'
+				else
+					res.send 'graded!'
 			| _
 				next! # not attempt
 		.delete (req, res, next)->

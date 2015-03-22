@@ -38,7 +38,6 @@
 	</div>
 	{% if create %}
 		{# create new assignment #}
-		create
 		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="#" enctype="multipart/form-data">
 			<div class="form-group">
 				<label for="formTitle">Title</label>
@@ -142,7 +141,6 @@
 		{% endfor %}
 	{% elif del %}
 		{# delete assignment#}
-		del
 		{% for assignment in assignments %}
 		<div class="row">
 			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=delete&hmo=DELETE" enctype="multipart/form-data">
@@ -165,18 +163,31 @@
 		{% endfor %}
 	{% elif attempt %}
 		{# list attempts w/ assignment #}
-		attempts
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				<ul class="list-group">
-				{% for attempt in attempts %}
-					<a class="list-group-item" href="/{{ course.id }}/assignments/{{ assignments[0].title }}/{{ attempt._id|toString }}">{{ attempt.author.firstName }} {{ attempt.author.lastName}}</a>
-				{% endfor %}
-				</ul>
+				<form class="panel panel-default" action="/{{ course.id }}/assignments/{{ attempts.assignment.title }}/{{ attempts._id|toString }}?action=grade" method="POST" enctype="multipart/form-data">
+					<input type="hidden" name="aid" value="{{ attempts._id|toString }}" />
+					<div class="panel-heading clearfix">
+						<h3 class="panel-title pull-left">{{ attempts.assignment.title|url_decode }}</h3>
+						<div class="pull-right">{{ attempts.points }}/{{ attempts.assignment.totalPoints }}</div>
+					</div>
+					<div class="panel-body">{{ attempts.text|markdown|safe }}<br />
+						<div class="form-group">
+							<label for="formBody">Points
+								<input type="text" class="form-control" id="formBody" name="points" rows="7" autofocus>
+							</label>
+						</div>
+						<div class="form-group">
+							<button type="submit" class="btn btn-default">Grade</button>
+						</div>
+					</div>
+					<div class="panel-footer"><span title="{{ attempts.author.username }}">{{ attempts.author.firstName }} {{ attempts.author.lastName }}</span>
+					<span class="pull-right" title="{{ attempts.timestamp|timezone }}">{{ attempts.timestamp|fromNow }}</span></div>
+				</div>
 			</div>
 		</div>
 	{% elif view %}
-		{# view assignment(s) w/ title #}
+		{# view assignment(s) w/ attempts #}
 		{% for assignment in assignments %}{# incase multiple assignments are named the same thing #}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
@@ -217,6 +228,7 @@
 				</form>
 			</div>
 		</div>
+		{% if attempts.length > 0 %}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<div class="pull-left">
@@ -229,16 +241,16 @@
 				<ul class="list-group">
 				{% for attempt in attempts %}
 				{% if attempt.assignment._id|toString == assignment._id|toString %}
-					<a class="list-group-item" href="/{{ course.id }}/assignments/{{ attempt.assignment.title }}/{{ attempt._id|toString }}?action=view">{{ attempt.author.firstName }} {{ attempt.author.lastName }}</a>
+					<a class="list-group-item" href="/{{ course.id }}/assignments/{{ attempt.assignment.title }}/{{ attempt._id|toString }}">{{ attempt.author.firstName }} {{ attempt.author.lastName }} {% if attempt.late == true %}<span class="pull-right label label-danger">Late</span>{% endif %} {% if attempt.points %}<span class="pull-right label label-default">{{ attempt.points }}</span>{% endif %}</a>
 				{% endif %}
 				{% endfor %}
 				</ul>
 			</div>
 		</div>
+		{% endif %}
 		{% endfor %}
 	{% else %}
 		{# list assignments #}
-		else
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<ul class="list-group">
