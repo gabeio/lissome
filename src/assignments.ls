@@ -76,7 +76,7 @@ module.exports = (app)->
 					school: app.locals.school
 					course: ObjectId res.locals.course._id
 					# optional stuff
-					title: req.params.assign
+					title: encodeURIComponent req.params.assign
 				} .populate('author').exec
 				res.locals.assignments = result
 				next!
@@ -222,7 +222,7 @@ module.exports = (app)->
 				res.locals.start = new Date(req.body.opendate+" "+req.body.opentime)
 				res.locals.end = new Date(req.body.closedate+" "+req.body.closetime)
 				assign = {
-					title: req.body.title
+					title: encodeURIComponent req.body.title
 					text: req.body.text
 					start: res.locals.start
 					end: res.locals.end
@@ -250,7 +250,7 @@ module.exports = (app)->
 					winston.error 'assignment update', err
 				else
 					console.log 'I5'
-					res.send 'updated!'
+					res.redirect "/#{req.params.course}/assignments/"+ encodeURIComponent req.params.assign
 			| _
 				next!
 		.post (req, res, next)->
@@ -262,7 +262,7 @@ module.exports = (app)->
 				res.locals.start = new Date(req.body.opendate+" "+req.body.opentime)
 				res.locals.end = new Date(req.body.closedate+" "+req.body.closetime)
 				assign = {
-					title: req.body.title
+					title: encodeURIComponent req.body.title
 					text: req.body.text
 					start: res.locals.start
 					end: res.locals.end
@@ -285,7 +285,7 @@ module.exports = (app)->
 					console.error err
 					next new Error 'Mongo Error'
 				else
-					res.send 'created!'
+					res.redirect "/#{req.params.course}/assignments/"+ encodeURIComponent req.params.assign
 			| 'grade'
 				console.log 'J2'
 				err, attempt <- Attempt.findOneAndUpdate {
