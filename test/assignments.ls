@@ -406,16 +406,171 @@ describe "Assignments" ->
 					expect res.header.location .to.equal '/'
 					done err
 	describe "Crash Checks", (...)->
-		it.skip "should not crash when creating/editing an assignment without opendate", (done)->
-		it.skip "should not crash when creating/editing an assignment without opentime", (done)->
-		it.skip "should not crash when creating/editing an assignment without opendate & opentime", (done)->
-		it.skip "should not crash when creating/editing an assignment without closedate", (done)->
-		it.skip "should not crash when creating/editing an assignment without closetime", (done)->
-		it.skip "should not crash when creating/editing an assignment without closedate & closetime", (done)->
-		it.skip "should not crash when creating/editing an assignment without points", (done)->
-		it.skip "should not allow creating/editing an assignment without a title", (done)->
-		it.skip "should not allow creating/editing an assignment without a body", (done)->
-		it.skip "should not allow creating/editing an assignment without tries", (done)->
+		it "should not crash when creating/editing an assignment without opendate", (done)->
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'title':'title'
+					'opentime':'1:00 AM'
+					'closedate':'1/1/2000'
+					'closetime':'1:00 PM'
+					'total':'100'
+					'tries':'1'
+					'late':'yes'
+					'text':'you will fail!'
+				}
+				.end (err, res)->
+					expect res.status .to.not.match /^(4|5)/i
+					expect res.header.location .to.equal '/cps1234/assignments/title'
+					done err
+		it "should not crash when creating/editing an assignment without opentime", (done)->
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'title':'title'
+					'opendate':'12/31/1999'
+					'closedate':'1/1/2000'
+					'closetime':'1:00 PM'
+					'total':'100'
+					'tries':'1'
+					'late':'yes'
+					'text':'you will fail!'
+				}
+				.end (err, res)->
+					expect res.status .to.not.match /^(4|5)/i
+					expect res.header.location .to.equal '/cps1234/assignments/title'
+					done err
+		it "should not crash when creating/editing an assignment without opendate & opentime", (done)->
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'title':'title'
+					'closedate':'1/1/2000'
+					'closetime':'1:00 PM'
+					'total':'100'
+					'tries':'1'
+					'late':'yes'
+					'text':'you will fail!'
+				}
+				.end (err, res)->
+					expect res.status .to.not.match /^(4|5)/i
+					expect res.header.location .to.equal '/cps1234/assignments/title'
+					done err
+		it "should not crash when creating/editing an assignment without closedate", (done)->
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'title':'title'
+					'opendate':'12/31/1999'
+					'opentime':'1:00 AM'
+					'closetime':'1:00 PM'
+					'total':'100'
+					'tries':'1'
+					'late':'yes'
+					'text':'you will fail!'
+				}
+				.end (err, res)->
+					expect res.status .to.not.match /^(4|5)/i
+					expect res.header.location .to.equal '/cps1234/assignments/title'
+					done err
+		it "should not crash when creating/editing an assignment without closetime", (done)->
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'title':'title'
+					'opendate':'12/31/1999'
+					'opentime':'1:00 AM'
+					'closedate':'1/1/2000'
+					'total':'100'
+					'tries':'1'
+					'late':'yes'
+					'text':'you will fail!'
+				}
+				.end (err, res)->
+					expect res.status .to.not.match /^(4|5)/i
+					expect res.header.location .to.equal '/cps1234/assignments/title'
+					done err
+		it "should not crash when creating/editing an assignment without closedate & closetime", (done)->
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'title':'title'
+					'opendate':'12/31/1999'
+					'opentime':'1:00 AM'
+					'total':'100'
+					'tries':'1'
+					'late':'yes'
+					'text':'you will fail!'
+				}
+				.end (err, res)->
+					expect res.status .to.not.match /^(4|5)/i
+					expect res.header.location .to.equal '/cps1234/assignments/title'
+					done err
+		it "should not crash when creating/editing an assignment without points", (done)->
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'title':'title'
+					'opendate':'12/31/1999'
+					'opentime':'1:00 AM'
+					'closedate':'1/1/2000'
+					'closetime':'1:00 PM'
+					'tries':'1'
+					'late':'yes'
+					'text':'you will fail!'
+				}
+				.end (err, res)->
+					expect res.status .to.not.match /^(4|5)/i
+					expect res.header.location .to.equal '/cps1234/assignments/title'
+					done err
+		it "should not allow creating/editing an assignment without a title", (done)->
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'opendate':'12/31/1999'
+					'opentime':'1:00 AM'
+					'closedate':'1/1/2000'
+					'closetime':'1:00 PM'
+					'tries':'1'
+					'late':'yes'
+					'text':'you will fail!'
+				}
+				.end (err, res)->
+					# expect res.status .to.not.match /^(4|5)/i
+					expect res.header.location .to.not.match /^\/cps1234\/assignments\//i
+					done err
+		it "should not allow creating/editing an assignment without a body", (done)->
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'title':'title'
+					'opendate':'12/31/1999'
+					'opentime':'1:00 AM'
+					'closedate':'1/1/2000'
+					'closetime':'1:00 PM'
+					'tries':'1'
+					'late':'yes'
+				}
+				.end (err, res)->
+					# expect res.status .to.not.match /^(4|5)/i
+					expect res.header.location .to.not.match /^\/cps1234\/assignments\//i
+					done err
+		it "should not allow creating/editing an assignment without tries", (done)->
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'title':'title'
+					'opendate':'12/31/1999'
+					'opentime':'1:00 AM'
+					'closedate':'1/1/2000'
+					'closetime':'1:00 PM'
+					'late':'yes'
+					'text':'you will fail!'
+				}
+				.end (err, res)->
+					# expect res.status .to.not.match /^(4|5)/i
+					expect res.header.location .to.not.match /^\/cps1234\/assignments\//i
+					done err
 	describe "Other Functions", (...)->
 		it.skip "should not allow late submissions if not allowed", (done)->
 		it.skip "should allow late submissions if allowed", (done)->
