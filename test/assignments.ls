@@ -294,6 +294,24 @@ describe "Assignments" ->
 					done err
 	describe "Outside Student", (...)->
 		before (done)->
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'title':'title'
+					'opendate':'12/31/1999'
+					'opentime':'1:00 AM'
+					'closedate':'1/1/2000'
+					'closetime':'1:00 PM'
+					'total':'100'
+					'tries':'1'
+					'late':'yes'
+					'text':'you will fail!'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 302
+					expect res.header.location .to.equal '/cps1234/assignments/title'
+					done err
+		before (done)->
 			student
 				.get '/logout'
 				.end (err, res)->
@@ -323,10 +341,8 @@ describe "Assignments" ->
 					'text':'you will fail!'
 				}
 				.end (err, res)->
-					console.log res.header.location
-					console.log res.status
-					expect res.status .to.not.equal 302
-					expect res.header.location .to.not.equal '/cps1234/assignments/title'
+					expect res.status .to.equal 302
+					expect res.header.location .to.equal '/'
 					done err
 		it "should not allow an outside student to edit an assignment", (done)->
 			err <- async.waterfall [
@@ -351,26 +367,27 @@ describe "Assignments" ->
 							'text': 'you will fail!'
 						}
 						.end (err, res)->
-							expect res.status .to.not.equal 302
-							expect res.header.location .to.not.equal '/cps1234/assignments/'+ aid.0.title
+							expect res.status .to.equal 302
+							expect res.header.location .to.equal '/'
 							cont err
 			]
 			done err
 		it "should not allow an outside student to delete an assignment", (done)->
 			err <- async.waterfall [
 				(cont)->
-					admin
+					student
 						.get '/test/getaid/cps1234?title=title'
 						.end (err, res)->
 							cont err, res.body
 				(aid,cont)->
-					admin
+					student
 						.post '/cps1234/assignments/title?hmo=DELETE&action=delete'
 						.send {
 							'aid':aid.0._id
 						}
 						.end (err, res)->
-							expect res.status .to.not.equal 302
+							expect res.status .to.equal 302
+							expect res.header.location .to.equal '/'
 							cont err
 			]
 			done err
@@ -378,13 +395,15 @@ describe "Assignments" ->
 			student
 				.get '/cps1234/assignments'
 				.end (err, res)->
-					expect res.status .to.not.equal 200
+					expect res.status .to.equal 302
+					expect res.header.location .to.equal '/'
 					done err
 		it "should not allow an outside student to view an assignment", (done)->
 			student
 				.get '/cps1234/assignments/title'
 				.end (err, res)->
-					expect res.status .to.not.equal 200
+					expect res.status .to.equal 302
+					expect res.header.location .to.equal '/'
 					done err
 	describe "Crash Checks", (...)->
 		it.skip "should not crash when creating/editing an assignment without opendate", (done)->
