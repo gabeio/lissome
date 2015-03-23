@@ -44,12 +44,12 @@
 				<input type="text" class="form-control" id="formTitle" name="title" value="{{ body.title }}" autofocus />
 			</div>
 			<div class="form-group">
-				<label for="formOpendate">Opens on</label>
+				<label for="formOpendate" title="the date &amp; time at which the assignment is able to be view/submitted after.">Opens on</label>
 				<input type="date" class="form-control" id="formOpendate" name="opendate" value="{% if body %}{{ body.opendate }}{% else %}{{ Date.now()|format('YYYY-MM-D') }}{% endif %}" />
 				<input type="time" class="form-control" id="formOpentime" name="opentime" value="{% if body %}{{ body.opentime }}{% else %}{{ Date.now()|format('H:mm:ss') }}{% endif %}" />
 			</div>
 			<div class="form-group">
-				<label for="formClose" title="the date &amp; time at which the assignment is then after marked late">Closes on</label>
+				<label for="formClose" title="the date &amp; time at which the assignment is then after marked late.">Closes on</label>
 				<input type="date" class="form-control" id="formClosedate" name="closedate" value="{{ body.closedate }}" />
 				<input type="time" class="form-control" id="formClosetime" name="closetime" value="{{ body.closetime }}" />
 			</div>
@@ -62,7 +62,7 @@
 				<input type="number" class="form-control" id="formTries" name="tries" value="{% if body %}{{ body.tries }}{% else %}1{% endif %}" />
 			</div>
 			<div class="form-group">
-				<label for="formLate">Allow Late Submittions</label>
+				<label for="formLate">Allow Late Submissions</label>
 				<div class="radio">
 					<label>
 						<input type="radio" name="formLate" id="late" value="yes" {% if body and body.late == true %}checked{% endif %}>Yes <small>(allow students to submit assignments after close date)</small>
