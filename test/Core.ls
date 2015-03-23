@@ -325,7 +325,7 @@ describe "Core" ->
 					'password': ''
 				}
 				.end (err, res)->
-					expect res.text .to.have.string 'blank login credentials'
+					expect res.text .to.have.string 'bad login credentials'
 					done err
 		it "should fail for a good faculty username blank password", (done)->
 			faculty
@@ -335,7 +335,7 @@ describe "Core" ->
 					'password': ''
 				}
 				.end (err, res)->
-					expect res.text .to.have.string 'blank login credentials'
+					expect res.text .to.have.string 'bad login credentials'
 					done err
 		it "should fail for a good admin username blank password", (done)->
 			admin
@@ -345,7 +345,7 @@ describe "Core" ->
 					'password': ''
 				}
 				.end (err, res)->
-					expect res.text .to.have.string 'blank login credentials'
+					expect res.text .to.have.string 'bad login credentials'
 					done err
 		it "shouldn't crash for just username defined", (done)->
 			err <- async.parallel [
