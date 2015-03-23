@@ -317,6 +317,36 @@ describe "Core" ->
 				.end (err, res)->
 					expect res.text .to.have.string 'bad login credentials'
 					done err
+		it "should fail for a good student username blank password", (done)->
+			student
+				.post '/login'
+				.send {
+					'username': 'Student'
+					'password': ''
+				}
+				.end (err, res)->
+					expect res.text .to.have.string 'blank login credentials'
+					done err
+		it "should fail for a good faculty username blank password", (done)->
+			faculty
+				.post '/login'
+				.send {
+					'username': 'Faculty'
+					'password': ''
+				}
+				.end (err, res)->
+					expect res.text .to.have.string 'blank login credentials'
+					done err
+		it "should fail for a good admin username blank password", (done)->
+			admin
+				.post '/login'
+				.send {
+					'username': 'Admin'
+					'password': ''
+				}
+				.end (err, res)->
+					expect res.text .to.have.string 'blank login credentials'
+					done err
 		it "shouldn't crash for just username defined", (done)->
 			err <- async.parallel [
 				(cont)->
