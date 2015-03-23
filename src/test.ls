@@ -7,9 +7,11 @@ module.exports = (app)->
 		'mongoose'
 		'winston'
 	}
+	ObjectId = mongoose.Types.ObjectId
 	User = app.locals.models.User
 	Course = app.locals.models.Course
 	Post = app.locals.models.Post
+	Assignment = app.locals.models.Assignment
 	# winston = app.locals.winston
 	winston.warn 'TESTING MODE\nIF YOU SEE THIS MESSAGE THERE IS SOMETHING WRONG!!!'
 	app
@@ -30,6 +32,25 @@ module.exports = (app)->
 			| 'getstudent'
 				req.session.auth = 1
 				res.status 200 .send 'ok'
+			| 'getaid'
+				err, result <- Course.findOne {
+					'id': req.params.more
+					'school': app.locals.school
+				}
+				if err
+					winston.error 'test:course:findOne:blog', err
+					next new Error 'INTERNAL'
+				else
+					res.locals.course = result
+					err, result <- Assignment.find {
+						'course': ObjectId(res.locals.course._id)
+						'title': req.query.title
+					}
+					if err
+						winston.error 'test:course:find:assignment', err
+						next new Error 'INTERNAL'
+					else
+						res.json result
 			| 'getpid'
 				err, result <- Course.findOne {
 					'id': req.params.more
@@ -41,7 +62,7 @@ module.exports = (app)->
 				else
 					res.locals.course = result
 					err, result <- Post.find {
-						'course': mongoose.Types.ObjectId(res.locals.course._id)
+						'course': ObjectId(res.locals.course._id)
 						'type': 'blog'
 					}
 					if err
@@ -68,13 +89,13 @@ module.exports = (app)->
 							title: encodeURIComponent req.body.title
 							text: req.body.text
 							# files: req.body.files
-							author: mongoose.Types.ObjectId req.session.uid
+							author: ObjectId req.session.uid
 							authorName: authorName
 							authorUsername: authorUsername
 							tags: []
 							type: 'blog'
 							school: app.locals.school
-							course: mongoose.Types.ObjectId res.locals.course._id
+							course: ObjectId res.locals.course._id
 						}
 						err, post <- post.save
 						res.json post
