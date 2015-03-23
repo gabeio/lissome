@@ -343,7 +343,7 @@ module.exports = (app)->
 						winston.error err
 						next new Error 'Mongo Error'
 					else
-						res.status 302 .redirect "/#{req.params.course}/assignments/"+ encodeURIComponent(req.params.assign) +"/"+ attempt._id.toString()
+						res.status 302 .redirect "/#{req.params.course}/assignments/"+encodeURIComponent(req.params.assign)+"/"+attempt._id.toString()
 			| _
 				next! # don't assume action
 		.delete (req, res, next)->
