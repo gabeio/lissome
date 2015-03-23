@@ -21,37 +21,37 @@ student = req.agent app
 faculty = req.agent app
 admin = req.agent app
 describe "Assignments" ->
+	before (done)->
+		student
+			.post '/login'
+			.send {
+				'username': 'student'
+				'password': 'password'
+			}
+			.end (err, res)->
+				expect res.status .to.equal 302
+				done err
+	before (done)->
+		faculty
+			.post '/login'
+			.send {
+				'username':'faculty'
+				'password':'password'
+			}
+			.end (err, res)->
+				expect res.status .to.equal 302
+				done!
+	before (done)->
+		admin
+			.post '/login'
+			.send {
+				'username':'admin'
+				'password':'password'
+			}
+			.end (err, res)->
+				expect res.status .to.equal 302
+				done!
 	describe "Faculty+", (...)->
-		before (done)->
-			student
-				.post '/login'
-				.send {
-					'username': 'student'
-					'password': 'password'
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
-		before (done)->
-			faculty
-				.post '/login'
-				.send {
-					'username':'faculty'
-					'password':'password'
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done!
-		before (done)->
-			admin
-				.post '/login'
-				.send {
-					'username':'admin'
-					'password':'password'
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done!
 		it "should allow a faculty+ to create an assignment", (done)->
 			faculty
 				.post '/cps1234/assignments?action=new'
