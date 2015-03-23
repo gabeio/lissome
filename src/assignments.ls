@@ -217,7 +217,7 @@ module.exports = (app)->
 					winston.error err
 					next new Error 'Mongo Error'
 				else
-					res.send 'attempted!'
+					res.redirect "/#{req.params.course}/assignments/"+ encodeURIComponent req.params.assign
 			else
 				next! # not attempt
 		.all (req, res, next)->
