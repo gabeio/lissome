@@ -67,7 +67,7 @@ do ->
 	if !process.env.redishost? and !process.env.REDISHOST? and !argv.redishost?
 		console.log "redishost env undefined\ntrying localhost anyway..."
 	if !process.env.redisport? and !process.env.REDISPORT? and !argv.redisport?
-		console.log "redishost env undefined\ntrying default anyway..."
+		console.log "redisport env undefined\ntrying default anyway..."
 	if !process.env.redisauth? and !process.env.REDISAUTH? and !argv.redisauth?
 		console.log "redisauth env undefined\ntrying null anyway..."
 
