@@ -15,18 +15,18 @@ module.exports = (app)->
 	Assignment = app.locals.models.Assignment
 	Attempt = app.locals.models.Attempt
 	app
-		..route '/:course/assignments/:assign?/:attempt?' # query :: action(new|edit|delete|grade)
+		..route '/:course/:application(a|assign|assignment|assignments)/:assign?/:attempt?' # query :: action(new|edit|delete|grade)
 		.all (req, res, next)->
-			console.log req.originalUrl
-			console.log 'params',req.params
-			console.log 'query',req.query
-			console.log 'body',req.body
-			console.log 'A'
+			winston.info req.originalUrl
+			winston.info 'params',req.params
+			winston.info 'query',req.query
+			winston.info 'body',req.body
+			winston.info 'A'
 			# to be in course auth needs to be min = 1
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
 		.all (req, res, next)->
-			console.log 'B'
+			winston.info 'B'
 			# do for every request
 			# get course_id
 			res.locals.on = 'assignments'
@@ -66,11 +66,11 @@ module.exports = (app)->
 			]
 			next!
 		.all (req, res, next)->
-			console.log 'C'
+			winston.info 'C'
 			# do for every request
 			# get assign_id
 			if req.params.assign?
-				console.log 'C1'
+				winston.info 'C1'
 				# find assignment(s) w/ title
 				err, result <- Assignment.find {
 					school: app.locals.school
@@ -81,7 +81,7 @@ module.exports = (app)->
 				res.locals.assignments = result
 				next!
 			else
-				console.log 'C2'
+				winston.info 'C2'
 				# find all assignments
 				err, result <- Assignment.find {
 					school: app.locals.school
@@ -90,23 +90,23 @@ module.exports = (app)->
 				res.locals.assignments = result
 				next!
 		.all (req, res, next)->
-			console.log 'D'
+			winston.info 'D'
 			# split student|faculty
 			# pluck only _id off of all assignments
-			plucked = _.pluck res.locals.assignments, '_id'
-			console.log 'pluck', plucked
-			console.log 'typeof plucked', typeof plucked.0
+			# plucked = _.pluck res.locals.assignments, '_id'
+			# winston.info 'pluck', plucked
+			# winston.info 'typeof plucked', typeof plucked.0
 			# convert all assignment._id's to ObjectIds
-			assignments = _.map plucked, ObjectId
-			console.log 'mapped', assignments
+			# assignments = _.map plucked, ObjectId
+			# winston.info 'mapped', assignments
 			# get attempt_id
 			<- async.parallel [
 				(done)->
 					# faculty+
 					if req.session.auth >= 2
-						console.log 'D1'
+						winston.info 'D1'
 						if req.params.attempt?
-							console.log 'D11'
+							winston.info 'D11'
 							# findOne attempt
 							err, result <- Attempt.findOne {
 								course: ObjectId res.locals.course._id
@@ -116,7 +116,7 @@ module.exports = (app)->
 							res.locals.attempts = result
 							done!
 						else
-							console.log 'D12'
+							winston.info 'D12'
 							# find attempts
 							err, result <- Attempt.find {
 								course: ObjectId res.locals.course._id
@@ -129,9 +129,9 @@ module.exports = (app)->
 				(done)->
 					# student
 					if req.session.auth is 1
-						console.log 'D2'
+						winston.info 'D2'
 						if req.params.attempt?
-							console.log 'D21'
+							winston.info 'D21'
 							# findOne attempt
 							err, result <- Attempt.findOne {
 								course: ObjectId res.locals.course._id
@@ -142,7 +142,7 @@ module.exports = (app)->
 							res.locals.attempts = result
 							done!
 						else
-							console.log 'D22'
+							winston.info 'D22'
 							# find attempts
 							err, result <- Attempt.find {
 								course: ObjectId res.locals.course._id
@@ -156,13 +156,13 @@ module.exports = (app)->
 			]
 			next!
 		.get (req, res, next)->
-			console.log util.inspect {
+			winston.info util.inspect {
 				course: res.locals.course
 				assignments: res.locals.assignments
 				attempts: res.locals.attempts
 			}
-			console.log 'E'
-			console.log 'query::action',req.query.action
+			winston.info 'E'
+			winston.info 'query::action',req.query.action
 			switch req.query.action
 			| undefined
 				if req.params.assign?
@@ -180,7 +180,7 @@ module.exports = (app)->
 			| _
 				next!
 		.post (req, res, next)->
-			console.log 'F'
+			winston.info 'F'
 			# handle new attempt
 			if req.params.assign? && req.query.action is 'attempt'
 				attempt = new Attempt {
@@ -193,20 +193,20 @@ module.exports = (app)->
 				err, attempt <- attempt.save
 				/* istanbul ignore if */
 				if err?
-					console.error err
+					winston.error err
 					next new Error 'Mongo Error'
 				else
 					res.send 'attempted!'
 			else
 				next! # not attempt
 		.all (req, res, next)->
-			console.log 'G'
+			winston.info 'G'
 			# to modify assignments you need to be faculty+
 			res.locals.needs = 2
 			app.locals.authorize req, res, next
 		# EVERYTHING AFTER HERE IS FACULTY+ #
 		.get (req, res, next)->
-			console.log 'H'
+			winston.info 'H'
 			switch req.query.action
 			| 'new'
 				res.render 'assignments' {+create}
@@ -215,7 +215,7 @@ module.exports = (app)->
 			| 'delete'
 				res.render 'assignments' {+del}
 		.put (req, res, next)->
-			console.log 'I'
+			winston.info 'I'
 			# handle edit assignment
 			switch req.query.action
 			| 'edit'
@@ -231,13 +231,13 @@ module.exports = (app)->
 					totalPoints: req.body.total
 				}
 				if !req.body.total?
-					console.log 'I1'
+					winston.info 'I1'
 					delete assign.totalPoints
 				if !moment(res.locals.start).isValid!
-					console.log 'I2'
+					winston.info 'I2'
 					delete assign.start
 				if !moment(res.locals.end).isValid!
-					console.log 'I3'
+					winston.info 'I3'
 					delete assign.end
 				err, assignment <- Assignment.findOneAndUpdate {
 					'_id': ObjectId req.body.aid
@@ -246,19 +246,19 @@ module.exports = (app)->
 					# don't check for author as me might not be...
 				}, assign
 				if err?
-					console.log 'I4'
+					winston.info 'I4'
 					winston.error 'assignment update', err
 				else
-					console.log 'I5'
+					winston.info 'I5'
 					res.redirect "/#{req.params.course}/assignments/"+ encodeURIComponent req.params.assign
 			| _
 				next!
 		.post (req, res, next)->
-			console.log 'J'
+			winston.info 'J'
 			# handle new assignment
 			switch req.query.action
 			| 'new'
-				console.log 'J1'
+				winston.info 'J1'
 				res.locals.start = new Date(req.body.opendate+" "+req.body.opentime)
 				res.locals.end = new Date(req.body.closedate+" "+req.body.closetime)
 				assign = {
@@ -282,12 +282,12 @@ module.exports = (app)->
 				err, assignment <- assignment.save
 				/* istanbul ignore if */
 				if err?
-					console.error err
+					winston.error err
 					next new Error 'Mongo Error'
 				else
-					res.redirect "/#{req.params.course}/assignments/"+ encodeURIComponent req.params.assign
+					res.status 302 .redirect "/#{req.params.course}/assignments/"+ encodeURIComponent req.body.title
 			| 'grade'
-				console.log 'J2'
+				winston.info 'J2'
 				err, attempt <- Attempt.findOneAndUpdate {
 					'school': app.locals.school
 					'course': ObjectId res.locals.course._id
@@ -295,16 +295,16 @@ module.exports = (app)->
 				}, {
 					'points': req.body.points
 				}
-				console.log attempt
+				winston.info attempt
 				if err?
-					console.error err
+					winston.error err
 					next new Error 'Mongo Error'
 				else
-					res.send 'graded!'
+					res.status 302 .redirect "/#{req.params.course}/assignments/"+ encodeURIComponent(req.params.assign) +"/"+ attempt._id.toString()
 			| _
 				next! # not attempt
 		.delete (req, res, next)->
-			console.log 'K'
+			winston.info 'K'
 			# handle delete assignment (faculty+)
 			switch req.query.action
 			| 'delete'
@@ -313,9 +313,9 @@ module.exports = (app)->
 					'school': app.locals.school
 					'course': ObjectId res.locals.course._id
 				}
-				console.log 'deleted:',attempts
+				winston.info 'deleted:',attempts
 				if err?
-					console.error err
+					winston.error err
 					next new Error 'Mongo Error'
 				else
 					err, assignments <- Assignment.remove {
@@ -323,11 +323,11 @@ module.exports = (app)->
 						'school': app.locals.school
 						'course': ObjectId res.locals.course._id
 					}
-					console.log 'deleted:',assignments
+					winston.info 'deleted:',assignments
 					if err?
-						console.error err
+						winston.error err
 						next new Error 'Mongo Error'
 					else
-						res.redirect "/#{req.params.course}/assignments"
+						res.status 302 .redirect "/#{req.params.course}/assignments"
 			| _
 				next!
