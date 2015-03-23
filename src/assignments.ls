@@ -33,6 +33,7 @@ module.exports = (app)->
 			<- async.parallel [
 				(done)->
 					if req.session.auth is 3
+						winston.info 'B1'
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
@@ -40,9 +41,11 @@ module.exports = (app)->
 						res.locals.course = result
 						done!
 					else
+						winston.info 'B2'
 						done!
 				(done)->
 					if req.session.auth is 2
+						winston.info 'B3'
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
@@ -51,9 +54,11 @@ module.exports = (app)->
 						res.locals.course = result
 						done!
 					else
+						winston.info 'B4'
 						done!
 				(done)->
 					if req.session.auth is 1
+						winston.info 'B5'
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
@@ -62,33 +67,49 @@ module.exports = (app)->
 						res.locals.course = result
 						done!
 					else
+						winston.info 'B6'
 						done!
 			]
-			next!
+			if res.locals.course?
+				winston.info 'B7'
+				next!
+			else
+				winston.info 'B8'
+				next new Error 'UNAUTHORIZED'
 		.all (req, res, next)->
 			winston.info 'C'
 			# do for every request
 			# get assign_id
-			if req.params.assign?
-				winston.info 'C1'
-				# find assignment(s) w/ title
-				err, result <- Assignment.find {
-					school: app.locals.school
-					course: ObjectId res.locals.course._id
-					# optional stuff
-					title: encodeURIComponent req.params.assign
-				} .populate('author').exec
-				res.locals.assignments = result
-				next!
-			else
-				winston.info 'C2'
-				# find all assignments
-				err, result <- Assignment.find {
-					school: app.locals.school
-					course: ObjectId res.locals.course._id
-				} .populate('author').exec
-				res.locals.assignments = result
-				next!
+			<- async.parallel [
+				(done)->
+					if req.params.assign?
+						winston.info 'C1'
+						# find assignment(s) w/ title
+						err, result <- Assignment.find {
+							school: app.locals.school
+							course: ObjectId res.locals.course._id
+							# optional stuff
+							title: encodeURIComponent req.params.assign
+						} .populate('author').exec
+						res.locals.assignments = result
+						done!
+					else
+						done!
+				(done)->
+					if !req.params.assign?
+						winston.info 'C2'
+						# find all assignments
+						err, result <- Assignment.find {
+							school: app.locals.school
+							course: ObjectId res.locals.course._id
+						} .populate('author').exec
+						res.locals.assignments = result
+						done!
+					else
+						done!
+			]
+			winston.info 'C3'
+			next!
 		.all (req, res, next)->
 			winston.info 'D'
 			# split student|faculty
