@@ -25,10 +25,15 @@
 	</div></div>
 	{% endif %}{# success? #}
 	<div class="row">
+		{% if !del %}
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+		{% else %}
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1 clearfix" method="POST" action="?action=deleteall&hmo=DELETE" enctype="multipart/form-data">
+		{% endif %}
 			<div class="pull-left">
 				<h3>{{ course.title }} - Assignments</h3>
 			</div>
+			{% if !del %}
 			{% if 2 <= auth %}
 			<div class="pull-right" style="padding-top: 8px;">
 				<a href="/{{ course.id }}/assignments?action=new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
@@ -36,6 +41,7 @@
 			{% endif %}
 		</div>
 	</div>
+	{% endif %}
 	{% if create %}
 		{# create new assignment #}
 		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="#" enctype="multipart/form-data">
@@ -141,6 +147,13 @@
 		{% endfor %}
 	{% elif del %}
 		{# delete assignment#}
+		{# <div class="row"> #}
+			{# <form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=deleteall&hmo=DELETE" enctype="multipart/form-data"> #}
+				<div class="pull-right" style="padding-top: 8px;">
+					<button type="submit" class="btn btn-default" title="Delete All"><span class="glyphicon glyphicon-trash"></span> Delete All</button>
+				</div>
+			</form>
+		</div>
 		{% for assignment in assignments %}
 		<div class="row">
 			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=delete&hmo=DELETE" enctype="multipart/form-data">
@@ -204,10 +217,10 @@
 								</button>
 								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
 									<li role="presentation">
-										<a role="menuitem" href="/{{ course.id }}/assignments/{{ assignment.title|url_encode }}?action=edit"><span class="glyphicon glyphicon-edit"></span> Edit</a>
+										<a role="menuitem" href="/{{ course.id }}/assignments/{{ assignment.title }}?action=edit"><span class="glyphicon glyphicon-edit"></span> Edit</a>
 									</li>
 									<li role="presentation">
-										<a role="menuitem" href="/{{ course.id }}/assignments/{{ assignment.title|url_encode }}?action=delete"><span class="glyphicon glyphicon-remove"></span> Delete</a>
+										<a role="menuitem" href="/{{ course.id }}/assignments/{{ assignment.title }}?action=delete"><span class="glyphicon glyphicon-remove"></span> Delete</a>
 									</li>
 								</ul>
 							</div>

@@ -329,5 +329,34 @@ module.exports = (app)->
 						next new Error 'Mongo Error'
 					else
 						res.status 302 .redirect "/#{req.params.course}/assignments"
+			| 'deleteall'
+				# pluck only _id off of all assignments
+				plucked = _.pluck res.locals.assignments, '_id'
+				winston.info 'pluck', plucked
+				winston.info 'typeof plucked', typeof plucked.0
+				# convert all assignment._id's to ObjectIds
+				assignments = _.map plucked, ObjectId
+				winston.info 'mapped', assignments
+				err, attempts <- Attempt.remove {
+					'assignment': {$in: assignments}
+					'school': app.locals.school
+					'course': ObjectId res.locals.course._id
+				}
+				winston.info 'deleted:',attempts
+				if err?
+					winston.error err
+					next new Error 'Mongo Error'
+				else
+					err, assignments <- Assignment.remove {
+						'_id': {$in: assignments}
+						'school': app.locals.school
+						'course': ObjectId res.locals.course._id
+					}
+					winston.info 'deleted:',assignments
+					if err?
+						winston.error err
+						next new Error 'Mongo Error'
+					else
+						res.status 302 .redirect "/#{req.params.course}/assignments"
 			| _
 				next!
