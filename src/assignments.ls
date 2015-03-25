@@ -298,7 +298,7 @@ module.exports = (app)->
 						next new Error 'Mongo Error'
 					else
 						# winston.info 'I5'
-						res.redirect "/#{req.params.course}/assignments/"+ encodeURIComponent req.params.assign
+						res.redirect "/#{req.params.course}/assignments/"+ encodeURIComponent req.body.title
 			| _
 				next! # don't assume action
 		.post (req, res, next)->
