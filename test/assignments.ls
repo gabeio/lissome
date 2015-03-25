@@ -208,7 +208,7 @@ describe "Assignments" ->
 					'closedate':'1/1/2000'
 					'closetime':'1:00 PM'
 					'total':'100'
-					'tries':'1'
+					'tries':'100'
 					'late':'yes'
 					'text':'you will fail!'
 				}
@@ -292,6 +292,29 @@ describe "Assignments" ->
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
+		it "should allow a student to submit an attempt on an assignment", (done)->
+			err <- async.waterfall [
+				(cont)->
+					student
+						.post '/test/getaid/cps1234?title=title'
+						.end (err, res)->
+							res.text = JSON.parse res.text
+							attempts = _.reject res.text, {
+								'title':'youHaveNone'
+							}
+							cont err, attempts.0._id
+				(aid, cont)->
+					student
+						.post '/cps1234/assignments/title?action=attempt'
+						.send {
+							'aid':aid
+							'text':'something'
+						}
+						.end (err, res)->
+							expect res.status .to.not.match /^(4|5)/i
+							cont err
+			]
+			done err
 	describe "Outside Student", (...)->
 		before (done)->
 			faculty
@@ -405,6 +428,7 @@ describe "Assignments" ->
 					expect res.status .to.equal 302
 					expect res.header.location .to.equal '/'
 					done err
+		it.skip "should allow a student to submit an attempt on an assignment", (done)->
 	describe "Crash Checks", (...)->
 		it "should not crash when creating/editing an assignment without opendate", (done)->
 			faculty
@@ -572,7 +596,63 @@ describe "Assignments" ->
 					expect res.header.location .to.not.match /^\/cps1234\/assignments\//i
 					done err
 	describe "Other Functions", (...)->
+		before (done)->
+			# for attempts > allowed
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'title':'youHaveNone'
+					'opentime':'1:00 AM'
+					'closedate':'1/1/2000'
+					'closetime':'1:00 PM'
+					'total':'100'
+					'tries':'0'
+					'late':'yes'
+					'text':'you will fail!'
+				}
+				.end (err, res)->
+					expect res.status .to.not.match /^(4|5)/i
+					done err
 		it.skip "should not allow late submissions if not allowed", (done)->
 		it.skip "should allow late submissions if allowed", (done)->
-		it.skip "should not allow more attempts than given", (done)->
+		it "should not allow more attempts than given", (done)->
+			err <- async.waterfall [
+				(cont)->
+					student
+						.get '/logout'
+						.end (err, res)->
+							cont err
+				(cont)->
+					student
+						.post '/login'
+						.send {
+							'username': 'student'
+							'password': 'password'
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							cont err
+				(cont)->
+					student
+						.post '/test/getaid/cps1234?title=youHaveNone'
+						.end (err, res)->
+							res.text = JSON.parse res.text
+							attempts = _.filter res.text, {
+								'title':'youHaveNone'
+							}
+							cont err, attempts.0._id
+				(aid, cont)->
+					student
+						.post '/cps1234/assignments/youHaveNone?action=attempt'
+						.send {
+							'aid':aid
+							'text':'something'
+						}
+						.end (err, res)->
+							console.log res.header
+							expect res.status .to.equal 400
+							expect res.text .to.have.string 'You have no more attempts.'
+							done err
+			]
+			done err
 	describe "Grade Book", (...)->
