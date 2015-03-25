@@ -7,7 +7,7 @@
 {% block body %}
 	<div class="container-fluid">
 	{% include 'navbar.html' %}
-	{% if success == 'yes' || success == 'no' %}
+	{% if success == 'yes' || success == 'no' || success == 'error' %}
 	<div class="row"><div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 	{% if success == 'yes' %}
 	<div class="form-group">
@@ -19,6 +19,12 @@
 	<div class="form-group">
 		<div class="alert alert-danger" role="alert">
 			Assignment <strong>not</strong> {{ action }} successfully. Missing <strong>required</strong> field.
+		</div>
+	</div>
+	{% elif success == 'error' %}
+	<div class="form-group">
+		<div class="alert alert-danger" role="alert">
+			{{ error }}
 		</div>
 	</div>
 	{% endif %}{# success:yes?no #}
