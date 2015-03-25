@@ -107,21 +107,6 @@ module.exports = (app)->
 						done!
 					else
 						done!
-			]
-			# winston.info 'C3'
-			next!
-		.all (req, res, next)->
-			# winston.info 'D'
-			# split student|faculty
-			# pluck only _id off of all assignments
-			# plucked = _.pluck res.locals.assignments, '_id'
-			# winston.info 'pluck', plucked
-			# winston.info 'typeof plucked', typeof plucked.0
-			# convert all assignment._id's to ObjectIds
-			# assignments = _.map plucked, ObjectId
-			# winston.info 'mapped', assignments
-			# get attempt_id
-			<- async.parallel [
 				(done)->
 					# faculty+
 					if req.session.auth >= 2
@@ -190,19 +175,17 @@ module.exports = (app)->
 			# winston.info 'query::action',req.query.action
 			async.parallel [
 				(done)->
-					if !req.query.action?
-						if !req.params.assign?
-							# show list of assignments by title
-							res.render 'assignments'
+					if !req.query.action? && !req.params.assign?
+						# show list of assignments by title
+						res.render 'assignments'
 				(done)->
-					if !req.query.action?
-						if req.params.assign?
-							if req.params.attempt?
-								# show attempt
-								res.render 'assignments', {+attempt}
-							else
-								# show assignment details & attempt field
-								res.render 'assignments', {+view}
+					if !req.query.action? && req.params.assign?
+						if req.params.attempt?
+							# show attempt
+							res.render 'assignments', {+attempt}
+						else
+							# show assignment details & attempt field
+							res.render 'assignments', {+view}
 				(done)->
 					if req.query.action?
 						next! # don't assume action, continue trying
