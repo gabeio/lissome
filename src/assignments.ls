@@ -235,7 +235,7 @@ module.exports = (app)->
 						else
 							res.redirect "/#{req.params.course}/assignments/"+encodeURIComponent req.params.assign
 					else
-						res.render 'assignments', {+view, success:'error', error:'You have no more attempts.'}
+						res.status 400 .render 'assignments', {+view, success:'error', error:'You have no more attempts.'}
 				else
 					res.redirect "/#{req.params.course}/assignments/"+encodeURIComponent req.params.assign
 			else
