@@ -217,8 +217,6 @@ module.exports = (app)->
 						if _.isEqual attempt.assignment._id.toString!, req.body.aid
 							if _.isEqual attempt.author._id.toString!, req.session.uid
 								attempts.push attempt
-					console.log res.locals.assignments.0.tries
-					console.log attempts.length
 					if res.locals.assignments.0.tries > attempts.length
 						attempt = new Attempt {
 							assignment: req.body.aid
