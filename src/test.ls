@@ -41,9 +41,8 @@ module.exports = (app)->
 					winston.error 'test:course:findOne:blog', err
 					next new Error 'INTERNAL'
 				else
-					res.locals.course = result
 					err, result <- Assignment.find {
-						'course': ObjectId(res.locals.course._id)
+						'course': ObjectId(result._id)
 						'title': req.query.title
 					}
 					if err
