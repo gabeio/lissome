@@ -211,20 +211,33 @@ module.exports = (app)->
 			# winston.info 'F'
 			# handle new attempt
 			if req.params.assign? && req.query.action is 'attempt'
-				attempt = new Attempt {
-					assignment: req.body.aid
-					course: res.locals.course._id
-					text: req.body.text
-					school: app.locals.school
-					author: ObjectId req.session.uid
-				}
-				err, attempt <- attempt.save
-				/* istanbul ignore if */
-				if err?
-					winston.error err
-					next new Error 'Mongo Error'
+				if req.body.text? && req.body.text isnt ""
+					attempts = []
+					for attempt in res.locals.attempts
+						if _.isEqual attempt.assignment._id.toString!, req.body.aid
+							if _.isEqual attempt.author._id.toString!, req.session.uid
+								attempts.push attempt
+					console.log res.locals.assignments.0.tries
+					console.log attempts.length
+					if res.locals.assignments.0.tries > attempts.length
+						attempt = new Attempt {
+							assignment: req.body.aid
+							course: res.locals.course._id
+							text: req.body.text
+							school: app.locals.school
+							author: ObjectId req.session.uid
+						}
+						err, attempt <- attempt.save
+						/* istanbul ignore if */
+						if err?
+							winston.error err
+							next new Error 'Mongo Error'
+						else
+							res.redirect "/#{req.params.course}/assignments/"+encodeURIComponent req.params.assign
+					else
+						res.render 'assignments', {+view, success:'error', error:'You have no more attempts.'}
 				else
-					res.redirect "/#{req.params.course}/assignments/"+ encodeURIComponent req.params.assign
+					res.redirect "/#{req.params.course}/assignments/"+encodeURIComponent req.params.assign
 			else
 				next! # not attempt
 		.all (req, res, next)->
