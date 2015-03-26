@@ -81,6 +81,7 @@ module.exports = (mongoose)->
 		points: Number
 		letterGrade: String
 		grader: { type: Schema.Types.ObjectId, ref: 'User' } # teacher who submitted graded it
+		late: { type: Boolean, default: false }
 	}
 	Attempt.index { timestamp: 1, assignment: -1 }
 	# Blog/Conference Schemas
