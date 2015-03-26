@@ -195,28 +195,39 @@ module.exports = (app)->
 			# handle new attempt
 			if req.params.assign? && req.query.action is 'attempt'
 				if req.body.text? && req.body.text isnt ""
-					attempts = []
-					for attempt in res.locals.attempts
-						if _.isEqual attempt.assignment._id.toString!, req.body.aid
-							if _.isEqual attempt.author._id.toString!, req.session.uid
-								attempts.push attempt
-					if res.locals.assignments.0.tries > attempts.length
-						attempt = new Attempt {
-							assignment: req.body.aid
-							course: res.locals.course._id
-							text: req.body.text
-							school: app.locals.school
-							author: ObjectId req.session.uid
-						}
-						err, attempt <- attempt.save
-						/* istanbul ignore if */
-						if err?
-							winston.error err
-							next new Error 'Mongo Error'
+					# date now gt start && date now lt end
+					if (new Date Date.now!) > res.locals.assignments.0.start and
+					( !res.locals.assignments.0.end? or # allows submissions if end isn't set (not late)
+						( (new Date Date.now!) < res.locals.assignments.0.end or res.locals.assignments.0.allowLate ) )
+						attempts = []
+						# from my attempts figure out how many are for this assignment
+						for attempt in res.locals.attempts
+							if _.isEqual attempt.assignment._id.toString!, req.body.aid
+								if _.isEqual attempt.author._id.toString!, req.session.uid
+									attempts.push attempt
+						# only if my attempts are less than assignment tries create the new attempt
+						if res.locals.assignments.0.tries > attempts.length
+							theAttempt = {
+								assignment: ObjectId req.body.aid
+								course: res.locals.course._id
+								text: req.body.text
+								school: app.locals.school
+								author: ObjectId req.session.uid
+							}
+							if res.locals.assignments.0 and (new Date Date.now!) > res.locals.assignments.0.end
+								theAttempt.late = true
+							attempt = new Attempt theAttempt
+							err, attempt <- attempt.save
+							/* istanbul ignore if */
+							if err?
+								winston.error err
+								next new Error 'Mongo Error'
+							else
+								res.redirect "/#{req.params.course}/assignments/"+encodeURIComponent req.params.assign
 						else
-							res.redirect "/#{req.params.course}/assignments/"+encodeURIComponent req.params.assign
+							res.status 400 .render 'assignments', {+view, success:'error', error:'You have no more attempts.'}
 					else
-						res.status 400 .render 'assignments', {+view, success:'error', error:'You have no more attempts.'}
+						res.status 400 .render 'assignments', {+view, success:'error', error:'Allowed assignment submission time has closed/not opened.' }
 				else
 					res.redirect "/#{req.params.course}/assignments/"+encodeURIComponent req.params.assign
 			else
@@ -264,10 +275,12 @@ module.exports = (app)->
 					if !moment(res.locals.start).isValid!
 						# winston.info 'I2'
 						delete assign.start
-					if !moment(res.locals.end).isValid!
+					if !req.body.closedate?
+						assign.end = ''
+					else if !moment(res.locals.end).isValid!
 						# winston.info 'I3'
 						delete assign.end
-					err, assignment <- Assignment.findOneAndUpdate {
+					Assignment.update {
 						'_id': ObjectId req.body.aid
 						'school': app.locals.school
 						'course': ObjectId res.locals.course._id
