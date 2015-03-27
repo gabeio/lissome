@@ -1,0 +1,77 @@
+{% extends '../base.html' %}
+
+{% block head %}
+		<title>Blog - {{ course.title }} - {{ school }}</title>
+{% endblock %}
+
+{% block body %}
+	<div class="container-fluid">
+		{% include '../navbar.html' %}
+		{% if success %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				{% if success == 'yes' or success == 'true' %}
+				<div class="alert alert-success" role="alert">
+					Blog post <strong>{{ action }}</strong> successfully.
+				</div>
+				{% elif success == 'no' or success == 'false' %}
+				<div class="alert alert-danger" role="alert">
+					Blog post <strong>not</strong> {{ action }} successfully. Missing required field.
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		{% endif %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>{{ course.title }} - Blog</h3>
+				</div>
+				<form action="?action=search" class="form-inline pull-right" style="padding-top: 8px;">
+					<div class="input-group">
+						<div class="input-group">
+							<input type="text" class="form-control" id="search" name="search" placeholder="Search" class="form-control" />
+							<span class="input-group-btn">
+								<button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search"></span></button>
+							</span>
+						</div>
+					</div>
+					{% if 2 <= auth %}
+					<a href="/{{ course.id }}/blog?action=new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Post</a>
+					{% endif %}
+				</form>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				{% for post in blog %}
+				<div class="panel panel-default">
+					<div class="panel-heading clearfix">
+						<h2 class="panel-title pull-left"{% if 2 <= auth %} style="padding-top: 10px;"{% endif %}>{{ post.title|url_decode }}</h2>
+						{% if 2 <= auth %}
+						<div class="pull-right">
+							<div class="dropdown">
+								<button class="btn btn-default dropdown-toggle" type="button" id="blogPostMenu" data-toggle="dropdown" aria-expanded="true">
+									<span class="glyphicon glyphicon-cog"></span>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
+									<li role="presentation">
+										<a role="menuitem" href="/{{ course.id }}/blog/{{ post.title|url_encode }}?action=edit"><span class="glyphicon glyphicon-edit"></span> Edit</a>
+									</li>
+									<li role="presentation">
+										<a role="menuitem" href="/{{ course.id }}/blog/{{ post.title|url_encode }}?action=delete"><span class="glyphicon glyphicon-remove"></span> Delete</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+						{% endif %}
+					</div>
+					<div class="panel-body">{{ post.text|markdown|safe }}</div>
+					<div class="panel-footer"><span title="{{ post.author.username }}">{{ post.author.firstName }} {{ post.author.lastName }}</span><span class="pull-right" title="{{ post.timestamp|timezone }}">{{ post.timestamp|fromNow }}</span></div>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+	<script src="/assets/custom/smrtboard.js"></script>
+{% endblock %}

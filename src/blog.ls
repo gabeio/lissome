@@ -88,20 +88,20 @@ module.exports = (app)->
 			res.locals.blog = true
 			switch req.query.action
 			| 'new'
-				res.render 'blog', { +create, on:'newblog', success:req.query.success, action:'created' }
+				res.render 'blog/create', { on:'newblog', success:req.query.success, action:'created' }
 			| 'edit'
-				res.render 'blog', { +edit, on:'editblog', success:req.query.success, action:'updated' }
+				res.render 'blog/edit', { on:'editblog', success:req.query.success, action:'updated' }
 			| 'delete'
-				res.render 'blog', { +del, on:'deleteblog', success:req.query.success, action:'deleted' }
+				res.render 'blog/del', { on:'deleteblog', success:req.query.success, action:'deleted' }
 		.post (req, res, next)->
 			/* istanbul ignore else */
 			if req.query.action is 'new'
 				async.parallel [
 					->
 						if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
-							res.render 'blog', { +create, 'blog':true, 'on':'newblog', success:'yes', action:'created' } # return
+							res.render 'blog/create', { 'blog':true, 'on':'newblog', success:'yes', action:'created' } # return
 						else
-							res.status 400 .render 'blog', { +create, 'blog':true, 'on':'newblog', success:'no', action:'created', body: req.body}
+							res.status 400 .render 'blog/create', { 'blog':true, 'on':'newblog', success:'no', action:'created', body: req.body }
 					->
 						if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 							post = new Post {
@@ -131,7 +131,7 @@ module.exports = (app)->
 						if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 							res.redirect "/#{res.locals.course.id}/blog/#{req.params.unique}?action=edit&success=yes"
 						else
-							res.status 400 .render 'blog', { +create, blog:true, on:'editblog', success:'no', action:'updated', body: req.body}
+							res.status 400 .render 'blog/create', { blog:true, on:'editblog', success:'no', action:'updated', body: req.body}
 					->
 						if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 							err, post <- Post.findOneAndUpdate {
@@ -308,11 +308,11 @@ module.exports = (app)->
 				posts = _.flatten _.without(posts,undefined), true
 				posts = if posts.length > 0 then _.uniq _.sortBy(posts, 'timestamp').reverse!,(input)->
 					return input.timestamp.toString!
-				res.render 'blog', blog: posts
+				res.render 'blog/default', blog: posts
 			else
 				err, posts <- Post.find {
 					'course': ObjectId res.locals.course._id
 					'type':'blog'
 				} .populate('author').exec
 				res.locals.blog = _.sortBy posts, 'timestamp' .reverse!
-				res.render 'blog'
+				res.render 'blog/default'
