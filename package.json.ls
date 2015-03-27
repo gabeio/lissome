@@ -31,7 +31,7 @@ dependencies:
 	"express-partial-response": '~0.3.4'
 	"express-session": '~1.10.3'
 	"fs-extra": '~0.16.3'
-	"helmet": '~0.6.1'
+	"helmet": '~0.7.1'
 	"hiredis": '~0.2.0'
 	"LiveScript": '~1.3.1'
 	"lodash": '~3.5.0'
