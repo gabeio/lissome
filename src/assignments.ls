@@ -280,7 +280,7 @@ module.exports = (app)->
 					else if !moment(res.locals.end).isValid!
 						# winston.info 'I3'
 						delete assign.end
-					Assignment.update {
+					err,assign <- Assignment.findOneAndUpdate {
 						'_id': ObjectId req.body.aid
 						'school': app.locals.school
 						'course': ObjectId res.locals.course._id
