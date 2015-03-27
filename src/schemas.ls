@@ -88,7 +88,7 @@ module.exports = (mongoose)->
 	Thread = new Schema {
 		# AUTOCREATED
 		# _id
-		author: { type: Schema.Types.ObjectId, ref: 'User' }
+		author: { type: Schema.Types.ObjectId, +required, ref: 'User' }
 		timestamp: { type: Date, default: Date.now }
 		school: { type: String, +required, ref: 'School' }
 		course: { type: Schema.Types.ObjectId, +required, ref: 'Course' }
