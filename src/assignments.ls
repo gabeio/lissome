@@ -214,7 +214,7 @@ module.exports = (app)->
 								school: app.locals.school
 								author: ObjectId req.session.uid
 							}
-							if res.locals.assignments.0 and (new Date Date.now!) > res.locals.assignments.0.end
+							if res.locals.assignments.0.end? and (new Date Date.now!) > res.locals.assignments.0.end
 								theAttempt.late = true
 							attempt = new Attempt theAttempt
 							err, attempt <- attempt.save
