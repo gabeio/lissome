@@ -2,7 +2,6 @@ require! {
 	'async'
 	'bcrypt'
 	'mongoose'
-	'uuid'
 }
 schemas = require('./schemas')(mongoose)
 School = mongoose.model 'School' schemas.School
@@ -203,7 +202,6 @@ async.series [
 				done!
 			else
 				course1 := new Course {
-					# uuid: uuid.v4!
 					id: "cps1234"
 					title: "Intro to Java"
 					# conference: [] # Thread
@@ -239,7 +237,6 @@ async.series [
 				done!
 			else
 				course2 := new Course {
-					# uuid: uuid.v4!
 					id: "ge1000"
 					title: "Transition to Kean"
 					# conference: [] # Thread
@@ -275,7 +272,6 @@ async.series [
 				done!
 			else
 				course3 := new Course {
-					# uuid: uuid.v4!
 					id: "cps4601"
 					title: "Human Computer Interaction"
 					# conference: [] # Thread

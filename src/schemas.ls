@@ -51,7 +51,7 @@ module.exports = (mongoose)->
 	# Course internal Schemas
 	Assignment = new Schema {
 		# AUTOCREATED
-		author: { type: Schema.Types.ObjectId, ref: 'User' }
+		author: { type: Schema.Types.ObjectId, +required, ref: 'User' }
 		timestamp: { type: Date, default: Date.now } # created
 		# REQUIRED
 		course: { type: Schema.Types.ObjectId, +required, ref: 'Course' }
@@ -63,40 +63,27 @@ module.exports = (mongoose)->
 		totalPoints: Number
 		school: { type: String, +required, ref: 'School' }
 		# OPTIONAL
-		body: String # Require's text
+		text: String # Require's text
 		files: Buffer # Require's file(s)?
 	}
 	Assignment.index { timestamp: 1, course: -1 }
 	Attempt = new Schema {
 		# AUTOCREATED
-		author: { type: Schema.Types.ObjectId, ref: 'User' } # student who submitted it
+		author: { type: Schema.Types.ObjectId, +required, ref: 'User' } # student who submitted it
 		timestamp: { type: Date, default: Date.now } # submission time
 		# REQUIRED
+		attempt: Number
 		assignment: { type: Schema.Types.ObjectId, +required, ref: 'Assignment' }
+		course: { type: Schema.Types.ObjectId, +required, ref: 'Course' }
 		text: String # student attempt text
 		files: Buffer # student attempt file(s)?
 		school: { type: String, +required, ref: 'School' }
 		points: Number
+		letterGrade: String
 		grader: { type: Schema.Types.ObjectId, ref: 'User' } # teacher who submitted graded it
+		late: { type: Boolean, default: false }
 	}
 	Attempt.index { timestamp: 1, assignment: -1 }
-	# Grade = new Schema {
-	# 	# AUTOCREATED
-	# 	# _id
-	# 	author: { type: Schema.Types.ObjectId, ref: 'User' }
-	# 	timestamp: { type: Date, default: Date.now }
-	# 	# REQUIRED
-	# 	assignment: { type: Schema.Types.ObjectId, ref: 'Assignment' }
-	# 	attempt: { type: Schema.Types.ObjectId, ref: 'Attempt' }
-	# 	school: { type: String, +required, ref: 'School' }
-	# 	try: { type: Number, +required } # attempt index
-	# 	type: { type: String, +required } # attempt/final
-	# 	# OPTIONAL
-	# 	points: Number # earned points
-	# 	total: Number # total points
-	# 	id: Number # exam/assign index
-	# }
-	# Grade.index { timestamp: 1, attempt: -1, assignment: 1 }
 	# Blog/Conference Schemas
 	Thread = new Schema {
 		# AUTOCREATED
@@ -135,7 +122,6 @@ module.exports = (mongoose)->
 		Course: Course
 		Assignment: Assignment
 		Attempt: Attempt
-		# Grade: Grade
 		Thread: Thread
 		Post: Post
 	}

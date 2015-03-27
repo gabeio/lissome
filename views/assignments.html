@@ -6,39 +6,281 @@
 
 {% block body %}
 	<div class="container-fluid">
-		{% include 'navbar.html' %}
+	{% include 'navbar.html' %}
+	{% if success == 'yes' || success == 'no' || success == 'error' %}
+	<div class="row"><div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+	{% if success == 'yes' %}
+	<div class="form-group">
+		<div class="alert alert-success" role="alert">
+			Assignment <strong>{{ action }}</strong> successfully.
+		</div>
+	</div>
+	{% elif success == 'no' %}
+	<div class="form-group">
+		<div class="alert alert-danger" role="alert">
+			Assignment <strong>not</strong> {{ action }} successfully. Missing <strong>required</strong> field.
+		</div>
+	</div>
+	{% elif success == 'error' %}
+	<div class="form-group">
+		<div class="alert alert-danger" role="alert">
+			{{ error }}
+		</div>
+	</div>
+	{% endif %}{# success:yes?no #}
+	</div></div>
+	{% endif %}{# success? #}
+	<div class="row">
+		{% if !del %}
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+		{% else %}
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1 clearfix" method="POST" action="?action=deleteall&hmo=DELETE" enctype="multipart/form-data">
+		{% endif %}
+			<div class="pull-left">
+				<h3>{{ course.title }} - Assignments</h3>
+			</div>
+			{% if !del %}
+			{% if 2 <= auth %}
+			<div class="pull-right" style="padding-top: 8px;">
+				<a href="/{{ course.id }}/assignments?action=new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
+			</div>
+			{% endif %}
+		</div>
+	</div>
+	{% endif %}
+	{% if create %}
+		{# create new assignment #}
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=new" enctype="multipart/form-data">
+			<div class="form-group">
+				<label for="formTitle">Title</label>
+				<input type="text" class="form-control" id="formTitle" name="title" value="{{ body.title }}" autofocus />
+			</div>
+			<div class="form-group">
+				<label for="formOpendate" title="the date &amp; time at which the assignment is able to be view/submitted after.">Opens on</label>
+				<input type="date" class="form-control" id="formOpendate" name="opendate" value="{% if body %}{{ body.opendate }}{% else %}{{ Date.now()|format('YYYY-MM-D') }}{% endif %}" />
+				<input type="time" class="form-control" id="formOpentime" name="opentime" value="{% if body %}{{ body.opentime }}{% else %}{{ Date.now()|format('HH:mm') }}{% endif %}" />
+			</div>
+			<div class="form-group">
+				<label for="formClose" title="the date &amp; time at which the assignment is then after marked late.">Closes on</label>
+				<input type="date" class="form-control" id="formClosedate" name="closedate" value="{{ body.closedate }}" />
+				<input type="time" class="form-control" id="formClosetime" name="closetime" value="{{ body.closetime }}" />
+			</div>
+			<div class="form-group">
+				<label for="formTotal" title="the total possible points without extra credit (don't include extra credit)">Total Points Possible</label>
+				<input type="number" class="form-control" id="formTotal" name="total" value="{{ body.total }}" />
+			</div>
+			<div class="form-group">
+				<label for="formTries" title="allow students to submit assignments this many times (set to zero to give grade for already completed assignment)">Allowed Tries</label>
+				<input type="number" class="form-control" id="formTries" name="tries" value="{% if body %}{{ body.tries }}{% else %}1{% endif %}" />
+			</div>
+			<div class="form-group">
+				<label for="formLate">Allow Late Submissions</label>
+				<div class="radio">
+					<label>
+						<input type="radio" name="late" id="formLate" value="yes" {% if body and body.late == true %}checked{% endif %}>Yes <small>(allow students to submit assignments after close date)</small>
+					</label>
+				</div>
+				<div class="radio">
+					<label>
+						<input type="radio" name="late" id="formLate" value="no" {% if body and body.late == false %}checked{% elif !body %}checked{% endif %}>No <small>(do <strong>NOT</strong> allow students to submit assignments after close date)</small>
+					</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="formBody">Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
+				<textarea class="form-control" id="formBody" name="text" rows="7">{{ body.text }}</textarea>
+			</div>
+			{#<div class="form-group">
+				<label for="formUpload">Files</label>
+				<input type="file" id="formUpload" name="files" />
+			</div>#}
+			<div class="form-group">
+				<button type="submit" class="btn btn-default">Submit</button>
+			</div>
+		</form>
+	{% elif edit %}
+		{# edit assignment #}
+		{% for assignment in assignments %}
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?hmo=put&action=edit" enctype="multipart/form-data">
+			<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />
+			<div class="form-group">
+				<label for="formTitle">Title</label>
+				<input type="text" class="form-control" id="formTitle" name="title" value="{% if body %}{{ body.title }}{% else %}{{ assignment.title|url_decode }}{% endif %}" autofocus />
+			</div>
+			<div class="form-group">
+				<label for="formOpendate">Opens on</label>
+				<input type="date" class="form-control" id="formOpendate" name="opendate" value="{% if body %}{{ body.opendate }}{% else %}{{ assignment.start|format('YYYY-MM-DD') }}{% endif %}" />
+				<input type="time" class="form-control" id="formOpentime" name="opentime" value="{% if body %}{{ body.opentime }}{% else %}{{ assignment.start|format('HH:mm') }}{% endif %}" />
+			</div>
+			<div class="form-group">
+				<label for="formClose" title="the date &amp; time at which the assignment is then after marked late">Closes on</label>
+				<input type="date" class="form-control" id="formClose" name="closedate" value="{% if body %}{{ body.closedate }}{% else %}{{ assignment.end|format('YYYY-MM-DD') }}{% endif %}" />
+				<input type="time" class="form-control" id="formOpentime" name="closetime" value="{% if body %}{{ body.closetime }}{% else %}{{ assignment.end|format('HH:mm') }}{% endif %}" />
+			</div>
+			<div class="form-group">
+				<label for="formTotal" title="the total possible points without extra credit (don't include extra credit)">Total Points Possible</label>
+				<input type="number" class="form-control" id="formTotal" name="total" value="{% if body %}{{ body.total }}{% else %}{{ assignment.totalPoints }}{% endif %}" />
+			</div>
+			<div class="form-group">
+				<label for="formTries" title="allow students to submit assignments this many times (set to zero to give grade for already completed assignment)">Allowed Tries</label>
+				<input type="number" class="form-control" id="formTries" name="tries" value="{% if body %}{{ body.tries }}{% else %}{{ assignment.tries }}{% endif %}" />
+			</div>
+			<div class="form-group">
+				<label for="formLate">Allow Late Submittions</label>
+				<div class="radio">
+					<label>
+						<input type="radio" name="late" id="formLate" value="yes" {% if body %}{% if body.late == 'yes' %}checked{% endif %}{% else %}{% if assignment.allowLate == true %}checked{% endif %}{% endif %}>Yes <small>(allow students to submit assignments after close date)</small>
+					</label>
+				</div>
+				<div class="radio">
+					<label>
+						<input type="radio" name="late" id="formLate" value="no" {% if body %}{% if body.late == 'no' %}checked{% endif %}{% else %}{% if assignment.allowLate == false %}checked{% endif %}{% endif %}>No <small>(do <strong>NOT</strong> allow students to submit assignments after close date)</small>
+					</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="formBody">Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
+				<textarea class="form-control" id="formBody" name="text" rows="7">{{ assignment.text }}</textarea>
+			</div>
+			{#<div class="form-group">
+				<label for="formUpload">Files</label>
+				<input type="file" id="formUpload" name="files" />
+			</div>#}
+			<div class="form-group">
+				<button type="submit" class="btn btn-default">Submit</button>
+			</div>
+		</form>
+		{% endfor %}
+	{% elif del %}
+		{# delete assignment#}
+		{# <div class="row"> #}
+			{# <form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=deleteall&hmo=DELETE" enctype="multipart/form-data"> #}
+				<div class="pull-right" style="padding-top: 8px;">
+					<button type="submit" class="btn btn-default" title="Delete All"><span class="glyphicon glyphicon-trash"></span> Delete All</button>
+				</div>
+			</form>
+		</div>
+		{% for assignment in assignments %}
+		<div class="row">
+			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=delete&hmo=DELETE" enctype="multipart/form-data">
+				<div class="panel panel-default">
+					<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />
+					<div class="panel-heading clearfix">
+						<h2 class="panel-title pull-left" style="padding-top: 10px;">{{ assignment.title|url_decode }}</h2>
+						<div class="pull-right">
+							<div class="btn-group">
+								<button type="submit" class="btn btn-danger">Delete</button>
+								<a href="/{{ course.id }}/blog" class="btn btn-default">No!</a>
+							</div>
+						</div>
+					</div>
+					<div class="panel-body">{{ assignment.text|markdown|safe }}</div>
+					<div class="panel-footer"><span title="{{ assignment.author.username }}">{{ assignment.author.firstName }} {{ assignment.author.lastName}}</span><span class="pull-right" title="{{ assignment.timestamp|timezone }}">{{ assignment.timestamp|fromNow }}</span></div>
+				</div>
+			</form>
+		</div>
+		{% endfor %}
+	{% elif attempt %}
+		{# list attempts w/ assignment #}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<{% if 2 <= auth %}form{% else %}div{% endif %} class="panel panel-default" {% if 2 <= auth %}action="/{{ course.id }}/assignments/{{ attempts.assignment.title }}/{{ attempts._id|toString }}?action=grade"{% endif %} method="POST" enctype="multipart/form-data">
+					<input type="hidden" name="aid" value="{{ attempts._id|toString }}" />
+					<div class="panel-heading clearfix">
+						<h3 class="panel-title pull-left">{{ attempts.assignment.title|url_decode }}</h3>
+						<div class="pull-right">{{ attempts.points }}/{{ attempts.assignment.totalPoints }}</div>
+					</div>
+					<div class="panel-body">{{ attempts.text|markdown|safe }}
+					{% if 2 <= auth %}<br />
+						<div class="form-group">
+							<label for="formBody">Points
+								<input type="text" class="form-control" id="formBody" name="points" rows="7" autofocus>
+							</label>
+						</div>
+						<div class="form-group">
+							<button type="submit" class="btn btn-default">Grade</button>
+						</div>
+					{% endif %}
+					</div>
+					<div class="panel-footer"><span title="{{ attempts.author.username }}">{{ attempts.author.firstName }} {{ attempts.author.lastName }}</span>
+					<span class="pull-right" title="{{ attempts.timestamp|timezone }}">{{ attempts.timestamp|fromNow }}</span></div>
+				</div>
+			</div>
+		</div>
+	{% elif view %}
+		{# view assignment(s) w/ attempts #}
+		{% for assignment in assignments %}{# incase multiple assignments are named the same thing #}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<form class="panel panel-default" action="/{{ course.id }}/assignments/{{ assignment.title }}?action=attempt" method="POST" enctype="multipart/form-data">
+					{# embed assignment_id in form (incase there are multiple assignments don't modify/attempt the wrong one.) #}
+					<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />
+					<div class="panel-heading clearfix">
+						<h3 class="panel-title pull-left"{% if 2 <= auth %} style="padding-top: 10px;"{% endif %}>{{ assignment.title|url_decode }}</h3>
+						{% if 2 <= auth %}
+						<div class="pull-right">
+							<div class="dropdown">
+								<button class="btn btn-default dropdown-toggle" type="button" id="blogPostMenu" data-toggle="dropdown" aria-expanded="true">
+									<span class="glyphicon glyphicon-cog"></span>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
+									<li role="presentation">
+										<a role="menuitem" href="/{{ course.id }}/assignments/{{ assignment.title }}?action=edit"><span class="glyphicon glyphicon-edit"></span> Edit</a>
+									</li>
+									<li role="presentation">
+										<a role="menuitem" href="/{{ course.id }}/assignments/{{ assignment.title }}?action=delete"><span class="glyphicon glyphicon-remove"></span> Delete</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+						{% endif %}
+					</div>
+					<div class="panel-body">{{ assignment.text|markdown|safe }}<br />
+						<div class="form-group">
+							<label for="formBody">Assignment Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
+							<textarea class="form-control" id="formBody" name="text" rows="7" autofocus>{{ body.text }}</textarea>
+						</div>
+						<div class="form-group">
+							<button type="submit" class="btn btn-default">Submit Assignment</button>
+						</div>
+					</div>
+					<div class="panel-footer"><span title="{{ assignment.author.username }}">{{ assignment.author.firstName }} {{ assignment.author.lastName }}</span>
+					<span class="pull-right" title="{{ assignment.timestamp|timezone }}">{{ assignment.timestamp|fromNow }}</span></div>
+				</form>
+			</div>
+		</div>
+		{% if attempts.length > 0 %}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<div class="pull-left">
-					<h3>{{ course.title }} - Assignments</h3>
+					<h3>Attempts</h3>
 				</div>
-				{% if 2 <= auth %}
-				<div class="pull-right" style="padding-top: 8px;">
-					<a href="/{{ course.id }}/assignments/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span></a>
-				</div>
-				{% endif %}
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<ul class="list-group">
-				{% for thread in threads %}
-					<a class="list-group-item" href="/{{ thread._id }}">{{ thread.title }}</a>
+				{% for attempt in attempts %}
+				{% if attempt.assignment._id|toString == assignment._id|toString %}
+					<a class="list-group-item" href="/{{ course.id }}/assignments/{{ attempt.assignment.title }}/{{ attempt._id|toString }}">{{ attempt.author.firstName }} {{ attempt.author.lastName }} {% if attempt.late == true %}<span class="pull-right label label-danger">Late</span>{% endif %} {% if attempt.points %}<span class="pull-right label label-default">{{ attempt.points }}</span>{% endif %}</a>
+				{% endif %}
 				{% endfor %}
 				</ul>
-				{% for post in posts %}
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<h3 class="panel-title">{{ post.title }}</h3>
-					</div>
-					<div class="panel-body">{{ entry.text|markdown|safe }}</div>
-					<div class="panel-footer">
-						<span class="pull-left" alt="{{ entry.authorUsername }}">{{ entry.authorName }}</span>
-						<span class="pull-right">{{ entry.timestamp|date('F jS h:m a') }}</span>
-					</div>
-				</div>
-				{% endfor %}
 			</div>
 		</div>
+		{% endif %}
+		{% endfor %}
+	{% else %}
+		{# list assignments #}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ul class="list-group">
+				{% for assignment in assignments %}
+					<a class="list-group-item" href="/{{ course.id }}/assignments/{{ assignment.title }}">{{ assignment.title|url_decode }}</a>
+				{% endfor %}
+				</ul>
+			</div>
+		</div>
+	{% endif %}
 	</div>
 {% endblock %}

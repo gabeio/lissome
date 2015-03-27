@@ -277,7 +277,7 @@ describe "Core" ->
 									cont err
 					]
 					done err
-		it "should fail for a blank student", (done)->
+		it "should fail for a blank user", (done)->
 			student
 				.post '/login'
 				.send {
@@ -288,27 +288,35 @@ describe "Core" ->
 					expect res.text .to.have.string 'bad login credentials'
 					expect res.headers.location .to.be.an 'undefined'
 					done err
-		it "should fail for a blank faculty", (done)->
+		it "should fail for a good student username bad password", (done)->
+			student
+				.post '/login'
+				.send {
+					'username': 'Student'
+					'password': 'badpassword'
+				}
+				.end (err, res)->
+					expect res.text .to.have.string 'bad login credentials'
+					done err
+		it "should fail for a good faculty username bad password", (done)->
 			faculty
 				.post '/login'
 				.send {
-					'username': 'faculty'
-					'password': ''
+					'username': 'Faculty'
+					'password': 'badpassword'
 				}
 				.end (err, res)->
 					expect res.text .to.have.string 'bad login credentials'
-					expect res.headers.location .to.be.an 'undefined'
 					done err
-		it "should fail for a blank admin", (done)->
+		it "should fail for a good admin username bad password", (done)->
 			admin
 				.post '/login'
 				.send {
-					'username': 'admin'
-					'password': ''
+					'username': 'Admin'
+					'password': 'badpassword'
 				}
 				.end (err, res)->
 					expect res.text .to.have.string 'bad login credentials'
-					expect res.headers.location .to.be.an 'undefined'
 					done err
 		it "should fail for a bad username", (done)->
 			admin
@@ -321,7 +329,7 @@ describe "Core" ->
 					expect res.text .to.have.string 'username not found'
 					expect res.headers.location .to.be.an 'undefined'
 					done err
-		it "should fail for a good student username bad password", (done)->
+		it "should fail for a good student username blank password", (done)->
 			student
 				.post '/login'
 				.send {
@@ -332,7 +340,7 @@ describe "Core" ->
 					expect res.header.location .to.be.a 'undefined'
 					expect res.text .to.have.string 'bad login credentials'
 					done err
-		it "should fail for a good faculty username bad password", (done)->
+		it "should fail for a good faculty username blank password", (done)->
 			faculty
 				.post '/login'
 				.send {
@@ -343,7 +351,7 @@ describe "Core" ->
 					expect res.header.location .to.be.a 'undefined'
 					expect res.text .to.have.string 'bad login credentials'
 					done err
-		it "should fail for a good admin username bad password", (done)->
+		it "should fail for a good admin username blank password", (done)->
 			admin
 				.post '/login'
 				.send {
