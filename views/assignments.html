@@ -181,14 +181,18 @@
 		</div>
 		{% endfor %}
 	{% elif attempt %}
-		{# list attempts w/ assignment #}
+		{# view attempt #}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				<{% if 2 <= auth %}form{% else %}div{% endif %} class="panel panel-default" {% if 2 <= auth %}action="/{{ course.id }}/assignments/{{ attempts.assignment.title }}/{{ attempts._id|toString }}?action=grade"{% endif %} method="POST" enctype="multipart/form-data">
+				{% if 2 <= auth %}
+				<form class="panel panel-default" action="/{{ course.id }}/assignments/{{ attempts.assignment.title }}/{{ attempts._id|toString }}?action=grade" method="POST" enctype="multipart/form-data">
+				{% else %}
+				<div class="panel panel-default">
+				{% endif %}
 					<input type="hidden" name="aid" value="{{ attempts._id|toString }}" />
 					<div class="panel-heading clearfix">
 						<h3 class="panel-title pull-left">{{ attempts.assignment.title|url_decode }}</h3>
-						<div class="pull-right">{{ attempts.points }}/{{ attempts.assignment.totalPoints }}</div>
+						<div class="pull-right">{% if attempts.late == true %}<span class="label label-danger">Late</span>{% endif %} <span class="label label-default">{% if attempts.points %}{{ attempts.points / attempts.assignment.totalPoints }}%{% else %}ungraded{% endif %}</span></div>
 					</div>
 					<div class="panel-body">{{ attempts.text|markdown|safe }}
 					{% if 2 <= auth %}<br />
@@ -217,8 +221,9 @@
 					<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />
 					<div class="panel-heading clearfix">
 						<h3 class="panel-title pull-left"{% if 2 <= auth %} style="padding-top: 10px;"{% endif %}>{{ assignment.title|url_decode }}</h3>
-						{% if 2 <= auth %}
 						<div class="pull-right">
+							<span></span>
+						{% if 2 <= auth %}
 							<div class="dropdown">
 								<button class="btn btn-default dropdown-toggle" type="button" id="blogPostMenu" data-toggle="dropdown" aria-expanded="true">
 									<span class="glyphicon glyphicon-cog"></span>
@@ -232,8 +237,8 @@
 									</li>
 								</ul>
 							</div>
-						</div>
 						{% endif %}
+						</div>
 					</div>
 					<div class="panel-body">{{ assignment.text|markdown|safe }}<br />
 						<div class="form-group">
@@ -262,7 +267,7 @@
 				<ul class="list-group">
 				{% for attempt in attempts %}
 				{% if attempt.assignment._id|toString == assignment._id|toString %}
-					<a class="list-group-item" href="/{{ course.id }}/assignments/{{ attempt.assignment.title }}/{{ attempt._id|toString }}">{{ attempt.author.firstName }} {{ attempt.author.lastName }} {% if attempt.late == true %}<span class="pull-right label label-danger">Late</span>{% endif %} {% if attempt.points %}<span class="pull-right label label-default">{{ attempt.points }}</span>{% endif %}</a>
+					<a class="list-group-item" href="/{{ course.id }}/assignments/{{ attempt.assignment.title }}/{{ attempt._id|toString }}">{{ attempt.author.firstName }} {{ attempt.author.lastName }} {% if attempt.late == true %}<span class="label label-danger">Late</span>{% endif %} <span class="pull-right label label-{% if attempt.points %}success" title="{{ attempt.points }}/{{ attempt.assignment.totalPoints }}">{{ attempt.points / attempt.assignment.totalPoints }}%{% else %}default">ungraded{% endif %}</span></a>
 				{% endif %}
 				{% endfor %}
 				</ul>
