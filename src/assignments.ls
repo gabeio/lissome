@@ -119,7 +119,7 @@ module.exports = (app)->
 								# assignment: {$in: assignments}
 								_id: ObjectId req.params.attempt
 							} .populate('assignment').populate('author').exec
-							res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
+							res.locals.attempts = result
 							done!
 						else if req.params.assign?
 							# winston.info 'D12'
@@ -128,7 +128,7 @@ module.exports = (app)->
 								course: ObjectId res.locals.course._id
 								# assignment: {$in: assignments}
 							} .populate('assignment').populate('author').exec
-							res.locals.attempts = result
+							res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 							done!
 						else
 							done!
@@ -147,7 +147,7 @@ module.exports = (app)->
 								author: ObjectId req.session.uid
 								_id: ObjectId req.params.attempt
 							} .populate('assignment').populate('author').exec
-							res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
+							res.locals.attempts = result
 							done!
 						else if req.params.assign?
 							# winston.info 'D22'
@@ -157,7 +157,7 @@ module.exports = (app)->
 								# assignment: {$in: assignments}
 								author: ObjectId req.session.uid
 							} .populate('assignment').populate('author').exec
-							res.locals.attempts = result
+							res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 							done!
 						else
 							done!
