@@ -313,7 +313,7 @@ module.exports = (app)->
 						start: res.locals.start
 						end: res.locals.end
 						tries: req.body.tries
-						allowLate: if req.body.allowLate is "yes" then true else false
+						allowLate: if req.body.late is "yes" then true else false
 						totalPoints: req.body.total
 						# unchangeable
 						author: ObjectId req.session.uid
