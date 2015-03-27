@@ -223,7 +223,7 @@ module.exports = (app)->
 								winston.error err
 								next new Error 'Mongo Error'
 							else
-								res.redirect "/#{req.params.course}/assignments/"+encodeURIComponent req.params.assign
+								res.redirect "/#{req.params.course}/assignments/"+encodeURIComponent(req.params.assign)+"/"+attempt._id.toString!
 						else
 							res.status 400 .render 'assignments', {+view, success:'error', error:'You have no more attempts.'}
 					else
