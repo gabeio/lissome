@@ -596,7 +596,6 @@ describe "Assignments" ->
 						.get '/test/getaid/cps1234?title=title'
 						.end (err, res)->
 							plucked = _.pluck res.body, '_id'
-							console.log 'plucked', plucked
 							cont err, plucked
 
 				(aid,cont)->
