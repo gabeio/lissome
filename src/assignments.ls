@@ -177,15 +177,15 @@ module.exports = (app)->
 				(done)->
 					if !req.query.action? && !req.params.assign?
 						# show list of assignments by title
-						res.render 'assignments'
+						res.render 'assignments/default'
 				(done)->
 					if !req.query.action? && req.params.assign?
 						if req.params.attempt?
 							# show attempt
-							res.render 'assignments', {+attempt}
+							res.render 'assignments/attempt'
 						else
 							# show assignment details & attempt field
-							res.render 'assignments', {+view}
+							res.render 'assignments/view'
 				(done)->
 					if req.query.action?
 						next! # don't assume action, continue trying
@@ -225,9 +225,9 @@ module.exports = (app)->
 							else
 								res.redirect "/#{req.params.course}/assignments/"+encodeURIComponent(req.params.assign)+"/"+attempt._id.toString!
 						else
-							res.status 400 .render 'assignments', {+view, success:'error', error:'You have no more attempts.'}
+							res.status 400 .render 'assignments/view' { success:'error', error:'You have no more attempts.' }
 					else
-						res.status 400 .render 'assignments', {+view, success:'error', error:'Allowed assignment submission time has closed/not opened.' }
+						res.status 400 .render 'assignments/view' { success:'error', error:'Allowed assignment submission time has closed/not opened.' }
 				else
 					res.redirect "/#{req.params.course}/assignments/"+encodeURIComponent req.params.assign
 			else
@@ -242,11 +242,11 @@ module.exports = (app)->
 			# winston.info 'H'
 			switch req.query.action
 			| 'new'
-				res.render 'assignments' {+create}
+				res.render 'assignments/create'
 			| 'edit'
-				res.render 'assignments' {+edit}
+				res.render 'assignments/edit'
 			| 'delete'
-				res.render 'assignments' {+del}
+				res.render 'assignments/del'
 			| _
 				next! # don't assume action
 		.put (req, res, next)->
@@ -255,8 +255,7 @@ module.exports = (app)->
 			switch req.query.action
 			| 'edit'
 				if !req.body.aid? || !req.body.title? || !req.body.text? || !req.body.tries? # double check require fields exist
-					res.status 400
-					res.render 'assignments' {+edit, body: req.body, success:'no', action:'edit'}
+					res.status 400 .render 'assignments/edit' { body: req.body, success:'no', action:'edit' }
 				else
 					res.locals.start = new Date(req.body.opendate+" "+req.body.opentime)
 					res.locals.end = new Date(req.body.closedate+" "+req.body.closetime)
@@ -301,8 +300,7 @@ module.exports = (app)->
 			switch req.query.action
 			| 'new'
 				if !req.body.title? || !req.body.text? || !req.body.tries? # double check require fields exist
-					res.status 400
-					res.render 'assignments' {+create, body: req.body, success:'no', action:'edit'}
+					res.status 400 .render 'assignments/create' { body: req.body, success:'no', action:'edit'}
 				else
 					# winston.info 'J1'
 					res.locals.start = new Date req.body.opendate+" "+req.body.opentime
@@ -335,8 +333,7 @@ module.exports = (app)->
 			| 'grade'
 				# winston.info 'J2'
 				if !req.body.points? || !req.body.aid? # double check require fields exist
-					res.status 400
-					res.render 'assignments' {+create, assignments: [req.body], -success, action:'edit'}
+					res.status 400 .render 'assignments/create' { assignments: [req.body], -success, action:'edit' }
 				else
 					err, attempt <- Attempt.findOneAndUpdate {
 						'school': app.locals.school

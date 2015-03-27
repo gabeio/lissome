@@ -1,0 +1,57 @@
+{% extends '../base.html' %}
+
+{% block head %}
+	<title>Assignments - {{ course.title }} - {{ school }}</title>
+{% endblock %}
+
+{% block body %}
+	<div class="container-fluid">
+		{% include '../navbar.html' %}
+		{% if success == 'yes' || success == 'no' || success == 'error' %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				{% if success == 'yes' %}
+				<div class="form-group">
+					<div class="alert alert-success" role="alert">
+						Assignment <strong>{{ action }}</strong> successfully.
+					</div>
+				</div>
+				{% elif success == 'no' %}
+				<div class="form-group">
+					<div class="alert alert-danger" role="alert">
+						Assignment <strong>not</strong> {{ action }} successfully. Missing <strong>required</strong> field.
+					</div>
+				</div>
+				{% elif success == 'error' %}
+				<div class="form-group">
+					<div class="alert alert-danger" role="alert">
+						{{ error }}
+					</div>
+				</div>
+				{% endif %}{# success:yes?no #}
+			</div>
+		</div>
+		{% endif %}{# success? #}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>{{ course.title }} - Assignments</h3>
+				</div>
+				{% if 2 <= auth %}
+				<div class="pull-right" style="padding-top: 8px;">
+					<a href="/{{ course.id }}/assignments?action=new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
+				</div>
+				{% endif %}{# auth #}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ul class="list-group">
+				{% for assignment in assignments %}
+					<a class="list-group-item" href="/{{ course.id }}/assignments/{{ assignment.title }}">{{ assignment.title|url_decode }}</a>
+				{% endfor %}
+				</ul>
+			</div>
+		</div>
+	</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends '../base.html' %}
+
+{% block head %}
+	<title>Assignments - {{ course.title }} - {{ school }}</title>
+{% endblock %}
+
+{% block body %}
+	<div class="container-fluid">
+		{% include '../navbar.html' %}
+		{% if success == 'yes' || success == 'no' || success == 'error' %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				{% if success == 'yes' %}
+				<div class="form-group">
+					<div class="alert alert-success" role="alert">
+						Assignment <strong>{{ action }}</strong> successfully.
+					</div>
+				</div>
+				{% elif success == 'no' %}
+				<div class="form-group">
+					<div class="alert alert-danger" role="alert">
+						Assignment <strong>not</strong> {{ action }} successfully. Missing <strong>required</strong> field.
+					</div>
+				</div>
+				{% elif success == 'error' %}
+				<div class="form-group">
+					<div class="alert alert-danger" role="alert">
+						{{ error }}
+					</div>
+				</div>
+				{% endif %}{# success:yes?no #}
+			</div>
+		</div>
+		{% endif %}{# success? #}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>{{ course.title }} - Assignments</h3>
+				</div>
+				{% if 2 <= auth %}
+				<div class="pull-right" style="padding-top: 8px;">
+					<a href="/{{ course.id }}/assignments?action=new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
+				</div>
+				{% endif %}{# auth #}
+			</div>
+		</div>
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=new" enctype="multipart/form-data">
+			<div class="form-group">
+				<label for="formTitle">Title</label>
+				<input type="text" class="form-control" id="formTitle" name="title" value="{{ body.title }}" autofocus />
+			</div>
+			<div class="form-group">
+				<label for="formOpendate" title="the date &amp; time at which the assignment is able to be view/submitted after.">Opens on</label>
+				<input type="date" class="form-control" id="formOpendate" name="opendate" value="{% if body %}{{ body.opendate }}{% else %}{{ Date.now()|format('YYYY-MM-D') }}{% endif %}" />
+				<input type="time" class="form-control" id="formOpentime" name="opentime" value="{% if body %}{{ body.opentime }}{% else %}{{ Date.now()|format('HH:mm') }}{% endif %}" />
+			</div>
+			<div class="form-group">
+				<label for="formClose" title="the date &amp; time at which the assignment is then after marked late.">Closes on</label>
+				<input type="date" class="form-control" id="formClosedate" name="closedate" value="{{ body.closedate }}" />
+				<input type="time" class="form-control" id="formClosetime" name="closetime" value="{{ body.closetime }}" />
+			</div>
+			<div class="form-group">
+				<label for="formTotal" title="the total possible points without extra credit (don't include extra credit)">Total Points Possible</label>
+				<input type="number" class="form-control" id="formTotal" name="total" value="{{ body.total }}" />
+			</div>
+			<div class="form-group">
+				<label for="formTries" title="allow students to submit assignments this many times (set to zero to give grade for already completed assignment)">Allowed Tries</label>
+				<input type="number" class="form-control" id="formTries" name="tries" value="{% if body %}{{ body.tries }}{% else %}1{% endif %}" />
+			</div>
+			<div class="form-group">
+				<label for="formLate">Allow Late Submissions</label>
+				<div class="radio">
+					<label>
+						<input type="radio" name="late" id="formLate" value="yes" {% if body and body.late == true %}checked{% endif %}>Yes <small>(allow students to submit assignments after close date)</small>
+					</label>
+				</div>
+				<div class="radio">
+					<label>
+						<input type="radio" name="late" id="formLate" value="no" {% if body and body.late == false %}checked{% elif !body %}checked{% endif %}>No <small>(do <strong>NOT</strong> allow students to submit assignments after close date)</small>
+					</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="formBody">Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
+				<textarea class="form-control" id="formBody" name="text" rows="7">{{ body.text }}</textarea>
+			</div>
+			{#<div class="form-group">
+				<label for="formUpload">Files</label>
+				<input type="file" id="formUpload" name="files" />
+			</div>#}
+			<div class="form-group">
+				<button type="submit" class="btn btn-default">Submit</button>
+			</div>
+		</form>
+	</div>
+{% endblock %}
