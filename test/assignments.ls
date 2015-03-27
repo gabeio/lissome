@@ -426,7 +426,25 @@ describe "Assignments" ->
 					expect res.status .to.equal 302
 					expect res.header.location .to.equal '/'
 					done err
-		it.skip "should not allow a student to submit an attempt on an assignment", (done)->
+		it "should not allow a student to submit an attempt on an assignment", (done)->
+			err <- async.waterfall [
+				(cont)->
+					student
+						.post '/test/getaid/cps1234?title=aUniqueTitle'
+						.end (err, res)->
+							cont err, res.body
+				(aid, cont)->
+					student
+						.post '/cps1234/assignments/aUniqueTitle?action=attempt'
+						.send {
+							'aid':aid.0._id
+							'text':'something right here'
+						}
+						.end (err, res)->
+							expect res.headers.location .to.not.equal '/cps1234/assignments/aUniqueTitle'
+							cont err
+			]
+			done err
 	describe "Crash Checks", (...)->
 		it "should not crash when creating/editing an assignment without opendate", (done)->
 			faculty
