@@ -450,7 +450,7 @@ describe "Assignments" ->
 						}
 						.end (err, res)->
 							expect res.status .to.not.match /^(4|5)/i
-							expect res.headers.location .to.equal '/cps1234/assignments/aUniqueTitle'
+							expect res.headers.location .to.match /^\/cps1234\/assignments\/aUniqueTitle\/.{12}\/?/i
 							cont err
 			]
 			done err
