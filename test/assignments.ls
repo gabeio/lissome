@@ -202,10 +202,10 @@ describe "Assignments" ->
 			faculty
 				.post '/cps1234/assignments?action=new'
 				.send {
-					'title':'title'
-					'opendate':'12/31/1999'
+					'title':'aUniqueTitle'
+					'opendate':'2/1/2000'
 					'opentime':'1:00 AM'
-					'closedate':'1/1/2000'
+					'closedate':'1/1/3000'
 					'closetime':'1:00 PM'
 					'total':'100'
 					'tries':'100'
@@ -214,13 +214,13 @@ describe "Assignments" ->
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
-					expect res.header.location .to.equal '/cps1234/assignments/title'
+					expect res.header.location .to.equal '/cps1234/assignments/aUniqueTitle'
 					done err
 		it "should not allow a student to create an assignment", (done)->
 			student
 				.post '/cps1234/assignments?action=new'
 				.send {
-					'title':'title'
+					'title':'student created this'
 					'opendate':'12/31/1999'
 					'opentime':'1:00 AM'
 					'closedate':'1/1/2000'
@@ -238,7 +238,7 @@ describe "Assignments" ->
 			err <- async.waterfall [
 				(cont)->
 					student
-						.get '/test/getaid/cps1234?title=title'
+						.get '/test/getaid/cps1234?title=aUniqueTitle'
 						.end (err, res)->
 							cont err, res.body
 				(aid, cont)->
@@ -246,37 +246,38 @@ describe "Assignments" ->
 						.post '/cps1234/assignments/title?hmo=PUT&action=edit'
 						.send {
 							'aid': ObjectId aid.0._id
-							'title': decodeURIComponent aid.0.title
+							'title': 'title edited by a student'
 							'opendate': '12/31/1999'
 							'opentime': '1:00 AM'
 							'closedate': '1/1/2000'
 							'closetime': '1:00 PM'
 							'total': '100'
-							'tries': '1'
+							'tries': '100'
 							'late': 'yes'
 							'text': 'you will fail!'
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							expect res.header.location .to.not.equal '/cps1234/assignments/'+ aid.0.title
+							expect res.header.location .to.not.equal '/cps1234/assignments/title%20edited%20by%20a%20student'
 							cont err
 			]
 			done err
 		it "should not allow a student to delete an assignment", (done)->
 			err <- async.waterfall [
 				(cont)->
-					admin
-						.get '/test/getaid/cps1234?title=title'
+					student
+						.get '/test/getaid/cps1234?title=aUniqueTitle'
 						.end (err, res)->
 							cont err, res.body
 				(aid,cont)->
-					admin
-						.post '/cps1234/assignments/title?hmo=DELETE&action=delete'
+					student
+						.post '/cps1234/assignments/aUniqueTitle?hmo=DELETE&action=delete'
 						.send {
 							'aid':aid.0._id
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
+							console.log res.headers.location
 							cont err
 			]
 			done err
@@ -296,22 +297,19 @@ describe "Assignments" ->
 			err <- async.waterfall [
 				(cont)->
 					student
-						.post '/test/getaid/cps1234?title=title'
+						.post '/test/getaid/cps1234?title=aUniqueTitle'
 						.end (err, res)->
-							res.text = JSON.parse res.text
-							attempts = _.reject res.text, {
-								'title':'youHaveNone'
-							}
-							cont err, attempts.0._id
+							cont err, res.body
 				(aid, cont)->
 					student
-						.post '/cps1234/assignments/title?action=attempt'
+						.post '/cps1234/assignments/aUniqueTitle?action=attempt'
 						.send {
-							'aid':aid
-							'text':'something'
+							'aid':aid.0._id
+							'text':'something right here'
 						}
 						.end (err, res)->
 							expect res.status .to.not.match /^(4|5)/i
+							expect res.headers.location .to.equal '/cps1234/assignments/aUniqueTitle'
 							cont err
 			]
 			done err
@@ -428,7 +426,7 @@ describe "Assignments" ->
 					expect res.status .to.equal 302
 					expect res.header.location .to.equal '/'
 					done err
-		it.skip "should allow a student to submit an attempt on an assignment", (done)->
+		it.skip "should not allow a student to submit an attempt on an assignment", (done)->
 	describe "Crash Checks", (...)->
 		it "should not crash when creating/editing an assignment without opendate", (done)->
 			faculty
@@ -602,8 +600,9 @@ describe "Assignments" ->
 				.post '/cps1234/assignments?action=new'
 				.send {
 					'title':'youHaveNone'
+					'opendate':'1/1/2000'
 					'opentime':'1:00 AM'
-					'closedate':'1/1/2000'
+					'closedate':'1/1/3000'
 					'closetime':'1:00 PM'
 					'total':'100'
 					'tries':'0'
