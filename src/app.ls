@@ -184,6 +184,10 @@ switch process.env.NODE_ENV
 | 'production'
 	# production run
 	winston.info "Production Mode"
+	require! {
+		'response-time'
+	}
+	app.use response-time!
 | _
 	# development/other run
 	if !module.parent
