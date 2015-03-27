@@ -47,7 +47,7 @@ module.exports = (mongoose)->
 		open: { type: Date }
 		close: { type: Date }
 	}
-	Course.index { timestamp: 1, id: 1 }
+	Course.index { timestamp: -1, id: 1 }
 	# Course internal Schemas
 	Assignment = new Schema {
 		# AUTOCREATED
@@ -66,7 +66,7 @@ module.exports = (mongoose)->
 		text: String # Require's text
 		files: Buffer # Require's file(s)?
 	}
-	Assignment.index { timestamp: 1, course: -1 }
+	Assignment.index { timestamp: -1, course: 1 }
 	Attempt = new Schema {
 		# AUTOCREATED
 		author: { type: Schema.Types.ObjectId, +required, ref: 'User' } # student who submitted it
@@ -83,7 +83,7 @@ module.exports = (mongoose)->
 		grader: { type: Schema.Types.ObjectId, ref: 'User' } # teacher who submitted graded it
 		late: { type: Boolean, default: false }
 	}
-	Attempt.index { timestamp: 1, assignment: -1 }
+	Attempt.index { timestamp: -1, assignment: 1 }
 	# Blog/Conference Schemas
 	Thread = new Schema {
 		# AUTOCREATED
@@ -96,7 +96,7 @@ module.exports = (mongoose)->
 		title: String # Thread name
 		thread: String # Parent Thread
 	}
-	Thread.index { timestamp: 1, course: -1 }
+	Thread.index { timestamp: -1, course: 1 }
 	Post = new Schema {
 		# AUTOCREATED
 		# _id
@@ -115,7 +115,7 @@ module.exports = (mongoose)->
 		files: Buffer
 		tags: []
 	}
-	Post.index { timestamp: 1, course: -1, type: 1 }
+	Post.index { timestamp: -1, course: 1, type: 1 }
 	module.exports = {
 		School: School
 		User: User
