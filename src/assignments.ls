@@ -91,7 +91,7 @@ module.exports = (app)->
 							# optional stuff
 							title: encodeURIComponent req.params.assign
 						} .populate('author').exec
-						res.locals.assignments = result
+						res.locals.assignments = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 						done!
 					else
 						done!
@@ -103,7 +103,7 @@ module.exports = (app)->
 							school: app.locals.school
 							course: ObjectId res.locals.course._id
 						} .populate('author').exec
-						res.locals.assignments = result
+						res.locals.assignments = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 						done!
 					else
 						done!
@@ -119,7 +119,7 @@ module.exports = (app)->
 								# assignment: {$in: assignments}
 								_id: ObjectId req.params.attempt
 							} .populate('assignment').populate('author').exec
-							res.locals.attempts = result
+							res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 							done!
 						else if req.params.assign?
 							# winston.info 'D12'
@@ -147,7 +147,7 @@ module.exports = (app)->
 								author: ObjectId req.session.uid
 								_id: ObjectId req.params.attempt
 							} .populate('assignment').populate('author').exec
-							res.locals.attempts = result
+							res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 							done!
 						else if req.params.assign?
 							# winston.info 'D22'
