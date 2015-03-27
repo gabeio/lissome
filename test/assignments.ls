@@ -52,7 +52,7 @@ describe "Assignments" ->
 				expect res.status .to.equal 302
 				done!
 	describe "Faculty+", (...)->
-		it "should allow a faculty+ to create an assignment", (done)->
+		it "should allow a faculty to create an assignment", (done)->
 			faculty
 				.post '/cps1234/assignments?action=new'
 				.send {
@@ -193,10 +193,152 @@ describe "Assignments" ->
 			]
 			done err
 	describe "Outside Faculty", (...)->
-		it.skip "should not allow a faculty outside the course to create an assignment", (done)->
-		it.skip "should not allow a faculty outside the course to view an assignment", (done)->
-		it.skip "should not allow a faculty outside the course to edit an assignment", (done)->
-		it.skip "should not allow a faculty outside the course to delete an assignment", (done)->
+		before (done)->
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'title':'outsideFaculty'
+					'opendate':'2/1/2000'
+					'opentime':'1:00 AM'
+					'closedate':'1/1/3000'
+					'closetime':'1:00 PM'
+					'total':'100'
+					'tries':'100'
+					'late':'yes'
+					'text':'you will fail!'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 302
+					expect res.header.location .to.equal '/cps1234/assignments/outsideFaculty'
+					done err
+		before (done)->
+			err <- async.waterfall [
+				(cont)->
+					faculty
+						.get '/logout'
+						.end (err, res)->
+							cont err
+				(cont)->
+					faculty
+						.post '/login'
+						.send {
+							'username': 'gfaculty'
+							'password': 'password'
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							cont err
+			]
+			done err
+		after (done)->
+			err <- async.waterfall [
+				(cont)->
+					faculty
+						.get '/logout'
+						.end (err, res)->
+							cont err
+				(cont)->
+					faculty
+						.post '/login'
+						.send {
+							'username': 'faculty'
+							'password': 'password'
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							cont err
+			]
+			done err
+		after (done)->
+			# clean up outsideFaculty
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get '/test/getaid/cps1234?title=outsideFaculty'
+						.end (err, res)->
+							cont err, res.body
+				(aid,cont)->
+					admin
+						.post '/cps1234/assignments/outsideFaculty?hmo=DELETE&action=delete'
+						.send {
+							'aid':aid.0._id
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							cont err
+			]
+			done err
+		it "should not allow a faculty outside the course to create an assignment", (done)->
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'title':'outsideFaculty2'
+					'opendate':'12/31/1999'
+					'opentime':'1:00 AM'
+					'closedate':'1/1/2000'
+					'closetime':'1:00 PM'
+					'total':'100'
+					'tries':'1'
+					'late':'yes'
+					'text':'you will fail!'
+				}
+				.end (err, res)->
+					# expect res.status .to.equal 302
+					expect res.header.location .to.not.equal '/cps1234/assignments/outsideFaculty2'
+					done err
+		it "should not allow a faculty outside the course to view an assignment", (done)->
+			faculty
+				.get '/cps1234/assignments/outsideFaculty'
+				.end (err, res)->
+					expect res.status .to.not.equal 200
+					done err
+		it "should not allow a faculty outside the course to edit an assignment", (done)->
+			err <- async.waterfall [
+				(cont)->
+					faculty
+						.get '/test/getaid/cps1234?title=outsideFaculty'
+						.end (err, res)->
+							cont err, res.body
+				(aid, cont)->
+					faculty
+						.post '/cps1234/assignments/outsideFaculty?hmo=PUT&action=edit'
+						.send {
+							'aid': ObjectId aid.0._id
+							'title': decodeURIComponent aid.0.title
+							'opendate': '12/31/1999'
+							'opentime': '1:00 AM'
+							'closedate': '1/1/2000'
+							'closetime': '1:00 PM'
+							'total': '100'
+							'tries': '1'
+							'late': 'yes'
+							'text': 'you will fail!'
+						}
+						.end (err, res)->
+							# expect res.status .to.equal 302
+							expect res.header.location .to.not.equal '/cps1234/assignments/'+ encodeURIComponent aid.0.title
+							cont err
+			]
+			done err
+		it "should not allow a faculty outside the course to delete an assignment", (done)->
+			err <- async.waterfall [
+				(cont)->
+					faculty
+						.get '/test/getaid/cps1234?title=outsideFaculty'
+						.end (err, res)->
+							cont err, res.body
+				(aid,cont)->
+					faculty
+						.post '/cps1234/assignments/outsideFaculty?hmo=DELETE&action=delete'
+						.send {
+							'aid':aid.0._id
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.equal '/'
+							cont err
+			]
+			done err
 	describe "Student", (...)->
 		before (done)->
 			faculty
@@ -277,7 +419,6 @@ describe "Assignments" ->
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							console.log res.headers.location
 							cont err
 			]
 			done err
@@ -318,19 +459,19 @@ describe "Assignments" ->
 			faculty
 				.post '/cps1234/assignments?action=new'
 				.send {
-					'title':'title'
-					'opendate':'12/31/1999'
+					'title':'aUniqueTitle'
+					'opendate':'2/1/2000'
 					'opentime':'1:00 AM'
-					'closedate':'1/1/2000'
+					'closedate':'1/1/3000'
 					'closetime':'1:00 PM'
 					'total':'100'
-					'tries':'1'
+					'tries':'100'
 					'late':'yes'
 					'text':'you will fail!'
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
-					expect res.header.location .to.equal '/cps1234/assignments/title'
+					expect res.header.location .to.equal '/cps1234/assignments/aUniqueTitle'
 					done err
 		before (done)->
 			student
@@ -351,7 +492,7 @@ describe "Assignments" ->
 			student
 				.post '/cps1234/assignments?action=new'
 				.send {
-					'title':'title'
+					'title':'aUniqueTitle'
 					'opendate':'12/31/1999'
 					'opentime':'1:00 AM'
 					'closedate':'1/1/2000'
@@ -369,15 +510,15 @@ describe "Assignments" ->
 			err <- async.waterfall [
 				(cont)->
 					student
-						.get '/test/getaid/cps1234?title=title'
+						.get '/test/getaid/cps1234?title=aUniqueTitle'
 						.end (err, res)->
 							cont err, res.body
 				(aid, cont)->
 					student
-						.post '/cps1234/assignments/title?hmo=PUT&action=edit'
+						.post '/cps1234/assignments/aUniqueTitle?hmo=PUT&action=edit'
 						.send {
 							'aid': ObjectId aid.0._id
-							'title': decodeURIComponent aid.0.title
+							'title': 'edited by an outside student'
 							'opendate': '12/31/1999'
 							'opentime': '1:00 AM'
 							'closedate': '1/1/2000'
@@ -397,12 +538,12 @@ describe "Assignments" ->
 			err <- async.waterfall [
 				(cont)->
 					student
-						.get '/test/getaid/cps1234?title=title'
+						.get '/test/getaid/cps1234?title=aUniqueTitle'
 						.end (err, res)->
 							cont err, res.body
 				(aid,cont)->
 					student
-						.post '/cps1234/assignments/title?hmo=DELETE&action=delete'
+						.post '/cps1234/assignments/aUniqueTitle?hmo=DELETE&action=delete'
 						.send {
 							'aid':aid.0._id
 						}
@@ -421,7 +562,7 @@ describe "Assignments" ->
 					done err
 		it "should not allow an outside student to view an assignment", (done)->
 			student
-				.get '/cps1234/assignments/title'
+				.get '/cps1234/assignments/aUniqueTitle'
 				.end (err, res)->
 					expect res.status .to.equal 302
 					expect res.header.location .to.equal '/'
@@ -446,6 +587,31 @@ describe "Assignments" ->
 			]
 			done err
 	describe "Crash Checks", (...)->
+		after (done)->
+			this.timeout 0
+			# clean up outsideFaculty
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get '/test/getaid/cps1234?title=title'
+						.end (err, res)->
+							plucked = _.pluck res.body, '_id'
+							console.log 'plucked', plucked
+							cont err, plucked
+
+				(aid,cont)->
+					err, result <- async.map aid, (id,fin)->
+						admin
+							.post '/cps1234/assignments/title?hmo=DELETE&action=delete'
+							.send {
+								'aid':id._id
+							}
+							.end (err, res)->
+								expect res.status .to.equal 302
+								fin err, void
+					cont err
+			]
+			done err
 		it "should not crash when creating/editing an assignment without opendate", (done)->
 			faculty
 				.post '/cps1234/assignments?action=new'
@@ -612,27 +778,8 @@ describe "Assignments" ->
 					expect res.header.location .to.not.match /^\/cps1234\/assignments\//i
 					done err
 	describe "Other Functions", (...)->
+		otherFunc = {}
 		before (done)->
-			# for attempts > allowed
-			faculty
-				.post '/cps1234/assignments?action=new'
-				.send {
-					'title':'youHaveNone'
-					'opendate':'1/1/2000'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/3000'
-					'closetime':'1:00 PM'
-					'total':'100'
-					'tries':'0'
-					'late':'yes'
-					'text':'you will fail!'
-				}
-				.end (err, res)->
-					expect res.status .to.not.match /^(4|5)/i
-					done err
-		it.skip "should not allow late submissions if not allowed", (done)->
-		it.skip "should allow late submissions if allowed", (done)->
-		it "should not allow more attempts than given", (done)->
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -649,27 +796,154 @@ describe "Assignments" ->
 						.end (err, res)->
 							expect res.status .to.equal 302
 							cont err
-				(cont)->
-					student
-						.post '/test/getaid/cps1234?title=youHaveNone'
-						.end (err, res)->
-							res.text = JSON.parse res.text
-							attempts = _.filter res.text, {
-								'title':'youHaveNone'
-							}
-							cont err, attempts.0._id
-				(aid, cont)->
-					student
-						.post '/cps1234/assignments/youHaveNone?action=attempt'
-						.send {
-							'aid':aid
-							'text':'something'
-						}
-						.end (err, res)->
-							console.log res.header
-							expect res.status .to.equal 400
-							expect res.text .to.have.string 'You have no more attempts.'
-							done err
 			]
 			done err
+		before (done)->
+			# for now < date
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'title':'Early'
+					'opendate':'1/1/3000'
+					'opentime':'1:00 AM'
+					'closedate':'1/1/4000'
+					'closetime':'1:00 PM'
+					'total':'100'
+					'tries':'100'
+					'late':'yes'
+					'text':'you will fail!'
+				}
+				.end (err, res)->
+					expect res.status .to.not.match /^(4|5)/i
+					done err
+		before (done)->
+			# for now > close
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'title':'Late'
+					'opendate':'1/1/1000'
+					'opentime':'1:00 AM'
+					'closedate':'1/1/2000'
+					'closetime':'1:00 PM'
+					'total':'100'
+					'tries':'100'
+					'late':'no'
+					'text':'you will fail!'
+				}
+				.end (err, res)->
+					expect res.status .to.not.match /^(4|5)/i
+					done err
+		before (done)->
+			# for now > close & allowLate = true
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'title':'allowLate'
+					'opendate':'1/1/1000'
+					'opentime':'1:00 AM'
+					'closedate':'1/1/2000'
+					'closetime':'1:00 PM'
+					'total':'100'
+					'tries':'1000'
+					'late':'yes'
+					'text':'you will fail!'
+				}
+				.end (err, res)->
+					expect res.status .to.not.match /^(4|5)/i
+					done err
+		before (done)->
+			# for attempts > allowed
+			faculty
+				.post '/cps1234/assignments?action=new'
+				.send {
+					'title':'None'
+					'opendate':'1/1/2000'
+					'opentime':'1:00 AM'
+					'closedate':'1/1/3000'
+					'closetime':'1:00 PM'
+					'total':'100'
+					'tries':'0'
+					'late':'yes'
+					'text':'you will fail!'
+				}
+				.end (err, res)->
+					expect res.status .to.not.match /^(4|5)/i
+					done err
+		before (done)->
+			err <- async.parallel [
+				(cont)->
+					student
+						.post '/test/getaid/cps1234?title=Early'
+						.end (err, res)->
+							assignments = JSON.parse res.text
+							otherFunc.Early = assignments.0._id
+							cont err
+				(cont)->
+					student
+						.post '/test/getaid/cps1234?title=Late'
+						.end (err, res)->
+							assignments = JSON.parse res.text
+							otherFunc.Late = assignments.0._id
+							cont err
+				(cont)->
+					student
+						.post '/test/getaid/cps1234?title=allowLate'
+						.end (err, res)->
+							assignments = JSON.parse res.text
+							otherFunc.allowLate = assignments.0._id
+							cont err
+				(cont)->
+					student
+						.post '/test/getaid/cps1234?title=None'
+						.end (err, res)->
+							assignments = JSON.parse res.text
+							otherFunc.None = assignments.0._id
+							cont err
+			]
+			done err
+		it "should not allow early submissions", (done)->
+			student
+				.post '/cps1234/assignments/Early?action=attempt'
+				.send {
+					'aid':otherFunc.Early
+					'text':'something'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 400
+					expect res.text .to.have.string 'Allowed assignment submission time has closed/not opened.'
+					done err
+		it "should not allow late submissions if not allowed", (done)->
+			student
+				.post '/cps1234/assignments/Late?action=attempt'
+				.send {
+					'aid':otherFunc.Late
+					'text':'something'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 400
+					expect res.text .to.have.string 'Allowed assignment submission time has closed/not opened.'
+					done err
+		it "should allow late submissions if allowed", (done)->
+			student
+				.post '/cps1234/assignments/allowLate?action=attempt'
+				.send {
+					'aid':otherFunc.allowLate
+					'text':'something'
+				}
+				.end (err, res)->
+					expect res.status .to.not.match /^(4|5)/i
+					expect res.text .to.not.have.string 'You have no more attempts.'
+					done err
+		it "should not allow more attempts than given", (done)->
+			student
+				.post '/cps1234/assignments/None?action=attempt'
+				.send {
+					'aid':otherFunc.None
+					'text':'something'
+				}
+				.end (err, res)->
+					expect res.status .to.equal 400
+					expect res.text .to.have.string 'You have no more attempts.'
+					done err
 	describe "Grade Book", (...)->
