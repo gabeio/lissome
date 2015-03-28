@@ -104,7 +104,7 @@ mongo = require('./mongoClient')(app,\
 app
 	.use helmet!
 	.use helmet.contentSecurityPolicy {
-		default-src: ["'self'", "assets.lissome.co", "cdnjs.cloudflare.com"]
+		default-src: ["'self'", "lissome.co", "assets.lissome.co", "cdnjs.cloudflare.com"]
 		script-src: ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com"]
 		style-src: ["'self'", "'unsafe-inline'", "assets.lissome.co", "cdnjs.cloudflare.com", "fonts.googleapis.com"]
 		font-src: ["'self'", "assets.lissome.co", "fonts.googleapis.com", "fonts.gstatic.com"]
