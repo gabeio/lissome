@@ -34,7 +34,7 @@ dependencies:
 	"helmet": '~0.7.1'
 	"hiredis": '~0.2.0'
 	"LiveScript": '~1.3.1'
-	"lodash": '~3.5.0'
+	"lodash": '~3.6.0'
 	"markdown-it": '~4.0.1'
 	"method-override": '~2.3.1'
 	"moment": '~2.9.0'
@@ -42,7 +42,7 @@ dependencies:
 	"mongoose": '~3.8.23'
 	"multer": '~0.1.7'
 	"redis": '~0.12.1'
-	"request": '~2.53.0'
+	"request": '~2.54.0'
 	"serve-static": '~1.9.1'
 	"swig": '~1.4.2'
 	"uuid": '~2.0.1'
@@ -50,7 +50,7 @@ dependencies:
 	"yargs": '~3.5.4'
 
 devDependencies:
-	"chai": '~2.1.0'
+	"chai": '~2.2.0'
 	"coveralls": '~2.11.2'
 	"del": '~1.1.1'
 	"gulp": '~3.8.10'
