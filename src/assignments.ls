@@ -91,6 +91,7 @@ module.exports = (app)->
 							# optional stuff
 							title: encodeURIComponent req.params.assign
 						} .populate('author').exec
+						/* istanbul ignore else */
 						res.locals.assignments = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 						done!
 					else
@@ -103,6 +104,7 @@ module.exports = (app)->
 							school: app.locals.school
 							course: ObjectId res.locals.course._id
 						} .populate('author').exec
+						/* istanbul ignore else */
 						res.locals.assignments = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 						done!
 					else
@@ -128,6 +130,7 @@ module.exports = (app)->
 								course: ObjectId res.locals.course._id
 								# assignment: {$in: assignments}
 							} .populate('assignment').populate('author').exec
+							/* istanbul ignore else */
 							res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 							done!
 						else
@@ -157,6 +160,7 @@ module.exports = (app)->
 								# assignment: {$in: assignments}
 								author: ObjectId req.session.uid
 							} .populate('assignment').populate('author').exec
+							/* istanbul ignore else */
 							res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 							done!
 						else
