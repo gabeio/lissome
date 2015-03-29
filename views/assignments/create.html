@@ -65,7 +65,7 @@
 				<input type="time" class="form-control" id="formOpentime" name="opentime" value="{% if body %}{{ body.opentime }}{% else %}{{ Date.now()|format('HH:mm') }}{% endif %}" tabindex="3" />
 			</div>
 			<div class="form-group">
-				<label for="formClose" title="the date &amp; time at which the assignment is then after marked late.">Closes on</label>
+				<label for="formClosedate" title="the date &amp; time at which the assignment is then after marked late.">Closes on</label>
 				<input type="date" class="form-control" id="formClosedate" name="closedate" value="{{ body.closedate }}" tabindex="4" />
 				<input type="time" class="form-control" id="formClosetime" name="closetime" value="{{ body.closetime }}" tabindex="5" />
 			</div>
