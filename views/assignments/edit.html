@@ -8,7 +8,7 @@
 	<div class="container-fluid">
 		{% include '../navbar.html' %}
 		<div class="row">
-			<div class="col-xs-12 col-lg-10 col-lg-offset-1">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<ol class="breadcrumb">
 					<li><a href="/">Dash</a></li>
 					<li><a href="/{{ course.id }}">{{ course.title }}</a></li>
@@ -59,49 +59,49 @@
 			<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />
 			<div class="form-group">
 				<label for="formTitle">Title</label>
-				<input type="text" class="form-control" id="formTitle" name="title" value="{% if body %}{{ body.title }}{% else %}{{ assignment.title|url_decode }}{% endif %}" {% if loop.first %}autofocus{% endif %}/>
+				<input type="text" class="form-control" id="formTitle" name="title" value="{% if body %}{{ body.title }}{% else %}{{ assignment.title|url_decode }}{% endif %}" {% if loop.first %}autofocus{% endif %} tabindex="1" />
 			</div>
 			<div class="form-group">
 				<label for="formOpendate">Opens on</label>
-				<input type="date" class="form-control" id="formOpendate" name="opendate" value="{% if body %}{{ body.opendate }}{% else %}{{ assignment.start|format('YYYY-MM-DD') }}{% endif %}" />
-				<input type="time" class="form-control" id="formOpentime" name="opentime" value="{% if body %}{{ body.opentime }}{% else %}{{ assignment.start|format('HH:mm') }}{% endif %}" />
+				<input type="date" class="form-control" id="formOpendate" name="opendate" value="{% if body %}{{ body.opendate }}{% else %}{{ assignment.start|format('YYYY-MM-DD') }}{% endif %}" tabindex="2" />
+				<input type="time" class="form-control" id="formOpentime" name="opentime" value="{% if body %}{{ body.opentime }}{% else %}{{ assignment.start|format('HH:mm') }}{% endif %}" tabindex="3" />
 			</div>
 			<div class="form-group">
 				<label for="formClose" title="the date &amp; time at which the assignment is then after marked late">Closes on</label>
-				<input type="date" class="form-control" id="formClose" name="closedate" value="{% if body %}{{ body.closedate }}{% else %}{{ assignment.end|format('YYYY-MM-DD') }}{% endif %}" />
-				<input type="time" class="form-control" id="formOpentime" name="closetime" value="{% if body %}{{ body.closetime }}{% else %}{{ assignment.end|format('HH:mm') }}{% endif %}" />
+				<input type="date" class="form-control" id="formClose" name="closedate" value="{% if body %}{{ body.closedate }}{% else %}{{ assignment.end|format('YYYY-MM-DD') }}{% endif %}" tabindex="4" />
+				<input type="time" class="form-control" id="formOpentime" name="closetime" value="{% if body %}{{ body.closetime }}{% else %}{{ assignment.end|format('HH:mm') }}{% endif %}" tabindex="5" />
 			</div>
 			<div class="form-group">
 				<label for="formTotal" title="the total possible points without extra credit (don't include extra credit)">Total Points Possible</label>
-				<input type="number" class="form-control" id="formTotal" name="total" value="{% if body %}{{ body.total }}{% else %}{{ assignment.totalPoints }}{% endif %}" />
+				<input type="number" class="form-control" id="formTotal" name="total" value="{% if body %}{{ body.total }}{% else %}{{ assignment.totalPoints }}{% endif %}" tabindex="6" />
 			</div>
 			<div class="form-group">
 				<label for="formTries" title="allow students to submit assignments this many times (set to zero to give grade for already completed assignment)">Allowed Tries</label>
-				<input type="number" class="form-control" id="formTries" name="tries" value="{% if body %}{{ body.tries }}{% else %}{{ assignment.tries }}{% endif %}" />
+				<input type="number" class="form-control" id="formTries" name="tries" value="{% if body %}{{ body.tries }}{% else %}{{ assignment.tries }}{% endif %}" tabindex="7" />
 			</div>
 			<div class="form-group">
 				<label for="formLate">Allow Late Submittions</label>
 				<div class="radio">
 					<label>
-						<input type="radio" name="late" id="formLate" value="yes" {% if body %}{% if body.late == 'yes' %}checked{% endif %}{% else %}{% if assignment.allowLate == true %}checked{% endif %}{% endif %}>Yes <small>(allow students to submit assignments after close date)</small>
+						<input type="radio" name="late" id="formLate" value="yes" {% if body %}{% if body.late == 'yes' %}checked{% endif %}{% else %}{% if assignment.allowLate == true %}checked{% endif %}{% endif %} tabindex="8">Yes <small>(allow students to submit assignments after close date)</small>
 					</label>
 				</div>
 				<div class="radio">
 					<label>
-						<input type="radio" name="late" id="formLate" value="no" {% if body %}{% if body.late == 'no' %}checked{% endif %}{% else %}{% if assignment.allowLate == false %}checked{% endif %}{% endif %}>No <small>(do <strong>NOT</strong> allow students to submit assignments after close date)</small>
+						<input type="radio" name="late" id="formLate" value="no" {% if body %}{% if body.late == 'no' %}checked{% endif %}{% else %}{% if assignment.allowLate == false %}checked{% endif %}{% endif %} tabindex="8">No <small>(do <strong>NOT</strong> allow students to submit assignments after close date)</small>
 					</label>
 				</div>
 			</div>
 			<div class="form-group">
 				<label for="formBody">Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
-				<textarea class="form-control" id="formBody" name="text" rows="7">{{ assignment.text }}</textarea>
+				<textarea class="form-control" id="formBody" name="text" rows="7" tabindex="9">{{ assignment.text }}</textarea>
 			</div>
 			{#<div class="form-group">
 				<label for="formUpload">Files</label>
 				<input type="file" id="formUpload" name="files" />
 			</div>#}
 			<div class="form-group">
-				<button type="submit" class="btn btn-default">Submit</button>
+				<button type="submit" class="btn btn-default" tabindex="10">Submit</button>
 			</div>
 		</form>
 		{% endfor %}

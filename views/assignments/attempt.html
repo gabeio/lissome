@@ -8,7 +8,7 @@
 	<div class="container-fluid">
 		{% include '../navbar.html' %}
 		<div class="row">
-			<div class="col-xs-12 col-lg-10 col-lg-offset-1">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<ol class="breadcrumb">
 					<li><a href="/">Dash</a></li>
 					<li><a href="/{{ course.id }}">{{ course.title }}</a></li>
@@ -58,7 +58,7 @@
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				{% if 2 <= auth %}
-				<form class="panel panel-default" action="/{{ course.id }}/assignments/{{ attempts.assignment.title }}/{{ attempts._id|toString }}?action=grade" method="POST" enctype="multipart/form-data">
+				<form class="panel panel-default" action="{#/{{ course.id }}/assignments/{{ attempts.assignment.title }}/{{ attempts._id|toString }}#}?action=grade" method="POST" enctype="multipart/form-data">
 				{% else %}
 				<div class="panel panel-default">
 				{% endif %}
