@@ -7,6 +7,17 @@
 {% block body %}
 	<div class="container-fluid">
 		{% include '../navbar.html' %}
+		<div class="row">
+			<div class="col-xs-12 col-lg-10 col-lg-offset-1">
+				<ol class="breadcrumb">
+					<li><a href="/">Dash</a></li>
+					<li><a href="/{{ course.id }}">{{ course.title }}</a></li>
+					<li><a href="/{{ course.id }}/assignments">Assignments</a></li>
+					<li><a href="/{{ course.id }}/assignments/{{ attempts.assignment.title }}">{{ attempts.assignment.title|url_decode }}</a></li>
+					<li class="active" title="{{attempts.author.username}}">{{ attempts.author.firstName }} {{ attempts.author.lastName }} Attempt</li>
+				</ol>
+			</div>
+		</div>
 		{% if success %}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
