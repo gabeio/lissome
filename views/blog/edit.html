@@ -42,7 +42,7 @@
 				</div>
 				<div class="form-group">
 					<label for="formBody">Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
-					<textarea class="form-control" id="formBody" name="text" rows="7" autofocus>{{ post.text }}</textarea>
+					<textarea class="form-control" id="formBody" name="text" rows="7" {% if loop.first %}autofocus{% endif %}>{{ post.text }}</textarea>
 				</div>
 				{#<div class="form-group">
 					<label for="formUpload">Files</label>

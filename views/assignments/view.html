@@ -84,7 +84,7 @@
 					<div class="panel-body">{{ assignment.text|markdown|safe }}<br />
 						<div class="form-group">
 							<label for="formBody">Assignment Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
-							<textarea class="form-control" id="formBody" name="text" rows="7" autofocus>{{ body.text }}</textarea>
+							<textarea class="form-control" id="formBody" name="text" rows="7" {% if loop.first %}autofocus{% endif %}>{{ body.text }}</textarea>
 						</div>
 						<div class="form-group">
 							<button type="submit" class="btn btn-default">Submit Assignment</button>
