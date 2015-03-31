@@ -30,7 +30,7 @@ dependencies:
 	"express": '~4.12.2'
 	"express-partial-response": '~0.3.4'
 	"express-session": '~1.10.3'
-	"fs-extra": '~0.16.3'
+	"fs-extra": '~0.18.0'
 	"helmet": '~0.7.1'
 	"hiredis": '~0.2.0'
 	"LiveScript": '~1.3.1'
