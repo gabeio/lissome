@@ -108,7 +108,7 @@
 				<ul class="list-group">
 				{% for attempt in attempts %}
 				{% if attempt.assignment._id|toString == assignment._id|toString %}
-					<a class="list-group-item" href="/{{ course.id }}/assignments/{{ attempt.assignment.title }}/{{ attempt._id|toString }}">{{ attempt.author.firstName }} {{ attempt.author.lastName }} {% if attempt.late == true %}<span class="label label-danger">Late</span>{% endif %} <span class="pull-right label label-{% if attempt.points %}success" title="{{ attempt.points }}/{{ attempt.assignment.totalPoints }}">{{ attempt.points / attempt.assignment.totalPoints }}%{% else %}default">ungraded{% endif %}</span></a>
+					<a class="list-group-item" href="/{{ course.id }}/assignments/{{ attempt.assignment.title }}/{{ attempt._id|toString }}">{{ attempt.author.firstName }} {{ attempt.author.lastName }} {% if attempt.late == true %}<span class="label label-danger">Late</span>{% endif %} <span class="pull-right label label-{% if attempt.points %}success" title="{{ attempt.points }}/{{ attempt.assignment.totalPoints }}">{{ ( attempt.points / attempt.assignment.totalPoints ) * 100 }}%{% else %}default">ungraded{% endif %}</span></a>
 				{% endif %}
 				{% endfor %}
 				</ul>
