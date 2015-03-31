@@ -11,7 +11,6 @@ module.exports = (app)->
 	_ = lodash
 	User = app.locals.models.User
 	Course = app.locals.models.Course
-	Post = app.locals.models.Post
 	Assignment = app.locals.models.Assignment
 	Attempt = app.locals.models.Attempt
 	app
