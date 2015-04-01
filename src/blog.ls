@@ -26,7 +26,7 @@ module.exports = (app)->
 			res.locals.on = 'blog'
 			<- async.parallel [
 				(done)->
-					if req.session.auth is 3
+					if res.locals.auth is 3
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
@@ -45,11 +45,11 @@ module.exports = (app)->
 					else
 						done!
 				(done)->
-					if req.session.auth is 2
+					if res.locals.auth is 2
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
-							'faculty': ObjectId req.session.uid
+							'faculty': ObjectId res.locals.uid
 						}
 						/* istanbul ignore if */
 						if err
@@ -75,7 +75,7 @@ module.exports = (app)->
 						'course': ObjectId res.locals.course._id
 						'type': 'blog'
 						'title': req.params.unique
-					} .populate('author').exec
+					} .populate 'author' .exec
 					if result.length is 0
 						res.redirect "/#{res.locals.course.id}/blog"
 					else
@@ -136,7 +136,6 @@ module.exports = (app)->
 						if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 							err, post <- Post.findOneAndUpdate {
 								'_id': ObjectId req.body.pid
-								'school': app.locals.school
 								'course': ObjectId res.locals.course._id
 								'type': 'blog'
 							}, {
@@ -158,7 +157,6 @@ module.exports = (app)->
 						if req.query.action is 'delete'
 							err, post <- Post.findOneAndRemove {
 								'_id': ObjectId req.body.pid
-								'school': app.locals.school
 								'course': ObjectId res.locals.course._id
 								'type': 'blog'
 							}
@@ -169,7 +167,6 @@ module.exports = (app)->
 						if req.query.action is 'deleteall' and req.params.unique?
 							err, post <- Post.remove {
 								'title': req.params.unique
-								'school': app.locals.school
 								'course': ObjectId res.locals.course._id
 								'type': 'blog'
 							}
@@ -187,7 +184,7 @@ module.exports = (app)->
 			res.locals.on = 'blog'
 			<- async.parallel [
 				(done)->
-					if req.session.auth is 3
+					if res.locals.auth is 3
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
@@ -206,11 +203,11 @@ module.exports = (app)->
 					else
 						done!
 				(done)->
-					if req.session.auth is 2
+					if res.locals.auth is 2
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
-							'faculty': ObjectId req.session.uid
+							'faculty': ObjectId res.locals.uid
 						}
 						/* istanbul ignore if */
 						if err
@@ -226,11 +223,11 @@ module.exports = (app)->
 					else
 						done!
 				(done)->
-					if req.session.auth is 1
+					if res.locals.auth is 1
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
-							'students': ObjectId req.session.uid
+							'students': ObjectId res.locals.uid
 						}
 						/* istanbul ignore if */
 						if err
@@ -266,7 +263,7 @@ module.exports = (app)->
 										$gte: date0
 										$lt: date1
 									}
-								} .populate('author').exec
+								} .populate 'author' .exec
 								done err,posts
 							else
 								done! # it's not a date range
@@ -275,7 +272,7 @@ module.exports = (app)->
 					(done)->
 						# search text
 						err, posts <- Post.find {
-							'course': ObjectId(res.locals.course._id)
+							'course': ObjectId res.locals.course._id
 							'type': 'blog'
 							'text': new RegExp res.locals.search, 'i'
 						} .populate('author').exec#, (err, posts)->
@@ -283,7 +280,7 @@ module.exports = (app)->
 					(done)->
 						# search titles
 						err, posts <- Post.find {
-							'course': ObjectId(res.locals.course._id)
+							'course': ObjectId res.locals.course._id
 							'type': 'blog'
 							'title': new RegExp res.locals.search, 'i'
 						} .populate('author').exec#, (err, posts)->
@@ -291,7 +288,7 @@ module.exports = (app)->
 					(done)->
 						# search tags
 						err, posts <- Post.find {
-							'course': ObjectId(res.locals.course._id)
+							'course': ObjectId res.locals.course._id
 							'type': 'blog'
 							'tags': res.locals.search
 						} .populate('author').exec#, (err, posts)->
@@ -299,7 +296,7 @@ module.exports = (app)->
 					(done)->
 						# search authorName
 						err, posts <- Post.find {
-							'course': ObjectId(res.locals.course._id)
+							'course': ObjectId res.locals.course._id
 							'type': 'blog'
 							'authorName': new RegExp res.locals.search, 'i'
 						} .populate('author').exec#, (err, posts)->
