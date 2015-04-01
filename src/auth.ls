@@ -15,7 +15,7 @@ module.exports = (app)->
 					# next new Error 'UNKNOWN NEEDS'
 					next! # if needs is undefined then probably okay
 				else # check needs <= has
-					if res.locals.needs <= req.session.auth
+					if res.locals.needs <= res.locals.auth
 						next!
 					else
 						next new Error 'UNAUTHORIZED' # other unauth
