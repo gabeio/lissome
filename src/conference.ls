@@ -31,7 +31,7 @@ module.exports = (app)->
 			res.locals.on = 'conference'
 			<- async.parallel [
 				(done)->
-					if req.session.auth is 3
+					if res.locals.auth is 3
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
@@ -49,11 +49,11 @@ module.exports = (app)->
 					else
 						done!
 				(done)->
-					if req.session.auth is 2
+					if res.locals.auth is 2
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
-							'faculty': mongoose.Types.ObjectId(req.session.uid)
+							'faculty': ObjectId res.locals.uid
 						}
 						/* istanbul ignore if */
 						if err
@@ -68,11 +68,11 @@ module.exports = (app)->
 					else
 						done!
 				(done)->
-					if req.session.auth is 1
+					if res.locals.auth is 1
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
-							'students': mongoose.Types.ObjectId(req.session.uid)
+							'students': ObjectId res.locals.uid
 						}
 						/* istanbul ignore if */
 						if err
@@ -139,7 +139,7 @@ module.exports = (app)->
 				else
 					post = {
 						course: res.locals.course._id
-						author: ObjectId req.session.uid
+						author: ObjectId res.locals.uid
 						thread: ObjectId req.body.tid
 						text: req.body.text
 						type: 'conference'
@@ -157,7 +157,7 @@ module.exports = (app)->
 				else
 					thread = {
 						title: req.body.title
-						author: ObjectId req.session.uid
+						author: ObjectId res.locals.uid
 						course: ObjectId res.locals.course._id
 					}
 					thread = new Thread thread
@@ -169,7 +169,7 @@ module.exports = (app)->
 						post = {
 							course: res.locals.course._id
 							type: 'conference'
-							author: ObjectId req.session.uid
+							author: ObjectId res.locals.uid
 							thread: ObjectId thread._id
 							text: req.body.text
 						}
@@ -191,7 +191,7 @@ module.exports = (app)->
 					err, post <- Post.findOneAndUpdate {
 						_id: req.body.pid
 						thread: req.body.thread
-						author: ObjectId req.session.uid
+						author: ObjectId res.locals.uid
 					},{
 						text: req.body.text
 					}
@@ -211,7 +211,7 @@ module.exports = (app)->
 					err, post <- Post.findOneAndRemove {
 						_id: req.body.pid
 						thread: req.body.thread
-						author: req.session.uid
+						author: res.locals.uid
 					}
 			| _
 				next new Error 'Action Error'
