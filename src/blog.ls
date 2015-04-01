@@ -13,7 +13,7 @@ module.exports = (app)->
 	Course = app.locals.models.Course
 	Post = app.locals.models.Post
 	app
-		..route '/:course/:blog(blog|b)/:unique?' # query action(new|edit|delete|deleteall)
+		..route '/:course/blog/:unique?' # query action(new|edit|delete|deleteall)
 		.all (req, res, next)->
 			if req.query.action in ['new','edit','delete','deleteall']
 				next!
@@ -176,7 +176,7 @@ module.exports = (app)->
 				]
 			else
 				next new Error 'bad blog delete'
-		..route '/:course/:blog(blog|b)/:unique?' # query action(search)
+		..route '/:course/blog/:unique?' # query action(search)
 		.all (req, res, next)->
 			res.locals.needs = 1
 			app.locals.authorize req, res, next

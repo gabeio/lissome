@@ -14,7 +14,7 @@ module.exports = (app)->
 	Assignment = app.locals.models.Assignment
 	Attempt = app.locals.models.Attempt
 	app
-		..route '/:course/:application(a|assign|assignment|assignments)/:assign?/:attempt?' # query :: action(new|edit|delete|grade)
+		..route '/:course/assignments/:assign?/:attempt?' # query :: action(new|edit|delete|grade)
 		.all (req, res, next)->
 			# winston.info req.originalUrl
 			# winston.info 'params',req.params

@@ -12,7 +12,7 @@ module.exports = (app)->
 	Thread = app.locals.models.Thread
 	Post = app.locals.models.Post
 	app
-		..route '/:course/:conf(conference|conf|c)/:thread?' # query :: action(new|edit|delete)
+		..route '/:course/conference/:thread?' # query :: action(new|edit|delete)
 		.all (req, res, next)->
 			# auth level check
 			res.locals.needs = 1
@@ -28,7 +28,6 @@ module.exports = (app)->
 				next!
 		.all (req, res, next)->
 			# get course info middleware (helps with auth)
-			res.locals.on = 'conference'
 			<- async.parallel [
 				(done)->
 					if res.locals.auth is 3
@@ -134,7 +133,7 @@ module.exports = (app)->
 		.post (req, res, next)->
 			switch req.query.action
 			| 'newpost'
-				if !req.body.thread? || !req.body.text?
+				if !req.body.tid? || !req.body.text?
 					res.status 400 .render 'conference/view' { body: req.body, success:'no', action:'new' }
 				else
 					post = {
