@@ -9,6 +9,16 @@
 		{% include '../navbar.html' %}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ol class="breadcrumb">
+					<li><a href="/">Dash</a></li>
+					<li><a href="/{{ course.id }}">{{ course.title }}</a></li>
+					<li><a href="/{{ course.id }}/conference">Conference</a></li>
+					<li class="active">Create Thread</li>
+				</ol>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<div class="pull-left">
 					<h3>{{ course.title }} - Conference</h3>
 				</div>

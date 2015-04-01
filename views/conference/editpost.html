@@ -85,11 +85,7 @@
 					{% if thread.author._id|toString === uid %}
 					<a class="list-group-item clearfix" style="padding-top: 10px;" href="/{{ course.id }}/conference/{{ thread._id|toString }}">
 						<span class="pull-left">{{ thread.title }}</span>
-						<span class="pull-right">
-							<span>you</span>
-							<span>|</span>
-							<span title="{{ thread.timestamp|timezone }}">{{ thread.timestamp|fromNow }}</span>
-						</span>
+						<span class="pull-right">you</span>
 					</a>
 					{% else %}
 					<a class="list-group-item clearfix" href="/{{ course.id }}/conference/{{ thread._id|toString }}">
@@ -108,27 +104,7 @@
 				{% for post in posts %}
 				<div class="panel panel-default">
 					<div class="panel-heading clearfix">
-						<h2 style="padding-top: 10px;" class="panel-title pull-left">{{ post.author.firstName }} {{ post.author.lastName }}</h2>
-						<span class="pull-right">
-							{% if post.author._id.toString() === uid %}
-							<span title="{{ thread.timestamp|timezone }}">{{ thread.timestamp|fromNow }}</span>
-							<span class="btn-group">
-								<button class="btn btn-default dropdown-toggle" type="button" id="blogPostMenu" data-toggle="dropdown" aria-expanded="true">
-									<span class="glyphicon glyphicon-cog"></span>
-								</button>
-								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
-									<li role="presentation">
-										<a role="menuitem" href="/{{ course.id }}/conference/{{ thread._id|toString }}?action=editthread"><span class="glyphicon glyphicon-edit"></span> Edit This Post</a>
-									</li>
-									<li role="presentation">
-										<a role="menuitem" href="/{{ course.id }}/conference/{{ thread._id|toString }}?action=deletethread"><span class="glyphicon glyphicon-remove"></span> Delete This Post</a>
-									</li>
-								</ul>
-							</span>
-							{% else %}
-							<span title="{{ thread.timestamp|timezone }}">{{ thread.timestamp|fromNow }}</span>
-							{% endif %}
-						</span>
+						<h2 class="panel-title pull-left">{{ post.author.firstName }} {{ post.author.lastName }}</h2>
 					</div>
 					<div class="panel-body">{{ post.text|markdown|safe }}</div>
 				</div>
