@@ -31,7 +31,7 @@ module.exports = (app)->
 			res.locals.on = 'assignments'
 			<- async.parallel [
 				(done)->
-					if req.session.auth is 3
+					if res.locals.auth is 3
 						# winston.info 'B1'
 						err, result <- Course.findOne {
 							'id': req.params.course
@@ -43,12 +43,12 @@ module.exports = (app)->
 						# winston.info 'B2'
 						done!
 				(done)->
-					if req.session.auth is 2
+					if res.locals.auth is 2
 						# winston.info 'B3'
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
-							'faculty': ObjectId req.session.uid
+							'faculty': ObjectId res.locals.uid
 						}
 						res.locals.course = result
 						done!
@@ -56,12 +56,12 @@ module.exports = (app)->
 						# winston.info 'B4'
 						done!
 				(done)->
-					if req.session.auth is 1
+					if res.locals.auth is 1
 						# winston.info 'B5'
 						err, result <- Course.findOne {
 							'id': req.params.course
 							'school': app.locals.school
-							'students': ObjectId req.session.uid
+							'students': ObjectId res.locals.uid
 						}
 						res.locals.course = result
 						done!
@@ -110,7 +110,7 @@ module.exports = (app)->
 						done!
 				(done)->
 					# faculty+
-					if req.session.auth >= 2
+					if res.locals.auth >= 2
 						# winston.info 'D1'
 						if req.params.attempt?
 							# winston.info 'D11'
@@ -138,7 +138,7 @@ module.exports = (app)->
 						done!
 				(done)->
 					# student
-					if req.session.auth is 1
+					if res.locals.auth is 1
 						# winston.info 'D2'
 						if req.params.attempt?
 							# winston.info 'D21'
@@ -146,7 +146,7 @@ module.exports = (app)->
 							err, result <- Attempt.findOne {
 								course: ObjectId res.locals.course._id
 								# assignment: {$in: assignments}
-								author: ObjectId req.session.uid
+								author: ObjectId res.locals.uid
 								_id: ObjectId req.params.attempt
 							} .populate('assignment').populate('author').exec
 							res.locals.attempts = result
@@ -157,7 +157,7 @@ module.exports = (app)->
 							err, result <- Attempt.find {
 								course: ObjectId res.locals.course._id
 								# assignment: {$in: assignments}
-								author: ObjectId req.session.uid
+								author: ObjectId res.locals.uid
 							} .populate('assignment').populate('author').exec
 							/* istanbul ignore else */
 							res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
@@ -206,7 +206,7 @@ module.exports = (app)->
 						# from my attempts figure out how many are for this assignment
 						for attempt in res.locals.attempts
 							if _.isEqual attempt.assignment._id.toString!, req.body.aid
-								if _.isEqual attempt.author._id.toString!, req.session.uid
+								if _.isEqual attempt.author._id.toString!, res.locals.uid
 									attempts.push attempt
 						# only if my attempts are less than assignment tries create the new attempt
 						if res.locals.assignments.0.tries > attempts.length
@@ -215,7 +215,7 @@ module.exports = (app)->
 								course: res.locals.course._id
 								text: req.body.text
 								school: app.locals.school
-								author: ObjectId req.session.uid
+								author: ObjectId res.locals.uid
 							}
 							if res.locals.assignments.0.end? and (new Date Date.now!) > res.locals.assignments.0.end
 								theAttempt.late = true
@@ -317,7 +317,7 @@ module.exports = (app)->
 						allowLate: if req.body.late is "yes" then true else false
 						totalPoints: req.body.total
 						# unchangeable
-						author: ObjectId req.session.uid
+						author: ObjectId res.locals.uid
 						course: res.locals.course._id
 						school: app.locals.school
 					}

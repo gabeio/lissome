@@ -109,9 +109,9 @@ module.exports = (app)->
 								title: encodeURIComponent req.body.title
 								text: req.body.text
 								# files: req.body.files
-								author: ObjectId req.session.uid
-								authorName: req.session.firstName+" "+req.session.lastName
-								authorUsername: req.session.username
+								author: ObjectId res.locals.uid
+								authorName: res.locals.firstName+" "+res.locals.lastName
+								authorUsername: res.locals.username
 								tags: []
 								type: 'blog'
 								school: app.locals.school
