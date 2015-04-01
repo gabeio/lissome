@@ -4,7 +4,7 @@ git:
 language: node_js
 node_js:
     - 'iojs-v1.5.1'
-    - 'iojs-v1.6.2'
+    - 'iojs-v1.6.3'
     - '0.10'
     - '0.12.1'
 sudo: false
