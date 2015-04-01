@@ -1,0 +1,101 @@
+{% extends '../base.html' %}
+
+{% block head %}
+	<title>Conference - {{ course.title }} - {{ school }}</title>
+{% endblock %}
+
+{% block body %}
+	<div class="container-fluid">
+		{% include '../navbar.html' %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ol class="breadcrumb">
+					<li><a href="/">Dash</a></li>
+					<li><a href="/{{ course.id }}">{{ course.title }}</a></li>
+					{% if posts %}
+					<li><a href="/{{ course.id }}/conference">Conference</a></li>
+					<li>Thread</li>
+					{% else %}
+					<li class="active">Conference</a></li>
+					{% endif %}
+				</ol>
+			</div>
+		</div>
+		{% if success %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				{% if success == 'yes' or success == 'true' %}
+				<div class="alert alert-success" role="alert">
+					Conference <strong>{{ action }}</strong> successfully.
+				</div>
+				{% elif success == 'no' or success == 'false' %}
+				<div class="alert alert-danger" role="alert">
+					Conference <strong>not</strong> {{ action }} successfully. Missing required field.
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		{% endif %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>{{ course.title }} - Conference</h3>
+				</div>
+				<div class="pull-right" style="padding-top: 8px;">
+					<a href="/{{ course.id }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
+				</div>
+			</div>
+		</div>
+		{% if posts %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1 clearfix">
+				<h4>{{ thread.title }}</h4>
+			</div>
+		</div>
+		{% endif %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1 clearfix">
+			{% if threads %}
+				<ul class="list-group clearfix">
+				{% for thread in threads %}
+					{% if thread.author._id|toString === uid %}
+					<a class="list-group-item clearfix" style="padding-top: 10px;" href="/{{ course.id }}/conference/{{ thread._id|toString }}">
+						<span class="pull-left">{{ thread.title }}</span>
+						<span class="pull-right">you</span>
+					</a>
+					{% else %}
+					<a class="list-group-item clearfix" href="/{{ course.id }}/conference/{{ thread._id|toString }}">
+						<span class="pull-left">{{ thread.title }}</span>
+						<span class="pull-right">
+							<span title="{{ thread.author.username }}">{{thread.author.firstName}} {{thread.author.lastName}}</span><br />
+							<span title="{{ thread.timestamp|timezone }}">{{ thread.timestamp|fromNow }}</span>
+						</span>
+					</a>
+					{% endif %}
+				{% endfor %}
+				</ul>
+			{% endif %}
+			{% if posts %}
+				{% for post in posts %}
+				<div class="panel panel-default">
+					<div class="panel-heading clearfix">
+						<h2 class="panel-title pull-left">{{ post.author.firstName }} {{ post.author.lastName }}</h2>
+					</div>
+					<div class="panel-body">{{ post.text|markdown|safe }}</div>
+				</div>
+				{% endfor %}
+				<form method="POST" action="?action=newpost">
+					<input type="hidden" name="tid" value="{{ thread._id|toString }}" />
+					<div class="form-group">
+						<label for="formBody">Reply <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
+						<textarea class="form-control" id="formBody" name="text" rows="3" autofocus tabindex="1" placeholder="Leave a comment...">{{ body.text }}</textarea>
+					</div>
+					<div class="form-group">
+						<button type="submit" class="btn btn-default" tabindex="2">Submit</button>
+					</div>
+				</form>
+			{% endif %}
+			</div>
+		</div>
+	</div>
+{% endblock %}
