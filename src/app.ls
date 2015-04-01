@@ -170,9 +170,10 @@ app
 					res.locals.csrfToken = req.csrfToken!
 			!->
 				if req.session? and req.session.auth?
+					res.locals.uid = req.session.uid.toString!
 					res.locals.firstName = req.session.firstName
 					res.locals.lastName = req.session.lastName
-					res.locals.username =  req.session.username
+					res.locals.username = req.session.username
 					res.locals.auth = req.session.auth # save auth level for template
 			!->
 				next!
