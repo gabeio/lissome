@@ -13,7 +13,7 @@
 					<li><a href="/">Dash</a></li>
 					<li><a href="/{{ course.id }}">{{ course.title }}</a></li>
 					<li><a href="/{{ course.id }}/assignments">Assignments</a></li>
-					{% for assignment in assignments %}{% if loop.first %}<li class="active">{{ assignment.title|url_decode }}</li>{% endif %}{% endfor %}
+					<li class="active">{{ assignments[0].title|url_decode }}</li>
 				</ol>
 			</div>
 		</div>
@@ -63,7 +63,6 @@
 					<div class="panel-heading clearfix">
 						<h3 class="panel-title pull-left"{% if 2 <= auth %} style="padding-top: 10px;"{% endif %}>{{ assignment.title|url_decode }}</h3>
 						<div class="pull-right">
-							<span></span>
 						{% if 2 <= auth %}
 							<div class="dropdown">
 								<button class="btn btn-default dropdown-toggle" type="button" id="blogPostMenu" data-toggle="dropdown" aria-expanded="true">
