@@ -4,6 +4,12 @@ module.exports = (app,mongohost,mongouser,mongopass)->
 		'winston'
 	}
 	mongo = mongoose.connection # create connection object
+	mongo.options = {
+		server:{
+			keepAlive: 1
+			poolSize: 6
+		}
+	}
 	/* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
 	if mongouser? && mongopass? # if there is auth
 		mongo.open mongohost, { 'user': mongouser, 'pass': mongopass }
