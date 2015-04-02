@@ -76,33 +76,33 @@ module.exports = (app)->
 				# winston.info 'B8'
 				next new Error 'UNAUTHORIZED'
 		.all (req, res, next)->
-			# winston.info 'C'
+			winston.info 'course',res.locals.course
 			# do for every request
 			# get assign_id
 			<- async.parallel [
 				(done)->
-					if req.params.assign? && !req.params.attempt?
-						# winston.info 'C1'
-						# find assignment(s) w/ title
+					# default view
+					if !req.params.assign? && !req.params.attempt?
+						# winston.info 'C2'
+						# find all assignments
 						err, result <- Assignment.find {
-							school: app.locals.school
 							course: ObjectId res.locals.course._id
-							# optional stuff
-							title: encodeURIComponent req.params.assign
-						} .populate('author').exec
+						} .populate 'author' .exec
 						/* istanbul ignore else */
 						res.locals.assignments = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 						done!
 					else
 						done!
 				(done)->
-					if !req.params.assign? && !req.params.attempt?
-						# winston.info 'C2'
-						# find all assignments
+					# assignment view
+					if req.params.assign? && !req.params.attempt?
+						# winston.info 'C1'
+						# find assignment(s) w/ title
 						err, result <- Assignment.find {
-							school: app.locals.school
 							course: ObjectId res.locals.course._id
-						} .populate('author').exec
+							# optional stuff
+							title: encodeURIComponent req.params.assign
+						} .populate 'author' .exec
 						/* istanbul ignore else */
 						res.locals.assignments = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 						done!
@@ -119,7 +119,7 @@ module.exports = (app)->
 								course: ObjectId res.locals.course._id
 								# assignment: {$in: assignments}
 								_id: ObjectId req.params.attempt
-							} .populate('assignment').populate('author').exec
+							} .populate 'assignment' .populate 'author' .exec
 							res.locals.attempts = result
 							done!
 						else if req.params.assign?
@@ -128,7 +128,7 @@ module.exports = (app)->
 							err, result <- Attempt.find {
 								course: ObjectId res.locals.course._id
 								# assignment: {$in: assignments}
-							} .populate('assignment').populate('author').exec
+							} .populate 'assignment' .populate 'author' .exec
 							/* istanbul ignore else */
 							res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 							done!
@@ -148,7 +148,7 @@ module.exports = (app)->
 								# assignment: {$in: assignments}
 								author: ObjectId res.locals.uid
 								_id: ObjectId req.params.attempt
-							} .populate('assignment').populate('author').exec
+							} .populate 'assignment' .populate 'author' .exec
 							res.locals.attempts = result
 							done!
 						else if req.params.assign?
@@ -158,7 +158,7 @@ module.exports = (app)->
 								course: ObjectId res.locals.course._id
 								# assignment: {$in: assignments}
 								author: ObjectId res.locals.uid
-							} .populate('assignment').populate('author').exec
+							} .populate 'assignment' .populate 'author' .exec
 							/* istanbul ignore else */
 							res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 							done!
@@ -214,7 +214,6 @@ module.exports = (app)->
 								assignment: ObjectId req.body.aid
 								course: res.locals.course._id
 								text: req.body.text
-								school: app.locals.school
 								author: ObjectId res.locals.uid
 							}
 							if res.locals.assignments.0.end? and (new Date Date.now!) > res.locals.assignments.0.end
@@ -284,7 +283,6 @@ module.exports = (app)->
 						delete assign.end
 					err,assign <- Assignment.findOneAndUpdate {
 						'_id': ObjectId req.body.aid
-						'school': app.locals.school
 						'course': ObjectId res.locals.course._id
 						# don't check for author as me might not be...
 					}, assign
@@ -319,7 +317,6 @@ module.exports = (app)->
 						# unchangeable
 						author: ObjectId res.locals.uid
 						course: res.locals.course._id
-						school: app.locals.school
 					}
 					if !moment(res.locals.start).isValid!
 						delete assign.start
@@ -339,7 +336,6 @@ module.exports = (app)->
 					res.status 400 .render 'assignments/create' { assignments: [req.body], -success, action:'edit' }
 				else
 					err, attempt <- Attempt.findOneAndUpdate {
-						'school': app.locals.school
 						'course': ObjectId res.locals.course._id
 						'_id': ObjectId req.body.aid
 					}, {
@@ -360,7 +356,6 @@ module.exports = (app)->
 			| 'delete'
 				err, attempts <- Attempt.remove {
 					'assignment': ObjectId req.body.aid
-					'school': app.locals.school
 					'course': ObjectId res.locals.course._id
 				}
 				# winston.info 'deleted:',attempts
@@ -370,7 +365,6 @@ module.exports = (app)->
 				else
 					err, assignments <- Assignment.remove {
 						'_id': ObjectId req.body.aid
-						'school': app.locals.school
 						'course': ObjectId res.locals.course._id
 					}
 					# winston.info 'deleted:',assignments
@@ -389,7 +383,6 @@ module.exports = (app)->
 				# winston.info 'mapped', assignments
 				err, attempts <- Attempt.remove {
 					'assignment': {$in: assignments}
-					'school': app.locals.school
 					'course': ObjectId res.locals.course._id
 				}
 				# winston.info 'deleted:',attempts
@@ -399,7 +392,6 @@ module.exports = (app)->
 				else
 					err, assignments <- Assignment.remove {
 						'_id': {$in: assignments}
-						'school': app.locals.school
 						'course': ObjectId res.locals.course._id
 					}
 					# winston.info 'deleted:',assignments
