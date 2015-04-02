@@ -95,7 +95,10 @@ module.exports = (app)->
 						}
 						.populate 'author'
 						.exec
-						res.locals.assignment = result.toObject!
+						if result?
+							res.locals.assignment = result.toObject!
+						else
+							res.locals.assignment = result
 						done!
 					else
 						done!
