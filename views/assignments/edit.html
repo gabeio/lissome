@@ -54,12 +54,11 @@
 				{% endif %}{# auth #}
 			</div>
 		</div>
-		{% for assignment in assignments %}
 		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?hmo=put&action=edit" enctype="multipart/form-data">
 			<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />
 			<div class="form-group">
 				<label for="formTitle">Title</label>
-				<input type="text" class="form-control" id="formTitle" name="title" value="{% if body %}{{ body.title }}{% else %}{{ assignment.title|url_decode }}{% endif %}" {% if loop.first %}autofocus{% endif %} tabindex="1" />
+				<input type="text" class="form-control" id="formTitle" name="title" value="{% if body %}{{ body.title }}{% else %}{{ assignment.title }}{% endif %}" {% if loop.first %}autofocus{% endif %} tabindex="1" />
 			</div>
 			<div class="form-group">
 				<label for="formOpendate">Opens on</label>
@@ -104,6 +103,5 @@
 				<button type="submit" class="btn btn-default" tabindex="10">Submit</button>
 			</div>
 		</form>
-		{% endfor %}
 	</div>
 {% endblock %}
