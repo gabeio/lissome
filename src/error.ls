@@ -10,7 +10,7 @@ module.exports = (app)->
 			async.parallel [
 				!->
 					# ALWAYS LOG
-					winston.error 'error: ' + err + '\turl: ' + req.url
+					winston.error err,req.originalUrl
 				!->
 					if err?
 						if err.code is 'EBADCSRFTOKEN'
