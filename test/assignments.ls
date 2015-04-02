@@ -1,13 +1,13 @@
 require! {
-	'async'
-	'chai' # assert lib
-	'del' # delete
-	'lodash'
-	'moment'
-	'mongoose'
-	'supertest' # request lib
+	"async"
+	"chai" # assert lib
+	"del" # delete
+	"lodash"
+	"moment"
+	"mongoose"
+	"supertest" # request lib
 }
-app = require '../lib/app'
+app = require "../lib/app"
 ObjectId = mongoose.Types.ObjectId
 _ = lodash
 req = supertest
@@ -23,30 +23,30 @@ admin = req.agent app
 describe "Assignments" ->
 	before (done)->
 		student
-			.post '/login'
+			.post "/login"
 			.send {
-				'username': 'student'
-				'password': 'password'
+				"username": "student"
+				"password": "password"
 			}
 			.end (err, res)->
 				expect res.status .to.equal 302
 				done err
 	before (done)->
 		faculty
-			.post '/login'
+			.post "/login"
 			.send {
-				'username':'faculty'
-				'password':'password'
+				"username":"faculty"
+				"password":"password"
 			}
 			.end (err, res)->
 				expect res.status .to.equal 302
 				done!
 	before (done)->
 		admin
-			.post '/login'
+			.post "/login"
 			.send {
-				'username':'admin'
-				'password':'password'
+				"username":"admin"
+				"password":"password"
 			}
 			.end (err, res)->
 				expect res.status .to.equal 302
@@ -54,77 +54,95 @@ describe "Assignments" ->
 	describe "Faculty+", (...)->
 		it "should allow a faculty to create an assignment", (done)->
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'title'
-					'opendate':'12/31/1999'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/2000'
-					'closetime':'1:00 PM'
-					'total':'100'
-					'tries':'1'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"title"
+					"opendate":"12/31/1999"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/2000"
+					"closetime":"1:00 PM"
+					"total":"100"
+					"tries":"1"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
-					expect res.header.location .to.equal '/cps1234/assignments/title'
+					expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
 					done err
 		it "should allow an admin to create an assignment", (done)->
 			admin
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'anotherTitle'
-					'opendate':'12/31/1999'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/2000'
-					'closetime':'1:00 PM'
-					'total':'100'
-					'tries':'1'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"anotherTitle"
+					"opendate":"12/31/1999"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/2000"
+					"closetime":"1:00 PM"
+					"total":"100"
+					"tries":"1"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
-					expect res.header.location .to.equal '/cps1234/assignments/anotherTitle'
+					expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
 					done err
 		it "should allow a faculty to view an assignment", (done)->
-			faculty
-				.get '/cps1234/assignments/title'
-				.end (err, res)->
-					expect res.status .to.equal 200
-					done err
+			err <- async.waterfall [
+				(cont)->
+					faculty
+						.get "/test/getaid/cps1234?title=title"
+						.end (err, res)->
+							cont err, res.body
+				(aid,cont)->
+					faculty
+						.get "/cps1234/assignments/#{aid.0._id.toString()}"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							cont err
+			]
+			done err
 		it "should allow an admin to view an assignment", (done)->
-			admin
-				.get '/cps1234/assignments/anotherTitle'
-				.end (err, res)->
-					expect res.status .to.equal 200
-					done err
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get "/test/getaid/cps1234?title=anotherTitle"
+						.end (err, res)->
+							cont err, res.body
+				(aid,cont)->
+					admin
+						.get "/cps1234/assignments/#{aid.0._id.toString()}"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							cont err
+			]
+			done err
 		it "should allow a faculty to edit an assignment", (done)->
 			err <- async.waterfall [
 				(cont)->
 					faculty
-						.get '/test/getaid/cps1234?title=title'
+						.get "/test/getaid/cps1234?title=title"
 						.end (err, res)->
 							cont err, res.body
 				(aid, cont)->
 					faculty
-						.post '/cps1234/assignments/title?hmo=PUT&action=edit'
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							'aid': ObjectId aid.0._id
-							'title': decodeURIComponent aid.0.title
-							'opendate': '12/31/1999'
-							'opentime': '1:00 AM'
-							'closedate': '1/1/2000'
-							'closetime': '1:00 PM'
-							'total': '100'
-							'tries': '1'
-							'late': 'yes'
-							'text': 'you will fail!'
+							"aid": aid.0._id
+							"title": aid.0.title
+							"opendate": "12/31/1999"
+							"opentime": "1:00 AM"
+							"closedate": "1/1/2000"
+							"closetime": "1:00 PM"
+							"total": "100"
+							"tries": "1"
+							"late": "yes"
+							"text": "you will fail!"
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							expect res.header.location .to.equal '/cps1234/assignments/'+ encodeURIComponent aid.0.title
+							expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
 							cont err
 			]
 			done err
@@ -132,27 +150,27 @@ describe "Assignments" ->
 			err <- async.waterfall [
 				(cont)->
 					admin
-						.get '/test/getaid/cps1234?title=anotherTitle'
+						.get "/test/getaid/cps1234?title=anotherTitle"
 						.end (err, res)->
 							cont err, res.body
 				(aid, cont)->
 					admin
-						.post '/cps1234/assignments/anotherTitle?hmo=PUT&action=edit'
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							'aid': ObjectId aid.0._id
-							'title': decodeURIComponent aid.0.title
-							'opendate': '12/31/1999'
-							'opentime': '1:00 AM'
-							'closedate': '1/1/2000'
-							'closetime': '1:00 PM'
-							'total': '100'
-							'tries': '1'
-							'late': 'yes'
-							'text': 'you will fail!'
+							"aid": aid.0._id
+							"title": aid.0.title
+							"opendate": "12/31/1999"
+							"opentime": "1:00 AM"
+							"closedate": "1/1/2000"
+							"closetime": "1:00 PM"
+							"total": "100"
+							"tries": "1"
+							"late": "yes"
+							"text": "you will fail!"
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							expect res.header.location .to.equal '/cps1234/assignments/'+ aid.0.title
+							expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
 							cont err
 			]
 			done err
@@ -160,17 +178,18 @@ describe "Assignments" ->
 			err <- async.waterfall [
 				(cont)->
 					faculty
-						.get '/test/getaid/cps1234?title=title'
+						.get "/test/getaid/cps1234?title=title"
 						.end (err, res)->
 							cont err, res.body
 				(aid,cont)->
 					faculty
-						.post '/cps1234/assignments/title?hmo=DELETE&action=delete'
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
 						.send {
-							'aid':aid.0._id
+							"aid": aid.0._id
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
+							expect res.header.location .to.match /^\/cps1234\/assignments\/?/i
 							cont err
 			]
 			done err
@@ -178,52 +197,53 @@ describe "Assignments" ->
 			err <- async.waterfall [
 				(cont)->
 					admin
-						.get '/test/getaid/cps1234?title=anotherTitle'
+						.get "/test/getaid/cps1234?title=anotherTitle"
 						.end (err, res)->
 							cont err, res.body
 				(aid,cont)->
 					admin
-						.post '/cps1234/assignments/anotherTitle?hmo=DELETE&action=delete'
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
 						.send {
-							'aid':aid.0._id
+							"aid":aid.0._id
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
+							expect res.header.location .to.match /^\/cps1234\/assignments\/?/i
 							cont err
 			]
 			done err
 	describe "Outside Faculty", (...)->
 		before (done)->
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'outsideFaculty'
-					'opendate':'2/1/2000'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/3000'
-					'closetime':'1:00 PM'
-					'total':'100'
-					'tries':'100'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"outsideFaculty"
+					"opendate":"2/1/2000"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/3000"
+					"closetime":"1:00 PM"
+					"total":"100"
+					"tries":"100"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
-					expect res.header.location .to.equal '/cps1234/assignments/outsideFaculty'
+					expect res.header.location .to.match /^\/cps1234\/assignments\//i
 					done err
 		before (done)->
 			err <- async.waterfall [
 				(cont)->
 					faculty
-						.get '/logout'
+						.get "/logout"
 						.end (err, res)->
 							cont err
 				(cont)->
 					faculty
-						.post '/login'
+						.post "/login"
 						.send {
-							'username': 'gfaculty'
-							'password': 'password'
+							"username": "gfaculty"
+							"password": "password"
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
@@ -234,15 +254,15 @@ describe "Assignments" ->
 			err <- async.waterfall [
 				(cont)->
 					faculty
-						.get '/logout'
+						.get "/logout"
 						.end (err, res)->
 							cont err
 				(cont)->
 					faculty
-						.post '/login'
+						.post "/login"
 						.send {
-							'username': 'faculty'
-							'password': 'password'
+							"username": "faculty"
+							"password": "password"
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
@@ -254,14 +274,14 @@ describe "Assignments" ->
 			err <- async.waterfall [
 				(cont)->
 					admin
-						.get '/test/getaid/cps1234?title=outsideFaculty'
+						.get "/test/getaid/cps1234?title=outsideFaculty"
 						.end (err, res)->
 							cont err, res.body
 				(aid,cont)->
 					admin
-						.post '/cps1234/assignments/outsideFaculty?hmo=DELETE&action=delete'
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
 						.send {
-							'aid':aid.0._id
+							"aid": aid.0._id
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
@@ -270,53 +290,62 @@ describe "Assignments" ->
 			done err
 		it "should not allow a faculty outside the course to create an assignment", (done)->
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'outsideFaculty2'
-					'opendate':'12/31/1999'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/2000'
-					'closetime':'1:00 PM'
-					'total':'100'
-					'tries':'1'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"created by outsideFaculty"
+					"opendate":"12/31/1999"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/2000"
+					"closetime":"1:00 PM"
+					"total":"100"
+					"tries":"1"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					# expect res.status .to.equal 302
-					expect res.header.location .to.not.equal '/cps1234/assignments/outsideFaculty2'
+					expect res.header.location .to.not.equal "/cps1234/assignments/outsideFaculty2"
 					done err
 		it "should not allow a faculty outside the course to view an assignment", (done)->
-			faculty
-				.get '/cps1234/assignments/outsideFaculty'
-				.end (err, res)->
-					expect res.status .to.not.equal 200
-					done err
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get "/test/getaid/cps1234?title=outsideFaculty"
+						.end (err, res)->
+							cont err, res.body
+				(aid,cont)->
+					faculty
+						.get "/cps1234/assignments/#{aid.0._id.toString()}"
+						.end (err, res)->
+							expect res.status .to.not.equal 200
+							cont err
+			]
+			done err
 		it "should not allow a faculty outside the course to edit an assignment", (done)->
 			err <- async.waterfall [
 				(cont)->
 					faculty
-						.get '/test/getaid/cps1234?title=outsideFaculty'
+						.get "/test/getaid/cps1234?title=outsideFaculty"
 						.end (err, res)->
 							cont err, res.body
 				(aid, cont)->
 					faculty
-						.post '/cps1234/assignments/outsideFaculty?hmo=PUT&action=edit'
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							'aid': ObjectId aid.0._id
-							'title': decodeURIComponent aid.0.title
-							'opendate': '12/31/1999'
-							'opentime': '1:00 AM'
-							'closedate': '1/1/2000'
-							'closetime': '1:00 PM'
-							'total': '100'
-							'tries': '1'
-							'late': 'yes'
-							'text': 'you will fail!'
+							"aid": aid.0._id
+							"title": aid.0.title
+							"opendate": "12/31/1999"
+							"opentime": "1:00 AM"
+							"closedate": "1/1/2000"
+							"closetime": "1:00 PM"
+							"total": "100"
+							"tries": "1"
+							"late": "yes"
+							"text": "you will fail!"
 						}
 						.end (err, res)->
 							# expect res.status .to.equal 302
-							expect res.header.location .to.not.equal '/cps1234/assignments/'+ encodeURIComponent aid.0.title
+							expect res.header.location .to.not.equal "/cps1234/assignments/#{aid.0._id.toString()}"
 							cont err
 			]
 			done err
@@ -324,83 +353,83 @@ describe "Assignments" ->
 			err <- async.waterfall [
 				(cont)->
 					faculty
-						.get '/test/getaid/cps1234?title=outsideFaculty'
+						.get "/test/getaid/cps1234?title=outsideFaculty"
 						.end (err, res)->
 							cont err, res.body
 				(aid,cont)->
 					faculty
-						.post '/cps1234/assignments/outsideFaculty?hmo=DELETE&action=delete'
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
 						.send {
-							'aid':aid.0._id
+							"aid":aid.0._id
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							expect res.header.location .to.equal '/'
+							expect res.header.location .to.equal "/"
 							cont err
 			]
 			done err
 	describe "Student", (...)->
 		before (done)->
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'aUniqueTitle'
-					'opendate':'2/1/2000'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/3000'
-					'closetime':'1:00 PM'
-					'total':'100'
-					'tries':'100'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"aUniqueTitle"
+					"opendate":"2/1/2000"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/3000"
+					"closetime":"1:00 PM"
+					"total":"100"
+					"tries":"100"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
-					expect res.header.location .to.equal '/cps1234/assignments/aUniqueTitle'
+					expect res.header.location .to.match /^\/cps1234\/assignments\//
 					done err
 		it "should not allow a student to create an assignment", (done)->
 			student
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'student created this'
-					'opendate':'12/31/1999'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/2000'
-					'closetime':'1:00 PM'
-					'total':'100'
-					'tries':'1'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"student created this"
+					"opendate":"12/31/1999"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/2000"
+					"closetime":"1:00 PM"
+					"total":"100"
+					"tries":"1"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
-					expect res.header.location .to.not.equal '/cps1234/assignments/title'
+					expect res.header.location .to.not.match /^\/cps1234\/assignments\/.{24}\/?/i
 					done err
 		it "should not allow a student to edit an assignment", (done)->
 			err <- async.waterfall [
 				(cont)->
 					student
-						.get '/test/getaid/cps1234?title=aUniqueTitle'
+						.get "/test/getaid/cps1234?title=aUniqueTitle"
 						.end (err, res)->
 							cont err, res.body
 				(aid, cont)->
 					student
-						.post '/cps1234/assignments/title?hmo=PUT&action=edit'
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							'aid': ObjectId aid.0._id
-							'title': 'title edited by a student'
-							'opendate': '12/31/1999'
-							'opentime': '1:00 AM'
-							'closedate': '1/1/2000'
-							'closetime': '1:00 PM'
-							'total': '100'
-							'tries': '100'
-							'late': 'yes'
-							'text': 'you will fail!'
+							"aid": aid.0._id
+							"title": "title edited by a student"
+							"opendate": "12/31/1999"
+							"opentime": "1:00 AM"
+							"closedate": "1/1/2000"
+							"closetime": "1:00 PM"
+							"total": "100"
+							"tries": "100"
+							"late": "yes"
+							"text": "you will fail!"
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							expect res.header.location .to.not.equal '/cps1234/assignments/title%20edited%20by%20a%20student'
+							expect res.header.location .to.not.equal "/cps1234/assignments/#{aid.0._id.toString()}"
 							cont err
 			]
 			done err
@@ -408,14 +437,14 @@ describe "Assignments" ->
 			err <- async.waterfall [
 				(cont)->
 					student
-						.get '/test/getaid/cps1234?title=aUniqueTitle'
+						.get "/test/getaid/cps1234?title=aUniqueTitle"
 						.end (err, res)->
 							cont err, res.body
 				(aid,cont)->
 					student
-						.post '/cps1234/assignments/aUniqueTitle?hmo=DELETE&action=delete'
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
 						.send {
-							'aid':aid.0._id
+							"aid":aid.0._id
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
@@ -424,113 +453,123 @@ describe "Assignments" ->
 			done err
 		it "should allow a student to view a list of assignments", (done)->
 			student
-				.get '/cps1234/assignments'
+				.get "/cps1234/assignments"
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
 		it "should allow a student to view an assignment", (done)->
-			student
-				.get '/cps1234/assignments/title'
-				.end (err, res)->
-					expect res.status .to.equal 200
-					done err
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get "/test/getaid/cps1234?title=aUniqueTitle"
+						.end (err, res)->
+							console.log res.body
+							cont err, res.body
+				(aid,cont)->
+					student
+						.get "/cps1234/assignments/#{aid.0._id.toString()}"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							cont err
+			]
+			done err
 		it "should allow a student to submit an attempt on an assignment", (done)->
 			err <- async.waterfall [
 				(cont)->
 					student
-						.post '/test/getaid/cps1234?title=aUniqueTitle'
+						.post "/test/getaid/cps1234?title=aUniqueTitle"
 						.end (err, res)->
 							cont err, res.body
 				(aid, cont)->
 					student
-						.post '/cps1234/assignments/aUniqueTitle?action=attempt'
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?action=attempt"
 						.send {
-							'aid':aid.0._id
-							'text':'something right here'
+							"aid":aid.0._id
+							"text":"something right here"
 						}
 						.end (err, res)->
 							expect res.status .to.not.match /^(4|5)/i
-							expect res.headers.location .to.match /^\/cps1234\/assignments\/aUniqueTitle\/.{12}\/?/i
+							expect res.headers.location .to.match /^\/cps1234\/assignments\/.{24}\/.{24}\/?/i
 							cont err
 			]
 			done err
 	describe "Outside Student", (...)->
 		before (done)->
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'aUniqueTitle'
-					'opendate':'2/1/2000'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/3000'
-					'closetime':'1:00 PM'
-					'total':'100'
-					'tries':'100'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"aUniqueTitle"
+					"opendate":"2/1/2000"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/3000"
+					"closetime":"1:00 PM"
+					"total":"100"
+					"tries":"100"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
-					expect res.header.location .to.equal '/cps1234/assignments/aUniqueTitle'
+					expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/
 					done err
 		before (done)->
 			student
-				.get '/logout'
+				.get "/logout"
 				.end (err, res)->
 					done err
 		before (done)->
 			student
-				.post '/login'
+				.post "/login"
 				.send {
-					'username': 'astudent'
-					'password': 'password'
+					"username": "astudent"
+					"password": "password"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
 					done err
 		it "should not allow an outside student to create an assignment", (done)->
 			student
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'aUniqueTitle'
-					'opendate':'12/31/1999'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/2000'
-					'closetime':'1:00 PM'
-					'total':'100'
-					'tries':'1'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"aUniqueTitle"
+					"opendate":"12/31/1999"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/2000"
+					"closetime":"1:00 PM"
+					"total":"100"
+					"tries":"1"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
-					expect res.header.location .to.equal '/'
+					expect res.header.location .to.equal "/"
 					done err
 		it "should not allow an outside student to edit an assignment", (done)->
 			err <- async.waterfall [
 				(cont)->
 					student
-						.get '/test/getaid/cps1234?title=aUniqueTitle'
+						.get "/test/getaid/cps1234?title=aUniqueTitle"
 						.end (err, res)->
 							cont err, res.body
 				(aid, cont)->
 					student
-						.post '/cps1234/assignments/aUniqueTitle?hmo=PUT&action=edit'
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							'aid': ObjectId aid.0._id
-							'title': 'edited by an outside student'
-							'opendate': '12/31/1999'
-							'opentime': '1:00 AM'
-							'closedate': '1/1/2000'
-							'closetime': '1:00 PM'
-							'total': '100'
-							'tries': '1'
-							'late': 'yes'
-							'text': 'you will fail!'
+							"aid": aid.0._id
+							"title": "edited by an outside student"
+							"opendate": "12/31/1999"
+							"opentime": "1:00 AM"
+							"closedate": "1/1/2000"
+							"closetime": "1:00 PM"
+							"total": "100"
+							"tries": "1"
+							"late": "yes"
+							"text": "you will fail!"
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							expect res.header.location .to.equal '/'
+							expect res.header.location .to.equal "/"
 							cont err
 			]
 			done err
@@ -538,51 +577,60 @@ describe "Assignments" ->
 			err <- async.waterfall [
 				(cont)->
 					student
-						.get '/test/getaid/cps1234?title=aUniqueTitle'
+						.get "/test/getaid/cps1234?title=aUniqueTitle"
 						.end (err, res)->
 							cont err, res.body
 				(aid,cont)->
 					student
-						.post '/cps1234/assignments/aUniqueTitle?hmo=DELETE&action=delete'
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
 						.send {
-							'aid':aid.0._id
+							"aid":aid.0._id
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							expect res.header.location .to.equal '/'
+							expect res.header.location .to.equal "/"
 							cont err
 			]
 			done err
 		it "should not allow an outside student to view a list of assignments", (done)->
 			student
-				.get '/cps1234/assignments'
+				.get "/cps1234/assignments"
 				.end (err, res)->
 					expect res.status .to.equal 302
-					expect res.header.location .to.equal '/'
+					expect res.header.location .to.equal "/"
 					done err
 		it "should not allow an outside student to view an assignment", (done)->
-			student
-				.get '/cps1234/assignments/aUniqueTitle'
-				.end (err, res)->
-					expect res.status .to.equal 302
-					expect res.header.location .to.equal '/'
-					done err
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get "/test/getaid/cps1234?title=aUniqueTitle"
+						.end (err, res)->
+							cont err, res.body
+				(aid,cont)->
+					student
+						.get "/cps1234/assignments/#{aid.0._id.toString()}"
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.equal "/"
+							cont err
+			]
+			done err
 		it "should not allow a student to submit an attempt on an assignment", (done)->
 			err <- async.waterfall [
 				(cont)->
 					student
-						.post '/test/getaid/cps1234?title=aUniqueTitle'
+						.post "/test/getaid/cps1234?title=aUniqueTitle"
 						.end (err, res)->
 							cont err, res.body
 				(aid, cont)->
 					student
-						.post '/cps1234/assignments/aUniqueTitle?action=attempt'
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?action=attempt"
 						.send {
-							'aid':aid.0._id
-							'text':'something right here'
+							"aid":aid.0._id
+							"text":"something right here"
 						}
 						.end (err, res)->
-							expect res.headers.location .to.not.equal '/cps1234/assignments/aUniqueTitle'
+							expect res.headers.location .to.not.equal "/cps1234/assignments/#{aid.0._id.toString()}"
 							cont err
 			]
 			done err
@@ -590,191 +638,174 @@ describe "Assignments" ->
 		after (done)->
 			this.timeout 0
 			# clean up outsideFaculty
-			err <- async.waterfall [
-				(cont)->
-					admin
-						.get '/test/getaid/cps1234?title=title'
-						.end (err, res)->
-							plucked = _.pluck res.body, '_id'
-							cont err, plucked
-
-				(aid,cont)->
-					err, result <- async.map aid, (id,fin)->
-						admin
-							.post '/cps1234/assignments/title?hmo=DELETE&action=delete'
-							.send {
-								'aid':id._id
-							}
-							.end (err, res)->
-								expect res.status .to.equal 302
-								fin err, void
-					cont err
-			]
-			done err
+			admin
+				.get "/test/deleteassignments/cps1234"
+				.end (err, res)->
+					done err
 		it "should not crash when creating/editing an assignment without opendate", (done)->
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'title'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/2000'
-					'closetime':'1:00 PM'
-					'total':'100'
-					'tries':'1'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"title"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/2000"
+					"closetime":"1:00 PM"
+					"total":"100"
+					"tries":"1"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.equal '/cps1234/assignments/title'
+					expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
 					done err
 		it "should not crash when creating/editing an assignment without opentime", (done)->
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'title'
-					'opendate':'12/31/1999'
-					'closedate':'1/1/2000'
-					'closetime':'1:00 PM'
-					'total':'100'
-					'tries':'1'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"title"
+					"opendate":"12/31/1999"
+					"closedate":"1/1/2000"
+					"closetime":"1:00 PM"
+					"total":"100"
+					"tries":"1"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.equal '/cps1234/assignments/title'
+					expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
 					done err
 		it "should not crash when creating/editing an assignment without opendate & opentime", (done)->
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'title'
-					'closedate':'1/1/2000'
-					'closetime':'1:00 PM'
-					'total':'100'
-					'tries':'1'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"title"
+					"closedate":"1/1/2000"
+					"closetime":"1:00 PM"
+					"total":"100"
+					"tries":"1"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.equal '/cps1234/assignments/title'
+					expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
 					done err
 		it "should not crash when creating/editing an assignment without closedate", (done)->
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'title'
-					'opendate':'12/31/1999'
-					'opentime':'1:00 AM'
-					'closetime':'1:00 PM'
-					'total':'100'
-					'tries':'1'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"title"
+					"opendate":"12/31/1999"
+					"opentime":"1:00 AM"
+					"closetime":"1:00 PM"
+					"total":"100"
+					"tries":"1"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.equal '/cps1234/assignments/title'
+					expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
 					done err
 		it "should not crash when creating/editing an assignment without closetime", (done)->
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'title'
-					'opendate':'12/31/1999'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/2000'
-					'total':'100'
-					'tries':'1'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"title"
+					"opendate":"12/31/1999"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/2000"
+					"total":"100"
+					"tries":"1"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.equal '/cps1234/assignments/title'
+					expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
 					done err
 		it "should not crash when creating/editing an assignment without closedate & closetime", (done)->
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'title'
-					'opendate':'12/31/1999'
-					'opentime':'1:00 AM'
-					'total':'100'
-					'tries':'1'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"title"
+					"opendate":"12/31/1999"
+					"opentime":"1:00 AM"
+					"total":"100"
+					"tries":"1"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.equal '/cps1234/assignments/title'
+					expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
 					done err
 		it "should not crash when creating/editing an assignment without points", (done)->
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'title'
-					'opendate':'12/31/1999'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/2000'
-					'closetime':'1:00 PM'
-					'tries':'1'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"title"
+					"opendate":"12/31/1999"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/2000"
+					"closetime":"1:00 PM"
+					"tries":"1"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.equal '/cps1234/assignments/title'
+					expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
 					done err
 		it "should not allow creating/editing an assignment without a title", (done)->
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'opendate':'12/31/1999'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/2000'
-					'closetime':'1:00 PM'
-					'tries':'1'
-					'late':'yes'
-					'text':'you will fail!'
+					"opendate":"12/31/1999"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/2000"
+					"closetime":"1:00 PM"
+					"tries":"1"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					# expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.not.match /^\/cps1234\/assignments\//i
+					expect res.header.location .to.not.match /^\/cps1234\/assignments\/.{24}\/?/i
 					done err
 		it "should not allow creating/editing an assignment without a body", (done)->
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'title'
-					'opendate':'12/31/1999'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/2000'
-					'closetime':'1:00 PM'
-					'tries':'1'
-					'late':'yes'
+					"title":"title"
+					"opendate":"12/31/1999"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/2000"
+					"closetime":"1:00 PM"
+					"tries":"1"
+					"late":"yes"
 				}
 				.end (err, res)->
 					# expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.not.match /^\/cps1234\/assignments\//i
+					expect res.header.location .to.not.match /^\/cps1234\/assignments\/.{24}\/?/i
 					done err
 		it "should not allow creating/editing an assignment without tries", (done)->
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'title'
-					'opendate':'12/31/1999'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/2000'
-					'closetime':'1:00 PM'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"title"
+					"opendate":"12/31/1999"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/2000"
+					"closetime":"1:00 PM"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					# expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.not.match /^\/cps1234\/assignments\//i
+					expect res.header.location .to.not.match /^\/cps1234\/assignments\/.{24}\/?/i
 					done err
 	describe "Other Functions", (...)->
 		otherFunc = {}
@@ -782,15 +813,15 @@ describe "Assignments" ->
 			err <- async.waterfall [
 				(cont)->
 					student
-						.get '/logout'
+						.get "/logout"
 						.end (err, res)->
 							cont err
 				(cont)->
 					student
-						.post '/login'
+						.post "/login"
 						.send {
-							'username': 'student'
-							'password': 'password'
+							"username": "student"
+							"password": "password"
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
@@ -800,17 +831,17 @@ describe "Assignments" ->
 		before (done)->
 			# for now < date
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'Early'
-					'opendate':'1/1/3000'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/4000'
-					'closetime':'1:00 PM'
-					'total':'100'
-					'tries':'100'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"Early"
+					"opendate":"1/1/3000"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/4000"
+					"closetime":"1:00 PM"
+					"total":"100"
+					"tries":"100"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
@@ -818,17 +849,17 @@ describe "Assignments" ->
 		before (done)->
 			# for now > close
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'Late'
-					'opendate':'1/1/1000'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/2000'
-					'closetime':'1:00 PM'
-					'total':'100'
-					'tries':'100'
-					'late':'no'
-					'text':'you will fail!'
+					"title":"Late"
+					"opendate":"1/1/1000"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/2000"
+					"closetime":"1:00 PM"
+					"total":"100"
+					"tries":"100"
+					"late":"no"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
@@ -836,17 +867,17 @@ describe "Assignments" ->
 		before (done)->
 			# for now > close & allowLate = true
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'allowLate'
-					'opendate':'1/1/1000'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/2000'
-					'closetime':'1:00 PM'
-					'total':'100'
-					'tries':'1000'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"allowLate"
+					"opendate":"1/1/1000"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/2000"
+					"closetime":"1:00 PM"
+					"total":"100"
+					"tries":"1000"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
@@ -854,17 +885,17 @@ describe "Assignments" ->
 		before (done)->
 			# for attempts > allowed
 			faculty
-				.post '/cps1234/assignments?action=new'
+				.post "/cps1234/assignments?action=new"
 				.send {
-					'title':'None'
-					'opendate':'1/1/2000'
-					'opentime':'1:00 AM'
-					'closedate':'1/1/3000'
-					'closetime':'1:00 PM'
-					'total':'100'
-					'tries':'0'
-					'late':'yes'
-					'text':'you will fail!'
+					"title":"None"
+					"opendate":"1/1/2000"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/3000"
+					"closetime":"1:00 PM"
+					"total":"100"
+					"tries":"0"
+					"late":"yes"
+					"text":"you will fail!"
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
@@ -873,28 +904,28 @@ describe "Assignments" ->
 			err <- async.parallel [
 				(cont)->
 					student
-						.post '/test/getaid/cps1234?title=Early'
+						.post "/test/getaid/cps1234?title=Early"
 						.end (err, res)->
 							assignments = JSON.parse res.text
 							otherFunc.Early = assignments.0._id
 							cont err
 				(cont)->
 					student
-						.post '/test/getaid/cps1234?title=Late'
+						.post "/test/getaid/cps1234?title=Late"
 						.end (err, res)->
 							assignments = JSON.parse res.text
 							otherFunc.Late = assignments.0._id
 							cont err
 				(cont)->
 					student
-						.post '/test/getaid/cps1234?title=allowLate'
+						.post "/test/getaid/cps1234?title=allowLate"
 						.end (err, res)->
 							assignments = JSON.parse res.text
 							otherFunc.allowLate = assignments.0._id
 							cont err
 				(cont)->
 					student
-						.post '/test/getaid/cps1234?title=None'
+						.post "/test/getaid/cps1234?title=None"
 						.end (err, res)->
 							assignments = JSON.parse res.text
 							otherFunc.None = assignments.0._id
@@ -903,46 +934,45 @@ describe "Assignments" ->
 			done err
 		it "should not allow early submissions", (done)->
 			student
-				.post '/cps1234/assignments/Early?action=attempt'
+				.post "/cps1234/assignments/#{otherFunc.Early}?action=attempt"
 				.send {
-					'aid':otherFunc.Early
-					'text':'something'
+					"aid":otherFunc.Early
+					"text":"something"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 400
-					expect res.text .to.have.string 'Allowed assignment submission time has closed/not opened.'
+					expect res.text .to.have.string "Allowed assignment submission time has not opened."
 					done err
 		it "should not allow late submissions if not allowed", (done)->
 			student
-				.post '/cps1234/assignments/Late?action=attempt'
+				.post "/cps1234/assignments/#{otherFunc.Late}?action=attempt"
 				.send {
-					'aid':otherFunc.Late
-					'text':'something'
+					"aid":otherFunc.Late
+					"text":"something"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 400
-					expect res.text .to.have.string 'Allowed assignment submission time has closed/not opened.'
+					expect res.text .to.have.string "Allowed assignment submission time has closed."
 					done err
 		it "should allow late submissions if allowed", (done)->
 			student
-				.post '/cps1234/assignments/allowLate?action=attempt'
+				.post "/cps1234/assignments/#{otherFunc.allowLate}?action=attempt"
 				.send {
-					'aid':otherFunc.allowLate
-					'text':'something'
+					"aid":otherFunc.allowLate
+					"text":"something"
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
-					expect res.text .to.not.have.string 'You have no more attempts.'
 					done err
 		it "should not allow more attempts than given", (done)->
 			student
-				.post '/cps1234/assignments/None?action=attempt'
+				.post "/cps1234/assignments/#{otherFunc.None}?action=attempt"
 				.send {
-					'aid':otherFunc.None
-					'text':'something'
+					"aid":otherFunc.None
+					"text":"something"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 400
-					expect res.text .to.have.string 'You have no more attempts.'
+					expect res.text .to.have.string "You have no more attempts."
 					done err
 	describe "Grade Book", (...)->

@@ -69,6 +69,24 @@ module.exports = (app)->
 						next new Error 'INTERNAL'
 					else
 						res.json result
+			| 'deleteassignments'
+				err, result <- Course.findOne {
+					'id': req.params.more
+					'school': app.locals.school
+				}
+				if err
+					winston.error 'test:course:findOne:blog', err
+					next new Error 'INTERNAL'
+				else
+					res.locals.course = result
+					err, result <- Assignment.remove {
+						course: ObjectId result._id
+					}
+					if err
+						winston.error 'test:course:find:post', err
+						next new Error 'INTERNAL'
+					else
+						res.json result
 			| 'postblog'
 				err, result <- Course.findOne {
 					'id': req.body.course

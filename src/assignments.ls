@@ -22,8 +22,10 @@ module.exports = (app)->
 		.all (req, res, next)->
 			# assign & attempt have to be mongo id's
 			if req.params.assign? and req.params.assign.length isnt 24
+				console.log 'Bad Assignment'
 				next new Error 'Bad Assignment'
 			else if req.params.attempt? and req.params.assign.length isnt 24
+				console.log 'Bad Attempt'
 				next new Error 'Bad Attempt'
 			else
 				next!
@@ -196,7 +198,6 @@ module.exports = (app)->
 							if err
 								winston.error 'attempt:find',err
 								next new Error 'Find Attempt'
-							winston.info 'attempts',result
 							res.locals.tries = result
 							done err
 						(done)->
@@ -209,14 +210,13 @@ module.exports = (app)->
 							if err
 								winston.error 'assign:find',err
 								next new Error 'Find Assignment'
-							winston.info 'assign',result.tries
 							res.locals.assignment = result
 							done err
 					]
 					# date now gt start
 					if (new Date Date.now!) > res.locals.assignment.start
 						# no end OR date now < end OR allowLate is true
-						if !res.locals.assignment.end? or (new Date Date.now! < res.locals.assignment.end) or (res.locals.assignment.allowLate is true)
+						if !res.locals.assignment.end? or ((new Date Date.now!) < Date.parse(res.locals.assignment.end)) or (res.locals.assignment.allowLate is true)
 							# only if my attempts are less than assignment tries create the new attempt
 							if !res.locals.assignment.tries? or res.locals.assignment.tries > res.locals.tries
 								theAttempt = {
@@ -225,22 +225,21 @@ module.exports = (app)->
 									text: req.body.text
 									author: ObjectId res.locals.uid
 								}
-								if res.locals.assignment.end? and (new Date Date.now!) > res.locals.assignment.end
+								if res.locals.assignment.end? and (new Date Date.now!) > Date.parse(res.locals.assignment.end)
 									theAttempt.late = true
 								attempt = new Attempt theAttempt
 								err, attempt <- attempt.save
-								/* istanbul ignore if */
 								if err?
 									winston.error err
 									next new Error 'Mongo Error'
 								else
 									res.redirect "/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
 							else
-								res.status 400 .render 'assignments/view' { success:'error', error:'You have no more attempts.' }
+								res.status 400 .render 'assignments/view' { body:req.body, success:'error', error:'You have no more attempts.' }
 						else
-							res.status 400 .render 'assignments/view' { success:'error', error:'Allowed assignment submission time has closed.' }
+							res.status 400 .render 'assignments/view' { body:req.body, success:'error', error:'Allowed assignment submission time has closed.' }
 					else
-						res.status 400 .render 'assignments/view' { success:'error', error:'Allowed assignment submission time has not opened.' }
+						res.status 400 .render 'assignments/view' { body:req.body, success:'error', error:'Allowed assignment submission time has not opened.' }
 			| _
 				next! # not an attempt
 		.all (req, res, next)->
