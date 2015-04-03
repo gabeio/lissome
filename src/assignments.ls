@@ -98,7 +98,7 @@ module.exports = (app)->
 						if result?
 							res.locals.assignment = result.toObject!
 						else
-							res.locals.assignment = result
+							res.locals.error = "NOT FOUND"
 						done!
 					else
 						done!
@@ -163,7 +163,10 @@ module.exports = (app)->
 					else
 						done!
 			]
-			next!
+			if res.locals.error?
+				next new Error res.locals.error
+			else
+				next!
 		.get (req, res, next)->
 			async.parallel [
 				(done)->
