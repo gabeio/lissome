@@ -85,7 +85,11 @@
 					{% if thread.author._id|toString === uid %}
 					<a class="list-group-item clearfix" style="padding-top: 10px;" href="/{{ course.id }}/conference/{{ thread._id|toString }}">
 						<span class="pull-left">{{ thread.title }}</span>
-						<span class="pull-right">you</span>
+						<span class="pull-right">
+							<span>you</span>
+							<span>|</span>
+							<span title="{{ thread.timestamp|timezone }}">{{ thread.timestamp|fromNow }}</span>
+						</span>
 					</a>
 					{% else %}
 					<a class="list-group-item clearfix" href="/{{ course.id }}/conference/{{ thread._id|toString }}">
