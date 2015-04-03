@@ -91,6 +91,7 @@ module.exports = (mongoose)->
 		course: { type: Schema.Types.ObjectId, +required, ref: 'Course' }
 		# REQUIRED
 		title: String # Thread name
+		deleted: Boolean
 		# thread: String # Parent Thread
 	}
 	Thread.index { timestamp: -1, course: 1 }
@@ -108,6 +109,7 @@ module.exports = (mongoose)->
 		title: String
 		files: Buffer
 		tags: []
+		deleted: Boolean
 	}
 	Post.index { timestamp: -1, course: 1, type: 1 }
 	module.exports = {
