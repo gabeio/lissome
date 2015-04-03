@@ -463,7 +463,6 @@ describe "Assignments" ->
 					admin
 						.get "/test/getaid/cps1234?title=aUniqueTitle"
 						.end (err, res)->
-							console.log res.body
 							cont err, res.body
 				(aid,cont)->
 					student
