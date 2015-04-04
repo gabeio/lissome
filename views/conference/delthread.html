@@ -39,7 +39,7 @@
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1 clearfix">
 				<div class="pull-left">
-					<h3>{{ course.title }} - Conference - {{ thread.title }}</h3>
+					<h3>{{ course.title }} - Conference</h3>
 				</div>
 				<div class="pull-right">
 					<form action="?hmo=delete&action=deletethread" method="POST">
@@ -52,9 +52,16 @@
 				</div>
 			</div>
 		</div>
+		{% if posts %}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1 clearfix">
 				<hr />
+				<h4>{{ thread.title }}</h4>
+			</div>
+		</div>
+		{% endif %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1 clearfix">
 			{% if threads %}
 				<ul class="list-group clearfix">
 				{% for thread in threads %}
