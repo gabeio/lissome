@@ -12,81 +12,50 @@ module.exports = (app)->
 	Thread = app.locals.models.Thread
 	Post = app.locals.models.Post
 	app
-		..route '/:course/conference/:thread?' # query :: action(new|edit|delete)
+		..route '/:course/conference/:thread?/:post?' # query :: action(new|edit|delete)
 		.all (req, res, next)->
 			# auth level check
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
 		.all (req, res, next)->
 			if req.query.action? then req.query.action = req.query.action.toLowerCase!
-			if req.params.thread?
-				if req.params.thread.length is 24
-					next!
-				else
+			if req.params.thread? 
+				if req.params.thread? and req.params.thread.length isnt 24
 					next new Error 'Bad Thread'
+				else if req.params.post? and req.params.post.length isnt 24
+					next new Error 'Bad Post'
+				else
+					next!
 			else
 				next!
 		.all (req, res, next)->
 			# get course info middleware (helps with auth)
-			<- async.parallel [
-				(done)->
-					if res.locals.auth is 3
-						err, result <- Course.findOne {
-							'id': req.params.course
-							'school': app.locals.school
-						}
-						/* istanbul ignore if */
-						if err
-							winston.error 'course:findOne:blog:auth3', err
-							next new Error 'INTERNAL'
-						else
-							if !result? or result.length is 0
-								next new Error 'NOT FOUND'
-							else
-								res.locals.course = result
-								done!
-					else
-						done!
-				(done)->
-					if res.locals.auth is 2
-						err, result <- Course.findOne {
-							'id': req.params.course
-							'school': app.locals.school
-							'faculty': ObjectId res.locals.uid
-						}
-						/* istanbul ignore if */
-						if err
-							winston.error 'course:findOne:blog:auth2', err
-							next new Error 'INTERNAL'
-						else
-							if !result? or result.length is 0
-								next new Error 'NOT FOUND'
-							else
-								res.locals.course = result
-								done!
-					else
-						done!
-				(done)->
-					if res.locals.auth is 1
-						err, result <- Course.findOne {
-							'id': req.params.course
-							'school': app.locals.school
-							'students': ObjectId res.locals.uid
-						}
-						/* istanbul ignore if */
-						if err
-							winston.error 'course:findOne:blog:auth1', err
-							next new Error 'INTERNAL'
-						else
-							if !result? or result.length is 0
-								next new Error 'NOT FOUND'
-							else
-								res.locals.course = result
-								done!
-					else
-						done!
-			]
-			next!
+			res.locals.course = {
+				'id': req.params.course
+				'school': app.locals.school
+			}
+			switch res.locals.auth
+			| 3
+				next!
+			| 2
+				res.locals.course.faculty = ObjectId res.locals.uid
+				next!
+			| 1
+				res.locals.course.students = ObjectId res.locals.uid
+				next!
+			| _
+				next new Error 'Bad Auth'
+		.all (req, res, next)->
+			err, result <- Course.findOne res.locals.course
+			if err
+				winston.error 'course findOne conf', err
+				next new Error 'INTERNAL'
+			else
+				if !result? or result.length is 0
+					next new Error 'NOT FOUND'
+				else
+					res.locals.course = result
+					next!
 		.all (req, res, next)->
 			# thread/post db middleware async for attempted max speed
 			<- async.parallel [
@@ -94,7 +63,7 @@ module.exports = (app)->
 					if !req.params.thread?
 						err, result <- Thread.find {
 							'course': ObjectId res.locals.course._id
-						} .populate 'author' .exec
+						} .populate 'author' .sort!.exec
 						/* istanbul ignore if */
 						if err
 							winston.error 'course:findOne:blog:auth1', err
@@ -105,21 +74,45 @@ module.exports = (app)->
 					else
 						done!
 				(done)->
-					if req.params.thread?
-						err, posts <- Post.find {
+					if req.params.thread? && !req.params.post?
+						err, result <- Post.find {
+							'type': 'conference'
 							'course': ObjectId res.locals.course._id
 							'thread': ObjectId req.params.thread
-							'type':'conference'
-						} .populate 'thread' .populate 'author' .exec
+						} .populate 'thread' .populate 'author' .sort!.exec
 						/* istanbul ignore if */
 						if err
 							winston.error 'course:findOne:blog:auth1', err
 							next new Error 'INTERNAL'
 						else
-							if posts.length > 0
-								res.locals.thread = posts.0.thread
-							res.locals.posts = posts
+							if result.length > 0
+								res.locals.thread = result.0.thread
+								res.locals.posts = result
+							else
+								res.locals.thread = {}
+								# this allows fixing of threads that were added without a post
+								res.locals.thread._id = req.params.thread
+								res.locals.posts = result
 							done!
+					else
+						done!
+				(done)->
+					if req.params.post?
+						err, result <- Post.findOne {
+							'type':'conference'
+							'course': ObjectId res.locals.course._id
+							'_id': ObjectId req.params.post
+						} .populate 'thread' .populate 'author' .exec
+						if err
+							winston.error 'course:findOne:blog:auth1', err
+							next new Error 'INTERNAL'
+						else
+							if !result?
+								next new Error 'NOT FOUND'
+							else
+								res.locals.thread = result.thread
+								res.locals.post = result
+								done!
 					else
 						done!
 			]
@@ -128,18 +121,28 @@ module.exports = (app)->
 			switch req.query.action
 			| 'newthread'
 				res.render 'conference/create'
+			| 'editthread'
+				res.render 'conference/editthread'
+			| 'editpost'
+				res.render 'conference/editpost'
+			| 'deletethread'
+				res.render 'conference/delthread'
+			| 'deletepost'
+				res.render 'conference/delpost'
+			| 'report'
+				...
 			| _
 				res.render 'conference/view'
 		.post (req, res, next)->
 			switch req.query.action
 			| 'newpost'
-				if !req.body.tid? || !req.body.text?
-					res.status 400 .render 'conference/view' { body: req.body, success:'no', action:'new' }
+				if !req.body.thread? or req.body.thread is "" or !req.body.text? or req.body.text is ""
+					res.status 400 .render 'conference/view' { body: req.body, success:'no', noun:'Post', verb:'created' }
 				else
 					post = {
 						course: res.locals.course._id
 						author: ObjectId res.locals.uid
-						thread: ObjectId req.body.tid
+						thread: ObjectId req.body.thread
 						text: req.body.text
 						type: 'conference'
 					}
@@ -149,10 +152,10 @@ module.exports = (app)->
 						winston.error 'conf',err
 						next new Error 'Mongo Error'
 					else
-						res.status 302 .redirect "/#{req.params.course}/conference/"+ req.params.thread
+						res.status 302 .redirect "/#{req.params.course}/conference/#{req.params.thread}"
 			| 'newthread'
-				if !req.body.text?
-					res.status 400 .render 'conference/create' { body: req.body, success:'no', action:'new' }
+				if !req.body.title? or req.body.title is "" or !req.body.text? or req.body.text is ""
+					res.status 400 .render 'conference/create' { body: req.body, success:'no', noun:'Thread', verb:'created' }
 				else
 					thread = {
 						title: req.body.title
@@ -178,39 +181,83 @@ module.exports = (app)->
 							winston.error 'post',err
 							next new Error 'Mongo Error'
 						else
-							res.status 302 .redirect "/#{req.params.course}/conference/"+ thread._id
+							res.status 302 .redirect "/#{req.params.course}/conference/#{thread._id}"
+			| 'report'
+				...
 			| _
 				next new Error 'Action Error'
 		.put (req, res, next)->
 			switch req.query.action
-			| 'edit'
-				if !req.body.thread? || !req.body.text?
-					res.status 400 .render 'conference/edit' { body: req.body, success:'no', action:'edit' }
+			| 'editpost'
+				if !req.body.thread? or !req.body.post? or !req.body.text? or req.body.text is ""
+					res.status 400 .render 'conference/editpost' { body: req.body, success:'no', noun:'Post', verb:'edited' }
 				else
 					err, post <- Post.findOneAndUpdate {
-						_id: req.body.pid
+						_id: req.body.post
 						thread: req.body.thread
 						author: ObjectId res.locals.uid
 					},{
 						text: req.body.text
 					}
 					if err?
-						winston.error 'conf',err
+						winston.error 'conf' err
 						next new Error 'Mongo Error'
 					else
-						res.status 302 .redirect "/#{req.params.course}/conference/"+ req.params.thread
+						res.status 302 .redirect "/#{req.params.course}/conference/#{req.params.thread}"
+			| 'editthread'
+				if !req.body.thread? or !req.body.title? or req.body.title is ""
+					res.status 400 .render 'conference/editthread' { body: req.body, success:'no', noun:'Thread', verb:'edited' }
+				else
+					err, post <- Thread.findOneAndUpdate {
+						_id: req.body.thread
+						author: ObjectId res.locals.uid
+					},{
+						title: req.body.title
+					}
+					if err?
+						winston.error 'conf' err
+						next new Error 'Mongo Error'
+					else
+						res.status 302 .redirect "/#{req.params.course}/conference/#{req.params.thread}"
 			| _
 				next new Error 'Action Error'
 		.delete (req, res, next)->
 			switch req.query.action
-			| 'delete'
-				if !req.body.thread? || !req.body.text?
-					res.status 400 .render 'conference/edit' { body: req.body, success:'no', action:'edit' }
+			| 'deletepost'
+				if !req.body.thread? or !req.body.post?
+					res.status 400 .render 'conference/delpost' { body: req.body, success:'no', noun:'Post', verb:'deleted' }
 				else
 					err, post <- Post.findOneAndRemove {
-						_id: req.body.pid
-						thread: req.body.thread
+						_id: ObjectId req.body.post
+						thread: ObjectId req.body.thread
 						author: res.locals.uid
 					}
+					if err?
+						winston.error err
+						res.status 400 .render 'conference/delpost' { body: req.body, success:'no', noun:'Post', verb:'deleted' }
+					else
+						res.status 302 .redirect "/#{req.params.course}/conference/#{req.params.thread}"
+			| 'deletethread'
+				if !req.body.thread?
+					res.status 400 .render 'conference/delthread' { body: req.body, success:'no', noun:'Thread', verb:'deleted' }
+				else
+					# first delete thread
+					err, thread <- Thread.findOneAndRemove {
+						_id: ObjectId req.body.thread
+						author: res.locals.uid
+					}
+					if err?
+						# error might be that they are not author
+						winston.error err
+						res.status 400 .render 'conference/delthread' { body: req.body, success:'no', noun:'Thread', verb:'deleted' }
+					else
+						err, post <- Post.remove {
+							thread: ObjectId req.body.thread
+						}
+						if err?
+							winston.error err
+							res.status 400 .render 'conference/delthread' { body: req.body, success:'no', noun:'Posts', verb:'deleted' }
+						else
+							res.status 302 .redirect "/#{req.params.course}/conference"
 			| _
 				next new Error 'Action Error'

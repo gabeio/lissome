@@ -26,11 +26,11 @@
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				{% if success == 'yes' or success == 'true' %}
 				<div class="alert alert-success" role="alert">
-					Conference <strong>{{ action }}</strong> successfully.
+					{{ noun }} <strong>{{ verb }}</strong> successfully.
 				</div>
 				{% elif success == 'no' or success == 'false' %}
 				<div class="alert alert-danger" role="alert">
-					Conference <strong>not</strong> {{ action }} successfully. Missing required field.
+					{{ noun }} <strong>not</strong> {{ verb }} successfully. Missing required field.
 				</div>
 				{% endif %}
 			</div>
@@ -70,57 +70,23 @@
 				{% endif %}
 			</div>
 		</div>
-		{% if posts %}
+		{% for post in posts %}{% if loop.first %}{% set thread = post.thread %}{% endif %}{% endfor %}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1 clearfix">
 				<h4>{{ thread.title }}</h4>
 			</div>
 		</div>
-		{% endif %}
 		<div class="row">
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1 clearfix">
-			{% if threads %}
-				<ul class="list-group clearfix">
-				{% for thread in threads %}
-					{% if thread.author._id|toString === uid %}
-					<a class="list-group-item clearfix" style="padding-top: 10px;" href="/{{ course.id }}/conference/{{ thread._id|toString }}">
-						<span class="pull-left">{{ thread.title }}</span>
-						<span class="pull-right">you</span>
-					</a>
-					{% else %}
-					<a class="list-group-item clearfix" href="/{{ course.id }}/conference/{{ thread._id|toString }}">
-						<span class="pull-left">{{ thread.title }}</span>
-						<span class="pull-right">
-							<span title="{{ thread.author.username }}">{{ thread.author.firstName }} {{ thread.author.lastName }}</span>
-							<span>|</span>
-							<span title="{{ thread.timestamp|timezone }}">{{ thread.timestamp|fromNow }}</span>
-						</span>
-					</a>
-					{% endif %}
-				{% endfor %}
-				</ul>
-			{% endif %}
-			{% if posts %}
-				{% for post in posts %}
-				<div class="panel panel-default">
-					<div class="panel-heading clearfix">
-						<h2 class="panel-title pull-left">{{ post.author.firstName }} {{ post.author.lastName }}</h2>
-					</div>
-					<div class="panel-body">{{ post.text|markdown|safe }}</div>
+			<form action="?hmo=put&action=editthread" method="POST" class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<input type="hidden" name="thread" value="{{ thread._id|toString }}" />
+				<div class="form-group">
+					<label for="formTitle">Title</label>
+					<input type="text" class="form-control" id="formTitle" name="title" value="{{ thread.title }}" autofocus tabindex="1" />
 				</div>
-				{% endfor %}
-				<form method="POST" action="?action=newpost">
-					<input type="hidden" name="tid" value="{{ thread._id|toString }}" />
-					<div class="form-group">
-						<label for="formBody">Reply <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
-						<textarea class="form-control" id="formBody" name="text" rows="3" autofocus tabindex="1" placeholder="Leave a comment...">{{ body.text }}</textarea>
-					</div>
-					<div class="form-group">
-						<button type="submit" class="btn btn-default" tabindex="2">Submit</button>
-					</div>
-				</form>
-			{% endif %}
-			</div>
+				<div class="form-group">
+					<button type="submit" class="btn btn-default" tabindex="2">Submit</button>
+				</div>
+			</form>
 		</div>
 	</div>
 {% endblock %}

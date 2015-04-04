@@ -26,11 +26,11 @@
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				{% if success == 'yes' or success == 'true' %}
 				<div class="alert alert-success" role="alert">
-					Conference <strong>{{ action }}</strong> successfully.
+					{{ noun }} <strong>{{ verb }}</strong> successfully.
 				</div>
 				{% elif success == 'no' or success == 'false' %}
 				<div class="alert alert-danger" role="alert">
-					Conference <strong>not</strong> {{ action }} successfully. Missing required field.
+					{{ noun }} <strong>not</strong> {{ verb }} successfully. Missing required field.
 				</div>
 				{% endif %}
 			</div>
@@ -108,25 +108,34 @@
 				{% for post in posts %}
 				<div class="panel panel-default">
 					<div class="panel-heading clearfix">
-						<h2 style="padding-top: 10px;" class="panel-title pull-left">{{ post.author.firstName }} {{ post.author.lastName }}</h2>
+						<h2 class="panel-title pull-left">{{ post.author.firstName }} {{ post.author.lastName }}</h2>
 						<span class="pull-right">
+							<span title="{{ post.timestamp|timezone }}">{{ post.timestamp|fromNow }}</span>
 							{% if post.author._id.toString() === uid %}
-							<span title="{{ thread.timestamp|timezone }}">{{ thread.timestamp|fromNow }}</span>
-							<span class="btn-group">
-								<button class="btn btn-default dropdown-toggle" type="button" id="blogPostMenu" data-toggle="dropdown" aria-expanded="true">
+							<span class="dropdown">
+								<a style="color: #777; hover:color: red;" class="dropdown-toggle" id="blogPostMenu" data-toggle="dropdown" aria-expanded="false">
 									<span class="glyphicon glyphicon-cog"></span>
-								</button>
+								</a>
 								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
 									<li role="presentation">
-										<a role="menuitem" href="/{{ course.id }}/conference/{{ thread._id|toString }}?action=editthread"><span class="glyphicon glyphicon-edit"></span> Edit This Post</a>
+										<a role="menuitem" href="/{{ course.id }}/conference/{{ thread._id|toString }}/{{ post._id|toString }}?action=editpost"><span class="glyphicon glyphicon-edit"></span> Edit This Post</a>
 									</li>
 									<li role="presentation">
-										<a role="menuitem" href="/{{ course.id }}/conference/{{ thread._id|toString }}?action=deletethread"><span class="glyphicon glyphicon-remove"></span> Delete This Post</a>
+										<a role="menuitem" href="/{{ course.id }}/conference/{{ thread._id|toString }}/{{ post._id|toString }}?action=deletepost"><span class="glyphicon glyphicon-remove"></span> Delete This Post</a>
 									</li>
 								</ul>
 							</span>
 							{% else %}
-							<span title="{{ thread.timestamp|timezone }}">{{ thread.timestamp|fromNow }}</span>
+							<span class="dropdown">
+								<a style="color: #777; hover:color: red;" class="dropdown-toggle" id="blogPostMenu" data-toggle="dropdown" aria-expanded="false">
+									<span class="caret"></span>
+								</a>
+								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
+									<li role="presentation">
+										<a role="menuitem" href="/{{ course.id }}/conference/{{ thread._id|toString }}?action=report"><span class="glyphicon glyphicon-flag"></span> Report This Post</a>
+									</li>
+								</ul>
+							</span>
 							{% endif %}
 						</span>
 					</div>
@@ -134,7 +143,7 @@
 				</div>
 				{% endfor %}
 				<form method="POST" action="?action=newpost">
-					<input type="hidden" name="tid" value="{{ thread._id|toString }}" />
+					<input type="hidden" name="thread" value="{{ thread._id|toString }}" />
 					<div class="form-group">
 						<label for="formBody">Reply <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
 						<textarea class="form-control" id="formBody" name="text" rows="3" autofocus tabindex="1" placeholder="Leave a comment...">{{ body.text }}</textarea>
