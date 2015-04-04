@@ -6,7 +6,7 @@ node_js:
     - 'iojs-v1.5.1'
     - 'iojs-v1.6.3'
     - '0.10'
-    - '0.12.1'
+    - '0.12.2'
 sudo: false
 notifications:
     email: false
