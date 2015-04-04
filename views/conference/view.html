@@ -41,7 +41,8 @@
 				<div class="pull-left">
 					<h3>{{ course.title }} - Conference</h3>
 				</div>
-				{% if posts %}{% if thread.author.toString() === uid %}
+				{% if posts %}
+					{% if thread.author.toString() === uid %}
 				<div class="pull-right btn-group" role="group" style="padding-top: 8px;">
 					<a href="/{{ course.id }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 					<div class="btn-group" role="group">
@@ -58,11 +59,25 @@
 						</ul>
 					</div>
 				</div>
-				{% else %}
+					{% elseif auth > 1 %}
+				<div class="pull-right btn-group" role="group" style="padding-top: 8px;">
+					<a href="/{{ course.id }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
+					<div class="btn-group" role="group">
+						<button class="btn btn-default dropdown-toggle" type="button" id="blogPostMenu" data-toggle="dropdown" aria-expanded="true">
+							<span class="glyphicon glyphicon-cog"></span>
+						</button>
+						<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
+							<li role="presentation">
+								<a role="menuitem" href="/{{ course.id }}/conference/{{ thread._id|toString }}?action=deletethread"><span class="glyphicon glyphicon-remove"></span> Delete This Thread</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+					{% else %}
 				<div class="pull-right" style="padding-top: 8px;">
 					<a href="/{{ course.id }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 				</div>
-				{% endif %}
+					{% endif %}
 				{% else %}
 				<div class="pull-right" style="padding-top: 8px;">
 					<a href="/{{ course.id }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
@@ -83,7 +98,7 @@
 			{% if threads %}
 				<ul class="list-group clearfix">
 				{% for thread in threads %}
-					{% if thread.author._id|toString === uid %}
+					{% if thread.author._id.toString() === uid %}
 					<a class="list-group-item clearfix" style="padding-top: 10px;" href="/{{ course.id }}/conference/{{ thread._id|toString }}">
 						<span class="pull-left">{{ thread.title }}</span>
 						<span class="pull-right">
@@ -121,6 +136,17 @@
 									<li role="presentation">
 										<a role="menuitem" href="/{{ course.id }}/conference/{{ thread._id|toString }}/{{ post._id|toString }}?action=editpost"><span class="glyphicon glyphicon-edit"></span> Edit This Post</a>
 									</li>
+									<li role="presentation">
+										<a role="menuitem" href="/{{ course.id }}/conference/{{ thread._id|toString }}/{{ post._id|toString }}?action=deletepost"><span class="glyphicon glyphicon-remove"></span> Delete This Post</a>
+									</li>
+								</ul>
+							</span>
+							{% elseif auth > 1 %}
+							<span class="dropdown">
+								<a style="color: #777; hover:color: red;" class="dropdown-toggle" id="blogPostMenu" data-toggle="dropdown" aria-expanded="false">
+									<span class="glyphicon glyphicon-cog"></span>
+								</a>
+								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
 									<li role="presentation">
 										<a role="menuitem" href="/{{ course.id }}/conference/{{ thread._id|toString }}/{{ post._id|toString }}?action=deletepost"><span class="glyphicon glyphicon-remove"></span> Delete This Post</a>
 									</li>

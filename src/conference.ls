@@ -227,11 +227,14 @@ module.exports = (app)->
 				if !req.body.thread? or !req.body.post?
 					res.status 400 .render 'conference/delpost' { body: req.body, success:'no', noun:'Post', verb:'deleted' }
 				else
-					err, post <- Post.findOneAndRemove {
+					thePost =  {
 						_id: ObjectId req.body.post
 						thread: ObjectId req.body.thread
 						author: res.locals.uid
 					}
+					if res.locals.auth > 1
+						delete thePost.author
+					err, post <- Post.findOneAndRemove thePost
 					if err?
 						winston.error err
 						res.status 400 .render 'conference/delpost' { body: req.body, success:'no', noun:'Post', verb:'deleted' }
@@ -241,11 +244,14 @@ module.exports = (app)->
 				if !req.body.thread?
 					res.status 400 .render 'conference/delthread' { body: req.body, success:'no', noun:'Thread', verb:'deleted' }
 				else
-					# first delete thread
-					err, thread <- Thread.findOneAndRemove {
+					theThread = {
 						_id: ObjectId req.body.thread
 						author: res.locals.uid
 					}
+					if res.locals.auth > 1
+						delete theThread.author
+					# first delete thread
+					err, thread <- Thread.findOneAndRemove theThread
 					if err?
 						# error might be that they are not author
 						winston.error err
