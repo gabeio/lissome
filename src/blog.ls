@@ -23,49 +23,33 @@ module.exports = (app)->
 			res.locals.needs = 2
 			app.locals.authorize req, res, next
 		.all (req, res, next)->
-			res.locals.on = 'blog'
-			<- async.parallel [
-				(done)->
-					if res.locals.auth is 3
-						err, result <- Course.findOne {
-							'id': req.params.course
-							'school': app.locals.school
-						}
-						/* istanbul ignore if */
-						if err
-							winston.error 'course:findOne:blog:auth3', err
-							next new Error 'INTERNAL'
-						else
-							/* istanbul ignore if */
-							if !result? or result.length is 0
-								next new Error 'NOT FOUND'
-							else
-								res.locals.course = result
-								done!
-					else
-						done!
-				(done)->
-					if res.locals.auth is 2
-						err, result <- Course.findOne {
-							'id': req.params.course
-							'school': app.locals.school
-							'faculty': ObjectId res.locals.uid
-						}
-						/* istanbul ignore if */
-						if err
-							winston.error 'course:findOne:blog:auth2', err
-							next new Error 'INTERNAL'
-						else
-							/* istanbul ignore if */
-							if !result? or result.length is 0
-								next new Error 'NOT FOUND'
-							else
-								res.locals.course = result
-								done!
-					else
-						done!
-			]
-			next!
+			# get course info middleware (helps with auth)
+			res.locals.course = {
+				'id': req.params.course
+				'school': app.locals.school
+			}
+			switch res.locals.auth
+			| 3
+				next!
+			| 2
+				res.locals.course.faculty = ObjectId res.locals.uid
+				next!
+			| 1
+				res.locals.course.students = ObjectId res.locals.uid
+				next!
+			| _
+				next new Error 'Bad Auth'
+		.all (req, res, next)->
+			err, result <- Course.findOne res.locals.course
+			if err
+				winston.error 'course findOne conf', err
+				next new Error 'INTERNAL'
+			else
+				if !result? or result.length is 0
+					next new Error 'NOT FOUND'
+				else
+					res.locals.course = result
+					next!
 		.get (req, res, next)->
 			if req.query.action in ['edit','delete']
 				if !req.params.unique?

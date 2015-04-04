@@ -30,45 +30,33 @@ module.exports = (app)->
 			else
 				next!
 		.all (req, res, next)->
-			# get course_id
-			<- async.parallel [
-				(done)->
-					if res.locals.auth is 3
-						err, result <- Course.findOne {
-							'id': req.params.course
-							'school': app.locals.school
-						}
-						res.locals.course = result
-						done!
-					else
-						done!
-				(done)->
-					if res.locals.auth is 2
-						err, result <- Course.findOne {
-							'id': req.params.course
-							'school': app.locals.school
-							'faculty': ObjectId res.locals.uid
-						}
-						res.locals.course = result
-						done!
-					else
-						done!
-				(done)->
-					if res.locals.auth is 1
-						err, result <- Course.findOne {
-							'id': req.params.course
-							'school': app.locals.school
-							'students': ObjectId res.locals.uid
-						}
-						res.locals.course = result
-						done!
-					else
-						done!
-			]
-			if res.locals.course?
+			# get course info middleware (helps with auth)
+			res.locals.course = {
+				'id': req.params.course
+				'school': app.locals.school
+			}
+			switch res.locals.auth
+			| 3
 				next!
+			| 2
+				res.locals.course.faculty = ObjectId res.locals.uid
+				next!
+			| 1
+				res.locals.course.students = ObjectId res.locals.uid
+				next!
+			| _
+				next new Error 'Bad Auth'
+		.all (req, res, next)->
+			err, result <- Course.findOne res.locals.course
+			if err
+				winston.error 'course findOne conf', err
+				next new Error 'INTERNAL'
 			else
-				next new Error 'UNAUTHORIZED'
+				if !result? or result.length is 0
+					next new Error 'NOT FOUND'
+				else
+					res.locals.course = result
+					next!
 		.all (req, res, next)->
 			# get assign_id
 			<- async.parallel [
