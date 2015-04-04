@@ -19,13 +19,10 @@ module.exports = (app)->
 			app.locals.authorize req, res, next
 		.all (req, res, next)->
 			if req.query.action? then req.query.action = req.query.action.toLowerCase!
-			if req.params.thread? 
-				if req.params.thread? and req.params.thread.length isnt 24
-					next new Error 'Bad Thread'
-				else if req.params.post? and req.params.post.length isnt 24
-					next new Error 'Bad Post'
-				else
-					next!
+			if req.params.thread? and req.params.thread.length isnt 24
+				next new Error 'Bad Thread'
+			else if req.params.post? and req.params.post.length isnt 24
+				next new Error 'Bad Post'
 			else
 				next!
 		.all (req, res, next)->
