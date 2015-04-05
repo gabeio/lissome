@@ -58,6 +58,7 @@ describe "Conference" ->
 				done err
 	describe "Faculty+", (...)->
 		beforeEach (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -93,6 +94,7 @@ describe "Conference" ->
 			]
 			done err
 		beforeEach (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					admin
@@ -168,6 +170,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow a faculty to edit their thread", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -197,6 +200,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow an admin to edit their thread", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					admin
@@ -226,6 +230,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not allow a faculty to edit a thread that is not theirs", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -245,6 +250,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not allow an admin to edit a thread that is not theirs", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					admin
@@ -264,6 +270,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow a faculty to delete a thread that is not theirs", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -292,6 +299,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow an admin to delete a thread that is not theirs", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					admin
@@ -320,6 +328,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow a faculty to delete their thread", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -348,6 +357,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow an admin to delete their thread", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					admin
@@ -376,6 +386,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow a faculty to create a post", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -395,6 +406,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow an admin to create a post", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					admin
@@ -414,6 +426,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow a faculty to edit their post", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -424,13 +437,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(cont)->
 							faculty
-								.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?action=editpost"
+								.get "/cps1234/conference/#{tid.0.thread._id.toString!}/#{tid.0._id.toString!}?action=editpost"
 								.end (err, res)->
 									expect res.status .to.not.match /^(4|5)/
 									cont err
 						(cont)->
 							faculty
-								.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
+								.post "/cps1234/conference/#{tid.0.thread._id.toString!}/#{tid.0._id.toString!}?hmo=put&action=editpost"
 								.send {
 									thread: tid.0.thread._id.toString!
 									post: tid.0._id.toString!
@@ -444,6 +457,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow an admin to edit their post", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					admin
@@ -454,7 +468,7 @@ describe "Conference" ->
 					err <- async.parallel [
 						(cont)->
 							admin
-								.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?action=editpost"
+								.get "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?action=editpost"
 								.end (err, res)->
 									expect res.status .to.not.match /^(4|5)/
 									cont err
@@ -474,6 +488,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not allow a faculty to edit a post that is not theirs", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -494,6 +509,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not allow an admin to edit a post that is not theirs", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					admin
@@ -514,6 +530,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow a faculty to delete their post", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -533,6 +550,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow an admin to delete their post", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					admin
@@ -552,6 +570,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow a faculty to delete a post that is not theirs", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -571,6 +590,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow an admin to delete a post that is not theirs", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					admin
@@ -602,6 +622,7 @@ describe "Conference" ->
 					expect res.status .to.match /^(2|3)/
 					done err
 		it "should allow a faculty to view a thread", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -617,6 +638,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow an admin to view a thread", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					admin
@@ -633,6 +655,7 @@ describe "Conference" ->
 			done err
 	describe "Outside Faculty", (...)->
 		before (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -700,6 +723,7 @@ describe "Conference" ->
 					expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 					done err
 		it "should not allow an outside faculty to edit a thread", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -731,6 +755,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not allow an outside faculty to delete a thread", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -761,6 +786,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not allow an outside faculty to create a post", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -781,6 +807,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not allow an outside faculty to edit a post", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -802,6 +829,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not allow an outside faculty to delete a post", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -829,6 +857,7 @@ describe "Conference" ->
 					expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 					done err
 		it "should not allow an outside faculty to view a thread", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -846,6 +875,7 @@ describe "Conference" ->
 			done err
 	describe "Student", (...)->
 		before (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -882,6 +912,7 @@ describe "Conference" ->
 					expect res.status .to.not.match /^(4|5)/
 					done err
 		it "should allow a student to edit their thread", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -911,6 +942,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow a student to create a post", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -930,6 +962,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow a student to edit their post", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -950,6 +983,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow a student to delete their post", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -969,6 +1003,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow a student to delete their thread", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1003,6 +1038,7 @@ describe "Conference" ->
 					expect res.status .to.match /^(2|3)/
 					done err
 		it "should allow a student to view a thread", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -1018,6 +1054,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not allow a student to edit a thread that is not theirs", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1038,6 +1075,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not allow a student to edit a post that is not theirs", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -1059,6 +1097,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not allow a student to delete a thread that is not theirs", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1078,6 +1117,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not allow a student to delete a post that is not theirs", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -1099,6 +1139,7 @@ describe "Conference" ->
 			done err
 	describe "Outside Student", (...)->
 		before (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -1166,6 +1207,7 @@ describe "Conference" ->
 					expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 					done err
 		it "should not allow an outside student to edit a thread", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1197,6 +1239,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not allow an outside student to delete a thread", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1227,6 +1270,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not allow an outside student to create a post", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -1247,6 +1291,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not allow an outside student to edit a post", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -1268,6 +1313,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not allow an outside student to delete a post", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -1295,6 +1341,7 @@ describe "Conference" ->
 					expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 					done err
 		it "should not allow an outside student to view a thread", (done)->
+			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -1344,6 +1391,7 @@ describe "Conference" ->
 					expect res.status .to.match /^(5)/
 					done err
 		it "should not crash for bad post length", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(fin)->
 					# create thread
@@ -1397,6 +1445,7 @@ describe "Conference" ->
 					expect res.status .to.match /^404/
 					done err
 		it "should not crash for bad post id", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(fin)->
 					# create thread
@@ -1429,6 +1478,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not crash for bad post id", (done)->
+			this.timeout = 4000
 			err <- async.waterfall [
 				(fin)->
 					# create thread
@@ -1461,7 +1511,6 @@ describe "Conference" ->
 					student
 						.get "/cps1234/conference/#{tid.0._id.toString!}"
 						.end (err, res)->
-							console.log res.status
 							fin err
 			]
 			done err

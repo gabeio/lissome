@@ -223,7 +223,7 @@ module.exports = (app)->
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error 'conf' err
-						next new Error 'Mongo Error'
+						next new Error 'INTERNAL'
 					else
 						res.status 302 .redirect "/#{req.params.course}/conference/#{req.params.thread}"
 			| 'editthread'
@@ -239,7 +239,7 @@ module.exports = (app)->
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error 'conf' err
-						next new Error 'Mongo Error'
+						next new Error 'INTERNAL'
 					else
 						res.status 302 .redirect "/#{req.params.course}/conference/#{req.params.thread}"
 			| _
