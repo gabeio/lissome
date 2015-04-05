@@ -42,7 +42,7 @@
 					<h3>{{ course.title }} - Conference</h3>
 				</div>
 				{% if posts %}
-					{% if thread.author.toString() === uid %}
+					{% if thread.author._id.toString() == uid.toString() %}
 				<div class="pull-right btn-group" role="group" style="padding-top: 8px;">
 					<a href="/{{ course.id }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 					<div class="btn-group" role="group">
@@ -59,7 +59,7 @@
 						</ul>
 					</div>
 				</div>
-					{% elseif auth > 1 %}
+					{% elif auth >= 2 %}
 				<div class="pull-right btn-group" role="group" style="padding-top: 8px;">
 					<a href="/{{ course.id }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 					<div class="btn-group" role="group">
@@ -127,7 +127,7 @@
 						<h2 class="panel-title pull-left">{{ post.author.firstName }} {{ post.author.lastName }}</h2>
 						<span class="pull-right">
 							<span title="{{ post.timestamp|timezone }}">{{ post.timestamp|fromNow }}</span>
-							{% if post.author._id.toString() === uid %}
+							{% if post.author._id.toString() == uid.toString() %}
 							<span class="dropdown">
 								<a style="color: #777; hover:color: red;" class="dropdown-toggle" id="blogPostMenu" data-toggle="dropdown" aria-expanded="false">
 									<span class="glyphicon glyphicon-cog"></span>
@@ -141,7 +141,7 @@
 									</li>
 								</ul>
 							</span>
-							{% elseif auth > 1 %}
+							{% elif auth >= 2 %}
 							<span class="dropdown">
 								<a style="color: #777; hover:color: red;" class="dropdown-toggle" id="blogPostMenu" data-toggle="dropdown" aria-expanded="false">
 									<span class="glyphicon glyphicon-cog"></span>
