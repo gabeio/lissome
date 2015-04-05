@@ -128,25 +128,45 @@ describe "Conference" ->
 			]
 			done err
 		it "should allow a faculty to create a thread", (done)->
-			faculty
-				.post "/cps1234/conference?action=newthread"
-				.send {
-					title:"facultyThread"
-					text:"facultyPost"
-				}
-				.end (err, res)->
-					expect res.status .to.not.match /^(4|5)/
-					done err
+			err <- async.parallel [
+				(fin)->
+					faculty
+						.get "/cps1234/conference?action=newthread"
+						.end (err, res)->
+							expect res.status .to.not.match /^(4|5)/
+							fin err
+				(fin)->
+					faculty
+						.post "/cps1234/conference?action=newthread"
+						.send {
+							title:"facultyThread"
+							text:"facultyPost"
+						}
+						.end (err, res)->
+							expect res.status .to.not.match /^(4|5)/
+							fin err
+			]
+			done err
 		it "should allow an admin to create a thread", (done)->
-			admin
-				.post "/cps1234/conference?action=newthread"
-				.send {
-					title:"adminThread"
-					text:"adminPost"
-				}
-				.end (err, res)->
-					expect res.status .to.not.match /^(4|5)/
-					done err
+			err <- async.parallel [
+				(fin)->
+					admin
+						.get "/cps1234/conference?action=newthread"
+						.end (err, res)->
+							expect res.status .to.not.match /^(4|5)/
+							fin err
+				(fin)->
+					admin
+						.post "/cps1234/conference?action=newthread"
+						.send {
+							title:"adminThread"
+							text:"adminPost"
+						}
+						.end (err, res)->
+							expect res.status .to.not.match /^(4|5)/
+							fin err
+			]
+			done err
 		it "should allow a faculty to edit their thread", (done)->
 			err <- async.waterfall [
 				(cont)->
@@ -401,16 +421,26 @@ describe "Conference" ->
 						.end (err, res)->
 							fin err, res.body
 				(tid,fin)->
-					faculty
-						.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
-						.send {
-							thread: tid.0.thread._id.toString!
-							post: tid.0._id.toString!
-							text: "facultyPost"
-						}
-						.end (err, res)->
-							expect res.status .to.not.match /^(4|5)/
-							fin err
+					err <- async.parallel [
+						(cont)->
+							faculty
+								.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?action=editpost"
+								.end (err, res)->
+									expect res.status .to.not.match /^(4|5)/
+									cont err
+						(cont)->
+							faculty
+								.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
+								.send {
+									thread: tid.0.thread._id.toString!
+									post: tid.0._id.toString!
+									text: "facultyPost"
+								}
+								.end (err, res)->
+									expect res.status .to.not.match /^(4|5)/
+									cont err
+					]
+					fin err
 			]
 			done err
 		it "should allow an admin to edit thier post", (done)->
@@ -421,16 +451,26 @@ describe "Conference" ->
 						.end (err, res)->
 							fin err, res.body
 				(tid,fin)->
-					admin
-						.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
-						.send {
-							thread: tid.0.thread._id.toString!
-							post: tid.0._id.toString!
-							text: "adminPost"
-						}
-						.end (err, res)->
-							expect res.status .to.not.match /^(4|5)/
-							fin err
+					err <- async.parallel [
+						(cont)->
+							admin
+								.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?action=editpost"
+								.end (err, res)->
+									expect res.status .to.not.match /^(4|5)/
+									cont err
+						(cont)->
+							admin
+								.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
+								.send {
+									thread: tid.0.thread._id.toString!
+									post: tid.0._id.toString!
+									text: "adminPost"
+								}
+								.end (err, res)->
+									expect res.status .to.not.match /^(4|5)/
+									cont err
+					]
+					fin err
 			]
 			done err
 		it "should not allow a faculty to edit a post that is not theirs", (done)->
@@ -1271,6 +1311,160 @@ describe "Conference" ->
 			]
 			done err
 	describe "Other", (...)->
+		it "should redirect outsider", (done)->
+			outside
+				.post "/cps1234/conference?action=newthread"
+				.send {
+					title: "theThread"
+					text: "thePost"
+				}
+				.end (err, res)->
+					expect res.status .to.match /^(3)/
+					expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+					done err
+		it "should not crash for bad conference length", (done)->
+			# this may fail if that ends up being a real conference _id
+			student
+				.post "/cps1234/conference/12345678901234567890123?hmo=put&action=editthread"
+				.send {
+					thread: "12345678901234567890123"
+				}
+				.end (err, res)->
+					expect res.status .to.match /^(5)/
+					done err
+		it "should not crash for bad conference length & bad post length", (done)->
+			student
+				.post "/cps1234/conference/12345678901234567890123/12345678901234567890123?hmo=put&action=editpost"
+				.send {
+					thread: "12345678901234567890123"
+					post: "12345678901234567890123"
+					text: "anyting"
+				}
+				.end (err, res)->
+					expect res.status .to.match /^(5)/
+					done err
+		it "should not crash for bad post length", (done)->
+			err <- async.waterfall [
+				(fin)->
+					# create thread
+					student
+						.post "/cps1234/conference?action=newthread"
+						.send {
+							title: "theThread"
+							text: "thePost"
+						}
+						.end (err, res)->
+							fin err
+				(fin)->
+					# get thread _id
+					student
+						.get "/test/gettid/cps1234?title=theThread"
+						.end (err, res)->
+							fin err, res.body
+				(tid,fin)->
+					# try to post to thread
+					student
+						.post "/cps1234/conference/#{tid.0._id.toString!}/12345678901234567890123?hmo=put&action=editpost"
+						.send {
+							thread: tid.0._id.toString!
+							post: "12345678901234567890123"
+							text: "deletedPost"
+						}
+						.end (err, res)->
+							expect res.status .to.match /^(5)/
+							fin err
+			]
+			done err
+		it "should not crash for bad conference id", (done)->
+			# this may fail if that ends up being a real conference _id
+			student
+				.post "/cps1234/conference/123456789012345678901234?hmo=put&action=editthread"
+				.send {
+					thread: "123456789012345678901234"
+				}
+				.end (err, res)->
+					expect res.status .to.match /^404/
+					done err
+		it "should not crash for bad conference id & bad post id", (done)->
+			student
+				.post "/cps1234/conference/123456789012345678901234/123456789012345678901234?hmo=put&action=editpost"
+				.send {
+					thread: "123456789012345678901234"
+					post: "123456789012345678901234"
+					text: "anyting"
+				}
+				.end (err, res)->
+					expect res.status .to.match /^404/
+					done err
+		it "should not crash for bad post id", (done)->
+			err <- async.waterfall [
+				(fin)->
+					# create thread
+					student
+						.post "/cps1234/conference?action=newthread"
+						.send {
+							title: "theThread"
+							text: "thePost"
+						}
+						.end (err, res)->
+							fin err
+				(fin)->
+					# get thread _id
+					student
+						.get "/test/gettid/cps1234?title=theThread"
+						.end (err, res)->
+							fin err, res.body
+				(tid,fin)->
+					# try to post to thread
+					student
+						.post "/cps1234/conference/#{tid.0._id.toString!}/123456789012345678901234?hmo=put&action=editpost"
+						.send {
+							thread: tid.0._id.toString!
+							post: "123456789012345678901234"
+							text: "deletedPost"
+						}
+						.end (err, res)->
+							expect res.status .to.match /^404/
+							fin err
+			]
+			done err
+		it "should not crash for bad post id", (done)->
+			err <- async.waterfall [
+				(fin)->
+					# create thread
+					student
+						.post "/cps1234/conference?action=newthread"
+						.send {
+							title: "theThread"
+							text: "thePost"
+						}
+						.end (err, res)->
+							fin err
+				(fin)->
+					# get thread _id
+					student
+						.get "/test/getpost/cps1234?text=thePost"
+						.end (err, res)->
+							fin err, res.body
+				(tid,fin)->
+					# delete post
+					student
+						.post "/cps1234/conference/#{tid.0.thread._id.toString!}/#{tid.0._id.toString!}?hmo=delete&action=deletepost"
+						.send {
+							thread: tid.0.thread._id.toString!
+							post: tid.0._id.toString!
+						}
+						.end (err, res)->
+							fin err, tid
+				(tid,fin)->
+					# try to post to thread
+					student
+						.get "/cps1234/conference/#{tid.0._id.toString!}"
+						.end (err, res)->
+							console.log res.status
+							fin err
+			]
+			done err
 		it "should not allow creating a post after the thread is deleted", (done)->
 			this.timeout = 4000
 			err <- async.waterfall [

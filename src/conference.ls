@@ -41,7 +41,8 @@ module.exports = (app)->
 					next new Error 'UNAUTHORIZED'
 		.all (req, res, next)->
 			err, result <- Course.findOne res.locals.course
-			if err
+			/* istanbul ignore if should only really occur if db crashes */
+			if err?
 				winston.error 'course findOne conf', err
 				next new Error 'INTERNAL'
 			else
@@ -58,7 +59,8 @@ module.exports = (app)->
 						err, result <- Thread.find {
 							'course': ObjectId res.locals.course._id
 						} .populate 'author' .sort!.exec
-						if err
+						/* istanbul ignore if should only really occur if db crashes */
+						if err?
 							winston.error 'course:findOne:blog:auth1', err
 							next new Error 'INTERNAL'
 						else
@@ -74,7 +76,8 @@ module.exports = (app)->
 									'course': ObjectId res.locals.course._id
 									'_id': ObjectId req.params.thread
 								} .populate 'author' .exec
-								if err
+								/* istanbul ignore if should only really occur if db crashes */
+								if err?
 									winston.error 'conf find thread', err
 									next new Error 'INTERNAL'
 								else
@@ -89,10 +92,12 @@ module.exports = (app)->
 									'course': ObjectId res.locals.course._id
 									'thread': ObjectId req.params.thread
 								} .populate 'thread' .populate 'author' .sort!.exec
-								if err
+								/* istanbul ignore if should only really occur if db crashes */
+								if err?
 									winston.error 'conf find thread', err
 									next new Error 'INTERNAL'
 								else
+									/* istanbul ignore else honestly don't know how to hit the else */
 									if result?
 										res.locals.posts = result
 										done!
@@ -109,7 +114,8 @@ module.exports = (app)->
 							'course': ObjectId res.locals.course._id
 							'_id': ObjectId req.params.post
 						} .populate 'thread' .populate 'author' .exec
-						if err
+						/* istanbul ignore if should only really occur if db crashes */
+						if err?
 							winston.error 'course:findOne:blog:auth1', err
 							next new Error 'INTERNAL'
 						else
@@ -161,6 +167,7 @@ module.exports = (app)->
 								}
 								post = new Post post
 								err, post <- post.save
+								/* istanbul ignore if should only really occur if db crashes */
 								if err?
 									winston.error 'conf',err
 									# next new Error 'Mongo Error'
@@ -176,6 +183,7 @@ module.exports = (app)->
 					}
 					thread = new Thread thread
 					err, thread <- thread.save
+					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error 'thread',err
 						next new Error 'Mongo Error'
@@ -189,6 +197,7 @@ module.exports = (app)->
 						}
 						post = new Post post
 						err, post <- post.save
+						/* istanbul ignore if should only really occur if db crashes */
 						if err?
 							winston.error 'post',err
 							next new Error 'Mongo Error'
@@ -211,6 +220,7 @@ module.exports = (app)->
 					},{
 						text: req.body.text
 					}
+					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error 'conf' err
 						next new Error 'Mongo Error'
@@ -226,6 +236,7 @@ module.exports = (app)->
 					},{
 						title: req.body.title
 					}
+					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error 'conf' err
 						next new Error 'Mongo Error'
@@ -247,6 +258,7 @@ module.exports = (app)->
 					if res.locals.auth > 1
 						delete thePost.author
 					err, post <- Post.findOneAndRemove thePost
+					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error err
 						res.status 400 .render 'conference/delpost' { body: req.body, success:'no', noun:'Post', verb:'deleted' }
@@ -264,6 +276,7 @@ module.exports = (app)->
 						delete theThread.author
 					# first delete thread
 					err, thread <- Thread.findOneAndRemove theThread
+					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						# error might be that they are not author
 						winston.error err
@@ -272,6 +285,7 @@ module.exports = (app)->
 						err, post <- Post.remove {
 							thread: ObjectId req.body.thread
 						}
+						/* istanbul ignore if should only really occur if db crashes */
 						if err?
 							winston.error err
 							res.status 400 .render 'conference/delthread' { body: req.body, success:'no', noun:'Posts', verb:'deleted' }

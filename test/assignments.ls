@@ -971,3 +971,15 @@ describe "Assignments" ->
 					expect res.status .to.equal 400
 					expect res.text .to.have.string "You have no more attempts."
 					done err
+	describe "Other", (...)->
+		it "should not crash for bad assignment length", (done)->
+			# this may fail if that ends up being a real assignment _id
+			student
+				.post "/cps1234/assignment/12345678901234567890123?hmo=put&action=editthread"
+				.send {
+					aid: "12345678901234567890123"
+					text: "something"
+				}
+				.end (err, res)->
+					expect res.status .to.match /^(3|4|5)/
+					done err

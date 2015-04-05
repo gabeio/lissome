@@ -32,6 +32,7 @@ module.exports = (app)->
 					'id': req.params.course
 					'school': app.locals.school
 				}
+				/* istanbul ignore default there should be no way to hit that. */
 				switch res.locals.auth
 				| 3
 					next!
@@ -45,6 +46,7 @@ module.exports = (app)->
 					next new Error 'UNAUTHORIZED'
 		.all (req, res, next)->
 			err, result <- Course.findOne res.locals.course
+			/* istanbul ignore if should only really occur if db crashes */
 			if err
 				winston.error 'course findOne conf', err
 				next new Error 'INTERNAL'
@@ -66,8 +68,13 @@ module.exports = (app)->
 						}
 						.populate 'author'
 						.exec
-						res.locals.assignments = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
-						done!
+						/* istanbul ignore if should only really occur if db crashes */
+						if err
+							winston.error 'assign findOne conf', err
+							next new Error 'INTERNAL'
+						else
+							res.locals.assignments = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
+							done!
 					else
 						done!
 				(done)->
@@ -80,11 +87,16 @@ module.exports = (app)->
 						}
 						.populate 'author'
 						.exec
-						if result?
-							res.locals.assignment = result.toObject!
+						/* istanbul ignore if should only really occur if db crashes */
+						if err
+							winston.error 'assign findOne conf', err
+							next new Error 'INTERNAL'
 						else
-							res.locals.error = "NOT FOUND"
-						done!
+							if result?
+								res.locals.assignment = result.toObject!
+							else
+								res.locals.error = "NOT FOUND"
+							done!
 					else
 						done!
 				(done)->
@@ -100,8 +112,13 @@ module.exports = (app)->
 							.populate 'assignment'
 							.populate 'author'
 							.exec
-							res.locals.attempts = result
-							done!
+							/* istanbul ignore if should only really occur if db crashes */
+							if err
+								winston.error 'assign findOne conf', err
+								next new Error 'INTERNAL'
+							else
+								res.locals.attempts = result
+								done!
 						else if req.params.assign?
 							# find attempts
 							err, result <- Attempt.find {
@@ -111,8 +128,13 @@ module.exports = (app)->
 							.populate 'assignment'
 							.populate 'author'
 							.exec
-							res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
-							done!
+							/* istanbul ignore if should only really occur if db crashes */
+							if err
+								winston.error 'assign findOne conf', err
+								next new Error 'INTERNAL'
+							else
+								res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
+								done!
 						else
 							done!
 					else
@@ -130,8 +152,13 @@ module.exports = (app)->
 							.populate 'assignment'
 							.populate 'author'
 							.exec
-							res.locals.attempts = result
-							done!
+							/* istanbul ignore if should only really occur if db crashes */
+							if err
+								winston.error 'assign findOne conf', err
+								next new Error 'INTERNAL'
+							else
+								res.locals.attempts = result
+								done!
 						else if req.params.assign?
 							# find attempts
 							err, result <- Attempt.find {
@@ -141,8 +168,13 @@ module.exports = (app)->
 							.populate 'assignment'
 							.populate 'author'
 							.exec
-							res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
-							done!
+							/* istanbul ignore if should only really occur if db crashes */
+							if err
+								winston.error 'assign findOne conf', err
+								next new Error 'INTERNAL'
+							else
+								res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
+								done!
 						else
 							done!
 					else
@@ -186,11 +218,13 @@ module.exports = (app)->
 							}
 							.count!
 							.exec
+							/* istanbul ignore if should only really occur if db crashes */
 							if err
-								winston.error 'attempt:find',err
-								next new Error 'Find Attempt'
-							res.locals.tries = result
-							done err
+								winston.error 'attempt find conf',err
+								next new Error 'INTERNAL'
+							else
+								res.locals.tries = result
+								done err
 						(done)->
 							err, result <- Assignment.findOne {
 								'course': ObjectId res.locals.course._id
@@ -198,11 +232,13 @@ module.exports = (app)->
 							}
 							.populate 'author'
 							.exec
+							/* istanbul ignore if should only really occur if db crashes */
 							if err
-								winston.error 'assign:find',err
-								next new Error 'Find Assignment'
-							res.locals.assignment = result
-							done err
+								winston.error 'assign find conf',err
+								next new Error 'INTERNAL'
+							else
+								res.locals.assignment = result
+								done err
 					]
 					# date now gt start
 					if (new Date Date.now!) > res.locals.assignment.start
@@ -220,6 +256,8 @@ module.exports = (app)->
 									theAttempt.late = true
 								attempt = new Attempt theAttempt
 								err, attempt <- attempt.save
+								/* istanbul ignore if should only really occur if db crashes */
+								/* istanbul ignore if should only really occur if db crashes */
 								if err?
 									winston.error err
 									next new Error 'Mongo Error'
@@ -284,6 +322,7 @@ module.exports = (app)->
 						'course': ObjectId res.locals.course._id
 						# don't check for author as me might not be...
 					}, assign
+					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						# winston.info 'I4'
 						winston.error err
@@ -322,10 +361,10 @@ module.exports = (app)->
 						delete assign.end
 					assignment = new Assignment assign
 					err, assignment <- assignment.save
-					/* istanbul ignore if */
+					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error err
-						next new Error 'Mongo Error'
+						next new Error 'INTERNAL'
 					else
 						res.status 302 .redirect "/#{req.params.course}/assignments/" + assignment._id
 			| 'grade'
@@ -340,9 +379,10 @@ module.exports = (app)->
 						'points': req.body.points
 					}
 					# winston.info attempt
+					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error err
-						next new Error 'Mongo Error'
+						next new Error 'INTERNAL'
 					else
 						res.status 302 .redirect "/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
 			| _
@@ -357,46 +397,21 @@ module.exports = (app)->
 					'course': ObjectId res.locals.course._id
 				}
 				# winston.info 'deleted:',attempts
+				/* istanbul ignore if should only really occur if db crashes */
 				if err?
 					winston.error err
-					next new Error 'Mongo Error'
+					next new Error 'INTERNAL'
 				else
 					err, assignments <- Assignment.remove {
 						'_id': ObjectId req.body.aid
 						'course': ObjectId res.locals.course._id
 					}
 					# winston.info 'deleted:',assignments
+					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error err
-						next new Error 'Mongo Error'
+						next new Error 'INTERNAL'
 					else
 						res.status 302 .redirect "/#{req.params.course}/assignments"
-			# | 'deleteall'
-			# 	# pluck only _id off of all assignments
-			# 	plucked = _.pluck res.locals.assignments, '_id'
-			# 	# winston.info 'pluck', plucked
-			# 	# winston.info 'typeof plucked', typeof plucked.0
-			# 	# convert all assignment._id's to ObjectIds
-			# 	assignments = _.map plucked, ObjectId
-			# 	# winston.info 'mapped', assignments
-			# 	err, attempts <- Attempt.remove {
-			# 		'assignment': {$in: assignments}
-			# 		'course': ObjectId res.locals.course._id
-			# 	}
-			# 	# winston.info 'deleted:',attempts
-			# 	if err?
-			# 		winston.error err
-			# 		next new Error 'Mongo Error'
-			# 	else
-			# 		err, assignments <- Assignment.remove {
-			# 			'_id': {$in: assignments}
-			# 			'course': ObjectId res.locals.course._id
-			# 		}
-			# 		# winston.info 'deleted:',assignments
-			# 		if err?
-			# 			winston.error err
-			# 			next new Error 'Mongo Error'
-			# 		else
-			# 			res.status 302 .redirect "/#{req.params.course}/assignments"
 			| _
 				next! # don't assume action
