@@ -55,7 +55,7 @@ module.exports = (app)->
 					next!
 		.all (req, res, next)->
 			# thread/post db middleware async for attempted max speed
-			err <- async.parallel [
+			<- async.parallel [
 				(done)->
 					if !req.params.thread?
 						err, result <- Thread.find {
