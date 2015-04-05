@@ -55,13 +55,12 @@ module.exports = (app)->
 					next!
 		.all (req, res, next)->
 			# thread/post db middleware async for attempted max speed
-			<- async.parallel [
+			err <- async.parallel [
 				(done)->
 					if !req.params.thread?
 						err, result <- Thread.find {
 							'course': ObjectId res.locals.course._id
 						} .populate 'author' .sort!.exec
-						/* istanbul ignore if */
 						if err
 							winston.error 'course:findOne:blog:auth1', err
 							next new Error 'INTERNAL'
@@ -72,25 +71,38 @@ module.exports = (app)->
 						done!
 				(done)->
 					if req.params.thread? && !req.params.post?
-						err, result <- Post.find {
-							'type': 'conference'
-							'course': ObjectId res.locals.course._id
-							'thread': ObjectId req.params.thread
-						} .populate 'thread' .populate 'author' .sort!.exec
-						/* istanbul ignore if */
-						if err
-							winston.error 'course:findOne:blog:auth1', err
-							next new Error 'INTERNAL'
-						else
-							if result.length > 0
-								res.locals.thread = result.0.thread
-								res.locals.posts = result
-							else
-								res.locals.thread = {}
-								# this allows fixing of threads that were added without a post
-								res.locals.thread._id = req.params.thread
-								res.locals.posts = result
-							done!
+						<- async.parallel [
+							(done)->
+								err, result <- Thread.findOne {
+									'course': ObjectId res.locals.course._id
+									'_id': ObjectId req.params.thread
+								} .populate 'author' .exec
+								if err
+									winston.error 'conf find thread', err
+									next new Error 'INTERNAL'
+								else
+									if result?
+										res.locals.thread = result
+										done!
+									else
+										next new Error 'NOT FOUND'
+							(done)->
+								err, result <- Post.find {
+									'type': 'conference'
+									'course': ObjectId res.locals.course._id
+									'thread': ObjectId req.params.thread
+								} .populate 'thread' .populate 'author' .sort!.exec
+								if err
+									winston.error 'conf find thread', err
+									next new Error 'INTERNAL'
+								else
+									if result?
+										res.locals.posts = result
+										done!
+									else
+										next new Error 'NOT FOUND'
+						]
+						done!
 					else
 						done!
 				(done)->
@@ -136,20 +148,26 @@ module.exports = (app)->
 				if !req.body.thread? or req.body.thread is "" or !req.body.text? or req.body.text is ""
 					res.status 400 .render 'conference/view' { body: req.body, success:'no', noun:'Post', verb:'created' }
 				else
-					post = {
-						course: res.locals.course._id
-						author: ObjectId res.locals.uid
-						thread: ObjectId req.body.thread
-						text: req.body.text
-						type: 'conference'
-					}
-					post = new Post post
-					err, post <- post.save
-					if err?
-						winston.error 'conf',err
-						next new Error 'Mongo Error'
-					else
-						res.status 302 .redirect "/#{req.params.course}/conference/#{req.params.thread}"
+					async.parallel [
+						(done)->
+							res.status 302 .redirect "/#{req.params.course}/conference/#{req.params.thread}"
+						(done)->
+							if res.locals.thread?
+								console.log 'created post!'
+								console.lgo res.locals.thread
+								post = {
+									course: res.locals.course._id
+									author: ObjectId res.locals.uid
+									thread: ObjectId req.body.thread
+									text: req.body.text
+									type: 'conference'
+								}
+								post = new Post post
+								err, post <- post.save
+								if err?
+									winston.error 'conf',err
+									next new Error 'Mongo Error'
+					]
 			| 'newthread'
 				if !req.body.title? or req.body.title is "" or !req.body.text? or req.body.text is ""
 					res.status 400 .render 'conference/create' { body: req.body, success:'no', noun:'Thread', verb:'created' }
