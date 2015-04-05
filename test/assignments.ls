@@ -635,13 +635,6 @@ describe "Assignments" ->
 			]
 			done err
 	describe "Crash Checks", (...)->
-		after (done)->
-			this.timeout 0
-			# clean up outsideFaculty
-			admin
-				.get "/test/deleteassignments/cps1234"
-				.end (err, res)->
-					done err
 		it "should not crash when creating/editing an assignment without opendate", (done)->
 			faculty
 				.post "/cps1234/assignments?action=new"
@@ -932,6 +925,13 @@ describe "Assignments" ->
 							cont err
 			]
 			done err
+		after (done)->
+			this.timeout 0
+			# clean up outsideFaculty
+			admin
+				.get "/test/deleteassignments/cps1234"
+				.end (err, res)->
+					done err
 		it "should not allow early submissions", (done)->
 			student
 				.post "/cps1234/assignments/#{otherFunc.Early}?action=attempt"
