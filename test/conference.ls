@@ -413,7 +413,7 @@ describe "Conference" ->
 							fin err
 			]
 			done err
-		it "should allow a faculty to edit thier post", (done)->
+		it "should allow a faculty to edit their post", (done)->
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -443,7 +443,7 @@ describe "Conference" ->
 					fin err
 			]
 			done err
-		it "should allow an admin to edit thier post", (done)->
+		it "should allow an admin to edit their post", (done)->
 			err <- async.waterfall [
 				(fin)->
 					admin
@@ -929,7 +929,7 @@ describe "Conference" ->
 							fin err
 			]
 			done err
-		it "should allow a student to edit thier post", (done)->
+		it "should allow a student to edit their post", (done)->
 			err <- async.waterfall [
 				(fin)->
 					student
