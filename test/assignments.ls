@@ -975,4 +975,3 @@ describe "Assignments" ->
 					expect res.status .to.equal 400
 					expect res.text .to.have.string "You have no more attempts."
 					done err
-	describe "Grade Book", (...)->
