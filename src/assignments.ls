@@ -45,7 +45,7 @@ module.exports = (app)->
 				res.locals.course.students = ObjectId res.locals.uid
 				next!
 			| _
-				next new Error 'Bad Auth'
+				next new Error 'UNAUTHORIZED'
 		.all (req, res, next)->
 			err, result <- Course.findOne res.locals.course
 			if err
