@@ -42,7 +42,7 @@ dependencies:
 	"mongoose": '~4.0.1'
 	"multer": '~0.1.7'
 	"redis": '~0.12.1'
-	"request": '~2.54.0'
+	"request": '~2.55.0'
 	"serve-static": '~1.9.1'
 	"swig": '~1.4.2'
 	"uuid": '~2.0.1'
