@@ -24,24 +24,21 @@ module.exports = (app)->
 			else if req.params.post? and req.params.post.length isnt 24
 				next new Error 'Bad Post'
 			else
-				next!
-		.all (req, res, next)->
-			# get course info middleware (helps with auth)
-			res.locals.course = {
-				'id': req.params.course
-				'school': app.locals.school
-			}
-			switch res.locals.auth
-			| 3
-				next!
-			| 2
-				res.locals.course.faculty = ObjectId res.locals.uid
-				next!
-			| 1
-				res.locals.course.students = ObjectId res.locals.uid
-				next!
-			| _
-				next new Error 'Bad Auth'
+				res.locals.course = {
+					'id': req.params.course
+					'school': app.locals.school
+				}
+				switch res.locals.auth
+				| 3
+					next!
+				| 2
+					res.locals.course.faculty = ObjectId res.locals.uid
+					next!
+				| 1
+					res.locals.course.students = ObjectId res.locals.uid
+					next!
+				| _
+					next new Error 'UNAUTHORIZED'
 		.all (req, res, next)->
 			err, result <- Course.findOne res.locals.course
 			if err
