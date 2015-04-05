@@ -1272,6 +1272,7 @@ describe "Conference" ->
 			done err
 	describe "Other", (...)->
 		it "should not allow creating a post after the thread is deleted", (done)->
+			this.timeout = 4000
 			err <- async.waterfall [
 				(fin)->
 					# create thread
