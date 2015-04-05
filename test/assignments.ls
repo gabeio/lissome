@@ -232,24 +232,20 @@ describe "Assignments" ->
 					expect res.header.location .to.match /^\/cps1234\/assignments\//i
 					done err
 		before (done)->
-			err <- async.waterfall [
-				(cont)->
-					faculty
-						.get "/logout"
-						.end (err, res)->
-							cont err
-				(cont)->
-					faculty
-						.post "/login"
-						.send {
-							"username": "gfaculty"
-							"password": "password"
-						}
-						.end (err, res)->
-							expect res.status .to.equal 302
-							cont err
-			]
-			done err
+			faculty
+				.get "/logout"
+				.end (err, res)->
+					done err
+		before (done)->
+			faculty
+				.post "/login"
+				.send {
+					"username": "gfaculty"
+					"password": "password"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 302
+					done err
 		after (done)->
 			err <- async.waterfall [
 				(cont)->

@@ -150,8 +150,8 @@ module.exports = (app)->
 							res.status 302 .redirect "/#{req.params.course}/conference/#{req.params.thread}"
 						(done)->
 							if res.locals.thread?
-								console.log 'created post!'
-								console.lgo res.locals.thread
+								# console.log 'created post!'
+								# console.log res.locals.thread
 								post = {
 									course: res.locals.course._id
 									author: ObjectId res.locals.uid
@@ -163,7 +163,7 @@ module.exports = (app)->
 								err, post <- post.save
 								if err?
 									winston.error 'conf',err
-									next new Error 'Mongo Error'
+									# next new Error 'Mongo Error'
 					]
 			| 'newthread'
 				if !req.body.title? or req.body.title is "" or !req.body.text? or req.body.text is ""

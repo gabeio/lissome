@@ -4,6 +4,7 @@
 /* istanbul ignore next only for testing anyway */
 module.exports = (app)->
 	require! {
+		'async'
 		'mongoose'
 		'winston'
 	}
@@ -12,6 +13,7 @@ module.exports = (app)->
 	Course = app.locals.models.Course
 	Post = app.locals.models.Post
 	Assignment = app.locals.models.Assignment
+	Thread = app.locals.models.Thread
 	# winston = app.locals.winston
 	winston.warn 'TESTING MODE\nIF YOU SEE THIS MESSAGE THERE IS SOMETHING WRONG!!!'
 	app
@@ -64,6 +66,45 @@ module.exports = (app)->
 						'course': ObjectId(res.locals.course._id)
 						'type': 'blog'
 					}
+					if err
+						winston.error 'test:course:find:post', err
+						next new Error 'INTERNAL'
+					else
+						res.json result
+			| 'gettid'
+				err, result <- Course.findOne {
+					'id': req.params.more
+					'school': app.locals.school
+				}
+				if err
+					winston.error 'test:course:findOne:blog', err
+					next new Error 'INTERNAL'
+				else
+					res.locals.course = result
+					err, result <- Thread.find {
+						'course': ObjectId(res.locals.course._id)
+						'title': req.query.title
+					}
+					if err
+						winston.error 'test:course:find:post', err
+						next new Error 'INTERNAL'
+					else
+						res.json result
+			| 'getpost'
+				err, result <- Course.findOne {
+					'id': req.params.more
+					'school': app.locals.school
+				}
+				if err
+					winston.error 'test:course:findOne:blog', err
+					next new Error 'INTERNAL'
+				else
+					res.locals.course = result
+					err, result <- Post.find {
+						'course': ObjectId(res.locals.course._id)
+						'type': 'conference'
+						'text': new RegExp req.query.text, 'i'
+					} .populate 'thread' .exec
 					if err
 						winston.error 'test:course:find:post', err
 						next new Error 'INTERNAL'
