@@ -13,7 +13,7 @@ module.exports = (app)->
 	Course = app.locals.models.Course
 	Post = app.locals.models.Post
 	app
-		..route '/:course/:blog(blog|b)/:unique?' # query action(new|edit|delete|deleteall)
+		..route '/:course/blog/:unique?' # query action(new|edit|delete|deleteall)
 		.all (req, res, next)->
 			if req.query.action in ['new','edit','delete','deleteall']
 				next!
@@ -23,49 +23,32 @@ module.exports = (app)->
 			res.locals.needs = 2
 			app.locals.authorize req, res, next
 		.all (req, res, next)->
-			res.locals.on = 'blog'
-			<- async.parallel [
-				(done)->
-					if res.locals.auth is 3
-						err, result <- Course.findOne {
-							'id': req.params.course
-							'school': app.locals.school
-						}
-						/* istanbul ignore if */
-						if err
-							winston.error 'course:findOne:blog:auth3', err
-							next new Error 'INTERNAL'
-						else
-							/* istanbul ignore if */
-							if !result? or result.length is 0
-								next new Error 'NOT FOUND'
-							else
-								res.locals.course = result
-								done!
-					else
-						done!
-				(done)->
-					if res.locals.auth is 2
-						err, result <- Course.findOne {
-							'id': req.params.course
-							'school': app.locals.school
-							'faculty': ObjectId res.locals.uid
-						}
-						/* istanbul ignore if */
-						if err
-							winston.error 'course:findOne:blog:auth2', err
-							next new Error 'INTERNAL'
-						else
-							/* istanbul ignore if */
-							if !result? or result.length is 0
-								next new Error 'NOT FOUND'
-							else
-								res.locals.course = result
-								done!
-					else
-						done!
-			]
-			next!
+			res.locals.course = {
+				'id': req.params.course
+				'school': app.locals.school
+			}
+			switch res.locals.auth
+			| 3
+				next!
+			| 2
+				res.locals.course.faculty = ObjectId res.locals.uid
+				next!
+			| 1
+				res.locals.course.students = ObjectId res.locals.uid
+				next!
+			| _
+				next new Error 'UNAUTHORIZED'
+		.all (req, res, next)->
+			err, result <- Course.findOne res.locals.course
+			if err
+				winston.error 'course findOne conf', err
+				next new Error 'INTERNAL'
+			else
+				if !result? or result.length is 0
+					next new Error 'NOT FOUND'
+				else
+					res.locals.course = result
+					next!
 		.get (req, res, next)->
 			if req.query.action in ['edit','delete']
 				if !req.params.unique?
@@ -109,9 +92,9 @@ module.exports = (app)->
 								title: encodeURIComponent req.body.title
 								text: req.body.text
 								# files: req.body.files
-								author: ObjectId req.session.uid
-								authorName: req.session.firstName+" "+req.session.lastName
-								authorUsername: req.session.username
+								author: ObjectId res.locals.uid
+								authorName: res.locals.firstName+" "+res.locals.lastName
+								authorUsername: res.locals.username
 								tags: []
 								type: 'blog'
 								school: app.locals.school
@@ -176,74 +159,37 @@ module.exports = (app)->
 				]
 			else
 				next new Error 'bad blog delete'
-		..route '/:course/:blog(blog|b)/:unique?' # query action(search)
+		..route '/:course/blog/:unique?' # query action(search)
 		.all (req, res, next)->
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
 		.all (req, res, next)->
-			res.locals.on = 'blog'
-			<- async.parallel [
-				(done)->
-					if res.locals.auth is 3
-						err, result <- Course.findOne {
-							'id': req.params.course
-							'school': app.locals.school
-						}
-						/* istanbul ignore if */
-						if err
-							winston.error 'course:findOne:blog:auth3', err
-							next new Error 'INTERNAL'
-						else
-							/* istanbul ignore if */
-							if !result? or result.length is 0
-								next new Error 'NOT FOUND'
-							else
-								res.locals.course = result
-								done!
-					else
-						done!
-				(done)->
-					if res.locals.auth is 2
-						err, result <- Course.findOne {
-							'id': req.params.course
-							'school': app.locals.school
-							'faculty': ObjectId res.locals.uid
-						}
-						/* istanbul ignore if */
-						if err
-							winston.error 'course:findOne:blog:auth2', err
-							next new Error 'INTERNAL'
-						else
-							/* istanbul ignore if */
-							if !result? or result.length is 0
-								next new Error 'NOT FOUND'
-							else
-								res.locals.course = result
-								done!
-					else
-						done!
-				(done)->
-					if res.locals.auth is 1
-						err, result <- Course.findOne {
-							'id': req.params.course
-							'school': app.locals.school
-							'students': ObjectId res.locals.uid
-						}
-						/* istanbul ignore if */
-						if err
-							winston.error 'course:findOne:blog:auth1', err
-							next new Error 'INTERNAL'
-						else
-							/* istanbul ignore if */
-							if !result? or result.length is 0
-								next new Error 'NOT FOUND'
-							else
-								res.locals.course = result
-								done!
-					else
-						done!
-			]
-			next!
+			res.locals.course = {
+				'id': req.params.course
+				'school': app.locals.school
+			}
+			switch res.locals.auth
+			| 3
+				next!
+			| 2
+				res.locals.course.faculty = ObjectId res.locals.uid
+				next!
+			| 1
+				res.locals.course.students = ObjectId res.locals.uid
+				next!
+			| _
+				next new Error 'UNAUTHORIZED'
+		.all (req, res, next)->
+			err, result <- Course.findOne res.locals.course
+			if err
+				winston.error 'course findOne conf', err
+				next new Error 'INTERNAL'
+			else
+				if !result? or result.length is 0
+					next new Error 'NOT FOUND'
+				else
+					res.locals.course = result
+					next!
 		.get (req, res, next)->
 			# res.locals.blog = []
 			if req.query.search? or req.params.unique?

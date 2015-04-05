@@ -2,63 +2,38 @@
 	<div class="row">
 		<nav class="navbar navbar-default navbar-static-top">
 			<div class="container-fluid">
-				<div class="navbar-header">
-					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-						<span class="sr-only">Toggle navigation</span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					</button>
-					<a class="navbar-brand" href="/"><span class="glyphicon glyphicon-home"></span> {{ school }}</a>
-				</div>
-				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-					<ul class="nav navbar-nav">
-						{#- left side of navbar -#}
-					</ul>
-					<ul class="nav navbar-nav navbar-right">
-						{#- right side of navbar -#}
-						<li>
-							<a title="{{ username }}">{{ firstName }} {{ lastName }}</a>
-						</li>
-						<li class="dropdown">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-cog"></span><!-- <span class="caret"></span> --></a>
-							<ul class="dropdown-menu" role="menu">
-								<li><a href="/preferences"><span class="glyphicon glyphicon-wrench"></span> Preferences</a></li>
-								<li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+				<div class="row">
+					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+						<div class="navbar-header">
+							<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+								<span class="sr-only">Toggle navigation</span>
+								<span class="icon-bar"></span>
+								<span class="icon-bar"></span>
+								<span class="icon-bar"></span>
+							</button>
+							<a class="navbar-brand" href="/"><span class="glyphicon glyphicon-home"></span> {{ school }}</a>
+						</div>
+						<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+							<ul class="nav navbar-nav">
+								{#- left side of navbar -#}
 							</ul>
-						</li>
-					</ul>
-				</div><!-- /.navbar-collapse -->
-			</div>
-		</nav>
+							<ul class="nav navbar-nav navbar-right">
+								{#- right side of navbar -#}
+								<li>
+									<a title="{{ username }}">{{ firstName }} {{ lastName }}</a>
+								</li>
+								<li class="dropdown">
+									<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-cog"></span><!-- <span class="caret"></span> --></a>
+									<ul class="dropdown-menu" role="menu">
+										<li><a href="/preferences"><span class="glyphicon glyphicon-wrench"></span> Preferences</a></li>
+										<li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+									</ul>
+								</li>
+							</ul>
+						</div><!-- /.navbar-collapse -->
+					</div><!-- navbar col -->
+				</div><!-- navbar row -->
+			</div><!-- navbar container -->
+		</nav><!-- navbar -->
 	</div>
-	{# <div class="row">
-		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-			<ol class="breadcrumb">
-				{% if on == 'dash' %}<li class="active">Dash</li>{% else %}<li><a href="/">Dash</a></li>{% endif %}
-				{% if course and on !== 'course' %}<li><a href="/{{ course.id }}">{{ course.title }}</a></li>{% endif %}
-				{% if blog and on !== 'blog' %}<li><a href="/{{ course.id }}/blog">Blog</a></li>{% endif %}
-				{% if assignment and on !== 'assignments' %}<li><a href="/{{ course.id }}/assignments">Assignments</a></li>{% endif %}
-				{% if attempt and on !== 'attempt' %}<li><a href="/{{ course.id }}/assignments/{{ assignments[0].title }}?action=list">{{ assignment.title|url_decode }}</a></li>{% endif %}
-				{% if on == 'course' %}<li class="active">{{ course.title }}</li>
-				{% elif on == 'blog' %}<li class="active">Blog</li>
-				{% elif on == 'assignments' %}<li class="active">Assignments</li>
-				{% elif on == 'newassignment' %}<li class="active">New Assignment</li>
-				{% elif on == 'editassignment' %}<li class="active">Edit Assignment</li>
-				{% elif on == 'deleteassignment' %}<li class="active">Delete Assignment</li>
-				{% elif on == 'gradeassignment' %}<li class="active">Grading Assignment</li>
-				{% elif on == 'listattempts' %}<li class="active">Attempts List</li>
-				{% elif on == 'viewattempt' %}<li class="active">View Attempt</li>
-				{% elif on == 'assignment' %}<li class="active">{{ assignment.title }}</li>
-				{% elif on == 'newblog' %}<li class="active">New Post</li>
-				{% elif on == 'editblog' %}<li class="active">Edit Post</li>
-				{% elif on == 'deleteblog' %}<li class="active">Delete Post</li>
-				{% elif on == 'conference' %}<li class="active">Conference</li>
-				{% elif on == 'preferences' %}<li class="active">Preferences</li>
-				{% elif on == 'settings' %}<li class="active">Settings</li>
-				{% elif on == 'newblog' %}<li class="active">New Post</li>
-				{% endif %}
-			</ol>
-		</div>
-	</div> #}
 {% endblock %}

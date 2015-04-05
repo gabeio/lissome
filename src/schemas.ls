@@ -61,7 +61,6 @@ module.exports = (mongoose)->
 		tries: { type: Number, default: 1 } # tries per student
 		allowLate: { type: Boolean, default: false } # allow late submissions or not
 		totalPoints: Number
-		school: { type: String, +required, ref: 'School' }
 		# OPTIONAL
 		text: String # Require's text
 		files: Buffer # Require's file(s)?
@@ -77,7 +76,6 @@ module.exports = (mongoose)->
 		course: { type: Schema.Types.ObjectId, +required, ref: 'Course' }
 		text: String # student attempt text
 		files: Buffer # student attempt file(s)?
-		school: { type: String, +required, ref: 'School' }
 		points: Number
 		letterGrade: String
 		grader: { type: Schema.Types.ObjectId, ref: 'User' } # teacher who submitted graded it
@@ -90,30 +88,28 @@ module.exports = (mongoose)->
 		# _id
 		author: { type: Schema.Types.ObjectId, +required, ref: 'User' }
 		timestamp: { type: Date, default: Date.now }
-		school: { type: String, +required, ref: 'School' }
 		course: { type: Schema.Types.ObjectId, +required, ref: 'Course' }
 		# REQUIRED
 		title: String # Thread name
-		thread: String # Parent Thread
+		deleted: Boolean
+		# thread: String # Parent Thread
 	}
 	Thread.index { timestamp: -1, course: 1 }
 	Post = new Schema {
 		# AUTOCREATED
 		# _id
 		author: { type: Schema.Types.ObjectId, +required, ref: 'User' }
-		authorName: { type: String, +required }
-		authorUsername: { type: String, +required }
 		timestamp: { type: Date, default: Date.now }
 		# REQUIRED
 		course: { type: Schema.Types.ObjectId, +required, ref: 'Course' }
 		text: { type: String, +required }
 		type: { type: String, +required } # blog/conference
-		school: { type: String, +required, ref: 'School' }
 		# OPTIONAL
 		thread: { type: Schema.Types.ObjectId, ref: 'Thread' } # required if type conference
 		title: String
 		files: Buffer
 		tags: []
+		deleted: Boolean
 	}
 	Post.index { timestamp: -1, course: 1, type: 1 }
 	module.exports = {

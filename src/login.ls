@@ -37,9 +37,8 @@ module.exports = (app)->
 						req.session.uid = user._id
 						req.session.firstName = user.firstName
 						/* istanbul ignore next */
-						req.session.middleName = if user.middleName? then user.middleName
+						# req.session.middleName = if user.middleName? then user.middleName
 						req.session.lastName = user.lastName
-						# req.session.courses = user.courses # find better way
 						res.redirect '/'
 					else
 						res.render 'login', { error:'bad login credentials' }

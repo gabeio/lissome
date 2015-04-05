@@ -43,26 +43,22 @@
 		</div>
 		{% endif %}{# success? #}
 		<div class="row">
-			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1 clearfix" method="POST" action="?action=deleteall&hmo=DELETE" enctype="multipart/form-data">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1 clearfix" method="POST" action="?action=deleteall&hmo=DELETE" enctype="multipart/form-data">
 				<div class="pull-left">
 					<h3>{{ course.title }} - Assignments</h3>
 				</div>
-				<div class="pull-right" style="padding-top: 8px;">
-					<button type="submit" class="btn btn-default" title="Delete All"><span class="glyphicon glyphicon-trash"></span> Delete All</button>
-				</div>
-			</form>
+			</div>
 		</div>
-		{% for assignment in assignments %}
 		<div class="row">
 			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=delete&hmo=DELETE" enctype="multipart/form-data">
 				<div class="panel panel-default">
 					<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />
 					<div class="panel-heading clearfix">
-						<h2 class="panel-title pull-left" style="padding-top: 10px;">{{ assignment.title|url_decode }}</h2>
+						<h2 class="panel-title pull-left" style="padding-top: 10px;">{{ assignment.title }}</h2>
 						<div class="pull-right">
 							<div class="btn-group">
 								<button type="submit" class="btn btn-danger">Delete</button>
-								<a href="/{{ course.id }}/blog" class="btn btn-default">No!</a>
+								<a href="/{{ course.id }}/assignments/{{ assignment._id|toString }}" class="btn btn-default">No!</a>
 							</div>
 						</div>
 					</div>
@@ -71,6 +67,5 @@
 				</div>
 			</form>
 		</div>
-		{% endfor %}
 	</div>
 {% endblock %}

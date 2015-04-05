@@ -14,122 +14,103 @@ module.exports = (app)->
 	Assignment = app.locals.models.Assignment
 	Attempt = app.locals.models.Attempt
 	app
-		..route '/:course/:application(a|assign|assignment|assignments)/:assign?/:attempt?' # query :: action(new|edit|delete|grade)
+		..route '/:course/assignments/:assign?/:attempt?' # query :: action(new|edit|delete|grade)
 		.all (req, res, next)->
-			# winston.info req.originalUrl
-			# winston.info 'params',req.params
-			# winston.info 'query',req.query
-			# winston.info 'body',req.body
-			# winston.info 'A'
 			# to be in course auth needs to be min = 1
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
 		.all (req, res, next)->
-			# winston.info 'B'
-			# do for every request
-			# get course_id
-			res.locals.on = 'assignments'
-			<- async.parallel [
-				(done)->
-					if req.session.auth is 3
-						# winston.info 'B1'
-						err, result <- Course.findOne {
-							'id': req.params.course
-							'school': app.locals.school
-						}
-						res.locals.course = result
-						done!
-					else
-						# winston.info 'B2'
-						done!
-				(done)->
-					if req.session.auth is 2
-						# winston.info 'B3'
-						err, result <- Course.findOne {
-							'id': req.params.course
-							'school': app.locals.school
-							'faculty': ObjectId req.session.uid
-						}
-						res.locals.course = result
-						done!
-					else
-						# winston.info 'B4'
-						done!
-				(done)->
-					if req.session.auth is 1
-						# winston.info 'B5'
-						err, result <- Course.findOne {
-							'id': req.params.course
-							'school': app.locals.school
-							'students': ObjectId req.session.uid
-						}
-						res.locals.course = result
-						done!
-					else
-						# winston.info 'B6'
-						done!
-			]
-			if res.locals.course?
-				# winston.info 'B7'
-				next!
+			# assign & attempt have to be mongo id's
+			if req.params.assign? and req.params.assign.length isnt 24
+				console.log 'Bad Assignment'
+				next new Error 'Bad Assignment'
+			else if req.params.attempt? and req.params.assign.length isnt 24
+				console.log 'Bad Attempt'
+				next new Error 'Bad Attempt'
 			else
-				# winston.info 'B8'
-				next new Error 'UNAUTHORIZED'
+				res.locals.course = {
+					'id': req.params.course
+					'school': app.locals.school
+				}
+				switch res.locals.auth
+				| 3
+					next!
+				| 2
+					res.locals.course.faculty = ObjectId res.locals.uid
+					next!
+				| 1
+					res.locals.course.students = ObjectId res.locals.uid
+					next!
+				| _
+					next new Error 'UNAUTHORIZED'
 		.all (req, res, next)->
-			# winston.info 'C'
-			# do for every request
+			err, result <- Course.findOne res.locals.course
+			if err
+				winston.error 'course findOne conf', err
+				next new Error 'INTERNAL'
+			else
+				if !result? or result.length is 0
+					next new Error 'NOT FOUND'
+				else
+					res.locals.course = result
+					next!
+		.all (req, res, next)->
 			# get assign_id
 			<- async.parallel [
 				(done)->
-					if req.params.assign? && !req.params.attempt?
-						# winston.info 'C1'
-						# find assignment(s) w/ title
+					# default view
+					if !req.params.assign? && !req.params.attempt?
+						# find all assignments
 						err, result <- Assignment.find {
-							school: app.locals.school
 							course: ObjectId res.locals.course._id
-							# optional stuff
-							title: encodeURIComponent req.params.assign
-						} .populate('author').exec
-						/* istanbul ignore else */
+						}
+						.populate 'author'
+						.exec
 						res.locals.assignments = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 						done!
 					else
 						done!
 				(done)->
-					if !req.params.assign? && !req.params.attempt?
-						# winston.info 'C2'
-						# find all assignments
-						err, result <- Assignment.find {
-							school: app.locals.school
+					# assignment view
+					if req.params.assign? && !req.params.attempt?
+						# grab the assignment
+						err, result <- Assignment.findOne {
 							course: ObjectId res.locals.course._id
-						} .populate('author').exec
-						/* istanbul ignore else */
-						res.locals.assignments = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
+							_id: ObjectId req.params.assign
+						}
+						.populate 'author'
+						.exec
+						if result?
+							res.locals.assignment = result.toObject!
+						else
+							res.locals.error = "NOT FOUND"
 						done!
 					else
 						done!
 				(done)->
 					# faculty+
-					if req.session.auth >= 2
-						# winston.info 'D1'
+					if res.locals.auth >= 2
 						if req.params.attempt?
-							# winston.info 'D11'
 							# findOne attempt
 							err, result <- Attempt.findOne {
 								course: ObjectId res.locals.course._id
-								# assignment: {$in: assignments}
+								# assignment: ObjectId req.params.assign
 								_id: ObjectId req.params.attempt
-							} .populate('assignment').populate('author').exec
+							}
+							.populate 'assignment'
+							.populate 'author'
+							.exec
 							res.locals.attempts = result
 							done!
 						else if req.params.assign?
-							# winston.info 'D12'
 							# find attempts
 							err, result <- Attempt.find {
 								course: ObjectId res.locals.course._id
-								# assignment: {$in: assignments}
-							} .populate('assignment').populate('author').exec
-							/* istanbul ignore else */
+								# assignment: ObjectId req.params.attempt
+							}
+							.populate 'assignment'
+							.populate 'author'
+							.exec
 							res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 							done!
 						else
@@ -138,28 +119,28 @@ module.exports = (app)->
 						done!
 				(done)->
 					# student
-					if req.session.auth is 1
-						# winston.info 'D2'
+					if res.locals.auth is 1
 						if req.params.attempt?
-							# winston.info 'D21'
 							# findOne attempt
 							err, result <- Attempt.findOne {
 								course: ObjectId res.locals.course._id
-								# assignment: {$in: assignments}
-								author: ObjectId req.session.uid
+								author: ObjectId res.locals.uid
 								_id: ObjectId req.params.attempt
-							} .populate('assignment').populate('author').exec
+							}
+							.populate 'assignment'
+							.populate 'author'
+							.exec
 							res.locals.attempts = result
 							done!
 						else if req.params.assign?
-							# winston.info 'D22'
 							# find attempts
 							err, result <- Attempt.find {
 								course: ObjectId res.locals.course._id
-								# assignment: {$in: assignments}
-								author: ObjectId req.session.uid
-							} .populate('assignment').populate('author').exec
-							/* istanbul ignore else */
+								author: ObjectId res.locals.uid
+							}
+							.populate 'assignment'
+							.populate 'author'
+							.exec
 							res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
 							done!
 						else
@@ -167,15 +148,11 @@ module.exports = (app)->
 					else
 						done!
 			]
-			next!
+			if res.locals.error?
+				next new Error res.locals.error
+			else
+				next!
 		.get (req, res, next)->
-			# winston.info util.inspect {
-			# 	course: res.locals.course
-			# 	assignments: res.locals.assignments
-			# 	attempts: res.locals.attempts
-			# }
-			# winston.info 'E'
-			# winston.info 'query::action',req.query.action
 			async.parallel [
 				(done)->
 					if !req.query.action? && !req.params.assign?
@@ -194,53 +171,73 @@ module.exports = (app)->
 						next! # don't assume action, continue trying
 			]
 		.post (req, res, next)->
-			# winston.info 'F'
 			# handle new attempt
-			if req.params.assign? && req.query.action is 'attempt'
-				if req.body.text? && req.body.text isnt ""
-					# date now gt start && date now lt end
-					if (new Date Date.now!) > res.locals.assignments.0.start and
-					( !res.locals.assignments.0.end? or # allows submissions if end isn't set (not late)
-						( (new Date Date.now!) < res.locals.assignments.0.end or res.locals.assignments.0.allowLate ) )
-						attempts = []
-						# from my attempts figure out how many are for this assignment
-						for attempt in res.locals.attempts
-							if _.isEqual attempt.assignment._id.toString!, req.body.aid
-								if _.isEqual attempt.author._id.toString!, req.session.uid
-									attempts.push attempt
-						# only if my attempts are less than assignment tries create the new attempt
-						if res.locals.assignments.0.tries > attempts.length
-							theAttempt = {
-								assignment: ObjectId req.body.aid
-								course: res.locals.course._id
-								text: req.body.text
-								school: app.locals.school
-								author: ObjectId req.session.uid
-							}
-							if res.locals.assignments.0.end? and (new Date Date.now!) > res.locals.assignments.0.end
-								theAttempt.late = true
-							attempt = new Attempt theAttempt
-							err, attempt <- attempt.save
-							/* istanbul ignore if */
-							if err?
-								winston.error err
-								next new Error 'Mongo Error'
-							else
-								res.redirect "/#{req.params.course}/assignments/"+encodeURIComponent(req.params.assign)+"/"+attempt._id.toString!
-						else
-							res.status 400 .render 'assignments/view' { success:'error', error:'You have no more attempts.' }
-					else
-						res.status 400 .render 'assignments/view' { success:'error', error:'Allowed assignment submission time has closed/not opened.' }
+			switch req.query.action
+			| 'attempt'
+				if !req.body.aid? or !req.body.text?
+					res.status 400 .render 'assignments/view' { body: req.body, success:'error', error:'Attempt Text Can <b>not</b> be blank.' }
 				else
-					res.redirect "/#{req.params.course}/assignments/"+encodeURIComponent req.params.assign
-			else
-				next! # not attempt
+					<- async.parallel [
+						(done)->
+							err, result <- Attempt.find {
+								course: ObjectId res.locals.course._id
+								author: ObjectId res.locals.uid
+								assignment: ObjectId req.body.aid
+							}
+							.count!
+							.exec
+							if err
+								winston.error 'attempt:find',err
+								next new Error 'Find Attempt'
+							res.locals.tries = result
+							done err
+						(done)->
+							err, result <- Assignment.findOne {
+								'course': ObjectId res.locals.course._id
+								'_id': ObjectId req.body.aid
+							}
+							.populate 'author'
+							.exec
+							if err
+								winston.error 'assign:find',err
+								next new Error 'Find Assignment'
+							res.locals.assignment = result
+							done err
+					]
+					# date now gt start
+					if (new Date Date.now!) > res.locals.assignment.start
+						# no end OR date now < end OR allowLate is true
+						if !res.locals.assignment.end? or ((new Date Date.now!) < Date.parse(res.locals.assignment.end)) or (res.locals.assignment.allowLate is true)
+							# only if my attempts are less than assignment tries create the new attempt
+							if !res.locals.assignment.tries? or res.locals.assignment.tries > res.locals.tries
+								theAttempt = {
+									assignment: ObjectId req.body.aid
+									course: ObjectId res.locals.course._id
+									text: req.body.text
+									author: ObjectId res.locals.uid
+								}
+								if res.locals.assignment.end? and (new Date Date.now!) > Date.parse(res.locals.assignment.end)
+									theAttempt.late = true
+								attempt = new Attempt theAttempt
+								err, attempt <- attempt.save
+								if err?
+									winston.error err
+									next new Error 'Mongo Error'
+								else
+									res.redirect "/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
+							else
+								res.status 400 .render 'assignments/view' { body:req.body, success:'error', error:'You have no more attempts.' }
+						else
+							res.status 400 .render 'assignments/view' { body:req.body, success:'error', error:'Allowed assignment submission time has closed.' }
+					else
+						res.status 400 .render 'assignments/view' { body:req.body, success:'error', error:'Allowed assignment submission time has not opened.' }
+			| _
+				next! # not an attempt
 		.all (req, res, next)->
-			# winston.info 'G'
 			# to modify assignments you need to be faculty+
 			res.locals.needs = 2
 			app.locals.authorize req, res, next
-		# EVERYTHING AFTER HERE IS FACULTY+ #
+		### EVERYTHING AFTER HERE IS FACULTY+ ###
 		.get (req, res, next)->
 			# winston.info 'H'
 			switch req.query.action
@@ -263,7 +260,7 @@ module.exports = (app)->
 					res.locals.start = new Date(req.body.opendate+" "+req.body.opentime)
 					res.locals.end = new Date(req.body.closedate+" "+req.body.closetime)
 					assign = {
-						title: encodeURIComponent req.body.title
+						title: req.body.title
 						text: req.body.text
 						start: res.locals.start
 						end: res.locals.end
@@ -282,9 +279,8 @@ module.exports = (app)->
 					else if !moment(res.locals.end).isValid!
 						# winston.info 'I3'
 						delete assign.end
-					err,assign <- Assignment.findOneAndUpdate {
+					err, assign <- Assignment.findOneAndUpdate {
 						'_id': ObjectId req.body.aid
-						'school': app.locals.school
 						'course': ObjectId res.locals.course._id
 						# don't check for author as me might not be...
 					}, assign
@@ -294,7 +290,7 @@ module.exports = (app)->
 						next new Error 'Mongo Error'
 					else
 						# winston.info 'I5'
-						res.redirect "/#{req.params.course}/assignments/"+ encodeURIComponent req.body.title
+						res.redirect "/#{req.params.course}/assignments/#{assign._id.toString!}"
 			| _
 				next! # don't assume action
 		.post (req, res, next)->
@@ -309,7 +305,7 @@ module.exports = (app)->
 					res.locals.start = new Date req.body.opendate+" "+req.body.opentime
 					res.locals.end = new Date req.body.closedate+" "+req.body.closetime
 					assign = {
-						title: encodeURIComponent req.body.title
+						title: req.body.title
 						text: req.body.text
 						start: res.locals.start
 						end: res.locals.end
@@ -317,9 +313,8 @@ module.exports = (app)->
 						allowLate: if req.body.late is "yes" then true else false
 						totalPoints: req.body.total
 						# unchangeable
-						author: ObjectId req.session.uid
+						author: ObjectId res.locals.uid
 						course: res.locals.course._id
-						school: app.locals.school
 					}
 					if !moment(res.locals.start).isValid!
 						delete assign.start
@@ -332,14 +327,13 @@ module.exports = (app)->
 						winston.error err
 						next new Error 'Mongo Error'
 					else
-						res.status 302 .redirect "/#{req.params.course}/assignments/"+ encodeURIComponent req.body.title
+						res.status 302 .redirect "/#{req.params.course}/assignments/" + assignment._id
 			| 'grade'
 				# winston.info 'J2'
 				if !req.body.points? || !req.body.aid? # double check require fields exist
 					res.status 400 .render 'assignments/create' { assignments: [req.body], -success, action:'edit' }
 				else
 					err, attempt <- Attempt.findOneAndUpdate {
-						'school': app.locals.school
 						'course': ObjectId res.locals.course._id
 						'_id': ObjectId req.body.aid
 					}, {
@@ -350,7 +344,7 @@ module.exports = (app)->
 						winston.error err
 						next new Error 'Mongo Error'
 					else
-						res.status 302 .redirect "/#{req.params.course}/assignments/"+encodeURIComponent(req.params.assign)+"/"+attempt._id.toString()
+						res.status 302 .redirect "/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
 			| _
 				next! # don't assume action
 		.delete (req, res, next)->
@@ -360,7 +354,6 @@ module.exports = (app)->
 			| 'delete'
 				err, attempts <- Attempt.remove {
 					'assignment': ObjectId req.body.aid
-					'school': app.locals.school
 					'course': ObjectId res.locals.course._id
 				}
 				# winston.info 'deleted:',attempts
@@ -370,7 +363,6 @@ module.exports = (app)->
 				else
 					err, assignments <- Assignment.remove {
 						'_id': ObjectId req.body.aid
-						'school': app.locals.school
 						'course': ObjectId res.locals.course._id
 					}
 					# winston.info 'deleted:',assignments
@@ -379,34 +371,32 @@ module.exports = (app)->
 						next new Error 'Mongo Error'
 					else
 						res.status 302 .redirect "/#{req.params.course}/assignments"
-			| 'deleteall'
-				# pluck only _id off of all assignments
-				plucked = _.pluck res.locals.assignments, '_id'
-				# winston.info 'pluck', plucked
-				# winston.info 'typeof plucked', typeof plucked.0
-				# convert all assignment._id's to ObjectIds
-				assignments = _.map plucked, ObjectId
-				# winston.info 'mapped', assignments
-				err, attempts <- Attempt.remove {
-					'assignment': {$in: assignments}
-					'school': app.locals.school
-					'course': ObjectId res.locals.course._id
-				}
-				# winston.info 'deleted:',attempts
-				if err?
-					winston.error err
-					next new Error 'Mongo Error'
-				else
-					err, assignments <- Assignment.remove {
-						'_id': {$in: assignments}
-						'school': app.locals.school
-						'course': ObjectId res.locals.course._id
-					}
-					# winston.info 'deleted:',assignments
-					if err?
-						winston.error err
-						next new Error 'Mongo Error'
-					else
-						res.status 302 .redirect "/#{req.params.course}/assignments"
+			# | 'deleteall'
+			# 	# pluck only _id off of all assignments
+			# 	plucked = _.pluck res.locals.assignments, '_id'
+			# 	# winston.info 'pluck', plucked
+			# 	# winston.info 'typeof plucked', typeof plucked.0
+			# 	# convert all assignment._id's to ObjectIds
+			# 	assignments = _.map plucked, ObjectId
+			# 	# winston.info 'mapped', assignments
+			# 	err, attempts <- Attempt.remove {
+			# 		'assignment': {$in: assignments}
+			# 		'course': ObjectId res.locals.course._id
+			# 	}
+			# 	# winston.info 'deleted:',attempts
+			# 	if err?
+			# 		winston.error err
+			# 		next new Error 'Mongo Error'
+			# 	else
+			# 		err, assignments <- Assignment.remove {
+			# 			'_id': {$in: assignments}
+			# 			'course': ObjectId res.locals.course._id
+			# 		}
+			# 		# winston.info 'deleted:',assignments
+			# 		if err?
+			# 			winston.error err
+			# 			next new Error 'Mongo Error'
+			# 		else
+			# 			res.status 302 .redirect "/#{req.params.course}/assignments"
 			| _
 				next! # don't assume action
