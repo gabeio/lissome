@@ -106,11 +106,12 @@ module.exports = (app)->
 							# findOne attempt
 							err, result <- Attempt.findOne {
 								course: ObjectId res.locals.course._id
-								# assignment: ObjectId req.params.assign
+								assignment: ObjectId req.params.assign
 								_id: ObjectId req.params.attempt
 							}
 							.populate 'assignment'
 							.populate 'author'
+							.sort!
 							.exec
 							/* istanbul ignore if should only really occur if db crashes */
 							if err
@@ -123,10 +124,11 @@ module.exports = (app)->
 							# find attempts
 							err, result <- Attempt.find {
 								course: ObjectId res.locals.course._id
-								# assignment: ObjectId req.params.attempt
+								assignment: ObjectId req.params.assign
 							}
 							.populate 'assignment'
 							.populate 'author'
+							.sort!
 							.exec
 							/* istanbul ignore if should only really occur if db crashes */
 							if err
@@ -146,6 +148,7 @@ module.exports = (app)->
 							# findOne attempt
 							err, result <- Attempt.findOne {
 								course: ObjectId res.locals.course._id
+								assignment: ObjectId req.params.assign
 								author: ObjectId res.locals.uid
 								_id: ObjectId req.params.attempt
 							}
@@ -163,6 +166,7 @@ module.exports = (app)->
 							# find attempts
 							err, result <- Attempt.find {
 								course: ObjectId res.locals.course._id
+								assignment: ObjectId req.params.assign
 								author: ObjectId res.locals.uid
 							}
 							.populate 'assignment'
