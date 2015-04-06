@@ -1,14 +1,13 @@
 module.exports = (app)->
 	require! {
-		'util'
 		'winston'
 	}
 	app
 		..locals.authorize = (req, res, next)->
-			if !req.session.auth?
+			if !res.locals.auth?
 				next new Error 'UNAUTHORIZED'
 			else
-				# req.session.auth = (1|2|3|4)
+				# req.session.auth = (1|2|3)
 				/* istanbul ignore if it only should happen in development */
 				if !res.locals.needs?
 					winston.error "!needs? #{req.originalUrl}"
