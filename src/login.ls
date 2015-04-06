@@ -9,7 +9,7 @@ module.exports = (app)->
 	app
 		..route '/login'
 		.get (req, res, next)->
-			if req.session.auth? or req.session.userid? or req.session.username?
+			if res.locals.auth? or res.locals.userid? or res.locals.username?
 				res.redirect '/'
 			else
 				res.render 'login'
@@ -31,14 +31,14 @@ module.exports = (app)->
 						winston.err err
 					if result is true
 						# do NOT take anything from req.body
-						req.session.auth = user.type
-						req.session.username = user.username
-						req.session.userid = user.id
-						req.session.uid = user._id
-						req.session.firstName = user.firstName
+						res.locals.auth = user.type
+						res.locals.username = user.username
+						res.locals.userid = user.id
+						res.locals.uid = user._id
+						res.locals.firstName = user.firstName
 						/* istanbul ignore next */
-						# req.session.middleName = if user.middleName? then user.middleName
-						req.session.lastName = user.lastName
+						# res.locals.middleName = if user.middleName? then user.middleName
+						res.locals.lastName = user.lastName
 						res.redirect '/'
 					else
 						res.render 'login', { error:'bad login credentials' }

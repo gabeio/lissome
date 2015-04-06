@@ -16,7 +16,7 @@ module.exports = (app)->
 			res.locals.on = 'dash'
 			<- async.parallel [
 				(done)->
-					if req.session.auth is 3
+					if res.locals.auth is 3
 						err, courses <- Course.find {
 							'school':app.locals.school
 						}
@@ -30,10 +30,10 @@ module.exports = (app)->
 					else
 						done!
 				(done)->
-					if req.session.auth is 2
+					if res.locals.auth is 2
 						err, courses <- Course.find {
 							'school':app.locals.school
-							'faculty':mongoose.Types.ObjectId(req.session.uid)
+							'faculty':mongoose.Types.ObjectId(res.locals.uid)
 						}
 						/* istanbul ignore if */
 						if err
@@ -45,10 +45,10 @@ module.exports = (app)->
 					else
 						done!
 				(done)->
-					if req.session.auth is 1
+					if res.locals.auth is 1
 						err, courses <- Course.find {
 							'school':app.locals.school
-							'students':mongoose.Types.ObjectId(req.session.uid)
+							'students':mongoose.Types.ObjectId(res.locals.uid)
 						}
 						/* istanbul ignore if */
 						if err

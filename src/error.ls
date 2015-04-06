@@ -23,7 +23,7 @@ module.exports = (app)->
 							| 'NOT XHR'
 								res.status 400 .render 'error' { err:'Not Sent Correctly' }
 							| 'UNAUTHORIZED'
-								if req.session.auth?
+								if res.locals.auth?
 									res.status 302 .redirect '/' # logged in
 								else
 									res.status 302 .redirect '/login' # not logged in
