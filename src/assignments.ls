@@ -312,7 +312,7 @@ module.exports = (app)->
 					if !moment(res.locals.start).isValid!
 						# winston.info 'I2'
 						delete assign.start
-					if !req.body.closedate?
+					if res.locals.assignment.end? and ( !req.body.closedate? or req.body.closedate is "" )
 						assign.end = ''
 					else if !moment(res.locals.end).isValid!
 						# winston.info 'I3'
