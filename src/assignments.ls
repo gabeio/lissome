@@ -116,7 +116,6 @@ module.exports = (app)->
 							}
 							.populate 'assignment'
 							.populate 'author'
-							.sort!
 							.exec
 							/* istanbul ignore if should only really occur if db crashes */
 							if err
