@@ -13,6 +13,7 @@ module.exports = (app)->
 	Course = app.locals.models.Course
 	Post = app.locals.models.Post
 	Assignment = app.locals.models.Assignment
+	Attempt = app.locals.models.Attempt
 	Thread = app.locals.models.Thread
 	# winston = app.locals.winston
 	winston.warn 'TESTING MODE\nIF YOU SEE THIS MESSAGE THERE IS SOMETHING WRONG!!!'
