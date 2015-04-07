@@ -179,18 +179,14 @@ module.exports = (app)->
 					res.locals.course = result
 					err, result <- async.parallel [
 						(done)->
-							err, result <- Thread.remove {
-								course: ObjectId result._id
-							}
+							err, result <- Thread.remove {}
 							if err
 								winston.error 'test:course:remove:post', err
 								next new Error 'INTERNAL'
 							else
 								done err, result
 						(done)->
-							err, result <- Post.remove {
-								course: ObjectId result._id
-							}
+							err, result <- Post.remove {}
 							if err
 								winston.error 'test:course:remove:post', err
 								next new Error 'INTERNAL'
@@ -201,10 +197,7 @@ module.exports = (app)->
 						winston.error 
 					res.json result
 			| 'deleteposts'
-				err, result <- Course.findOne {
-					'school': app.locals.school
-					'id': req.params.more
-				}
+				err, result <- Course.findOne {}
 				if err
 					winston.error 'test:course:findOne:blog', err
 					next new Error 'INTERNAL'
