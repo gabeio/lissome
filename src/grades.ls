@@ -45,7 +45,6 @@ module.exports = (app)->
 		.all (req, res, next)->
 			err, result <- Attempt.find {
 				course: ObjectId res.locals.course._id
-				_id: ObjectId req.params.attempt
 				author: ObjectId res.locals.uid
 			}
 			.populate 'assignment'
