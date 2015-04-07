@@ -46,7 +46,7 @@ dependencies:
 	"serve-static": '~1.9.1'
 	"swig": '~1.4.2'
 	"uuid": '~2.0.1'
-	"winston": '~0.9.0'
+	"winston": '~1.0.0'
 	"yargs": '~3.7.0'
 
 devDependencies:
