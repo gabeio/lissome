@@ -51,5 +51,11 @@ module.exports = (app)->
 			.populate 'author'
 			.sort!
 			.exec
+			if err
+				winston.error 'assign findOne conf', err
+				next new Error 'INTERNAL'
+			else
+				res.locals.attempts = result
+				next!
 		.get (req, res, next)->
 			res.render 'grades'
