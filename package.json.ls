@@ -37,7 +37,7 @@ dependencies:
 	"lodash": '~3.6.0'
 	"markdown-it": '~4.1.0'
 	"method-override": '~2.3.1'
-	"moment": '~2.9.0'
+	"moment": '~2.10.0'
 	"moment-timezone": '~0.3.0'
 	"mongoose": '~4.0.1'
 	"multer": '~0.1.7'
