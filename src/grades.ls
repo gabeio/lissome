@@ -51,7 +51,7 @@ module.exports = (app)->
 			.populate 'author'
 			.sort!
 			.exec
-			if err
+			if err?
 				winston.error 'assign findOne conf', err
 				next new Error 'INTERNAL'
 			else
