@@ -149,14 +149,23 @@ module.exports = (app)->
 					next new Error 'INTERNAL'
 				else
 					res.locals.course = result
-					err, result <- Assignment.remove {
-						course: ObjectId result._id
-					}
-					if err
-						winston.error 'test:course:remove:assignment', err
-						next new Error 'INTERNAL'
-					else
-						res.json result
+					<- async.parallel [
+						(done)->
+							err, result <- Assignment.remove {}
+							if err
+								winston.error 'test:course:remove:assignment', err
+								next new Error 'INTERNAL'
+							else
+								done!
+						(done)->
+							err, result <- Attempt.remove {}
+							if err
+								winston.error 'test:course:remove:assignment', err
+								next new Error 'INTERNAL'
+							else
+								done!
+					]
+					res.send 'ok'
 			| 'deletethreads'
 				err, result <- Course.findOne {
 					'id': req.params.more
