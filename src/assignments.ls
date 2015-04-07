@@ -63,9 +63,14 @@ module.exports = (app)->
 					# default view
 					if !req.params.assign? && !req.params.attempt?
 						# find all assignments
-						err, result <- Assignment.find {
+						res.locals.assignments = {
 							course: ObjectId res.locals.course._id
 						}
+						if res.locals.auth is 1
+							res.locals.assignments.start = {
+								"$lt": new Date Date.now!
+							}
+						err, result <- Assignment.find res.locals.assignments
 						.populate 'author'
 						.exec
 						/* istanbul ignore if should only really occur if db crashes */
