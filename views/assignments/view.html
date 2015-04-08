@@ -95,7 +95,7 @@
 							<button type="submit" class="btn btn-default">Submit Assignment</button>
 						</div>
 					</div>
-					<div class="panel-footer"><span title="{{ assignment['author'].username }}">{{ assignment.author.firstName }} {{ assignment.author.lastName }}</span>
+					<div class="panel-footer"><span title="{{ assignment.author.username }}">{{ assignment.author.firstName }} {{ assignment.author.lastName }}</span>
 					<span class="pull-right" title="{{ assignment.timestamp|timezone }}">{{ assignment.timestamp|fromNow }}</span></div>
 				</form>
 			</div>

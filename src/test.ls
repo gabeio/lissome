@@ -13,6 +13,7 @@ module.exports = (app)->
 	Course = app.locals.models.Course
 	Post = app.locals.models.Post
 	Assignment = app.locals.models.Assignment
+	Attempt = app.locals.models.Attempt
 	Thread = app.locals.models.Thread
 	# winston = app.locals.winston
 	winston.warn 'TESTING MODE\nIF YOU SEE THIS MESSAGE THERE IS SOMETHING WRONG!!!'
@@ -149,14 +150,23 @@ module.exports = (app)->
 					next new Error 'INTERNAL'
 				else
 					res.locals.course = result
-					err, result <- Assignment.remove {
-						course: ObjectId result._id
-					}
-					if err
-						winston.error 'test:course:remove:assignment', err
-						next new Error 'INTERNAL'
-					else
-						res.json result
+					<- async.parallel [
+						(done)->
+							err, result <- Assignment.remove {}
+							if err
+								winston.error 'test:course:remove:assignment', err
+								next new Error 'INTERNAL'
+							else
+								done!
+						(done)->
+							err, result <- Attempt.remove {}
+							if err
+								winston.error 'test:course:remove:assignment', err
+								next new Error 'INTERNAL'
+							else
+								done!
+					]
+					res.send 'ok'
 			| 'deletethreads'
 				err, result <- Course.findOne {
 					'id': req.params.more
@@ -169,18 +179,14 @@ module.exports = (app)->
 					res.locals.course = result
 					err, result <- async.parallel [
 						(done)->
-							err, result <- Thread.remove {
-								course: ObjectId result._id
-							}
+							err, result <- Thread.remove {}
 							if err
 								winston.error 'test:course:remove:post', err
 								next new Error 'INTERNAL'
 							else
 								done err, result
 						(done)->
-							err, result <- Post.remove {
-								course: ObjectId result._id
-							}
+							err, result <- Post.remove {}
 							if err
 								winston.error 'test:course:remove:post', err
 								next new Error 'INTERNAL'
@@ -191,10 +197,7 @@ module.exports = (app)->
 						winston.error 
 					res.json result
 			| 'deleteposts'
-				err, result <- Course.findOne {
-					'school': app.locals.school
-					'id': req.params.more
-				}
+				err, result <- Course.findOne {}
 				if err
 					winston.error 'test:course:findOne:blog', err
 					next new Error 'INTERNAL'
