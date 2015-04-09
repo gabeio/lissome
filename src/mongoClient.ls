@@ -11,13 +11,10 @@ module.exports = (app,mongohost)->
 		}
 	}
 	/* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
-	if mongouser? && mongopass? # if there is auth
-		mongo.open mongohost, { "user": mongouser, "pass": mongopass }
-	else
-		mongo.open mongohost
+	mongo.open mongohost
 	/* istanbul ignore next */
 	mongo.on "disconnect", ->
-		winston.warn "mongo:disconnect\ntrying to reconnect"
+		winston.warn "mongo:disconnected\ntrying to reconnect"
 		mongo.connect!
 	/* istanbul ignore next */
 	mongo.on "error", console.error.bind console, "connection error:"
