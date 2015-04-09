@@ -210,10 +210,10 @@ async.series [
 					# assignments: [] # Req
 					# dm: {} # tid:{sid:[posts]}
 					# grades: {} # sid:[Grades]
-					faculty: [ # faculty"s username(s)
+					faculty: [ # faculty's username(s)
 						faculty._id
 					]
-					students: [ # student"s username(s)
+					students: [ # student's username(s)
 						student._id
 					]
 					school: process.env.school
@@ -245,10 +245,10 @@ async.series [
 					# assignments: [] # Req
 					# dm: {} # tid:{sid:[posts]}
 					# grades: {} # sid:[Grades]
-					faculty: [ # faculty"s username(s)
+					faculty: [ # faculty's username(s)
 						gfaculty._id
 					]
-					students: [ # student"s username(s)
+					students: [ # student's username(s)
 						student._id
 					]
 					school: process.env.school
@@ -280,10 +280,10 @@ async.series [
 					# assignments: [] # Req
 					# dm: {} # tid:{sid:[posts]}
 					# grades: {} # sid:[Grades]
-					faculty: [ # faculty"s username(s)
+					faculty: [ # faculty's username(s)
 						gfaculty._id
 					]
-					students: [ # student"s username(s)
+					students: [ # student's username(s)
 						astudent._id
 					]
 					school: process.env.school

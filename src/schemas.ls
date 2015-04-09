@@ -62,8 +62,8 @@ module.exports = (mongoose)->
 		allowLate: { type: Boolean, default: false } # allow late submissions or not
 		totalPoints: Number
 		# OPTIONAL
-		text: String # Require"s text
-		files: Buffer # Require"s file(s)?
+		text: String # Require's text
+		files: Buffer # Require's file(s)?
 	}
 	Assignment.index { timestamp: -1, course: 1 }
 	Attempt = new Schema {

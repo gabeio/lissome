@@ -14,7 +14,7 @@ module.exports = (app)->
 	Attempt = mongoose.model "Attempt" schemas.Attempt
 	Thread = mongoose.model "Thread" schemas.Thread
 	Post = mongoose.model "Post" schemas.Post
-	# setup school if it"s not already setup
+	# setup school if it's not already setup
 	School = mongoose.model "School", schemas.School
 	/* istanbul ignore next fucntion because it only will run if school is not already defined. */
 	School.find { name:process.env.school }, (err, school)->

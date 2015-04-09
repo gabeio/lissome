@@ -62,7 +62,7 @@ module.exports = (app)->
 					if result.length is 0
 						res.redirect "/#{res.locals.course.id}/blog"
 					else
-						/* istanbul ignore next else because it"s hard to test for */
+						/* istanbul ignore next else because it's hard to test for */
 						res.locals.posts = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
 						next!
 			else
@@ -212,9 +212,9 @@ module.exports = (app)->
 								} .populate "author" .exec
 								done err,posts
 							else
-								done! # it"s not a date range
+								done! # it's not a date range
 						else
-							done! # it"s not a range
+							done! # it's not a range
 					(done)->
 						# search text
 						err, posts <- Post.find {

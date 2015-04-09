@@ -10,7 +10,7 @@ module.exports = (app,mongohost,mongouser,mongopass)->
 			poolSize: 6
 		}
 	}
-	/* istanbul ignore next this is all setup if/else"s there is no way to get here after initial run */
+	/* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
 	if mongouser? && mongopass? # if there is auth
 		mongo.open mongohost, { "user": mongouser, "pass": mongopass }
 	else
