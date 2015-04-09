@@ -1,29 +1,29 @@
 module.exports = (app)->
 	require! {
-		'bcrypt'
-		'winston'
+		"bcrypt"
+		"winston"
 	}
 	# winston = app.locals.winston
 	# models = app.locals.models
 	User = app.locals.models.User
 	app
-		..route '/login'
+		..route "/login"
 		.get (req, res, next)->
 			if res.locals.auth? or res.locals.userid? or res.locals.username?
-				res.redirect '/'
+				res.redirect "/"
 			else
-				res.render 'login'
+				res.render "login"
 		.post (req, res, next)->
 			if req.body.username? and req.body.username isnt "" and req.body.password? and req.body.password isnt ""
 				err, user <- User.findOne {
-					'username':req.body.username.toLowerCase!
-					'school':app.locals.school
+					"username":req.body.username.toLowerCase!
+					"school":app.locals.school
 				}
 				/* istanbul ignore if */
 				if err
-					winston.err 'user:find', err
+					winston.err "user:find", err
 				if !user? or user.length is 0
-					res.render 'login', { error: 'username not found' }
+					res.render "login", { error: "username not found" }
 				else
 					err,result <- bcrypt.compare req.body.password, user.hash
 					/* istanbul ignore if */
@@ -39,8 +39,8 @@ module.exports = (app)->
 						/* istanbul ignore next */
 						# req.session.middleName = if user.middleName? then user.middleName
 						req.session.lastName = user.lastName
-						res.redirect '/'
+						res.redirect "/"
 					else
-						res.render 'login', { error:'bad login credentials' }
+						res.render "login", { error:"bad login credentials" }
 			else
-				res.render 'login', { error: 'bad login credentials' }
+				res.render "login", { error: "bad login credentials" }

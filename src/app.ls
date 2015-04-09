@@ -1,24 +1,24 @@
 # Imports/Variables
 require! {
-	'async'
-	'body-parser'
-	'compression' # nginx gzip
-	'connect-redis'
-	'express' # router
-	'express-partial-response'
-	'express-session' # session
-	'fs-extra' # only if needed
-	'helmet'
-	'markdown-it'
-	'method-override'
-	'moment'
-	'moment-timezone'
-	'multer'
-	'serve-static' # nginx static
-	'swig' # templates
-	'util'
-	'winston'
-	'yargs' # --var val
+	"async"
+	"body-parser"
+	"compression" # nginx gzip
+	"connect-redis"
+	"express" # router
+	"express-partial-response"
+	"express-session" # session
+	"fs-extra" # only if needed
+	"helmet"
+	"markdown-it"
+	"method-override"
+	"moment"
+	"moment-timezone"
+	"multer"
+	"serve-static" # nginx static
+	"swig" # templates
+	"util"
+	"winston"
+	"yargs" # --var val
 }
 var timezone
 RedisStore = connect-redis express-session
@@ -40,7 +40,7 @@ app
 	..locals.swig = swig
 	# errors
 	# ..locals.err = {
-	# 	'NOT FOUND': new Error
+	# 	"NOT FOUND": new Error
 	# }
 
 /* istanbul ignore next this is just for assurance the env vars are defined */
@@ -70,33 +70,33 @@ do ->
 		console.log "redisauth env undefined\ntrying null anyway..."
 
 # create swig |markdown filter
-swig.setFilter 'markdown', (input)->
+swig.setFilter "markdown", (input)->
 	md.render input
-swig.setFilter 'toString', (input)->
+swig.setFilter "toString", (input)->
 	input.toString!
-swig.setFilter 'fromNow', (input)->
+swig.setFilter "fromNow", (input)->
 	moment(input).fromNow()
 /* istanbul ignore next function while unused */
-swig.setFilter 'format', (input, format)->
+swig.setFilter "format", (input, format)->
 	moment(input).format(format)
 /* istanbul ignore next function while unused */
-swig.setFilter 'calendar', (input)->
+swig.setFilter "calendar", (input)->
 	moment(input).calendar()
-swig.setFilter 'timezone', (input)->
+swig.setFilter "timezone", (input)->
 	moment.tz(input, "America/New_York").clone().tz(app.locals.timezone).toString!
 
 # REDIS
 /* istanbul ignore next */
-rediscli = require('./redisClient')(app,\
-	(process.env.redishost||process.env.REDISHOST||argv.redishost||'localhost'),\
+rediscli = require("./redisClient")(app,\
+	(process.env.redishost||process.env.REDISHOST||argv.redishost||"localhost"),\
 	(process.env.redisport||process.env.REDISPORT||argv.redisport||6379),\
 	(process.env.redisauth||process.env.REDISAUTH||argv.redisauth||void),\
 	(process.env.redisdb||process.env.REDISDB||argv.redisdb||0))
 
 # MONGOOSE
 /* istanbul ignore next */
-mongo = require('./mongoClient')(app,\
-	(process.env.mongo||process.env.MONGOURL||argv.mongo||'mongodb://localhost/smrtboard'),\
+mongo = require("./mongoClient")(app,\
+	(process.env.mongo||process.env.MONGOURL||argv.mongo||"mongodb://localhost/smrtboard"),\
 	(process.env.mongouser||process.env.MONGOUSER||argv.mongouser||void),\
 	(process.env.mongopass||process.env.MONGOPASS||argv.mongopass||void))
 
@@ -118,7 +118,7 @@ app
 	.use bodyParser.raw! # idk
 	# multipart body parser
 	.use multer { # requires: enctype="multipart/form-data"
-		dest: './uploads/'
+		dest: "./uploads/"
 		limits:
 			fileSize: 10000000
 			files: 10
@@ -126,14 +126,14 @@ app
 		-inMemory
 	}
 	# method override needs to come before csurf
-	.use method-override 'hmo' # Http-Method-Override
+	.use method-override "hmo" # Http-Method-Override
 	# sessions
 	.use express-session {
 		secret: process.env.cookie
 		-resave
 		+saveUninitialized
 		cookie: {
-			path: '/'
+			path: "/"
 			+httpOnly
 		}
 		store: new RedisStore {
@@ -143,15 +143,15 @@ app
 		}
 	}
 	# hide what we are made of
-	.disable 'x-powered-by'
+	.disable "x-powered-by"
 	# set extention of templates to html to render in swig
-	.engine 'html' swig.renderFile
+	.engine "html" swig.renderFile
 	# set extention of templates to html
-	.set 'view engine' 'html'
-	# .set 'views' __dirname + '/NOTviews' # /views by default
+	.set "view engine" "html"
+	# .set "views" __dirname + "/NOTviews" # /views by default
 	# static assets (html,js,css)
-	.use '/static' serveStatic './public/static' # static
-	.use '/assets' serveStatic './public/assets'
+	.use "/static" serveStatic "./public/static" # static
+	.use "/assets" serveStatic "./public/assets"
 	# Cross Site Request Forgery
 	# .use csurf {
 	# 	secretLength: 32
@@ -166,7 +166,7 @@ app
 		async.parallel [
 			!->
 				/* istanbul ignore next if remove after implementing csrf tokens around the entire site */
-				if res.locals.csrfToken? and req.method.lowerCase! is 'get' # if csurf enabled
+				if res.locals.csrfToken? and req.method.lowerCase! is "get" # if csurf enabled
 					res.locals.csrfToken = req.csrfToken!
 			!->
 				if req.session? and req.session.auth?
@@ -182,11 +182,11 @@ app
 # Production Switch
 /* istanbul ignore next switch */
 switch process.env.NODE_ENV
-| 'production'
+| "production"
 	# production run
 	winston.info "Production Mode"
 	require! {
-		'response-time'
+		"response-time"
 	}
 	app.use response-time!
 | _
@@ -194,31 +194,31 @@ switch process.env.NODE_ENV
 	if !module.parent
 		winston.info "Development Mode/Unknown Mode"
 	require! {
-		'util'
-		'response-time'
+		"util"
+		"response-time"
 	}
 	# disable template cache
-	app.set 'view cache' false
+	app.set "view cache" false
 	swig.setDefaults { -cache }
 	app.locals.util = if util? then util
 	app.use response-time!
 
 # Attach base
-require('./base')(app)
+require("./base")(app)
 
 /* istanbul ignore next */
 if !module.parent # assure this file is not being run by a different file
 	# assure one of the settings were given
 	if process.env.port? or process.env.PORT? or yargs.argv.http? or yargs.argv.port?
 		port = process.env.port or process.env.PORT or yargs.argv.http or yargs.argv.port
-		winston.info 'Server started on port ' + port + ' at ' + new Date Date.now!
+		winston.info "Server started on port " + port + " at " + new Date Date.now!
 		server = app.listen port
 	else
-		winston.error 'No port/socket specified please use HTTP or PORT environment variable'
+		winston.error "No port/socket specified please use HTTP or PORT environment variable"
 		process.exit 1
 else
 	app.locals.testing = true
 	# silence all logging on testing
 	winston.remove winston.transports.Console
-	/*winston.add winston.transports.Console, {level:'warn'}*/
-	require('./test')(app)
+	/*winston.add winston.transports.Console, {level:"warn"}*/
+	require("./test")(app)

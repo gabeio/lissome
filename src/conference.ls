@@ -1,9 +1,9 @@
 module.exports = (app)->
 	require! {
-		'async'
-		'lodash'
-		'mongoose'
-		'winston'
+		"async"
+		"lodash"
+		"mongoose"
+		"winston"
 	}
 	ObjectId = mongoose.Types.ObjectId
 	_ = lodash
@@ -12,7 +12,7 @@ module.exports = (app)->
 	Thread = app.locals.models.Thread
 	Post = app.locals.models.Post
 	app
-		..route '/:course/conference/:thread?/:post?' # query :: action(new|edit|delete)
+		..route "/:course/conference/:thread?/:post?" # query :: action(new|edit|delete)
 		.all (req, res, next)->
 			# auth level check
 			res.locals.needs = 1
@@ -20,13 +20,13 @@ module.exports = (app)->
 		.all (req, res, next)->
 			if req.query.action? then req.query.action = req.query.action.toLowerCase!
 			if req.params.thread? and req.params.thread.length isnt 24
-				next new Error 'Bad Thread'
+				next new Error "Bad Thread"
 			else if req.params.post? and req.params.post.length isnt 24
-				next new Error 'Bad Post'
+				next new Error "Bad Post"
 			else
 				res.locals.course = {
-					'id': req.params.course
-					'school': app.locals.school
+					"id": req.params.course
+					"school": app.locals.school
 				}
 				switch res.locals.auth
 				| 3
@@ -38,16 +38,16 @@ module.exports = (app)->
 					res.locals.course.students = ObjectId res.locals.uid
 					next!
 				| _
-					next new Error 'UNAUTHORIZED'
+					next new Error "UNAUTHORIZED"
 		.all (req, res, next)->
 			err, result <- Course.findOne res.locals.course
 			/* istanbul ignore if should only really occur if db crashes */
 			if err?
-				winston.error 'course findOne conf', err
-				next new Error 'INTERNAL'
+				winston.error "course findOne conf", err
+				next new Error "INTERNAL"
 			else
 				if !result? or result.length is 0
-					next new Error 'NOT FOUND'
+					next new Error "NOT FOUND"
 				else
 					res.locals.course = result
 					next!
@@ -57,12 +57,12 @@ module.exports = (app)->
 				(done)->
 					if !req.params.thread?
 						err, result <- Thread.find {
-							'course': ObjectId res.locals.course._id
-						} .populate 'author' .sort!.exec
+							"course": ObjectId res.locals.course._id
+						} .populate "author" .sort!.exec
 						/* istanbul ignore if should only really occur if db crashes */
 						if err?
-							winston.error 'course:findOne:blog:auth1', err
-							next new Error 'INTERNAL'
+							winston.error "course:findOne:blog:auth1", err
+							next new Error "INTERNAL"
 						else
 							res.locals.threads = result
 							done!
@@ -73,36 +73,36 @@ module.exports = (app)->
 						<- async.parallel [
 							(done)->
 								err, result <- Thread.findOne {
-									'course': ObjectId res.locals.course._id
-									'_id': ObjectId req.params.thread
-								} .populate 'author' .exec
+									"course": ObjectId res.locals.course._id
+									"_id": ObjectId req.params.thread
+								} .populate "author" .exec
 								/* istanbul ignore if should only really occur if db crashes */
 								if err?
-									winston.error 'conf find thread', err
-									next new Error 'INTERNAL'
+									winston.error "conf find thread", err
+									next new Error "INTERNAL"
 								else
 									if result?
 										res.locals.thread = result
 										done!
 									else
-										next new Error 'NOT FOUND'
+										next new Error "NOT FOUND"
 							(done)->
 								err, result <- Post.find {
-									'type': 'conference'
-									'course': ObjectId res.locals.course._id
-									'thread': ObjectId req.params.thread
-								} .populate 'thread' .populate 'author' .sort!.exec
+									"type": "conference"
+									"course": ObjectId res.locals.course._id
+									"thread": ObjectId req.params.thread
+								} .populate "thread" .populate "author" .sort!.exec
 								/* istanbul ignore if should only really occur if db crashes */
 								if err?
-									winston.error 'conf find thread', err
-									next new Error 'INTERNAL'
+									winston.error "conf find thread", err
+									next new Error "INTERNAL"
 								else
-									/* istanbul ignore else honestly don't know how to hit the else */
+									/* istanbul ignore else honestly don"t know how to hit the else */
 									if result?
 										res.locals.posts = result
 										done!
 									else
-										next new Error 'NOT FOUND'
+										next new Error "NOT FOUND"
 						]
 						done!
 					else
@@ -110,17 +110,17 @@ module.exports = (app)->
 				(done)->
 					if req.params.post?
 						err, result <- Post.findOne {
-							'type':'conference'
-							'course': ObjectId res.locals.course._id
-							'_id': ObjectId req.params.post
-						} .populate 'thread' .populate 'author' .exec
+							"type":"conference"
+							"course": ObjectId res.locals.course._id
+							"_id": ObjectId req.params.post
+						} .populate "thread" .populate "author" .exec
 						/* istanbul ignore if should only really occur if db crashes */
 						if err?
-							winston.error 'course:findOne:blog:auth1', err
-							next new Error 'INTERNAL'
+							winston.error "course:findOne:blog:auth1", err
+							next new Error "INTERNAL"
 						else
 							if !result?
-								next new Error 'NOT FOUND'
+								next new Error "NOT FOUND"
 							else
 								res.locals.thread = result.thread
 								res.locals.post = result
@@ -131,50 +131,50 @@ module.exports = (app)->
 			next!
 		.get (req, res, next)->
 			switch req.query.action
-			| 'newthread'
-				res.render 'conference/create'
-			| 'editthread'
-				res.render 'conference/editthread'
-			| 'editpost'
-				res.render 'conference/editpost'
-			| 'deletethread'
-				res.render 'conference/delthread'
-			| 'deletepost'
-				res.render 'conference/delpost'
-			| 'report'
+			| "newthread"
+				res.render "conference/create"
+			| "editthread"
+				res.render "conference/editthread"
+			| "editpost"
+				res.render "conference/editpost"
+			| "deletethread"
+				res.render "conference/delthread"
+			| "deletepost"
+				res.render "conference/delpost"
+			| "report"
 				...
 			| _
-				res.render 'conference/view'
+				res.render "conference/view"
 		.post (req, res, next)->
 			switch req.query.action
-			| 'newpost'
+			| "newpost"
 				if !req.body.thread? or req.body.thread is "" or !req.body.text? or req.body.text is ""
-					res.status 400 .render 'conference/view' { body: req.body, success:'no', noun:'Post', verb:'created' }
+					res.status 400 .render "conference/view" { body: req.body, success:"no", noun:"Post", verb:"created" }
 				else
 					async.parallel [
 						(done)->
 							res.status 302 .redirect "/#{req.params.course}/conference/#{req.params.thread}"
 						(done)->
 							if res.locals.thread?
-								# console.log 'created post!'
+								# console.log "created post!"
 								# console.log res.locals.thread
 								post = {
 									course: res.locals.course._id
 									author: ObjectId res.locals.uid
 									thread: ObjectId req.body.thread
 									text: req.body.text
-									type: 'conference'
+									type: "conference"
 								}
 								post = new Post post
 								err, post <- post.save
 								/* istanbul ignore if should only really occur if db crashes */
 								if err?
-									winston.error 'conf',err
-									# next new Error 'Mongo Error'
+									winston.error "conf",err
+									# next new Error "Mongo Error"
 					]
-			| 'newthread'
+			| "newthread"
 				if !req.body.title? or req.body.title is "" or !req.body.text? or req.body.text is ""
-					res.status 400 .render 'conference/create' { body: req.body, success:'no', noun:'Thread', verb:'created' }
+					res.status 400 .render "conference/create" { body: req.body, success:"no", noun:"Thread", verb:"created" }
 				else
 					thread = {
 						title: req.body.title
@@ -185,12 +185,12 @@ module.exports = (app)->
 					err, thread <- thread.save
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
-						winston.error 'thread',err
-						next new Error 'Mongo Error'
+						winston.error "thread",err
+						next new Error "Mongo Error"
 					else
 						post = {
 							course: res.locals.course._id
-							type: 'conference'
+							type: "conference"
 							author: ObjectId res.locals.uid
 							thread: ObjectId thread._id
 							text: req.body.text
@@ -199,19 +199,19 @@ module.exports = (app)->
 						err, post <- post.save
 						/* istanbul ignore if should only really occur if db crashes */
 						if err?
-							winston.error 'post',err
-							next new Error 'Mongo Error'
+							winston.error "post",err
+							next new Error "Mongo Error"
 						else
 							res.status 302 .redirect "/#{req.params.course}/conference/#{thread._id}"
-			| 'report'
+			| "report"
 				...
 			| _
-				next new Error 'Action Error'
+				next new Error "Action Error"
 		.put (req, res, next)->
 			switch req.query.action
-			| 'editpost'
+			| "editpost"
 				if !req.body.thread? or !req.body.post? or !req.body.text? or req.body.text is ""
-					res.status 400 .render 'conference/editpost' { body: req.body, success:'no', noun:'Post', verb:'edited' }
+					res.status 400 .render "conference/editpost" { body: req.body, success:"no", noun:"Post", verb:"edited" }
 				else
 					err, post <- Post.findOneAndUpdate {
 						_id: req.body.post
@@ -222,13 +222,13 @@ module.exports = (app)->
 					}
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
-						winston.error 'conf' err
-						next new Error 'INTERNAL'
+						winston.error "conf" err
+						next new Error "INTERNAL"
 					else
 						res.status 302 .redirect "/#{req.params.course}/conference/#{req.params.thread}"
-			| 'editthread'
+			| "editthread"
 				if !req.body.thread? or !req.body.title? or req.body.title is ""
-					res.status 400 .render 'conference/editthread' { body: req.body, success:'no', noun:'Thread', verb:'edited' }
+					res.status 400 .render "conference/editthread" { body: req.body, success:"no", noun:"Thread", verb:"edited" }
 				else
 					err, post <- Thread.findOneAndUpdate {
 						_id: req.body.thread
@@ -238,17 +238,17 @@ module.exports = (app)->
 					}
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
-						winston.error 'conf' err
-						next new Error 'INTERNAL'
+						winston.error "conf" err
+						next new Error "INTERNAL"
 					else
 						res.status 302 .redirect "/#{req.params.course}/conference/#{req.params.thread}"
 			| _
-				next new Error 'Action Error'
+				next new Error "Action Error"
 		.delete (req, res, next)->
 			switch req.query.action
-			| 'deletepost'
+			| "deletepost"
 				if !req.body.thread? or !req.body.post?
-					res.status 400 .render 'conference/delpost' { body: req.body, success:'no', noun:'Post', verb:'deleted' }
+					res.status 400 .render "conference/delpost" { body: req.body, success:"no", noun:"Post", verb:"deleted" }
 				else
 					thePost =  {
 						_id: ObjectId req.body.post
@@ -261,12 +261,12 @@ module.exports = (app)->
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error err
-						res.status 400 .render 'conference/delpost' { body: req.body, success:'no', noun:'Post', verb:'deleted' }
+						res.status 400 .render "conference/delpost" { body: req.body, success:"no", noun:"Post", verb:"deleted" }
 					else
 						res.status 302 .redirect "/#{req.params.course}/conference/#{req.params.thread}"
-			| 'deletethread'
+			| "deletethread"
 				if !req.body.thread?
-					res.status 400 .render 'conference/delthread' { body: req.body, success:'no', noun:'Thread', verb:'deleted' }
+					res.status 400 .render "conference/delthread" { body: req.body, success:"no", noun:"Thread", verb:"deleted" }
 				else
 					theThread = {
 						_id: ObjectId req.body.thread
@@ -280,7 +280,7 @@ module.exports = (app)->
 					if err?
 						# error might be that they are not author
 						winston.error err
-						res.status 400 .render 'conference/delthread' { body: req.body, success:'no', noun:'Thread', verb:'deleted' }
+						res.status 400 .render "conference/delthread" { body: req.body, success:"no", noun:"Thread", verb:"deleted" }
 					else
 						err, post <- Post.remove {
 							thread: ObjectId req.body.thread
@@ -288,8 +288,8 @@ module.exports = (app)->
 						/* istanbul ignore if should only really occur if db crashes */
 						if err?
 							winston.error err
-							res.status 400 .render 'conference/delthread' { body: req.body, success:'no', noun:'Posts', verb:'deleted' }
+							res.status 400 .render "conference/delthread" { body: req.body, success:"no", noun:"Posts", verb:"deleted" }
 						else
 							res.status 302 .redirect "/#{req.params.course}/conference"
 			| _
-				next new Error 'Action Error'
+				next new Error "Action Error"

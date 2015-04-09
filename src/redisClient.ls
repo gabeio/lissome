@@ -1,9 +1,9 @@
 module.exports = (app,redishost,redisport,redisauth,redisdb)->
 	require! {
-		'redis'
-		'winston'
+		"redis"
+		"winston"
 	}
-	/* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
+	/* istanbul ignore next this is all setup if/else"s there is no way to get here after initial run */
 	if redisauth?
 		rediscli = redis.createClient redisport, redishost, {
 			auth_pass: redisauth
@@ -16,12 +16,12 @@ module.exports = (app,redishost,redisport,redisauth,redisdb)->
 		err <- rediscli.select redisdb
 		/* istanbul ignore if */
 		if err
-			winston.info 'redis:db', err
+			winston.info "redis:db", err
 		winston.info "using #{redisdb}"
 	rediscli.on "ready", ->
 		winston.info "redis:ready"
 	/* istanbul ignore next */
 	rediscli.on "disconnect", ->
-		winston.warn 'redis:disconnected\ntrying to reconnect'
+		winston.warn "redis:disconnected\ntrying to reconnect"
 		rediscli.connect!
 	return rediscli

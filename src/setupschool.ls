@@ -1,39 +1,39 @@
 require! {
-	'async'
-	'bcrypt'
-	'mongoose'
+	"async"
+	"bcrypt"
+	"mongoose"
 }
-schemas = require('./schemas')(mongoose)
-School = mongoose.model 'School' schemas.School
-User = mongoose.model 'User' schemas.User
-Course = mongoose.model 'Course' schemas.Course
+schemas = require("./schemas")(mongoose)
+School = mongoose.model "School" schemas.School
+User = mongoose.model "User" schemas.User
+Course = mongoose.model "Course" schemas.Course
 
 
 db = mongoose.connection
 mongouser = if process.env.mongouser or process.env.MONGOUSER then ( process.env.mongouser || process.env.MONGOUSER )
 mongopass = if process.env.mongopass or process.env.MONGOPASS then ( process.env.mongopass || process.env.MONGOPASS )
-db.open (process.env.mongo||process.env.MONGOURL||'mongodb://localhost/smrtboard'), { 'user': mongouser, 'pass': mongopass }
-# db.on 'disconnect', -> db.connect!
-db.on 'error', console.error.bind console, 'connection error:'
+db.open (process.env.mongo||process.env.MONGOURL||"mongodb://localhost/smrtboard"), { "user": mongouser, "pass": mongopass }
+# db.on "disconnect", -> db.connect!
+db.on "error", console.error.bind console, "connection error:"
 
 var school, student, astudent, faculty,\
 	gfaculty, admin, course1, course2, course3,\
 	hashPassword
 async.series [
 	(done)->
-		err, something <- db.once 'open'
-		hashPassword := bcrypt.hashSync 'password', 10
+		err, something <- db.once "open"
+		hashPassword := bcrypt.hashSync "password", 10
 		done!
 	(done)->
 		# school
-		err,result <- School.find { 'name':process.env.school }
+		err,result <- School.find { "name":process.env.school }
 		if err
 			console.error err
 			done err
 		else
 			if result? and result.length > 0
 				school := result.0
-				console.log 'School exists'
+				console.log "School exists"
 				done!
 			else
 				school := new School {
@@ -47,14 +47,14 @@ async.series [
 				done!
 	(done)->
 		# student
-		err,result <- User.find { 'username':'student', 'type':1, 'school':process.env.school }
+		err,result <- User.find { "username":"student", "type":1, "school":process.env.school }
 		if err
 			console.error err
 			done err
 		else
 			if result? and result.length > 0
 				student := result.0
-				console.log 'Student exists'
+				console.log "Student exists"
 				done!
 			else
 				student := new User {
@@ -76,14 +76,14 @@ async.series [
 				done!
 	(done)->
 		# astudent
-		err,result <- User.find { 'username':'astudent', 'type':1, 'school':process.env.school }
+		err,result <- User.find { "username":"astudent", "type":1, "school":process.env.school }
 		if err
 			console.error err
 			done err
 		else
 			if result? and result.length > 0
 				astudent := result.0
-				console.log 'astudent exists'
+				console.log "astudent exists"
 				done!
 			else
 				astudent := new User {
@@ -105,14 +105,14 @@ async.series [
 				done!
 	(done)->
 		# faculty
-		err,result <- User.find { 'username':'faculty', 'type':2, 'school':process.env.school }
+		err,result <- User.find { "username":"faculty", "type":2, "school":process.env.school }
 		if err
 			console.error err
 			done err
 		else
 			if result? and result.length > 0
 				faculty := result.0
-				console.log 'faculty exists'
+				console.log "faculty exists"
 				done!
 			else
 				faculty := new User {
@@ -134,14 +134,14 @@ async.series [
 				done!
 	(done)->
 		# gfaculty
-		err,result <- User.find { 'username':'gfaculty', 'type':2, 'school':process.env.school }
+		err,result <- User.find { "username":"gfaculty", "type":2, "school":process.env.school }
 		if err
 			console.error err
 			done err
 		else
 			if result? and result.length > 0
 				gfaculty := result.0
-				console.log 'gfaculty exists'
+				console.log "gfaculty exists"
 				done!
 			else
 				gfaculty := new User {
@@ -163,14 +163,14 @@ async.series [
 				done!
 	(done)->
 		# admin
-		err,result <- User.find { 'username':'admin', 'type':3, 'school':process.env.school }
+		err,result <- User.find { "username":"admin", "type":3, "school":process.env.school }
 		if err
 			console.error err
 			done err
 		else
 			if result? and result.length > 0
 				admin := result.0
-				console.log 'admin exists'
+				console.log "admin exists"
 				done!
 			else
 				admin := new User {
@@ -191,14 +191,14 @@ async.series [
 				done!
 	(done)->
 		# cps1234*02
-		err,result <- Course.find { 'id':'cps1234', 'school':process.env.school }
+		err,result <- Course.find { "id":"cps1234", "school":process.env.school }
 		if err
 			console.error err
 			done err
 		else
 			if result? and result.length > 0
 				course1 := result.0
-				console.log 'Course exists'
+				console.log "Course exists"
 				done!
 			else
 				course1 := new Course {
@@ -210,10 +210,10 @@ async.series [
 					# assignments: [] # Req
 					# dm: {} # tid:{sid:[posts]}
 					# grades: {} # sid:[Grades]
-					faculty: [ # faculty's username(s)
+					faculty: [ # faculty"s username(s)
 						faculty._id
 					]
-					students: [ # student's username(s)
+					students: [ # student"s username(s)
 						student._id
 					]
 					school: process.env.school
@@ -226,14 +226,14 @@ async.series [
 				done!
 	(done)->
 		# ge1000
-		err,result <- Course.find { 'id':'ge1000', 'school':process.env.school }
+		err,result <- Course.find { "id":"ge1000", "school":process.env.school }
 		if err
 			console.error err
 			done err
 		else
 			if result? and result.length > 0
 				course2 := result.0
-				console.log 'Course exists'
+				console.log "Course exists"
 				done!
 			else
 				course2 := new Course {
@@ -245,10 +245,10 @@ async.series [
 					# assignments: [] # Req
 					# dm: {} # tid:{sid:[posts]}
 					# grades: {} # sid:[Grades]
-					faculty: [ # faculty's username(s)
+					faculty: [ # faculty"s username(s)
 						gfaculty._id
 					]
-					students: [ # student's username(s)
+					students: [ # student"s username(s)
 						student._id
 					]
 					school: process.env.school
@@ -261,14 +261,14 @@ async.series [
 				done!
 	(done)->
 		# cps4601
-		err,result <- Course.find { 'id':'cps4601', 'school':process.env.school }
+		err,result <- Course.find { "id":"cps4601", "school":process.env.school }
 		if err
 			console.error err
 			done err
 		else
 			if result? and result.length > 0
 				course3 := result.0
-				console.log 'Course exists'
+				console.log "Course exists"
 				done!
 			else
 				course3 := new Course {
@@ -280,10 +280,10 @@ async.series [
 					# assignments: [] # Req
 					# dm: {} # tid:{sid:[posts]}
 					# grades: {} # sid:[Grades]
-					faculty: [ # faculty's username(s)
+					faculty: [ # faculty"s username(s)
 						gfaculty._id
 					]
-					students: [ # student's username(s)
+					students: [ # student"s username(s)
 						astudent._id
 					]
 					school: process.env.school

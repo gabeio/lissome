@@ -1,6 +1,6 @@
 module.exports = (app)->
 	app
-		..route '/:course/dm/:thread?'
+		..route "/:course/dm/:thread?"
 		.all app.locals.authorize
 		.get (req, res, next)->
-			res.send 'direct messaging:index > '+JSON.stringify req.params
+			res.send "direct messaging:index > "+JSON.stringify req.params

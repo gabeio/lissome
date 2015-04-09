@@ -4,9 +4,9 @@
 /* istanbul ignore next only for testing anyway */
 module.exports = (app)->
 	require! {
-		'async'
-		'mongoose'
-		'winston'
+		"async"
+		"mongoose"
+		"winston"
 	}
 	ObjectId = mongoose.Types.ObjectId
 	User = app.locals.models.User
@@ -16,112 +16,112 @@ module.exports = (app)->
 	Attempt = app.locals.models.Attempt
 	Thread = app.locals.models.Thread
 	# winston = app.locals.winston
-	winston.warn 'TESTING MODE\nIF YOU SEE THIS MESSAGE THERE IS SOMETHING WRONG!!!'
+	winston.warn "TESTING MODE\nIF YOU SEE THIS MESSAGE THERE IS SOMETHING WRONG!!!"
 	app
-		..route '/test/:action/:more?'
+		..route "/test/:action/:more?"
 		.all (req, res, next)->
 			switch req.params.action
-			| 'getauth'
+			| "getauth"
 				res.status 200 .send req.session.auth
-			| 'getroot'
+			| "getroot"
 				req.session.auth = 4
-				res.status 200 .send 'ok'
-			| 'getadmin'
+				res.status 200 .send "ok"
+			| "getadmin"
 				req.session.auth = 3
-				res.status 200 .send 'ok'
-			| 'getfaculty'
+				res.status 200 .send "ok"
+			| "getfaculty"
 				req.session.auth = 2
-				res.status 200 .send 'ok'
-			| 'getstudent'
+				res.status 200 .send "ok"
+			| "getstudent"
 				req.session.auth = 1
-				res.status 200 .send 'ok'
-			| 'getaid'
+				res.status 200 .send "ok"
+			| "getaid"
 				err, result <- Course.findOne {
-					'id': req.params.more
-					'school': app.locals.school
+					"id": req.params.more
+					"school": app.locals.school
 				}
 				if err
-					winston.error 'test:course:findOne:blog', err
-					next new Error 'INTERNAL'
+					winston.error "test:course:findOne:blog", err
+					next new Error "INTERNAL"
 				else
 					err, result <- Assignment.find {
-						'course': ObjectId(result._id)
-						'title': req.query.title
+						"course": ObjectId(result._id)
+						"title": req.query.title
 					}
 					if err
-						winston.error 'test:course:find:assignment', err
-						next new Error 'INTERNAL'
+						winston.error "test:course:find:assignment", err
+						next new Error "INTERNAL"
 					else
 						res.json result
-			| 'getpid'
+			| "getpid"
 				err, result <- Course.findOne {
-					'id': req.params.more
-					'school': app.locals.school
+					"id": req.params.more
+					"school": app.locals.school
 				}
 				if err
-					winston.error 'test:course:findOne:blog', err
-					next new Error 'INTERNAL'
+					winston.error "test:course:findOne:blog", err
+					next new Error "INTERNAL"
 				else
 					res.locals.course = result
 					err, result <- Post.find {
-						'course': ObjectId(res.locals.course._id)
-						'type': 'blog'
+						"course": ObjectId(res.locals.course._id)
+						"type": "blog"
 					}
 					if err
-						winston.error 'test:course:find:post', err
-						next new Error 'INTERNAL'
+						winston.error "test:course:find:post", err
+						next new Error "INTERNAL"
 					else
 						res.json result
-			| 'gettid'
+			| "gettid"
 				err, result <- Course.findOne {
-					'id': req.params.more
-					'school': app.locals.school
+					"id": req.params.more
+					"school": app.locals.school
 				}
 				if err
-					winston.error 'test:course:findOne:blog', err
-					next new Error 'INTERNAL'
+					winston.error "test:course:findOne:blog", err
+					next new Error "INTERNAL"
 				else
 					res.locals.course = result
 					err, result <- Thread.find {
-						'course': ObjectId(res.locals.course._id)
-						'title': req.query.title
+						"course": ObjectId(res.locals.course._id)
+						"title": req.query.title
 					}
 					if err
-						winston.error 'test:course:find:post', err
-						next new Error 'INTERNAL'
+						winston.error "test:course:find:post", err
+						next new Error "INTERNAL"
 					else
 						res.json result
-			| 'getpost'
+			| "getpost"
 				err, result <- Course.findOne {
-					'id': req.params.more
-					'school': app.locals.school
+					"id": req.params.more
+					"school": app.locals.school
 				}
 				if err
-					winston.error 'test:course:findOne:blog', err
-					next new Error 'INTERNAL'
+					winston.error "test:course:findOne:blog", err
+					next new Error "INTERNAL"
 				else
 					res.locals.course = result
 					err, result <- Post.find {
-						'course': ObjectId(res.locals.course._id)
-						'type': 'conference'
-						'text': new RegExp req.query.text, 'i'
-					} .populate 'thread' .exec
+						"course": ObjectId(res.locals.course._id)
+						"type": "conference"
+						"text": new RegExp req.query.text, "i"
+					} .populate "thread" .exec
 					if err
-						winston.error 'test:course:find:post', err
-						next new Error 'INTERNAL'
+						winston.error "test:course:find:post", err
+						next new Error "INTERNAL"
 					else
 						res.json result
-			| 'postblog'
+			| "postblog"
 				err, result <- Course.findOne {
-					'id': req.body.course
-					'school': app.locals.school
+					"id": req.body.course
+					"school": app.locals.school
 				}
 				if err
-					winston.error 'course:findOne:blog:auth3', err
-					next new Error 'INTERNAL'
+					winston.error "course:findOne:blog:auth3", err
+					next new Error "INTERNAL"
 				else
 					if !result? or result.length is 0
-						next new Error 'NOT FOUND'
+						next new Error "NOT FOUND"
 					else
 						res.locals.course = result
 						authorUsername = req.session.username
@@ -134,81 +134,81 @@ module.exports = (app)->
 							authorName: authorName
 							authorUsername: authorUsername
 							tags: []
-							type: 'blog'
+							type: "blog"
 							school: app.locals.school
 							course: ObjectId res.locals.course._id
 						}
 						err, post <- post.save
 						res.json post
-			| 'deleteassignments'
+			| "deleteassignments"
 				err, result <- Course.findOne {
-					'id': req.params.more
-					'school': app.locals.school
+					"id": req.params.more
+					"school": app.locals.school
 				}
 				if err
-					winston.error 'test:course:findOne:blog', err
-					next new Error 'INTERNAL'
+					winston.error "test:course:findOne:blog", err
+					next new Error "INTERNAL"
 				else
 					res.locals.course = result
 					<- async.parallel [
 						(done)->
 							err, result <- Assignment.remove {}
 							if err
-								winston.error 'test:course:remove:assignment', err
-								next new Error 'INTERNAL'
+								winston.error "test:course:remove:assignment", err
+								next new Error "INTERNAL"
 							else
 								done!
 						(done)->
 							err, result <- Attempt.remove {}
 							if err
-								winston.error 'test:course:remove:assignment', err
-								next new Error 'INTERNAL'
+								winston.error "test:course:remove:assignment", err
+								next new Error "INTERNAL"
 							else
 								done!
 					]
-					res.send 'ok'
-			| 'deletethreads'
+					res.send "ok"
+			| "deletethreads"
 				err, result <- Course.findOne {
-					'id': req.params.more
-					'school': app.locals.school
+					"id": req.params.more
+					"school": app.locals.school
 				}
 				if err
-					winston.error 'test:course:findOne:blog', err
-					next new Error 'INTERNAL'
+					winston.error "test:course:findOne:blog", err
+					next new Error "INTERNAL"
 				else
 					res.locals.course = result
 					err, result <- async.parallel [
 						(done)->
 							err, result <- Thread.remove {}
 							if err
-								winston.error 'test:course:remove:post', err
-								next new Error 'INTERNAL'
+								winston.error "test:course:remove:post", err
+								next new Error "INTERNAL"
 							else
 								done err, result
 						(done)->
 							err, result <- Post.remove {}
 							if err
-								winston.error 'test:course:remove:post', err
-								next new Error 'INTERNAL'
+								winston.error "test:course:remove:post", err
+								next new Error "INTERNAL"
 							else
 								done err, result
 					]
 					if err
 						winston.error 
 					res.json result
-			| 'deleteposts'
+			| "deleteposts"
 				err, result <- Course.findOne {}
 				if err
-					winston.error 'test:course:findOne:blog', err
-					next new Error 'INTERNAL'
+					winston.error "test:course:findOne:blog", err
+					next new Error "INTERNAL"
 				else
 					res.locals.course = result
 					err, result <- Post.remove {
 						course: ObjectId result._id
 					}
 					if err
-						winston.error 'test:course:find:post', err
-						next new Error 'INTERNAL'
+						winston.error "test:course:find:post", err
+						next new Error "INTERNAL"
 					else
 						res.json result
 			| _

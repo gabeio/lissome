@@ -1,11 +1,11 @@
 module.exports = (app)->
 	require! {
-		'async'
-		'lodash'
-		'moment'
-		'mongoose'
-		'util'
-		'winston'
+		"async"
+		"lodash"
+		"moment"
+		"mongoose"
+		"util"
+		"winston"
 	}
 	ObjectId = mongoose.Types.ObjectId
 	_ = lodash
@@ -14,23 +14,23 @@ module.exports = (app)->
 	Assignment = app.locals.models.Assignment
 	Attempt = app.locals.models.Attempt
 	app
-		..route '/:course/assignments/:assign?/:attempt?' # query :: action(new|edit|delete|grade)
+		..route "/:course/assignments/:assign?/:attempt?" # query :: action(new|edit|delete|grade)
 		.all (req, res, next)->
 			# to be in course auth needs to be min = 1
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
 		.all (req, res, next)->
-			# assign & attempt have to be mongo id's
+			# assign & attempt have to be mongo id"s
 			if req.params.assign? and req.params.assign.length isnt 24
-				console.log 'Bad Assignment'
-				next new Error 'Bad Assignment'
+				console.log "Bad Assignment"
+				next new Error "Bad Assignment"
 			else if req.params.attempt? and req.params.assign.length isnt 24
-				console.log 'Bad Attempt'
-				next new Error 'Bad Attempt'
+				console.log "Bad Attempt"
+				next new Error "Bad Attempt"
 			else
 				res.locals.course = {
-					'id': req.params.course
-					'school': app.locals.school
+					"id": req.params.course
+					"school": app.locals.school
 				}
 				/* istanbul ignore default there should be no way to hit that. */
 				switch res.locals.auth
@@ -43,16 +43,16 @@ module.exports = (app)->
 					res.locals.course.students = ObjectId res.locals.uid
 					next!
 				| _
-					next new Error 'UNAUTHORIZED'
+					next new Error "UNAUTHORIZED"
 		.all (req, res, next)->
 			err, result <- Course.findOne res.locals.course
 			/* istanbul ignore if should only really occur if db crashes */
 			if err
-				winston.error 'course findOne conf', err
-				next new Error 'INTERNAL'
+				winston.error "course findOne conf", err
+				next new Error "INTERNAL"
 			else
 				if !result? or result.length is 0
-					next new Error 'NOT FOUND'
+					next new Error "NOT FOUND"
 				else
 					res.locals.course = result
 					next!
@@ -71,14 +71,14 @@ module.exports = (app)->
 								"$lt": new Date Date.now!
 							}
 						err, result <- Assignment.find res.locals.assignments
-						.populate 'author'
+						.populate "author"
 						.exec
 						/* istanbul ignore if should only really occur if db crashes */
 						if err
-							winston.error 'assign findOne conf', err
-							next new Error 'INTERNAL'
+							winston.error "assign findOne conf", err
+							next new Error "INTERNAL"
 						else
-							res.locals.assignments = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
+							res.locals.assignments = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
 							done!
 					else
 						done!
@@ -90,12 +90,12 @@ module.exports = (app)->
 							course: ObjectId res.locals.course._id
 							_id: ObjectId req.params.assign
 						}
-						.populate 'author'
+						.populate "author"
 						.exec
 						/* istanbul ignore if should only really occur if db crashes */
 						if err
-							winston.error 'assign findOne conf', err
-							next new Error 'INTERNAL'
+							winston.error "assign findOne conf", err
+							next new Error "INTERNAL"
 						else
 							if result?
 								res.locals.assignment = result.toObject!
@@ -114,13 +114,13 @@ module.exports = (app)->
 								assignment: ObjectId req.params.assign
 								_id: ObjectId req.params.attempt
 							}
-							.populate 'assignment'
-							.populate 'author'
+							.populate "assignment"
+							.populate "author"
 							.exec
 							/* istanbul ignore if should only really occur if db crashes */
 							if err
-								winston.error 'assign findOne conf', err
-								next new Error 'INTERNAL'
+								winston.error "assign findOne conf", err
+								next new Error "INTERNAL"
 							else
 								res.locals.attempts = result
 								done!
@@ -130,16 +130,16 @@ module.exports = (app)->
 								course: ObjectId res.locals.course._id
 								assignment: ObjectId req.params.assign
 							}
-							.populate 'assignment'
-							.populate 'author'
+							.populate "assignment"
+							.populate "author"
 							.sort!
 							.exec
 							/* istanbul ignore if should only really occur if db crashes */
 							if err
-								winston.error 'assign findOne conf', err
-								next new Error 'INTERNAL'
+								winston.error "assign findOne conf", err
+								next new Error "INTERNAL"
 							else
-								res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
+								res.locals.attempts = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
 								done!
 						else
 							done!
@@ -156,13 +156,13 @@ module.exports = (app)->
 								author: ObjectId res.locals.uid
 								_id: ObjectId req.params.attempt
 							}
-							.populate 'assignment'
-							.populate 'author'
+							.populate "assignment"
+							.populate "author"
 							.exec
 							/* istanbul ignore if should only really occur if db crashes */
 							if err
-								winston.error 'assign findOne conf', err
-								next new Error 'INTERNAL'
+								winston.error "assign findOne conf", err
+								next new Error "INTERNAL"
 							else
 								res.locals.attempts = result
 								done!
@@ -173,16 +173,16 @@ module.exports = (app)->
 								assignment: ObjectId req.params.assign
 								author: ObjectId res.locals.uid
 							}
-							.populate 'assignment'
-							.populate 'author'
+							.populate "assignment"
+							.populate "author"
 							.sort!
 							.exec
 							/* istanbul ignore if should only really occur if db crashes */
 							if err
-								winston.error 'assign findOne conf', err
-								next new Error 'INTERNAL'
+								winston.error "assign findOne conf", err
+								next new Error "INTERNAL"
 							else
-								res.locals.attempts = if result.length isnt 0 then _.sortBy result, 'timestamp' .reverse! else []
+								res.locals.attempts = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
 								done!
 						else
 							done!
@@ -198,25 +198,25 @@ module.exports = (app)->
 				(done)->
 					if !req.query.action? && !req.params.assign?
 						# show list of assignments by title
-						res.render 'assignments/default'
+						res.render "assignments/default"
 				(done)->
 					if !req.query.action? && req.params.assign?
 						if req.params.attempt?
 							# show attempt
-							res.render 'assignments/attempt'
+							res.render "assignments/attempt"
 						else
 							# show assignment details & attempt field
-							res.render 'assignments/view'
+							res.render "assignments/view"
 				(done)->
 					if req.query.action?
-						next! # don't assume action, continue trying
+						next! # don"t assume action, continue trying
 			]
 		.post (req, res, next)->
 			# handle new attempt
 			switch req.query.action
-			| 'attempt'
+			| "attempt"
 				if !req.body.aid? or !req.body.text?
-					res.status 400 .render 'assignments/view' { body: req.body, success:'error', error:'Attempt Text Can <b>not</b> be blank.' }
+					res.status 400 .render "assignments/view" { body: req.body, success:"error", error:"Attempt Text Can <b>not</b> be blank." }
 				else
 					<- async.parallel [
 						(done)->
@@ -229,22 +229,22 @@ module.exports = (app)->
 							.exec
 							/* istanbul ignore if should only really occur if db crashes */
 							if err
-								winston.error 'attempt find conf',err
-								next new Error 'INTERNAL'
+								winston.error "attempt find conf",err
+								next new Error "INTERNAL"
 							else
 								res.locals.tries = result
 								done err
 						(done)->
 							err, result <- Assignment.findOne {
-								'course': ObjectId res.locals.course._id
-								'_id': ObjectId req.body.aid
+								"course": ObjectId res.locals.course._id
+								"_id": ObjectId req.body.aid
 							}
-							.populate 'author'
+							.populate "author"
 							.exec
 							/* istanbul ignore if should only really occur if db crashes */
 							if err
-								winston.error 'assign find conf',err
-								next new Error 'INTERNAL'
+								winston.error "assign find conf",err
+								next new Error "INTERNAL"
 							else
 								res.locals.assignment = result
 								done err
@@ -269,15 +269,15 @@ module.exports = (app)->
 								/* istanbul ignore if should only really occur if db crashes */
 								if err?
 									winston.error err
-									next new Error 'Mongo Error'
+									next new Error "Mongo Error"
 								else
 									res.redirect "/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
 							else
-								res.status 400 .render 'assignments/view' { body:req.body, success:'error', error:'You have no more attempts.' }
+								res.status 400 .render "assignments/view" { body:req.body, success:"error", error:"You have no more attempts." }
 						else
-							res.status 400 .render 'assignments/view' { body:req.body, success:'error', error:'Allowed assignment submission time has closed.' }
+							res.status 400 .render "assignments/view" { body:req.body, success:"error", error:"Allowed assignment submission time has closed." }
 					else
-						res.status 400 .render 'assignments/view' { body:req.body, success:'error', error:'Allowed assignment submission time has not opened.' }
+						res.status 400 .render "assignments/view" { body:req.body, success:"error", error:"Allowed assignment submission time has not opened." }
 			| _
 				next! # not an attempt
 		.all (req, res, next)->
@@ -286,23 +286,23 @@ module.exports = (app)->
 			app.locals.authorize req, res, next
 		### EVERYTHING AFTER HERE IS FACULTY+ ###
 		.get (req, res, next)->
-			# winston.info 'H'
+			# winston.info "H"
 			switch req.query.action
-			| 'new'
-				res.render 'assignments/create'
-			| 'edit'
-				res.render 'assignments/edit'
-			| 'delete'
-				res.render 'assignments/del'
+			| "new"
+				res.render "assignments/create"
+			| "edit"
+				res.render "assignments/edit"
+			| "delete"
+				res.render "assignments/del"
 			| _
-				next! # don't assume action
+				next! # don"t assume action
 		.put (req, res, next)->
-			# winston.info 'I'
+			# winston.info "I"
 			# handle edit assignment
 			switch req.query.action
-			| 'edit'
+			| "edit"
 				if !req.body.aid? || !req.body.title? || !req.body.text? || !req.body.tries? # double check require fields exist
-					res.status 400 .render 'assignments/edit' { body: req.body, success:'no', action:'edit' }
+					res.status 400 .render "assignments/edit" { body: req.body, success:"no", action:"edit" }
 				else
 					res.locals.start = new Date(req.body.opendate+" "+req.body.opentime)
 					res.locals.end = new Date(req.body.closedate+" "+req.body.closetime)
@@ -316,40 +316,40 @@ module.exports = (app)->
 						totalPoints: req.body.total
 					}
 					if !req.body.total?
-						# winston.info 'I1'
+						# winston.info "I1"
 						delete assign.totalPoints
 					if !moment(res.locals.start).isValid!
-						# winston.info 'I2'
+						# winston.info "I2"
 						delete assign.start
 					if res.locals.assignment.end? and ( !req.body.closedate? or req.body.closedate is "" )
-						assign.end = ''
+						assign.end = ""
 					else if !moment(res.locals.end).isValid!
-						# winston.info 'I3'
+						# winston.info "I3"
 						delete assign.end
 					err, assign <- Assignment.findOneAndUpdate {
-						'_id': ObjectId req.body.aid
-						'course': ObjectId res.locals.course._id
-						# don't check for author as me might not be...
+						"_id": ObjectId req.body.aid
+						"course": ObjectId res.locals.course._id
+						# don"t check for author as me might not be...
 					}, assign
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
-						# winston.info 'I4'
+						# winston.info "I4"
 						winston.error err
-						next new Error 'Mongo Error'
+						next new Error "Mongo Error"
 					else
-						# winston.info 'I5'
+						# winston.info "I5"
 						res.redirect "/#{req.params.course}/assignments/#{assign._id.toString!}"
 			| _
-				next! # don't assume action
+				next! # don"t assume action
 		.post (req, res, next)->
-			# winston.info 'J'
+			# winston.info "J"
 			# handle new assignment
 			switch req.query.action
-			| 'new'
+			| "new"
 				if !req.body.title? || !req.body.text? || !req.body.tries? # double check require fields exist
-					res.status 400 .render 'assignments/create' { body: req.body, success:'no', action:'edit'}
+					res.status 400 .render "assignments/create" { body: req.body, success:"no", action:"edit"}
 				else
-					# winston.info 'J1'
+					# winston.info "J1"
 					res.locals.start = new Date req.body.opendate+" "+req.body.opentime
 					res.locals.end = new Date req.body.closedate+" "+req.body.closetime
 					assign = {
@@ -373,54 +373,54 @@ module.exports = (app)->
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error err
-						next new Error 'INTERNAL'
+						next new Error "INTERNAL"
 					else
 						res.status 302 .redirect "/#{req.params.course}/assignments/" + assignment._id
-			| 'grade'
-				# winston.info 'J2'
+			| "grade"
+				# winston.info "J2"
 				if !req.body.points? || !req.body.aid? # double check require fields exist
-					res.status 400 .render 'assignments/create' { assignments: [req.body], -success, action:'edit' }
+					res.status 400 .render "assignments/create" { assignments: [req.body], -success, action:"edit" }
 				else
 					err, attempt <- Attempt.findOneAndUpdate {
-						'course': ObjectId res.locals.course._id
-						'_id': ObjectId req.body.aid
+						"course": ObjectId res.locals.course._id
+						"_id": ObjectId req.body.aid
 					}, {
-						'points': req.body.points
+						"points": req.body.points
 					}
 					# winston.info attempt
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error err
-						next new Error 'INTERNAL'
+						next new Error "INTERNAL"
 					else
 						res.status 302 .redirect "/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
 			| _
-				next! # don't assume action
+				next! # don"t assume action
 		.delete (req, res, next)->
-			# winston.info 'K'
+			# winston.info "K"
 			# handle delete assignment (faculty+)
 			switch req.query.action
-			| 'delete'
+			| "delete"
 				err, attempts <- Attempt.remove {
-					'assignment': ObjectId req.body.aid
-					'course': ObjectId res.locals.course._id
+					"assignment": ObjectId req.body.aid
+					"course": ObjectId res.locals.course._id
 				}
-				# winston.info 'deleted:',attempts
+				# winston.info "deleted:",attempts
 				/* istanbul ignore if should only really occur if db crashes */
 				if err?
 					winston.error err
-					next new Error 'INTERNAL'
+					next new Error "INTERNAL"
 				else
 					err, assignments <- Assignment.remove {
-						'_id': ObjectId req.body.aid
-						'course': ObjectId res.locals.course._id
+						"_id": ObjectId req.body.aid
+						"course": ObjectId res.locals.course._id
 					}
-					# winston.info 'deleted:',assignments
+					# winston.info "deleted:",assignments
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error err
-						next new Error 'INTERNAL'
+						next new Error "INTERNAL"
 					else
 						res.status 302 .redirect "/#{req.params.course}/assignments"
 			| _
-				next! # don't assume action
+				next! # don"t assume action
