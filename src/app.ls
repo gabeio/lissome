@@ -96,9 +96,7 @@ rediscli = require("./redisClient")(app,\
 # MONGOOSE
 /* istanbul ignore next */
 mongo = require("./mongoClient")(app,\
-	(process.env.mongo||process.env.MONGOURL||argv.mongo||"mongodb://localhost/smrtboard"),\
-	(process.env.mongouser||process.env.MONGOUSER||argv.mongouser||void),\
-	(process.env.mongopass||process.env.MONGOPASS||argv.mongopass||void))
+	(process.env.mongo||process.env.MONGOURL||argv.mongo||"mongodb://localhost/smrtboard"))
 
 # App Settings/Middleware
 app

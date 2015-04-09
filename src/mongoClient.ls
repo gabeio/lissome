@@ -1,4 +1,4 @@
-module.exports = (app,mongohost,mongouser,mongopass)->
+module.exports = (app,mongohost)->
 	require! {
 		"mongoose"
 		"winston"
