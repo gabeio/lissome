@@ -13,6 +13,7 @@ require! {
 	"method-override"
 	"moment"
 	"moment-timezone"
+	"mongoose"
 	"multer"
 	"serve-static" # nginx static
 	"swig" # templates
@@ -85,18 +86,18 @@ swig.setFilter "calendar", (input)->
 swig.setFilter "timezone", (input)->
 	moment.tz(input, "America/New_York").clone().tz(app.locals.timezone).toString!
 
+# MONGOOSE
+/* istanbul ignore next */
+mongo = require("./mongoClient")(app,mongoose,\
+	(process.env.mongo||process.env.MONGOURL||argv.mongo||"mongodb://localhost/smrtboard"))
+
 # REDIS
 /* istanbul ignore next */
-rediscli = require("./redisClient")(app,\
+redis = require("./redisClient")(app,\
 	(process.env.redishost||process.env.REDISHOST||argv.redishost||"localhost"),\
 	(process.env.redisport||process.env.REDISPORT||argv.redisport||6379),\
 	(process.env.redisauth||process.env.REDISAUTH||argv.redisauth||void),\
 	(process.env.redisdb||process.env.REDISDB||argv.redisdb||0))
-
-# MONGOOSE
-/* istanbul ignore next */
-mongo = require("./mongoClient")(app,\
-	(process.env.mongo||process.env.MONGOURL||argv.mongo||"mongodb://localhost/smrtboard"))
 
 # App Settings/Middleware
 app
@@ -137,7 +138,7 @@ app
 		store: new RedisStore {
 			ttl: 604800
 			prefix: app.locals.school
-			client: rediscli
+			client: redis
 		}
 	}
 	# hide what we are made of
@@ -220,3 +221,14 @@ else
 	winston.remove winston.transports.Console
 	/*winston.add winston.transports.Console, {level:"warn"}*/
 	require("./test")(app)
+
+process.on "SIGTERM", ->
+	console.log "\nShutting down from SIGTERM"
+	mongoose.disconnect!
+	redis.end!
+	process.exit 0
+process.on "SIGINT", ->
+	console.log "\nGracefully shutting down from SIGINT (Ctrl-C)"
+	mongoose.disconnect!
+	redis.end!
+	process.exit 0
