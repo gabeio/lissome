@@ -1,6 +1,5 @@
-module.exports = (app,mongohost)->
+module.exports = (app,mongoose,mongohost)->
 	require! {
-		"mongoose"
 		"winston"
 	}
 	mongo = mongoose.connection # create connection object
