@@ -19,6 +19,7 @@ matrix:
     fast_finish: true
 services:
     - mongodb
+    - redis-server
 before_script:
     - sleep 15
     - gulp build
