@@ -60,8 +60,8 @@ async.series [
 				student := new User {
 					id: 1
 					username: "student"
-					firstName: "Alpha"
-					lastName: "Beta"
+					firstName: "Kyler"
+					lastName: "Jakeman"
 					email: "student@kean.edu"
 					hash: hashPassword
 					school: process.env.school
@@ -89,8 +89,8 @@ async.series [
 				astudent := new User {
 					id: 2
 					username: "astudent"
-					firstName: "Alpha1"
-					lastName: "Beta1"
+					firstName: "Sly"
+					lastName: "Traiylor"
 					email: "astudent@kean.edu"
 					hash: hashPassword
 					school: process.env.school
@@ -118,8 +118,8 @@ async.series [
 				faculty := new User {
 					id: 3
 					username: "faculty"
-					firstName: "Alpha2"
-					lastName: "Beta2"
+					firstName: "Ralph"
+					lastName: "Frost"
 					email: "faculty@kean.edu"
 					hash: hashPassword
 					school: process.env.school
@@ -147,8 +147,8 @@ async.series [
 				gfaculty := new User {
 					id: 4
 					username: "gfaculty"
-					firstName: "Alpha3"
-					lastName: "Beta3"
+					firstName: "Shaw"
+					lastName: "Hanson"
 					email: "gfaculty@kean.edu"
 					hash: hashPassword
 					school: process.env.school
@@ -176,8 +176,8 @@ async.series [
 				admin := new User {
 					id: 5
 					username: "admin"
-					firstName: "Alpha4"
-					lastName: "Beta4"
+					firstName: "Carver"
+					lastName: "Pearce"
 					email: "admin@kean.edu"
 					hash: hashPassword
 					school: process.env.school
