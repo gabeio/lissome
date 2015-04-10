@@ -17,6 +17,13 @@ cache:
         - node_modules
 matrix:
     fast_finish: true
+services:
+    - mongodb
+before_script:
+    - sleep 15
+    - gulp build
+    - mongo lissome --eval 'db.addUser("travis", "test");'
+    - node lib/setupschool.js
 before_install:
     - npm install coveralls
 script:
