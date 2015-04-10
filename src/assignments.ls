@@ -12,16 +12,22 @@ require! {
 }
 ObjectId = mongoose.Types.ObjectId
 _ = lodash
-User = app.locals.models.User
-Course = app.locals.models.Course
-Assignment = app.locals.models.Assignment
-Attempt = app.locals.models.Attempt
+User = mongoose.models.User
+Course = mongoose.models.Course
+Assignment = mongoose.models.Assignment
+Attempt = mongoose.models.Attempt
+
 app
-	..route "/:course/assignments/:assign?/:attempt?" # query :: action(new|edit|delete|grade)
+	..route "/:assign?/:attempt?" # query :: action(new|edit|delete|grade)
 	.all (req, res, next)->
 		# to be in course auth needs to be min = 1
 		res.locals.needs = 1
-		app.locals.authorize req, res, next
+		next!
+	.all (req, res, next)->
+		if res.locals.auth? and res.locals.needs? and res.locals.needs <= res.locals.auth
+			next!
+		else
+			next new Error "UNAUTHORIZED"
 	.all (req, res, next)->
 		# assign & attempt have to be mongo id"s
 		if req.params.assign? and req.params.assign.length isnt 24
@@ -286,7 +292,12 @@ app
 	.all (req, res, next)->
 		# to modify assignments you need to be faculty+
 		res.locals.needs = 2
-		app.locals.authorize req, res, next
+		next!
+	.all (req, res, next)->
+		if res.locals.auth? and res.locals.needs? and res.locals.needs <= res.locals.auth
+			next!
+		else
+			next new Error "UNAUTHORIZED"
 	### EVERYTHING AFTER HERE IS FACULTY+ ###
 	.get (req, res, next)->
 		# winston.info "H"

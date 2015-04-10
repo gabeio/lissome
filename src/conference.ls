@@ -10,16 +10,22 @@ require! {
 }
 ObjectId = mongoose.Types.ObjectId
 _ = lodash
-User = app.locals.models.User
-Course = app.locals.models.Course
-Thread = app.locals.models.Thread
-Post = app.locals.models.Post
+User = mongoose.models.User
+Course = mongoose.models.Course
+Thread = mongoose.models.Thread
+Post = mongoose.models.Post
+
 app
-	..route "/:course/conference/:thread?/:post?" # query :: action(new|edit|delete)
+	..route "/:thread?/:post?" # query :: action(new|edit|delete)
 	.all (req, res, next)->
 		# auth level check
 		res.locals.needs = 1
-		app.locals.authorize req, res, next
+		next!
+	.all (req, res, next)->
+		if res.locals.auth? and res.locals.needs? and res.locals.needs <= res.locals.auth
+			next!
+		else
+			next new Error "UNAUTHORIZED"
 	.all (req, res, next)->
 		if req.query.action? then req.query.action = req.query.action.toLowerCase!
 		if req.params.thread? and req.params.thread.length isnt 24
@@ -27,33 +33,7 @@ app
 		else if req.params.post? and req.params.post.length isnt 24
 			next new Error "Bad Post"
 		else
-			res.locals.course = {
-				"id": req.params.course
-				"school": app.locals.school
-			}
-			switch res.locals.auth
-			| 3
-				next!
-			| 2
-				res.locals.course.faculty = ObjectId res.locals.uid
-				next!
-			| 1
-				res.locals.course.students = ObjectId res.locals.uid
-				next!
-			| _
-				next new Error "UNAUTHORIZED"
-	.all (req, res, next)->
-		err, result <- Course.findOne res.locals.course
-		/* istanbul ignore if should only really occur if db crashes */
-		if err?
-			winston.error "course findOne conf", err
-			next new Error "INTERNAL"
-		else
-			if !result? or result.length is 0
-				next new Error "NOT FOUND"
-			else
-				res.locals.course = result
-				next!
+			next!
 	.all (req, res, next)->
 		# thread/post db middleware async for attempted max speed
 		<- async.parallel [

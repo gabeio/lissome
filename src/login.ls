@@ -4,11 +4,12 @@ require! {
 app = express.Router()
 require! {
 	"bcrypt"
+	"mongoose"
 	"winston"
 }
 # winston = app.locals.winston
 # models = app.locals.models
-User = app.locals.models.User
+User = mongoose.models.User
 app
 	..route "/login"
 	.get (req, res, next)->

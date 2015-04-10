@@ -203,7 +203,12 @@ switch process.env.NODE_ENV
 	app.use response-time!
 
 # Attach base
-require("./base")(app)
+app
+	..use '/',require('./dashboard')
+	..use '/',require('./course')
+	..use '/',require('./admin')
+
+require('./error')(app)
 
 /* istanbul ignore next */
 if !module.parent # assure this file is not being run by a different file

@@ -12,11 +12,12 @@ require! {
 }
 _ = lodash
 ObjectId = mongoose.Types.ObjectId
-User = app.locals.models.User
-Course = app.locals.models.Course
-Post = app.locals.models.Post
+User = mongoose.models.User
+Course = mongoose.models.Course
+Post = mongoose.models.Post
+
 app
-	..route "/:course/blog/:unique?" # query action(new|edit|delete|deleteall)
+	..route "/:unique?" # query action(new|edit|delete|deleteall)
 	.all (req, res, next)->
 		if req.query.action in ["new","edit","delete","deleteall"]
 			next!
@@ -24,34 +25,12 @@ app
 			next "route"
 	.all (req, res, next)->
 		res.locals.needs = 2
-		app.locals.authorize req, res, next
+		next!
 	.all (req, res, next)->
-		res.locals.course = {
-			"id": req.params.course
-			"school": app.locals.school
-		}
-		switch res.locals.auth
-		| 3
+		if res.locals.auth? and res.locals.needs? and res.locals.needs <= res.locals.auth
 			next!
-		| 2
-			res.locals.course.faculty = ObjectId res.locals.uid
-			next!
-		| 1
-			res.locals.course.students = ObjectId res.locals.uid
-			next!
-		| _
-			next new Error "UNAUTHORIZED"
-	.all (req, res, next)->
-		err, result <- Course.findOne res.locals.course
-		if err
-			winston.error "course findOne conf", err
-			next new Error "INTERNAL"
 		else
-			if !result? or result.length is 0
-				next new Error "NOT FOUND"
-			else
-				res.locals.course = result
-				next!
+			next new Error "UNAUTHORIZED"
 	.get (req, res, next)->
 		if req.query.action in ["edit","delete"]
 			if !req.params.unique?
@@ -71,7 +50,6 @@ app
 		else
 			next!
 	.get (req, res, next)->
-		res.locals.blog = true
 		switch req.query.action
 		| "new"
 			res.render "blog/create", { on:"newblog", success:req.query.success, action:"created" }
@@ -162,37 +140,15 @@ app
 			]
 		else
 			next new Error "bad blog delete"
-	..route "/:course/blog/:unique?" # query action(search)
+	..route "/:unique?" # query action(search)
 	.all (req, res, next)->
 		res.locals.needs = 1
-		app.locals.authorize req, res, next
+		next!
 	.all (req, res, next)->
-		res.locals.course = {
-			"id": req.params.course
-			"school": app.locals.school
-		}
-		switch res.locals.auth
-		| 3
+		if res.locals.auth? and res.locals.needs? and res.locals.needs <= res.locals.auth
 			next!
-		| 2
-			res.locals.course.faculty = ObjectId res.locals.uid
-			next!
-		| 1
-			res.locals.course.students = ObjectId res.locals.uid
-			next!
-		| _
-			next new Error "UNAUTHORIZED"
-	.all (req, res, next)->
-		err, result <- Course.findOne res.locals.course
-		if err
-			winston.error "course findOne conf", err
-			next new Error "INTERNAL"
 		else
-			if !result? or result.length is 0
-				next new Error "NOT FOUND"
-			else
-				res.locals.course = result
-				next!
+			next new Error "UNAUTHORIZED"
 	.get (req, res, next)->
 		# res.locals.blog = []
 		if req.query.search? or req.params.unique?
