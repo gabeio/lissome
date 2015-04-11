@@ -212,6 +212,18 @@ describe "Assignments" ->
 							cont err
 			]
 			done err
+		it "should allow a faculty to see the grades view", (done)->
+			faculty
+				.get "/cps1234/grades"
+				.end (err, res)->
+					expect res.status .to.match /200/
+					done err
+		it "should allow an admin to see the grades view", (done)->
+			admin
+				.get "/cps1234/grades"
+				.end (err, res)->
+					expect res.status .to.match /200/
+					done err
 	describe "Outside Faculty", (...)->
 		before (done)->
 			faculty
@@ -364,6 +376,12 @@ describe "Assignments" ->
 							cont err
 			]
 			done err
+		it "should not allow a faculty outside the course to see the grades view", (done)->
+			student
+				.get "/cps1234/grades"
+				.end (err, res)->
+					expect res.status .to.not.match /200/
+					done err
 	describe "Student", (...)->
 		before (done)->
 			faculty
@@ -489,6 +507,12 @@ describe "Assignments" ->
 							cont err
 			]
 			done err
+		it "should allow a student to see the grades view", (done)->
+			student
+				.get "/cps1234/grades"
+				.end (err, res)->
+					expect res.status .to.match /200/
+					done err
 	describe "Outside Student", (...)->
 		before (done)->
 			faculty
@@ -611,7 +635,7 @@ describe "Assignments" ->
 							cont err
 			]
 			done err
-		it "should not allow a student to submit an attempt on an assignment", (done)->
+		it "should not allow an outside student to submit an attempt on an assignment", (done)->
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -630,6 +654,12 @@ describe "Assignments" ->
 							cont err
 			]
 			done err
+		it "should not allow an outside student to see the grades view", (done)->
+			student
+				.get "/cps1234/grades"
+				.end (err, res)->
+					expect res.status .to.not.match /200/
+					done err
 	describe "Crash Checks", (...)->
 		it "should not crash when creating/editing an assignment without opendate", (done)->
 			faculty
