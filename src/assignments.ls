@@ -32,7 +32,7 @@ module.exports = (app)->
 					"id": req.params.course
 					"school": app.locals.school
 				}
-				/* istanbul ignore default there should be no way to hit that. */
+				/* istanbul ignore next there should be no way to hit that. */
 				switch res.locals.auth
 				| 3
 					next!
@@ -105,86 +105,45 @@ module.exports = (app)->
 					else
 						done!
 				(done)->
-					# faculty+
-					if res.locals.auth >= 2
-						if req.params.attempt?
-							# findOne attempt
-							err, result <- Attempt.findOne {
-								course: ObjectId res.locals.course._id
-								assignment: ObjectId req.params.assign
-								_id: ObjectId req.params.attempt
-							}
-							.populate "assignment"
-							.populate "author"
-							.exec
-							/* istanbul ignore if should only really occur if db crashes */
-							if err
-								winston.error "assign findOne conf", err
-								next new Error "INTERNAL"
-							else
-								res.locals.attempts = result
-								done!
-						else if req.params.assign?
-							# find attempts
-							err, result <- Attempt.find {
-								course: ObjectId res.locals.course._id
-								assignment: ObjectId req.params.assign
-							}
-							.populate "assignment"
-							.populate "author"
-							.sort!
-							.exec
-							/* istanbul ignore if should only really occur if db crashes */
-							if err
-								winston.error "assign findOne conf", err
-								next new Error "INTERNAL"
-							else
-								res.locals.attempts = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
-								done!
+					if req.params.attempt?
+						# findOne attempt
+						res.locals.attempts = {
+							course: ObjectId res.locals.course._id
+							assignment: ObjectId req.params.assign
+							_id: ObjectId req.params.attempt
+						}
+						if res.locals.auth is 1
+							res.locals.attempts.author = ObjectId res.locals.uid
+						err, result <- Attempt.findOne res.locals.attempts
+						.populate "assignment"
+						.populate "author"
+						.exec
+						/* istanbul ignore if should only really occur if db crashes */
+						if err
+							winston.error "assign findOne conf", err
+							next new Error "INTERNAL"
 						else
+							res.locals.attempts = result
 							done!
-					else
-						done!
-				(done)->
-					# student
-					if res.locals.auth is 1
-						if req.params.attempt?
-							# findOne attempt
-							err, result <- Attempt.findOne {
-								course: ObjectId res.locals.course._id
-								assignment: ObjectId req.params.assign
-								author: ObjectId res.locals.uid
-								_id: ObjectId req.params.attempt
-							}
-							.populate "assignment"
-							.populate "author"
-							.exec
-							/* istanbul ignore if should only really occur if db crashes */
-							if err
-								winston.error "assign findOne conf", err
-								next new Error "INTERNAL"
-							else
-								res.locals.attempts = result
-								done!
-						else if req.params.assign?
-							# find attempts
-							err, result <- Attempt.find {
-								course: ObjectId res.locals.course._id
-								assignment: ObjectId req.params.assign
-								author: ObjectId res.locals.uid
-							}
-							.populate "assignment"
-							.populate "author"
-							.sort!
-							.exec
-							/* istanbul ignore if should only really occur if db crashes */
-							if err
-								winston.error "assign findOne conf", err
-								next new Error "INTERNAL"
-							else
-								res.locals.attempts = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
-								done!
+					else if req.params.assign?
+						# find attempts
+						res.locals.attempts = {
+							course: ObjectId res.locals.course._id
+							assignment: ObjectId req.params.assign
+						}
+						if res.locals.auth is 1
+							res.locals.attempts.author = ObjectId res.locals.uid
+						err, result <- Attempt.find res.locals.attempts
+						.populate "assignment"
+						.populate "author"
+						.sort!
+						.exec
+						/* istanbul ignore if should only really occur if db crashes */
+						if err
+							winston.error "assign findOne conf", err
+							next new Error "INTERNAL"
 						else
+							res.locals.attempts = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
 							done!
 					else
 						done!
