@@ -69,9 +69,9 @@ describe "Assignments" ->
 				.post "/cps1234/assignments?action=new"
 				.send {
 					"title":"title"
-					"opendate":"12/31/1999"
+					"opendate":"2/1/2000"
 					"opentime":"1:00 AM"
-					"closedate":"1/1/2000"
+					"closedate":"1/1/3000"
 					"closetime":"1:00 PM"
 					"total":"100"
 					"tries":"1"
@@ -87,9 +87,9 @@ describe "Assignments" ->
 				.post "/cps1234/assignments?action=new"
 				.send {
 					"title":"anotherTitle"
-					"opendate":"12/31/1999"
+					"opendate":"1/1/2000"
 					"opentime":"1:00 AM"
-					"closedate":"1/1/2000"
+					"closedate":"1/1/3000"
 					"closetime":"1:00 PM"
 					"total":"100"
 					"tries":"1"
@@ -183,6 +183,97 @@ describe "Assignments" ->
 						.end (err, res)->
 							expect res.status .to.equal 302
 							expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
+							cont err
+			]
+			done err
+		it "should allow a faculty to submit an attempt", (done)->
+			err <- async.waterfall [
+				(cont)->
+					faculty
+						.get "/test/getaid/cps1234?title=title"
+						.end (err, res)->
+							cont err, res.body
+				(aid,cont)->
+					faculty
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?action=attempt"
+						.send {
+							"aid": aid.0._id
+							"text":"facultyAttempt"
+						}
+						.end (err, res)->
+							expect res.status .to.match /^(2|3)/
+							expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/.{24}\/?/i
+							cont err
+			]
+			done err
+		it "should allow an admin to submit an attempt", (done)->
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get "/test/getaid/cps1234?title=anotherTitle"
+						.end (err, res)->
+							cont err, res.body
+				(aid,cont)->
+					admin
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?action=attempt"
+						.send {
+							"aid":aid.0._id
+							"text":"adminAttempt"
+						}
+						.end (err, res)->
+							expect res.status .to.match /^(2|3)/
+							expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/.{24}\/?/i
+							cont err
+			]
+			done err
+		it "should allow a faculty to grade an assignment", (done)->
+			err <- async.waterfall [
+				(cont)->
+					faculty
+						.get "/test/getaid/cps1234?title=title"
+						.end (err, res)->
+							cont err, res.body
+				(assign,cont)->
+					faculty
+						.get "/test/getattempt/cps1234?title=title&text=facultyAttempt"
+						.end (err, res)->
+							console.log res.body
+							cont err, assign, res.body
+				(assign,attempt,cont)->
+					faculty
+						.post "/cps1234/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
+						.send {
+							"aid": attempt.0._id
+							"points": "10"
+						}
+						.end (err, res)->
+							expect res.status .to.match /^(2|3)/
+							expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/.{24}\/?/i
+							cont err
+			]
+			done err
+		it "should allow an admin to grade an assignment", (done)->
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get "/test/getaid/cps1234?title=anotherTitle"
+						.end (err, res)->
+							cont err, res.body
+				(assign,cont)->
+					admin
+						.get "/test/getattempt/cps1234?title=anotherTitle&text=adminAttempt"
+						.end (err, res)->
+							cont err, assign, res.body
+				(assign,attempt,cont)->
+					admin
+						.post "/cps1234/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
+						.send {
+							"aid":attempt.0._id
+							"points": "10"
+						}
+						.end (err, res)->
+							expect res.status .to.match /^(2|3)/
+							expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/.{24}\/?/i
 							cont err
 			]
 			done err
