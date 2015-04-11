@@ -378,22 +378,18 @@ describe "Course" ->
 							cont err
 			]
 			done err
-		it "should allow faculty in the course to see the blog's edit or delete view", (done)->
-			err <- async.parallel [
-				(cont)->
-					faculty
-						.get "/cps1234/blog/title?action=edit"
-						.end (err, res)->
-							expect res.status .to.equal 200
-							cont err
-				(cont)->
-					faculty
-						.get "/cps1234/blog/title?action=delete"
-						.end (err, res)->
-							expect res.status .to.equal 200
-							cont err
-			]
-			done err
+		it "should allow faculty in the course to see the blog's edit view ", (done)->
+			faculty
+				.get "/cps1234/blog/title?action=edit"
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it "should allow faculty in the course to see the blog's delete view", (done)->
+			faculty
+				.get "/cps1234/blog/title?action=delete"
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
 		it "should allow faculty in the course to actually edit or delete the blog posts", (done)->
 			err <- async.parallel [
 				(cont)->
@@ -526,7 +522,7 @@ describe "Course" ->
 							cont err
 			]
 			done err
-		it "should allow admin to see blog view of edit or delete blog posts", (done)->
+		it "should allow admin to see blog view of edit blog posts", (done)->
 			err <- async.parallel [
 				(cont)->
 					admin
@@ -536,13 +532,17 @@ describe "Course" ->
 							cont err
 				(cont)->
 					admin
-						.get "/cps1234/blog/title?action=delete"
+						.get "/cps4601/blog/title?action=edit"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
+			]
+			done err
+		it "should allow admin to see blog view of delete blog posts", (done)->
+			err <- async.parallel [
 				(cont)->
 					admin
-						.get "/cps4601/blog/title?action=edit"
+						.get "/cps1234/blog/title?action=delete"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
