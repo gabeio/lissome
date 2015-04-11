@@ -12,7 +12,7 @@ scripts:
 	start: 'node ./lib/app.js'
 	test: 'gulp build && gulp build-tests && mocha'
 	test-ci: 'gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage'
-	test-cover: 'gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha'
+	coverage: 'gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha'
 	continuous: 'nodemon -w ./ -e html,css,js -x node ./lib/app.js'
 
 repository:
