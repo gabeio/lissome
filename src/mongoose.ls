@@ -1,6 +1,5 @@
 module.exports = (app)->
 	require! {
-		"async"
 		"mongoose"
 		"winston"
 		"util"
@@ -27,13 +26,3 @@ module.exports = (app)->
 					name: process.env.school
 				}
 				err, school <- school.save
-	app.locals.models = {
-		school: process.env.school
-		User: User
-		Course: Course
-		Assignment: Assignment
-		Attempt: Attempt
-		# Grade: Grade
-		Thread: Thread
-		Post: Post
-	}

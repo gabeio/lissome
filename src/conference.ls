@@ -7,10 +7,10 @@ module.exports = (app)->
 	}
 	ObjectId = mongoose.Types.ObjectId
 	_ = lodash
-	User = app.locals.models.User
-	Course = app.locals.models.Course
-	Thread = app.locals.models.Thread
-	Post = app.locals.models.Post
+	User = mongoose.models.User
+	Course = mongoose.models.Course
+	Thread = mongoose.models.Thread
+	Post = mongoose.models.Post
 	app
 		..route "/:course/conference/:thread?/:post?" # query :: action(new|edit|delete)
 		.all (req, res, next)->

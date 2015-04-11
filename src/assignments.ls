@@ -9,10 +9,10 @@ module.exports = (app)->
 	}
 	ObjectId = mongoose.Types.ObjectId
 	_ = lodash
-	User = app.locals.models.User
-	Course = app.locals.models.Course
-	Assignment = app.locals.models.Assignment
-	Attempt = app.locals.models.Attempt
+	User = mongoose.models.User
+	Course = mongoose.models.Course
+	Assignment = mongoose.models.Assignment
+	Attempt = mongoose.models.Attempt
 	app
 		..route "/:course/assignments/:assign?/:attempt?" # query :: action(new|edit|delete|grade)
 		.all (req, res, next)->

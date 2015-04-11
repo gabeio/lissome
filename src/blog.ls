@@ -9,9 +9,9 @@ module.exports = (app)->
 	}
 	_ = lodash
 	ObjectId = mongoose.Types.ObjectId
-	User = app.locals.models.User
-	Course = app.locals.models.Course
-	Post = app.locals.models.Post
+	User = mongoose.models.User
+	Course = mongoose.models.Course
+	Post = mongoose.models.Post
 	app
 		..route "/:course/blog/:unique?" # query action(new|edit|delete|deleteall)
 		.all (req, res, next)->

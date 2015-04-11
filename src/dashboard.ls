@@ -6,7 +6,7 @@ module.exports = (app)->
 		"winston"
 	}
 	_ = lodash
-	Course = app.locals.models.Course
+	Course = mongoose.models.Course
 	app
 		..route "/:index(index|dash|dashboard)?"
 		.all (req, res, next)->
