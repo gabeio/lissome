@@ -174,7 +174,7 @@ module.exports = (app)->
 							res.render "assignments/view"
 				(done)->
 					if req.query.action?
-						next! # don"t assume action, continue trying
+						next! # don't assume action, continue trying
 			]
 		.post (req, res, next)->
 			# handle new attempt
@@ -251,7 +251,6 @@ module.exports = (app)->
 			app.locals.authorize req, res, next
 		### EVERYTHING AFTER HERE IS FACULTY+ ###
 		.get (req, res, next)->
-			# winston.info "H"
 			switch req.query.action
 			| "new"
 				res.render "assignments/create"
@@ -260,9 +259,8 @@ module.exports = (app)->
 			| "delete"
 				res.render "assignments/del"
 			| _
-				next! # don"t assume action
+				next! # don't assume action
 		.put (req, res, next)->
-			# winston.info "I"
 			# handle edit assignment
 			switch req.query.action
 			| "edit"
@@ -281,40 +279,33 @@ module.exports = (app)->
 						totalPoints: req.body.total
 					}
 					if !req.body.total?
-						# winston.info "I1"
 						delete assign.totalPoints
 					if !moment(res.locals.start).isValid!
-						# winston.info "I2"
 						delete assign.start
 					if res.locals.assignment.end? and ( !req.body.closedate? or req.body.closedate is "" )
 						assign.end = ""
 					else if !moment(res.locals.end).isValid!
-						# winston.info "I3"
 						delete assign.end
 					err, assign <- Assignment.findOneAndUpdate {
 						"_id": ObjectId req.body.aid
 						"course": ObjectId res.locals.course._id
-						# don"t check for author as me might not be...
+						# don't check for author as me might not be...
 					}, assign
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
-						# winston.info "I4"
 						winston.error err
 						next new Error "Mongo Error"
 					else
-						# winston.info "I5"
 						res.redirect "/#{req.params.course}/assignments/#{assign._id.toString!}"
 			| _
-				next! # don"t assume action
+				next! # don't assume action
 		.post (req, res, next)->
-			# winston.info "J"
 			# handle new assignment
 			switch req.query.action
 			| "new"
 				if !req.body.title? || !req.body.text? || !req.body.tries? # double check require fields exist
 					res.status 400 .render "assignments/create" { body: req.body, success:"no", action:"edit"}
 				else
-					# winston.info "J1"
 					res.locals.start = new Date req.body.opendate+" "+req.body.opentime
 					res.locals.end = new Date req.body.closedate+" "+req.body.closetime
 					assign = {
@@ -342,7 +333,6 @@ module.exports = (app)->
 					else
 						res.status 302 .redirect "/#{req.params.course}/assignments/" + assignment._id
 			| "grade"
-				# winston.info "J2"
 				if !req.body.points? || !req.body.aid? # double check require fields exist
 					res.status 400 .render "assignments/create" { assignments: [req.body], -success, action:"edit" }
 				else
@@ -352,7 +342,6 @@ module.exports = (app)->
 					}, {
 						"points": req.body.points
 					}
-					# winston.info attempt
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error err
@@ -360,9 +349,8 @@ module.exports = (app)->
 					else
 						res.status 302 .redirect "/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
 			| _
-				next! # don"t assume action
+				next! # don't assume action
 		.delete (req, res, next)->
-			# winston.info "K"
 			# handle delete assignment (faculty+)
 			switch req.query.action
 			| "delete"
@@ -370,7 +358,6 @@ module.exports = (app)->
 					"assignment": ObjectId req.body.aid
 					"course": ObjectId res.locals.course._id
 				}
-				# winston.info "deleted:",attempts
 				/* istanbul ignore if should only really occur if db crashes */
 				if err?
 					winston.error err
@@ -380,7 +367,6 @@ module.exports = (app)->
 						"_id": ObjectId req.body.aid
 						"course": ObjectId res.locals.course._id
 					}
-					# winston.info "deleted:",assignments
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error err
@@ -388,4 +374,4 @@ module.exports = (app)->
 					else
 						res.status 302 .redirect "/#{req.params.course}/assignments"
 			| _
-				next! # don"t assume action
+				next! # don't assume action
