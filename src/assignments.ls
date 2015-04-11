@@ -24,7 +24,7 @@ module.exports = (app)->
 			if req.params.assign? and req.params.assign.length isnt 24
 				console.log "Bad Assignment"
 				next new Error "Bad Assignment"
-			else if req.params.attempt? and req.params.assign.length isnt 24
+			else if req.params.attempt? and req.params.attempt.length isnt 24
 				console.log "Bad Attempt"
 				next new Error "Bad Attempt"
 			else
