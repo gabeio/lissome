@@ -1,0 +1,74 @@
+{% extends '../base.html' %}
+
+{% block head %}
+	<title>Blog - {{ course.title }} - {{ school }}</title>
+{% endblock %}
+
+{% block body %}
+	<div class="container-fluid">
+		{% include '../navbar.html' %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ol class="breadcrumb">
+					<li><a href="/">Dash</a></li>
+					<li><a href="/{{ course.id }}">{{ course.title }}</a></li>
+					<li><a href="/{{ course.id }}/blog">Blog</a></li>
+					<li class="active">Deleting Blog Post</li>
+				</ol>
+			</div>
+		</div>
+		{% if success %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				{% if success == 'yes' or success == 'true' %}
+				<div class="alert alert-success" role="alert">
+					Blog post <strong>{{ action }}</strong> successfully.
+				</div>
+				{% elif success == 'no' or success == 'false' %}
+				<div class="alert alert-danger" role="alert">
+					Blog post <strong>not</strong> {{ action }} successfully. Missing required field.
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		{% endif %}
+		<div class="row">
+			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="/{{ course.id }}/blog/{{ posts[0].title }}?action=deleteall&hmo=DELETE" enctype="multipart/form-data">
+				<div class="pull-left">
+					<h3>Delete Post{% if posts.length > 1 %}s{% endif %}</h3>
+				</div>
+				<div class="pull-right" style="padding-top: 8px;">
+					<button type="submit" class="btn btn-default" title="Delete All"><span class="glyphicon glyphicon-trash"></span> Delete All</button>
+				</div>
+			</form>
+		</div>
+		{% for post in posts %}
+		<div class="row">
+			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=delete&hmo=DELETE" enctype="multipart/form-data">
+				{% if success == 'yes' %}
+				<div class="form-group">
+					<div class="alert alert-success" role="alert">
+						Blog post <strong>deleted</strong> successfully.
+					</div>
+				</div>
+				{% endif %}
+				<div class="panel panel-default">
+					<input type="hidden" name="pid" value="{{ post._id|toString }}" />
+					<div class="panel-heading clearfix">
+						<h2 class="panel-title pull-left" style="padding-top: 10px;">{{ post.title|url_decode }}</h2>
+						<div class="pull-right">
+							<div class="btn-group">
+								<button type="submit" class="btn btn-danger">Delete</button>
+								<a href="/{{ course.id }}/blog" class="btn btn-default">No!</a>
+							</div>
+						</div>
+					</div>
+					<div class="panel-body">{{ post.text|markdown|safe }}</div>
+					<div class="panel-footer"><span title="{{ post.author.username }}">{{ post.author.firstName }} {{ post.author.lastName }}</span><span class="pull-right" title="{{ post.timestamp|timezone }}">{{ post.timestamp|fromNow }}</span></div>
+				</div>
+			</form>
+		</div>
+		{% endfor %}
+	</div>
+	<script src="/assets/custom/smrtboard.js"></script>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{%- block head -%}
+	<title>Dashboard - {{ school }}</title>
+{%- endblock -%}
+
+{%- block body -%}
+	<div class="container-fluid">
+		{% include 'navbar.html' %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ol class="breadcrumb">
+					<li class="active">Dash</li>
+				</ol>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<h3>Your Courses</h3>
+				<ul class="list-group">
+				{% for course in courses %}
+					<a class="list-group-item" href="/{{ course.id }}">{{ course.title }}</a>
+				{% endfor %}
+				</ul>
+			</div>
+		</div>
+	</div>
+{%- endblock -%}
