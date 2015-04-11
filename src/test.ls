@@ -45,7 +45,7 @@ module.exports = (app)->
 					next new Error "INTERNAL"
 				else
 					err, result <- Assignment.find {
-						"course": ObjectId(result._id)
+						"course": ObjectId result._id
 						"title": req.query.title
 					}
 					if err
@@ -53,6 +53,33 @@ module.exports = (app)->
 						next new Error "INTERNAL"
 					else
 						res.json result
+			| "getattempt"
+				console.log req.query
+				err, result <- Course.findOne {
+					"id": req.params.more
+					"school": app.locals.school
+				}
+				if err
+					winston.error "test:course:findOne:blog", err
+					next new Error "INTERNAL"
+				else
+					err, result <- Assignment.findOne {
+						"course": ObjectId result._id
+						"title": req.query.title
+					}
+					if err
+						winston.error "test:course:find:assignment", err
+						next new Error "INTERNAL"
+					else
+						err, result <- Attempt.find {
+							"assignment": ObjectId result._id
+							"text": req.query.text
+						}
+						if err
+							winston.error "test:course:find:assignment", err
+							next new Error "INTERNAL"
+						else
+							res.json result
 			| "getpid"
 				err, result <- Course.findOne {
 					"id": req.params.more
