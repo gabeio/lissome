@@ -8,11 +8,13 @@ require! {
 	"mongoose"
 	"winston"
 }
+ObjectId = mongoose.Types.ObjectId
 _ = lodash
 Course = mongoose.models.Course
-
 app
-	..route "/:index(index|dash|dashboard)?"
+	..route "/"
+	.all (req, res, next)->
+		console.log 'dashboard.ls req.params', req.params
 	.all (req, res, next)->
 		res.locals.needs = 1
 		next!
@@ -21,53 +23,37 @@ app
 			next!
 		else
 			next new Error "UNAUTHORIZED"
+	.all (req, res, next)->
+		res.locals.courses = {
+			"school": req.app.locals.school
+		}
+		/* istanbul ignore default there should be no way to hit that. */
+		switch res.locals.auth
+		| 3
+			next!
+		| 2
+			res.locals.courses.faculty = ObjectId res.locals.uid
+			next!
+		| 1
+			res.locals.courses.students = ObjectId res.locals.uid
+			next!
+		| _
+			next new Error "UNAUTHORIZED"
+	.all (req, res, next)->
+		console.log res.locals.courses
+		err, result <- Course.find res.locals.courses
+		/* istanbul ignore if should only really occur if db crashes */
+		if err?
+			winston.error "course findOne conf", err
+			next new Error "INTERNAL"
+		else
+			console.log result
+			if !result? or result.length is 0
+				next new Error "NOT FOUND"
+			else
+				res.locals.courses = result
+				next!
 	.get (req, res, next)->
-		<- async.parallel [
-			(done)->
-				if res.locals.auth is 3
-					err, courses <- Course.find {
-						"school":app.locals.school
-					}
-					/* istanbul ignore if */
-					if err
-						winston.error "course:find", err
-						next new Error "INTERNAL"
-					else
-						res.locals.courses = courses
-						done!
-				else
-					done!
-			(done)->
-				if res.locals.auth is 2
-					err, courses <- Course.find {
-						"school":app.locals.school
-						"faculty":mongoose.Types.ObjectId(res.locals.uid)
-					}
-					/* istanbul ignore if */
-					if err
-						winston.error "course:find", err
-						next new Error "INTERNAL"
-					else
-						res.locals.courses = courses
-						done!
-				else
-					done!
-			(done)->
-				if res.locals.auth is 1
-					err, courses <- Course.find {
-						"school":app.locals.school
-						"students":mongoose.Types.ObjectId(res.locals.uid)
-					}
-					/* istanbul ignore if */
-					if err
-						winston.error "course:find", err
-						next new Error "INTERNAL"
-					else
-						res.locals.courses = courses
-						done!
-				else
-					done!
-		]
 		res.render "dashboard"
 
 module.exports = app

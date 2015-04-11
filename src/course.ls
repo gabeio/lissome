@@ -11,19 +11,17 @@ Course = mongoose.models.Course
 Post = mongoose.models.Post
 # middleish ware
 app
-	..route "/:course"
-	.all (req, res, next)->
+	..use (req, res, next)->
+		console.log 'course.ls req.params',req.params
 		res.locals.needs = 1
-		next!
-	.all (req, res, next)->
 		if res.locals.auth? and res.locals.needs? and res.locals.needs <= res.locals.auth
 			next!
 		else
 			next new Error "UNAUTHORIZED"
-	.all (req, res, next)->
+	..use (req, res, next)->
 		res.locals.course = {
 			"id": req.params.course
-			"school": app.locals.school
+			"school": req.app.locals.school
 		}
 		/* istanbul ignore default there should be no way to hit that. */
 		switch res.locals.auth
@@ -37,12 +35,24 @@ app
 			next!
 		| _
 			next new Error "UNAUTHORIZED"
+	..use (req, res, next)->
+		err, result <- Course.findOne res.locals.course
+		/* istanbul ignore if should only really occur if db crashes */
+		if err
+			winston.error "course findOne conf", err
+			next new Error "INTERNAL"
+		else
+			if !result? or result.length is 0
+				next new Error "NOT FOUND"
+			else
+				res.locals.course = result
+				next!
 # sub routes
 app
-	..use '/:course',require('./courseDash')
-	..use '/:course/assignments',require('./assignments')
-	..use '/:course/blog',require('./blog')
-	..use '/:course/conference',require('./conference')
-	..use '/:course/grades',require('./grades')
+	..use '/:course/dash', require('./courseDash')
+	..use '/:course/assignments', require('./assignments')
+	..use '/:course/blog', require('./blog')
+	..use '/:course/conference', require('./conference')
+	..use '/:course/grades', require('./grades')
 
 module.exports = app

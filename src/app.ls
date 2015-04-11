@@ -39,10 +39,6 @@ app
 	..locals.recaptchaPrivateKey = process.env.RECAPKEY
 	..locals.school = process.env.school
 	..locals.swig = swig
-	# errors
-	# ..locals.err = {
-	# 	"NOT FOUND": new Error
-	# }
 
 /* istanbul ignore next this is just for assurance the env vars are defined */
 do ->
@@ -69,6 +65,8 @@ do ->
 		console.log "redisport env undefined\ntrying default anyway..."
 	if !process.env.redisauth? and !process.env.REDISAUTH? and !argv.redisauth?
 		console.log "redisauth env undefined\ntrying null anyway..."
+	if process.env.debug? or process.env.DEBUG?
+		debug = require('debug')('app4')
 
 # create swig |markdown filter
 swig.setFilter "markdown", (input)->
@@ -90,6 +88,7 @@ swig.setFilter "timezone", (input)->
 /* istanbul ignore next */
 mongo = require("./mongoClient")(app,mongoose,\
 	(process.env.mongo||process.env.MONGOURL||argv.mongo||"mongodb://localhost/smrtboard"))
+require('./mongoose')(app,mongoose)
 
 # REDIS
 /* istanbul ignore next */
@@ -204,6 +203,11 @@ switch process.env.NODE_ENV
 
 # Attach base
 app
+	..all (req, res, next)->
+		console.log 'app.ls req.params', req.params
+app
+	..use '/login',require('./login')
+	..use '/logout',require('./logout')
 	..use '/',require('./dashboard')
 	..use '/',require('./course')
 	..use '/',require('./admin')

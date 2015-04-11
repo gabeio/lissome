@@ -19,6 +19,7 @@ Post = mongoose.models.Post
 app
 	..route "/:unique?" # query action(new|edit|delete|deleteall)
 	.all (req, res, next)->
+		console.log 'blog.ls req.params', req.params
 		if req.query.action in ["new","edit","delete","deleteall"]
 			next!
 		else

@@ -11,7 +11,7 @@ require! {
 # models = app.locals.models
 User = mongoose.models.User
 app
-	..route "/login"
+	..route "/"
 	.get (req, res, next)->
 		if res.locals.auth? or res.locals.userid? or res.locals.username?
 			res.redirect "/"
@@ -21,7 +21,7 @@ app
 		if req.body.username? and req.body.username isnt "" and req.body.password? and req.body.password isnt ""
 			err, user <- User.findOne {
 				"username":req.body.username.toLowerCase!
-				"school":app.locals.school
+				"school":process.env.school
 			}
 			/* istanbul ignore if */
 			if err

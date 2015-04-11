@@ -3,7 +3,7 @@ require! {
 }
 app = express.Router()
 app
-	..route "/logout"
+	..route "/"
 	.all (req, res, next)->
 		err <- req.session.destroy
 		res.redirect "/login"
