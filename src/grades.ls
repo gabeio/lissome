@@ -5,9 +5,9 @@ module.exports = (app)->
 		"winston"
 	}
 	ObjectId = mongoose.Types.ObjectId
-	Course = app.locals.models.Course
-	Assignment = app.locals.models.Assignment
-	Attempt = app.locals.models.Attempt
+	Course = mongoose.models.Course
+	Assignment = mongoose.models.Assignment
+	Attempt = mongoose.models.Attempt
 	app
 		..route "/:course/grades"
 		.all (req, res, next)->

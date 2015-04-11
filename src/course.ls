@@ -4,8 +4,8 @@ module.exports = (app)->
 		"winston"
 	}
 	ObjectId = mongoose.Types.ObjectId
-	Course = app.locals.models.Course
-	Post = app.locals.models.Post
+	Course = mongoose.models.Course
+	Post = mongoose.models.Post
 	app
 		..route "/:course/settings"
 		.all (req, res, next)->
