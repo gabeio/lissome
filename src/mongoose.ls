@@ -1,7 +1,6 @@
-module.exports = (app)->
+module.exports = (app,mongoose)->
 	require! {
 		"async"
-		"mongoose"
 		"winston"
 		"util"
 	}
