@@ -23,5 +23,5 @@ module.exports = (app,mongoose,mongohost)->
 			winston.info "mongo:err: " + err
 		winston.info "mongo:open"
 	# if app.locals.testing is true
-	# app.locals.mongo = mongo # save connection object in app level variables
+	app.locals.mongo = mongo # save connection object in app level variables
 	return mongo
