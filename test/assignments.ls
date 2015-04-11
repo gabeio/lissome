@@ -377,7 +377,7 @@ describe "Assignments" ->
 			]
 			done err
 		it "should not allow a faculty outside the course to see the grades view", (done)->
-			student
+			faculty
 				.get "/cps1234/grades"
 				.end (err, res)->
 					expect res.status .to.not.match /200/
