@@ -1014,29 +1014,50 @@ describe "Assignments" ->
 					expect res.text .to.have.string "You have no more attempts."
 					done err
 	describe "Other", (...)->
-		it "should give error for bad assignment length", (done)->
+		it "should give an error for bad assignment length", (done)->
 			student
 				.get "/cps1234/assignments/1234"
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
 					done err
-		it "should give error for bad attempt length", (done)->
+		it "should give an error for bad attempt length", (done)->
 			admin
 				.get "/cps1234/assignments/123456789012345678901234/1234"
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
 					done err
-		it "should give error for bad assignment", (done)->
+		it "should give an error for a bad assignment", (done)->
 			# this might succeed...fail in edge cases
 			admin
 				.get "/cps1234/assignments/123456789012345678901234"
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
 					done err
-		it "should give error for bad attempt", (done)->
+		it "should give an error for a bad attempt", (done)->
 			# this might succeed...fail in edge cases
 			admin
 				.get "/cps1234/assignments/123456789012345678901234/123456789012345678901234"
+				.end (err, res)->
+					expect res.status .to.match /^(3|4|5)/
+					done err
+		it "should give an error for attempting to post with different action", (done)->
+			admin
+				.post "/cps1234/assignments?action=anything"
+				.send {}
+				.end (err, res)->
+					expect res.status .to.match /^(3|4|5)/
+					done err
+		it "should give an error for attempting to put with different action", (done)->
+			admin
+				.put "/cps1234/assignments?hmo=put&action=anything"
+				.send {}
+				.end (err, res)->
+					expect res.status .to.match /^(3|4|5)/
+					done err
+		it "should give an error for attempting to delete with different action", (done)->
+			admin
+				.delete "/cps1234/assignments?action=anything"
+				.send {}
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
 					done err
