@@ -123,8 +123,11 @@ module.exports = (app)->
 							winston.error "assign findOne conf", err
 							next new Error "INTERNAL"
 						else
-							res.locals.attempts = result
-							done!
+							if result?
+								res.locals.attempts = result
+								done!
+							else
+								next new Error "NOT FOUND"
 					else if req.params.assign?
 						# find attempts
 						res.locals.attempts = {
@@ -143,8 +146,11 @@ module.exports = (app)->
 							winston.error "assign findOne conf", err
 							next new Error "INTERNAL"
 						else
-							res.locals.attempts = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
-							done!
+							if result?
+								res.locals.attempts = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
+								done!
+							else
+								next new Error "NOT FOUND"
 					else
 						done!
 			]

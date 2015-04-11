@@ -470,5 +470,3 @@ describe "Core" ->
 							cont err
 			]
 			done err
-	# describe "Dashboard", (...)->
-	# 	it.skip "should show any changes to any classes a student presently enrolled in"	

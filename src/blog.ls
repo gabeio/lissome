@@ -210,7 +210,7 @@ module.exports = (app)->
 										$lt: date1
 									}
 								} .populate "author" .exec
-								done err,posts
+								done err, posts
 							else
 								done! # it's not a date range
 						else
@@ -221,7 +221,7 @@ module.exports = (app)->
 							"course": ObjectId res.locals.course._id
 							"type": "blog"
 							"text": new RegExp res.locals.search, "i"
-						} .populate("author").exec#, (err, posts)->
+						} .populate("author").exec
 						done err, posts
 					(done)->
 						# search titles
@@ -229,7 +229,7 @@ module.exports = (app)->
 							"course": ObjectId res.locals.course._id
 							"type": "blog"
 							"title": new RegExp res.locals.search, "i"
-						} .populate("author").exec#, (err, posts)->
+						} .populate("author").exec
 						done err, posts
 					(done)->
 						# search tags
@@ -237,7 +237,7 @@ module.exports = (app)->
 							"course": ObjectId res.locals.course._id
 							"type": "blog"
 							"tags": res.locals.search
-						} .populate("author").exec#, (err, posts)->
+						} .populate("author").exec
 						done err, posts
 					(done)->
 						# search authorName
@@ -245,7 +245,7 @@ module.exports = (app)->
 							"course": ObjectId res.locals.course._id
 							"type": "blog"
 							"authorName": new RegExp res.locals.search, "i"
-						} .populate("author").exec#, (err, posts)->
+						} .populate("author").exec
 						done err, posts
 				]
 				posts = _.flatten _.without(posts,undefined), true

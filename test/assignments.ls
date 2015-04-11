@@ -52,6 +52,18 @@ describe "Assignments" ->
 				expect res.status .to.equal 302
 				done!
 	describe "Faculty+", (...)->
+		it "should allow a faculty to see the create assignment view", (done)->
+			faculty
+				.get "/cps1234/assignments?action=new"
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it "should allow an admin to see the create assignment view", (done)->
+			admin
+				.get "/cps1234/assignments?action=new"
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
 		it "should allow a faculty to create an assignment", (done)->
 			faculty
 				.post "/cps1234/assignments?action=new"
@@ -1002,14 +1014,29 @@ describe "Assignments" ->
 					expect res.text .to.have.string "You have no more attempts."
 					done err
 	describe "Other", (...)->
-		it "should not crash for bad assignment length", (done)->
-			# this may fail if that ends up being a real assignment _id
+		it "should give error for bad assignment length", (done)->
 			student
-				.post "/cps1234/assignment/12345678901234567890123?hmo=put&action=editthread"
-				.send {
-					aid: "12345678901234567890123"
-					text: "something"
-				}
+				.get "/cps1234/assignments/1234"
+				.end (err, res)->
+					expect res.status .to.match /^(3|4|5)/
+					done err
+		it "should give error for bad attempt length", (done)->
+			admin
+				.get "/cps1234/assignments/123456789012345678901234/1234"
+				.end (err, res)->
+					expect res.status .to.match /^(3|4|5)/
+					done err
+		it "should give error for bad assignment", (done)->
+			# this might succeed...fail in edge cases
+			admin
+				.get "/cps1234/assignments/123456789012345678901234"
+				.end (err, res)->
+					expect res.status .to.match /^(3|4|5)/
+					done err
+		it "should give error for bad attempt", (done)->
+			# this might succeed...fail in edge cases
+			admin
+				.get "/cps1234/assignments/123456789012345678901234/123456789012345678901234"
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
 					done err
