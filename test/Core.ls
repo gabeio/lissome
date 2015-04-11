@@ -27,7 +27,6 @@ describe "Core" ->
 		this.timeout 0
 		setTimeout done, 1000
 	describe "Index", (...)->
-		before
 		it "should respond to a GET", (done)->
 			agent
 				.get "/"
