@@ -12,10 +12,10 @@ assert = chai.assert
 should = chai.should!
 var app, agent, student, faculty, admin
 describe "Core" ->
-	before (done)->
-		app := require "../lib/app"
-		app.locals.mongo.on "open", ->
-			done!
+	# before (done)->
+	# 	app := require "../lib/app"
+	# 	app.locals.mongo.on "open", ->
+	# 		done!
 	before (done)-> # setup user agents
 		agent := req.agent app
 		student := req.agent app
