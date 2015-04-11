@@ -1,0 +1,61 @@
+{% extends '../base.html' %}
+
+{% block head %}
+	<title>Admin - {{ school }}</title>
+{% endblock %}
+
+{% block body %}
+	<div class="container-fluid">
+		{% include '../navbar.html' %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ol class="breadcrumb">
+					<li><a href="/">Dash</a></li>
+					<li class="active">Admin Dash</li>
+				</ol>
+			</div>
+		</div>
+		{%- if success %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				{% if success == 'yes' or success == 'true' %}
+				<div class="alert alert-success" role="alert">
+					{{ noun }} <strong>{{ verb }}</strong> successfully.
+				</div>
+				{% elif success == 'no' or success == 'false' %}
+				<div class="alert alert-danger" role="alert">
+					{{ noun }} <strong>not</strong> {{ verb }} successfully. Missing required field.
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		{% endif -%}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>Administration Dashboard</h3>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<h4>Course(s)</h4>
+				<ul class="list-group">
+					<a class="list-group-item" href="/admin/course/create">Create Course</a>
+					<a class="list-group-item" href="">Edit Course</a>
+					<a class="list-group-item" href="">Delete Course</a>
+				</ul>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<h4>User(s)</h4>
+				<ul class="list-group">
+					<a class="list-group-item" href="">Create User</a>
+					<a class="list-group-item" href="">Edit User</a>
+					<a class="list-group-item" href="">Delete User</a>
+				</ul>
+			</div>
+		</div>
+	</div>
+{% endblock %}

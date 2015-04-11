@@ -97,7 +97,7 @@ module.exports = (app)->
 									winston.error "conf find thread", err
 									next new Error "INTERNAL"
 								else
-									/* istanbul ignore else honestly don"t know how to hit the else */
+									/* istanbul ignore else honestly don't know how to hit the else */
 									if result?
 										res.locals.posts = result
 										done!

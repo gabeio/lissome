@@ -5,6 +5,7 @@ module.exports = (app)->
 	require("./login")(app)			# login
 	require("./logout")(app)		# logout
 	require("./dashboard")(app) 	# user dashboard
+	require("./admin")(app)			# admin area
 	require("./course")(app) 		# course index/edit
 	require("./assignments")(app) 	# hw/projects/other
 	require("./grades")(app)		# assignment/grades view (mostly for students)
