@@ -237,7 +237,6 @@ describe "Assignments" ->
 					faculty
 						.get "/test/getattempt/cps1234?title=title&text=facultyAttempt"
 						.end (err, res)->
-							console.log res.body
 							cont err, assign, res.body
 				(assign,attempt,cont)->
 					faculty

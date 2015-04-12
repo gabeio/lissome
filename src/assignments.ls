@@ -22,10 +22,10 @@ module.exports = (app)->
 		.all (req, res, next)->
 			# assign & attempt have to be mongo id"s
 			if req.params.assign? and req.params.assign.length isnt 24
-				console.log "Bad Assignment"
+				winston.info "Bad Assignment"
 				next new Error "Bad Assignment"
 			else if req.params.attempt? and req.params.attempt.length isnt 24
-				console.log "Bad Attempt"
+				winston.info "Bad Attempt"
 				next new Error "Bad Attempt"
 			else
 				res.locals.course = {

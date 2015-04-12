@@ -54,7 +54,6 @@ module.exports = (app)->
 					else
 						res.json result
 			| "getattempt"
-				console.log req.query
 				err, result <- Course.findOne {
 					"id": req.params.more
 					"school": app.locals.school
