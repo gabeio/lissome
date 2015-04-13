@@ -21,7 +21,6 @@ services:
     - mongodb
     - redis-server
 before_script:
-    - sleep 15
     - gulp build
     - mongo lissome --eval 'db.addUser("travis", "test");'
     - node lib/setupschool.js
