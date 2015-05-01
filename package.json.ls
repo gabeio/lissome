@@ -24,7 +24,7 @@ dependencies:
 	"bcrypt": '~0.8.1'
 	"body-parser": '~1.12.0'
 	"compression": '~1.4.0'
-	"connect-redis": '~2.2.0'
+	"connect-redis": '~2.3.0'
 	"cookie-parser": '~1.3.4'
 	"csurf": '~1.8.0'
 	"express": '~4.12.2'
@@ -34,7 +34,7 @@ dependencies:
 	"helmet": '~0.9.0'
 	"hiredis": '~0.3.0'
 	"LiveScript": '~1.3.1'
-	"lodash": '~3.7.0'
+	"lodash": '~3.8.0'
 	"markdown-it": '~4.2.0'
 	"method-override": '~2.3.1'
 	"moment": '~2.10.0'
@@ -50,7 +50,7 @@ dependencies:
 	"yargs": '~3.8.0'
 
 devDependencies:
-	"chai": '~2.2.0'
+	"chai": '~2.3.0'
 	"coveralls": '~2.11.2'
 	"del": '~1.1.1'
 	"gulp": '~3.8.10'
