@@ -61,4 +61,4 @@ devDependencies:
 	"mocha": '~2.2.1'
 	"nodemon": '~1.3.1'
 	"response-time": '~2.3.0'
-	"supertest": '~0.15.0'
+	"supertest": '~1.0.1'
