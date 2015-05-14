@@ -33,7 +33,7 @@ dependencies:
 	"fs-extra": '~0.18.0'
 	"helmet": '~0.9.0'
 	"hiredis": '~0.3.0'
-	"LiveScript": '~1.3.1'
+	"livescript": '~1.4.0'
 	"lodash": '~3.8.0'
 	"markdown-it": '~4.2.0'
 	"method-override": '~2.3.1'
