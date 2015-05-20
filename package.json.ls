@@ -20,12 +20,12 @@ repository:
 	url: 'git://github.com/gabeio/lissome.git'
 
 dependencies:
-	"async": '~0.9.0'
+	"async": '~0.9.2'
 	"bcrypt": '~0.8.3'
 	"body-parser": '~1.12.4'
 	"compression": '~1.4.4'
 	"connect-redis": '~2.3.0'
-	"cookie-parser": '~1.3.4'
+	"cookie-parser": '~1.3.5'
 	"csurf": '~1.8.2'
 	"express": '~4.12.4'
 	"express-partial-response": '~0.3.4'
@@ -34,7 +34,7 @@ dependencies:
 	"helmet": '~0.9.0'
 	"hiredis": '~0.3.0'
 	"livescript": '~1.4.0'
-	"lodash": '~3.8.0'
+	"lodash": '~3.9.1'
 	"markdown-it": '~4.2.1'
 	"method-override": '~2.3.3'
 	"moment": '~2.10.3'
@@ -48,7 +48,7 @@ dependencies:
 	"swig": '~1.4.2'
 	"uuid": '~2.0.1'
 	"winston": '~1.0.0'
-	"yargs": '~3.9.0'
+	"yargs": '~3.9.1'
 
 devDependencies:
 	"chai": '~2.3.0'
