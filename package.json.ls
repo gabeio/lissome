@@ -53,7 +53,7 @@ dependencies:
 devDependencies:
 	"chai": '~2.3.0'
 	"coveralls": '~2.11.2'
-	"del": '~1.1.1'
+	"del": '~1.2.0'
 	"gulp": '~3.8.11'
 	"gulp-coveralls": '~0.1.4'
 	"gulp-livescript": '~2.3.0'
