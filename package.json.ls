@@ -32,7 +32,7 @@ dependencies:
 	"express-session": '~1.11.2'
 	"fs-extra": '~0.18.3'
 	"helmet": '~0.9.0'
-	"hiredis": '~0.3.0'
+	"hiredis": '~0.4.0'
 	"livescript": '~1.4.0'
 	"lodash": '~3.9.1'
 	"markdown-it": '~4.2.1'
