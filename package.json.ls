@@ -34,7 +34,7 @@ dependencies:
 	"helmet": '~0.9.0'
 	"hiredis": '~0.4.0'
 	"livescript": '~1.4.0'
-	"lodash": '~3.9.1'
+	"lodash": '~3.9.3'
 	"markdown-it": '~4.2.1'
 	"method-override": '~2.3.3'
 	"moment": '~2.10.3'
