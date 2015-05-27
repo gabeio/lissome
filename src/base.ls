@@ -4,6 +4,7 @@ module.exports = (app)->
 	require("./auth")(app)			# authy checking middleware
 	require("./login")(app)			# login
 	require("./logout")(app)		# logout
+	require("./versions")(app)		# package versions list
 	require("./dashboard")(app) 	# user dashboard
 	require("./course")(app) 		# course index/edit
 	require("./assignments")(app) 	# hw/projects/other
