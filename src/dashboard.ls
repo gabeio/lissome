@@ -16,7 +16,7 @@ module.exports = (app)->
 			res.locals.on = "dash"
 			<- async.parallel [
 				(done)->
-					if res.locals.auth is 3
+					if res.locals.auth >= 3
 						err, courses <- Course.find {
 							"school":app.locals.school
 						}
