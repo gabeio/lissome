@@ -28,16 +28,16 @@ module.exports = (app)->
 					"id": req.params.course
 					"school": app.locals.school
 				}
-				switch res.locals.auth
-				| 3
+				/* istanbul ignore else there should be no way to hit that. */
+				if res.locals.auth >= 3
 					next!
-				| 2
+				else if res.locals.auth is 2
 					res.locals.course.faculty = ObjectId res.locals.uid
 					next!
-				| 1
+				else if res.locals.auth is 1
 					res.locals.course.students = ObjectId res.locals.uid
 					next!
-				| _
+				else
 					next new Error "UNAUTHORIZED"
 		.all (req, res, next)->
 			err, result <- Course.findOne res.locals.course
