@@ -41,6 +41,7 @@ dependencies:
 	"moment-timezone": '~0.3.1'
 	"mongoose": '~4.0.3'
 	"multer": '~0.1.8'
+	"read-package-json": '~2.0.0'
 	"redis": '~0.12.1'
 	"request": '~2.55.0'
 	"response-time": '~2.3.1'
