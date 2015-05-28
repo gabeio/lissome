@@ -20,7 +20,17 @@ module.exports = (app)->
 		.all (req, res, next)->
 			if req.query.action? then req.query.action = req.query.action.toLowerCase!
 			if req.query.type? then req.query.type = req.query.type.toLowerCase!
-			next!
+			# res.objectType = {}
+			if req.query.type is "course"
+				res.objectType = Course
+			else if req.query.type is "user"
+				res.objectType = User
+			else
+				res.status 400
+				res.send "Unknown Type Given"
+			# only continue if we have a type
+			if res.objectType?
+				next!
 		.get (req, res, next)->
 			switch req.query.action
 			| "create"
