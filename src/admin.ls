@@ -1,9 +1,12 @@
 module.exports = (app)->
 	require! {
+		"async"
+		"bcrypt"
 		"lodash"
 		"mongoose"
 		"winston"
 	}
+	ObjectId = mongoose.Types.ObjectId
 	_ = lodash
 	Course = mongoose.models.Course
 	User = mongoose.models.User
@@ -20,17 +23,7 @@ module.exports = (app)->
 		.all (req, res, next)->
 			if req.query.action? then req.query.action = req.query.action.toLowerCase!
 			if req.query.type? then req.query.type = req.query.type.toLowerCase!
-			# res.objectType = {}
-			if req.query.type is "course"
-				res.objectType = Course
-			else if req.query.type is "user"
-				res.objectType = User
-			else
-				res.status 400
-				res.send "Unknown Type Given"
-			# only continue if we have a type
-			if res.objectType?
-				next!
+			next!
 		.get (req, res, next)->
 			switch req.query.action
 			| "create"
@@ -43,7 +36,50 @@ module.exports = (app)->
 				res.render "admin/default"
 		.post (req, res, next)->
 			if req.query.action is "create"
-				...
+				if req.query.type is "user"
+					err <- async.waterfall [
+						(cont)->
+							if req.body.type > 3 or req.body.type < 1
+								cont "Invalid User Auth Level"
+								# res.status 400
+								# res.send "Invalid User Auth Level"
+							else
+								cont null
+						# add more checks here
+						(cont)->
+							# hash password
+							err, result <- bcrypt.hash "password", 10
+							cont err, result
+						(hash,cont)->
+							err,result <- User.find { "username":res.body.username, "type":res.body.type, "school":process.env.school }
+							if err
+								winston.error err
+								cont err
+							else
+								cont null, hash, result
+						(hash,result,cont)->
+							if result? and result.length > 0
+								cont "Student Exists"
+							else
+								student = new User {
+									id: res.body.id
+									username: res.body.username
+									firstName: res.body.firstName
+									lastName: res.body.lastName
+									email: res.body.email
+									hash: hash
+									school: process.env.school
+									type: 1
+									creator: ObjectId res.locals.uid
+								}
+								err, student <- student.save
+								cont err
+					]
+					if err
+						res.status = 400
+						res.send err
+					else
+						res.send "OK"
 			else
 				next!
 		.put (req, res, next)->
