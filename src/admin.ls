@@ -51,7 +51,7 @@ module.exports = (app)->
 							err, result <- bcrypt.hash "password", 10
 							cont err, result
 						(hash,cont)->
-							err,result <- User.find { "username":res.body.username, "type":res.body.type, "school":process.env.school }
+							err,result <- User.find { "username":req.body.username, "type":req.body.type, "school":process.env.school }
 							if err
 								winston.error err
 								cont err
@@ -62,11 +62,11 @@ module.exports = (app)->
 								cont "Student Exists"
 							else
 								student = new User {
-									id: res.body.id
-									username: res.body.username
-									firstName: res.body.firstName
-									lastName: res.body.lastName
-									email: res.body.email
+									id: req.body.id
+									username: req.body.username
+									firstName: req.body.firstName
+									lastName: req.body.lastName
+									email: req.body.email
 									hash: hash
 									school: process.env.school
 									type: 1
