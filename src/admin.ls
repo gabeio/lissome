@@ -80,6 +80,8 @@ module.exports = (app)->
 						res.send err
 					else
 						res.send "OK"
+				else
+					next!
 			else
 				next!
 		.put (req, res, next)->
