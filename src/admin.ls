@@ -1,8 +1,8 @@
 module.exports = (app)->
 	models = app.locals.models
 	app
+		# {object} should be an ObjectId
 		..route "/admin/:object?"
-		# object should be an ObjectId
 		# ?action is what the user wishes to do:
 		#   create, edit, delete, etc.
 		# ?type is what model we are working with
@@ -24,20 +24,17 @@ module.exports = (app)->
 			| _
 				res.render "admin/default"
 		.post (req, res, next)->
-			switch req.query.action
-			| "create"
+			if req.query.action is "create"
 				...
-			| _
+			else
 				next!
 		.put (req, res, next)->
-			switch req.query.action
-			| "edit"
+			if req.query.action is "edit"
 				...
-			| _
+			else
 				next!
 		.delete (req, res, next)->
-			switch req.query.action
-			| "delete"
+			if req.query.action is "delete"
 				...
-			| _
+			else
 				next!
