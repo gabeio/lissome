@@ -1,11 +1,18 @@
 module.exports = (app)->
-	models = app.locals.models
+	require! {
+		"lodash"
+		"mongoose"
+		"winston"
+	}
+	_ = lodash
+	Course = mongoose.models.Course
+	User = mongoose.models.User
 	app
-		# {object} should be an ObjectId
+		# @param {ObjectId} [object] should be an ObjectId
 		..route "/admin/:object?"
-		# ?action is what the user wishes to do:
+		# @query {string} [action] is what the user wishes to do:
 		#   create, edit, delete, etc.
-		# ?type is what model we are working with
+		# @query {string} [type] is what model we are working with
 		#   course, user, etc.
 		.all (req, res, next)->
 			res.locals.needs = 3
