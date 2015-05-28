@@ -19,6 +19,7 @@ module.exports = (app)->
 			app.locals.authorize req, res, next
 		.all (req, res, next)->
 			if req.query.action? then req.query.action = req.query.action.toLowerCase!
+			if req.query.type? then req.query.type = req.query.type.toLowerCase!
 			next!
 		.get (req, res, next)->
 			switch req.query.action
