@@ -42,7 +42,6 @@ dependencies:
 	"mongoose": '~4.0.3'
 	"multer": '~0.1.8'
 	"redis": '~0.12.1'
-	"request": '~2.55.0'
 	"response-time": '~2.3.1'
 	"serve-static": '~1.9.3'
 	"swig": '~1.4.2'
