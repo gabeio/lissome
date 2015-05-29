@@ -80,6 +80,36 @@ module.exports = (app)->
 						res.send err
 					else
 						res.send "OK"
+				else if req.query.type is "course"
+					err <- async.waterfall [
+						# (cont)->
+						# add checks
+						(cont)->
+							err,result <- Course.find { "id":req.body.id, "school":process.env.school }
+							if err
+								winston.error err
+								cont err
+							else
+								cont null, result
+						(result,cont)->
+							if result? and result.length > 0
+								cont "Course Exists"
+							else
+								course = new Course {
+									id: req.body.id
+									title: req.body.title
+									faculty: []
+									students: []
+									school: process.env.school
+								}
+								err, course <- course.save
+								cont err
+					]
+					if err
+						res.status 400
+						res.send err
+					else
+						res.send "OK"
 				else
 					next!
 			else
