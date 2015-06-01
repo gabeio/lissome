@@ -69,7 +69,7 @@ module.exports = (app)->
 									email: req.body.email
 									hash: hash
 									school: process.env.school
-									type: 1
+									type: req.body.type
 									creator: ObjectId res.locals.uid
 								}
 								err, student <- student.save
