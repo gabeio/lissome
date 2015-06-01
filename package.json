@@ -18,7 +18,7 @@
     "url": "git://github.com/gabeio/lissome.git"
   },
   "dependencies": {
-    "async": "~1.0.0",
+    "async": "~1.1.0",
     "bcrypt": "~0.8.3",
     "body-parser": "~1.12.4",
     "compression": "~1.4.4",
