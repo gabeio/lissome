@@ -3,7 +3,8 @@ require! {
 	"async"
 	"body-parser"
 	"compression" # nginx gzip
-	"connect-redis"
+	"connect-mongo"
+	# "connect-redis"
 	"express" # router
 	"express-partial-response"
 	"express-session" # session
@@ -22,7 +23,8 @@ require! {
 	"yargs" # --var val
 }
 var timezone
-RedisStore = connect-redis express-session
+MongoStore = connect-mongo express-session
+# RedisStore = connect-redis express-session
 argv = yargs.argv
 app = module.exports = express!
 fs = fsExtra
@@ -93,11 +95,11 @@ mongo = require("./mongoClient")(app,mongoose,\
 
 # REDIS
 /* istanbul ignore next */
-redis = require("./redisClient")(app,\
-	(process.env.redishost||process.env.REDISHOST||argv.redishost||"localhost"),\
-	(process.env.redisport||process.env.REDISPORT||argv.redisport||6379),\
-	(process.env.redisauth||process.env.REDISAUTH||argv.redisauth||void),\
-	(process.env.redisdb||process.env.REDISDB||argv.redisdb||0))
+# redis = require("./redisClient")(app,\
+# 	(process.env.redishost||process.env.REDISHOST||argv.redishost||"localhost"),\
+# 	(process.env.redisport||process.env.REDISPORT||argv.redisport||6379),\
+# 	(process.env.redisauth||process.env.REDISAUTH||argv.redisauth||void),\
+# 	(process.env.redisdb||process.env.REDISDB||argv.redisdb||0))
 
 # App Settings/Middleware
 app
@@ -135,11 +137,12 @@ app
 			path: "/"
 			+httpOnly
 		}
-		store: new RedisStore {
-			ttl: 604800
-			prefix: app.locals.school
-			client: redis
-		}
+		store: new MongoStore({ mongooseConnection: mongoose.connection })
+		# new RedisStore {
+		# 	ttl: 604800
+		# 	prefix: app.locals.school
+		# 	client: redis
+		# }
 	}
 	# hide what we are made of
 	.disable "x-powered-by"
@@ -226,11 +229,11 @@ process.on "SIGTERM", ->
 	console.log "\nShutting down from SIGTERM"
 	server.close!
 	mongoose.disconnect!
-	redis.end!
+	# redis.end!
 	process.exit 0
 process.on "SIGINT", ->
 	console.log "\nGracefully shutting down from SIGINT (Ctrl-C)"
 	server.close!
 	mongoose.disconnect!
-	redis.end!
+	# redis.end!
 	process.exit 0
