@@ -229,11 +229,11 @@ process.on "SIGTERM", ->
 	console.log "\nShutting down from SIGTERM"
 	server.close!
 	mongoose.disconnect!
-	redis.end!
+	# redis.end!
 	process.exit 0
 process.on "SIGINT", ->
 	console.log "\nGracefully shutting down from SIGINT (Ctrl-C)"
 	server.close!
 	mongoose.disconnect!
-	redis.end!
+	# redis.end!
 	process.exit 0
