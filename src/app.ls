@@ -3,7 +3,8 @@ require! {
 	"async"
 	"body-parser"
 	"compression" # nginx gzip
-	"connect-redis"
+	"connect-mongo"
+	# "connect-redis"
 	"express" # router
 	"express-partial-response"
 	"express-session" # session
@@ -22,7 +23,8 @@ require! {
 	"yargs" # --var val
 }
 var timezone
-RedisStore = connect-redis express-session
+MongoStore = connect-mongo express-session
+# RedisStore = connect-redis express-session
 argv = yargs.argv
 app = module.exports = express!
 fs = fsExtra
@@ -135,11 +137,12 @@ app
 			path: "/"
 			+httpOnly
 		}
-		store: new RedisStore {
-			ttl: 604800
-			prefix: app.locals.school
-			client: redis
-		}
+		store: new MongoStore({ mongooseConnection: mongoose.connection })
+		# new RedisStore {
+		# 	ttl: 604800
+		# 	prefix: app.locals.school
+		# 	client: redis
+		# }
 	}
 	# hide what we are made of
 	.disable "x-powered-by"
