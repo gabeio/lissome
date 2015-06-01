@@ -52,11 +52,7 @@ module.exports = (app)->
 							cont err, result
 						(hash,cont)->
 							err,result <- User.find { "username":req.body.username, "type":req.body.type, "school":process.env.school }
-							if err
-								winston.error err
-								cont err
-							else
-								cont null, hash, result
+							cont err, hash, result
 						(hash,result,cont)->
 							if result? and result.length > 0
 								cont "Student Exists"
@@ -76,6 +72,7 @@ module.exports = (app)->
 								cont err
 					]
 					if err
+						winston.error err
 						res.status = 400
 						res.send err
 					else
@@ -86,11 +83,7 @@ module.exports = (app)->
 						# add checks
 						(cont)->
 							err,result <- Course.find { "id":req.body.id, "school":process.env.school }
-							if err
-								winston.error err
-								cont err
-							else
-								cont null, result
+							cont err, result
 						(result,cont)->
 							if result? and result.length > 0
 								cont "Course Exists"
@@ -106,6 +99,7 @@ module.exports = (app)->
 								cont err
 					]
 					if err
+						winston.error err
 						res.status 400
 						res.send err
 					else
