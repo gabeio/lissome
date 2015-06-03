@@ -7,7 +7,6 @@ require! {
 	"express" # router
 	"express-partial-response"
 	"express-session" # session
-	"fs-extra" # only if needed
 	"helmet"
 	"markdown-it"
 	"method-override"
@@ -25,7 +24,6 @@ var timezone
 RedisStore = connect-redis express-session
 argv = yargs.argv
 app = module.exports = express!
-fs = fsExtra
 md = new markdown-it {
 	html: false
 	xhtml: false
