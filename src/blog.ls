@@ -13,7 +13,7 @@ module.exports = (app)->
 	Course = mongoose.models.Course
 	Post = mongoose.models.Post
 	app
-		..route "/:course/blog/:unique?" # query action(new|edit|delete|deleteall)
+		..route "/:route(c|C|course)?/:course/blog/:unique?" # query action(new|edit|delete|deleteall)
 		.all (req, res, next)->
 			if req.query.action in ["new","edit","delete","deleteall"]
 				next!
@@ -159,7 +159,7 @@ module.exports = (app)->
 				]
 			else
 				next new Error "bad blog delete"
-		..route "/:course/blog/:unique?" # query action(search)
+		..route "/:route(c|C|course)?/:course/blog/:unique?" # query action(search)
 		.all (req, res, next)->
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
