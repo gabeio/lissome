@@ -98,6 +98,7 @@ module.exports = (app)->
 									faculty: []
 									students: []
 									school: process.env.school
+									author: ObjectId res.locals.uid
 								}
 								err, course <- course.save
 								cont err
