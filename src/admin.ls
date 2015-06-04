@@ -71,7 +71,6 @@ module.exports = (app)->
 								cont err
 					]
 					if err
-						console.error err
 						res.status 400
 						res.send err
 					else

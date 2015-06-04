@@ -102,6 +102,7 @@ describe "Admin" ->
 			admin
 				.post "/admin/?action=create&type=user"
 				.send {
+					"id":"300"
 					"username":"adminCreatedOutsider"
 					"type":"0"
 					"password":"password"
@@ -117,6 +118,7 @@ describe "Admin" ->
 			admin
 				.post "/admin/?action=create&type=user"
 				.send {
+					"id":"301"
 					"username":"adminCreatedSuperAdmin"
 					"type":"4"
 					"password":"password"
