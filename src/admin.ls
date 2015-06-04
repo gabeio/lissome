@@ -213,6 +213,12 @@ module.exports = (app)->
 							err, course <- course.save
 							cont err
 					]
+					if err
+						winston.error err
+						res.status 400
+						res.send err
+					else
+						res.send "OK"
 				else if req.query.type is "addstudent"
 					err <- async.waterfall [
 						(cont)->
