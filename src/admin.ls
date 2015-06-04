@@ -110,7 +110,78 @@ module.exports = (app)->
 				next!
 		.put (req, res, next)->
 			if req.query.action is "edit"
-				...
+				if req.query.type is "user"
+					...
+					# edit username
+					# edit 
+				else if req.query.type is "course"
+					...
+				else if req.query.type is "addstudent"
+					err <- async.waterfall [
+						(cont)->
+							err,result <- Course.findOne { "id":req.body.id, "school":process.env.school }
+							cont err, result
+						(course,cont)->
+							course.students.push ObjectId req.body.student
+							err <- course.save
+							cont err
+					]
+					if err
+						winston.error err
+						res.status 400
+						res.send err
+					else
+						res.send "OK"
+				else if req.query.type is "addfaculty"
+					err <- async.waterfall [
+						(cont)->
+							err,result <- Course.findOne { "id":req.body.id, "school":process.env.school }
+							cont err, result
+						(course,cont)->
+							course.faculty.push ObjectId req.body.faculty
+							err <- course.save
+							cont err
+					]
+					if err
+						winston.error err
+						res.status 400
+						res.send err
+					else
+						res.send "OK"
+				else if req.query.type is "rmstudent"
+					err <- async.waterfall [
+						(cont)->
+							err,result <- Course.findOne { "id":req.body.id, "school":process.env.school }
+							cont err, result
+						(course,cont)->
+							course.students.pop course.students.indexOf req.body.student
+							err <- course.save
+							cont err
+					]
+					if err
+						winston.error err
+						res.status 400
+						res.send err
+					else
+						res.send "OK"
+				else if req.query.type is "rmfaculty"
+					err <- async.waterfall [
+						(cont)->
+							err,result <- Course.findOne { "id":req.body.id, "school":process.env.school }
+							cont err, result
+						(course,cont)->
+							course.faculty.pop course.faculty.indexOf req.body.faculty
+							err <- course.save
+							cont err
+					]
+					if err
+						winston.error err
+						res.status 400
+						res.send err
+					else
+						res.send "OK"
+				else
+					next!
 			else
 				next!
 		.delete (req, res, next)->
