@@ -14,7 +14,7 @@ module.exports = (app)->
 	Assignment = mongoose.models.Assignment
 	Attempt = mongoose.models.Attempt
 	app
-		..route "/:course/assignments/:assign?/:attempt?" # query :: action(new|edit|delete|grade)
+		..route "/:route(c|C|course)?/:course/assignments/:assign?/:attempt?" # query :: action(new|edit|delete|grade)
 		.all (req, res, next)->
 			# to be in course auth needs to be min = 1
 			res.locals.needs = 1

@@ -12,7 +12,7 @@ module.exports = (app)->
 	Thread = mongoose.models.Thread
 	Post = mongoose.models.Post
 	app
-		..route "/:course/conference/:thread?/:post?" # query :: action(new|edit|delete)
+		..route "/:route(c|C|course)?/:course/conference/:thread?/:post?" # query :: action(new|edit|delete)
 		.all (req, res, next)->
 			# auth level check
 			res.locals.needs = 1
