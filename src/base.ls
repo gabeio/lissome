@@ -6,9 +6,9 @@ module.exports = (app)->
 	require("./logout")(app)		# logout
 	require("./dashboard")(app) 	# user dashboard
 	require("./admin")(app)			# admin area
-	require("./course")(app) 		# course index/edit
-	require("./assignments")(app) 	# hw/projects/other
-	require("./grades")(app)		# assignment/grades view (mostly for students)
-	require("./conference")(app) 	# community chat/forum(single level/maybe 2 level)
-	require("./blog")(app) 			# updates/rants/etc
+	require("./course/index")(app) 		# course index/edit
+	require("./course/assignments")(app) 	# hw/projects/other
+	require("./course/grades")(app)		# assignment/grades view (mostly for students)
+	require("./course/conference")(app) 	# community chat/forum(single level/maybe 2 level)
+	require("./course/blog")(app) 			# updates/rants/etc
 	require("./error")(app) 		# after all catch errors
