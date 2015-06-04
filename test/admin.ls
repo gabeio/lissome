@@ -49,7 +49,7 @@ describe "Admin" ->
 			.end (err, res)->
 				expect res.status .to.equal 302
 				done!
-	describe "Admin", (...)->
+	describe "Create User", (...)->
 		it "should allow an admin to create a student", (done)->
 			admin
 				.post "/admin/?action=create&type=user"
@@ -178,6 +178,23 @@ describe "Admin" ->
 				.end (err, res)->
 					expect res.status .to.equal 400
 					done err
+		it "should not allow an admin to create a user with a tiny password", (done)->
+			admin
+				.post "/admin/?action=create&type=user"
+				.send {
+					"id":"6495"
+					"username":"adminCreatedTinyPass"
+					"type":"2"
+					"password":"pass"
+					"firstName":"John"
+					"middleName":"Middle"
+					"lastName":"ThisIsLastName"
+					"email":"mydiffemail@email.com"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 400
+					done err
+	describe "Delete user", (...)->
 		it "should allow an admin to delete a student", (done)->
 			admin
 				.post "/admin/?hmo=DELETE&action=delete&type=user"
@@ -204,6 +221,27 @@ describe "Admin" ->
 				.send {
 					"username":"adminCreatedAdmin"
 					"type":"3"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+	describe "Create Course", (...)->
+		it "should allow an admin to create a student", (done)->
+			admin
+				.post "/admin/?action=create&type=course"
+				.send {
+					"id":"1234"
+					"title":"SomethingAwesome"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+	describe "Delete Course", (...)->
+		it "should allow an admin to delete a course", (done)->
+			admin
+				.post "/admin/?hmo=DELETE&action=delete&type=course"
+				.send {
+					"id":"1234"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 200
