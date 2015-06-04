@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends '../base.html' %}
 
 {% block head %}
 	<title>{{ course.title }} - {{ school }}</title>
@@ -6,7 +6,7 @@
 
 {% block body %}
 	<div class="container-fluid">
-		{% include 'navbar.html' %}
+		{% include '../navbar.html' %}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<ol class="breadcrumb">
@@ -19,10 +19,10 @@
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<h3>{{ course.title }}</h3>
 				<ul class="list-group">
-					<a class="list-group-item" href="/{{ course.id }}/blog">Blog</a>
-					<a class="list-group-item" href="/{{ course.id }}/conference">Conference</a>
-					<a class="list-group-item" href="/{{ course.id }}/assignments">Assignments</a>
-					<a class="list-group-item" href="/{{ course.id }}/grades">Grades</a>
+					<a class="list-group-item" href="/c/{{ course.id }}/blog">Blog</a>
+					<a class="list-group-item" href="/c/{{ course.id }}/conference">Conference</a>
+					<a class="list-group-item" href="/c/{{ course.id }}/assignments">Assignments</a>
+					<a class="list-group-item" href="/c/{{ course.id }}/grades">Grades</a>
 				</ul>
 			</div>
 		</div>

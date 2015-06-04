@@ -1,4 +1,4 @@
-{% extends '../base.html' %}
+{% extends '../../base.html' %}
 
 {% block head %}
 	<title>Blog - {{ course.title }} - {{ school }}</title>
@@ -6,13 +6,13 @@
 
 {% block body %}
 	<div class="container-fluid">
-		{% include '../navbar.html' %}
+		{% include '../../navbar.html' %}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<ol class="breadcrumb">
 					<li><a href="/">Dash</a></li>
-					<li><a href="/{{ course.id }}">{{ course.title }}</a></li>
-					<li><a href="/{{ course.id }}/blog">Blog</a></li>
+					<li><a href="/c/{{ course.id }}">{{ course.title }}</a></li>
+					<li><a href="/c/{{ course.id }}/blog">Blog</a></li>
 					<li class="active">Creating Blog Post</li>
 				</ol>
 			</div>

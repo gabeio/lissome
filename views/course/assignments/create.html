@@ -1,4 +1,4 @@
-{% extends '../base.html' %}
+{% extends '../../base.html' %}
 
 {% block head %}
 	<title>Assignments - {{ course.title }} - {{ school }}</title>
@@ -6,13 +6,13 @@
 
 {% block body %}
 	<div class="container-fluid">
-		{% include '../navbar.html' %}
+		{% include '../../navbar.html' %}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<ol class="breadcrumb">
 					<li><a href="/">Dash</a></li>
-					<li><a href="/{{ course.id }}">{{ course.title }}</a></li>
-					<li><a href="/{{ course.id }}/assignments">Assignments</a></li>
+					<li><a href="/c/{{ course.id }}">{{ course.title }}</a></li>
+					<li><a href="/c/{{ course.id }}/assignments">Assignments</a></li>
 					<li class="active">Creating Assignment</li>
 				</ol>
 			</div>
@@ -49,7 +49,7 @@
 				</div>
 				{% if 2 <= auth %}
 				<div class="pull-right" style="padding-top: 8px;">
-					<a href="/{{ course.id }}/assignments?action=new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
+					<a href="/c/{{ course.id }}/assignments?action=new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
 				</div>
 				{% endif %}{# auth #}
 			</div>
