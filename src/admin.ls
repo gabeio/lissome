@@ -15,7 +15,7 @@ module.exports = (app)->
 		..route "/admin/:object?"
 		# @query {string} [action] is what the user wishes to do:
 		#   create, edit, delete, etc.
-		# @query {string} [type] is what model we are working with
+		# @query {string} [type] is the model we are working with
 		#   course, user, etc.
 		.all (req, res, next)->
 			res.locals.needs = 3
@@ -68,6 +68,7 @@ module.exports = (app)->
 									type: req.body.type
 									creator: ObjectId res.locals.uid
 								}
+								if req.body.middleName? then student.middleName = req.body.middleName
 								err, student <- student.save
 								cont err
 					]
