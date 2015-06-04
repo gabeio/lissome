@@ -53,13 +53,13 @@ describe "Course" ->
 		# before (done)->
 		it "should allow a student to access their classes", (done)->
 			student
-				.get "/cps1234"
+				.get "/c/cps1234"
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
 		it "should not allow a student should NOT be able to access any other classes", (done)->
 			student
-				.get "/cps4601" # student is not in cps4601
+				.get "/c/cps4601" # student is not in cps4601
 				.end (err, res)->
 					expect res.status .to.not.equal 200
 					done err
@@ -90,26 +90,26 @@ describe "Course" ->
 							cont err
 				(cont)->
 					admin
-						.get "/test/deleteposts/cps4601"
+						.get "/test/deleteposts/c/cps4601"
 						.end (err, res)->
 							cont err
 			]
 			done err
 		it "should be visible to student in the course", (done)->
 			student
-				.get "/cps1234/blog"
+				.get "/c/cps1234/blog"
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
 		it "should not be visible to student not in the course", (done)->
 			student
-				.get "/cps4601/blog"
+				.get "/c/cps4601/blog"
 				.end (err, res)->
 					expect res.status .to.not.equal 200
 					done err
 		it "should not allow students in the course to create new posts", (done)->
 			student
-				.post "/cps1234/blog?action=new"
+				.post "/c/cps1234/blog?action=new"
 				.send {
 					"title":"title"
 					"text":"student"
@@ -121,7 +121,7 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					student
-						.post "/cps4601/blog?action=new"
+						.post "/c/cps4601/blog?action=new"
 						.send {
 							"title":"title"
 							"text":"student"
@@ -131,19 +131,19 @@ describe "Course" ->
 							cont err
 				(cont)->
 					student
-						.get "/cps4601/blog?action=new"
+						.get "/c/cps4601/blog?action=new"
 						.end (err, res)->
 							expect res.status .to.not.equal 200
 							cont err
 				(cont)->
 					student
-						.get "/cps4601/blog?action=edit"
+						.get "/c/cps4601/blog?action=edit"
 						.end (err, res)->
 							expect res.status .to.not.equal 200
 							cont err
 				(cont)->
 					student
-						.get "/cps4601/blog?action=delete"
+						.get "/c/cps4601/blog?action=delete"
 						.end (err, res)->
 							expect res.status .to.not.equal 200
 							cont err
@@ -153,7 +153,7 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					faculty
-						.post "/cps1234/blog?action=new"
+						.post "/c/cps1234/blog?action=new"
 						.send {
 							"title":"title"
 							"text":"faculty"
@@ -163,7 +163,7 @@ describe "Course" ->
 							cont err
 				(cont)->
 					faculty
-						.get "/cps1234/blog?action=new"
+						.get "/c/cps1234/blog?action=new"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
@@ -173,7 +173,7 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					faculty
-						.post "/cps4601/blog?action=new"
+						.post "/c/cps4601/blog?action=new"
 						.send {
 							"title":"title"
 							"text":"bad faculty"
@@ -183,7 +183,7 @@ describe "Course" ->
 							cont err
 				(cont)->
 					faculty
-						.get "/cps4601/blog?action=new"
+						.get "/c/cps4601/blog?action=new"
 						.end (err, res)->
 							expect res.status .to.not.equal 200
 							cont err
@@ -193,7 +193,7 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					admin
-						.post "/cps4601/blog?action=new"
+						.post "/c/cps4601/blog?action=new"
 						.send {
 							"title":"title"
 							"text":"admin"
@@ -203,13 +203,13 @@ describe "Course" ->
 							cont err
 				(cont)->
 					admin
-						.get "/cps4601/blog?action=new"
+						.get "/c/cps4601/blog?action=new"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
 				(cont)->
 					admin
-						.post "/cps1234/blog?action=new"
+						.post "/c/cps1234/blog?action=new"
 						.send {
 							"title":"title"
 							"text":"admin"
@@ -219,7 +219,7 @@ describe "Course" ->
 							cont err
 				(cont)->
 					admin
-						.get "/cps1234/blog?action=new"
+						.get "/c/cps1234/blog?action=new"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
@@ -227,13 +227,13 @@ describe "Course" ->
 			done err
 		it "should not crash when searching with date", (done)->
 			admin
-				.get "/cps1234/blog?search=Jan+1+2014...Jan+1+2015"
+				.get "/c/cps1234/blog?search=Jan+1+2014...Jan+1+2015"
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
 		it "should not crash with garbage search date ranges", (done)->
 			admin
-				.get "/cps1234/blog?search=Jan+100+2014...Jan+200+2015"
+				.get "/c/cps1234/blog?search=Jan+100+2014...Jan+200+2015"
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
@@ -241,25 +241,25 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					student
-						.get "/cps1234/blog?search=title"
+						.get "/c/cps1234/blog?search=title"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
 				(cont)->
 					faculty
-						.get "/cps1234/blog?search=title"
+						.get "/c/cps1234/blog?search=title"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
 				(cont)->
 					admin
-						.get "/cps1234/blog?search=title"
+						.get "/c/cps1234/blog?search=title"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
 				(cont)->
 					admin
-						.get "/cps1234/blog/title?action=search"
+						.get "/c/cps1234/blog/title?action=search"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
@@ -269,25 +269,25 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					student
-						.get "/cps1234/blog?search=not+a+title"
+						.get "/c/cps1234/blog?search=not+a+title"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
 				(cont)->
 					faculty
-						.get "/cps1234/blog?search=not+a+title"
+						.get "/c/cps1234/blog?search=not+a+title"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
 				(cont)->
 					admin
-						.get "/cps1234/blog?search=not+a+title"
+						.get "/c/cps1234/blog?search=not+a+title"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
 				(cont)->
 					admin
-						.get "/cps1234/blog/not a title?action=search"
+						.get "/c/cps1234/blog/not a title?action=search"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
@@ -316,7 +316,7 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					student
-						.post "/cps1234/blog/title?action=edit&hmo=PUT"
+						.post "/c/cps1234/blog/title?action=edit&hmo=PUT"
 						.send {
 							"pid":blogpid.0
 							"title":"anything"
@@ -327,7 +327,7 @@ describe "Course" ->
 							cont err
 				(cont)->
 					student
-						.post "/cps1234/blog/title?action=delete&hmo=DELETE"
+						.post "/c/cps1234/blog/title?action=delete&hmo=DELETE"
 						.send {
 							"pid":blogpid.0
 						}
@@ -336,7 +336,7 @@ describe "Course" ->
 							cont err
 				(cont)->
 					student
-						.post "/cps1234/blog/title?action=deleteall&hmo=DELETE"
+						.post "/c/cps1234/blog/title?action=deleteall&hmo=DELETE"
 						.send {
 							"pid":blogpid.0
 						}
@@ -349,7 +349,7 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					student
-						.post "/cps4601/blog/title?action=edit&hmo=PUT"
+						.post "/c/cps4601/blog/title?action=edit&hmo=PUT"
 						.send {
 							"pid":blogpid.1
 							"title":"anything"
@@ -360,7 +360,7 @@ describe "Course" ->
 							cont err
 				(cont)->
 					student
-						.post "/cps4601/blog/title?action=delete&hmo=DELETE"
+						.post "/c/cps4601/blog/title?action=delete&hmo=DELETE"
 						.send {
 							"pid":blogpid.1
 						}
@@ -369,7 +369,7 @@ describe "Course" ->
 							cont err
 				(cont)->
 					student
-						.post "/cps4601/blog/title?action=deleteall&hmo=DELETE"
+						.post "/c/cps4601/blog/title?action=deleteall&hmo=DELETE"
 						.send {
 							"pid":blogpid.1
 						}
@@ -380,13 +380,13 @@ describe "Course" ->
 			done err
 		it "should allow faculty in the course to see the blog's edit view ", (done)->
 			faculty
-				.get "/cps1234/blog/title?action=edit"
+				.get "/c/cps1234/blog/title?action=edit"
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
 		it "should allow faculty in the course to see the blog's delete view", (done)->
 			faculty
-				.get "/cps1234/blog/title?action=delete"
+				.get "/c/cps1234/blog/title?action=delete"
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
@@ -394,34 +394,34 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					faculty
-						.post "/cps1234/blog/title?action=edit&hmo=PUT"
+						.post "/c/cps1234/blog/title?action=edit&hmo=PUT"
 						.send {
 							"pid":blogpid.0
 							"title":"anything"
 							"text":"faculty edit"
 						}
 						.end (err, res)->
-							expect res.header.location .to.equal "/cps1234/blog/title?action=edit&success=yes"
+							expect res.header.location .to.equal "/c/cps1234/blog/title?action=edit&success=yes"
 							expect res.status .to.equal 302
 							cont err
 				(cont)->
 					faculty
-						.post "/cps1234/blog/title?action=delete&hmo=DELETE"
+						.post "/c/cps1234/blog/title?action=delete&hmo=DELETE"
 						.send {
 							"pid":blogpid.0
 						}
 						.end (err, res)->
-							expect res.header.location .to.equal "/cps1234/blog?action=delete&success=yes"
+							expect res.header.location .to.equal "/c/cps1234/blog?action=delete&success=yes"
 							expect res.status .to.equal 302
 							cont err
 				(cont)->
 					faculty
-						.post "/cps1234/blog/title?action=delete&hmo=DELETE"
+						.post "/c/cps1234/blog/title?action=delete&hmo=DELETE"
 						.send {
 							"pid":blogpid.0
 						}
 						.end (err, res)->
-							expect res.header.location .to.equal "/cps1234/blog?action=delete&success=yes"
+							expect res.header.location .to.equal "/c/cps1234/blog?action=delete&success=yes"
 							expect res.status .to.equal 302
 							cont err
 			]
@@ -430,46 +430,46 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					faculty
-						.get "/cps4601/blog/title?action=edit"
+						.get "/c/cps4601/blog/title?action=edit"
 						.end (err, res)->
 							expect res.status .to.not.equal 200
 							cont err
 				(cont)->
 					faculty
-						.get "/cps4601/blog/title?action=delete"
+						.get "/c/cps4601/blog/title?action=delete"
 						.end (err, res)->
 							expect res.status .to.not.equal 200
 							cont err
 				(cont)->
 					faculty
-						.post "/cps4601/blog/title?action=edit&hmo=PUT"
+						.post "/c/cps4601/blog/title?action=edit&hmo=PUT"
 						.send {
 							"pid":blogpid.0
 							"title":"anything"
 							"text":"anything"
 						}
 						.end (err, res)->
-							expect res.header.location .to.not.equal "/cps4601/blog/title?action=edit&success=yes"
+							expect res.header.location .to.not.equal "/c/cps4601/blog/title?action=edit&success=yes"
 							expect res.status .to.not.equal 302
 							cont err
 				(cont)->
 					faculty
-						.post "/cps4601/blog/title?action=delete&hmo=DELETE"
+						.post "/c/cps4601/blog/title?action=delete&hmo=DELETE"
 						.send {
 							"pid":blogpid.0
 						}
 						.end (err, res)->
-							expect res.header.location .to.not.equal "/cps1234/blog?action=delete&success=yes"
+							expect res.header.location .to.not.equal "/c/cps1234/blog?action=delete&success=yes"
 							expect res.status .to.not.equal 302
 							cont err
 				(cont)->
 					faculty
-						.post "/cps4601/blog/title?action=deleteall&hmo=DELETE"
+						.post "/c/cps4601/blog/title?action=deleteall&hmo=DELETE"
 						.send {
 							"pid":blogpid.0
 						}
 						.end (err, res)->
-							expect res.header.location .to.not.equal "/cps1234/blog?action=delete&success=yes"
+							expect res.header.location .to.not.equal "/c/cps1234/blog?action=delete&success=yes"
 							expect res.status .to.not.equal 302
 							cont err
 			]
@@ -478,7 +478,7 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					admin
-						.post "/cps1234/blog?action=new"
+						.post "/c/cps1234/blog?action=new"
 						.send {
 							"pid":blogpid.0
 							"title":"title"
@@ -489,7 +489,7 @@ describe "Course" ->
 							cont err
 				(cont)->
 					admin
-						.post "/cps1234/blog?action=new"
+						.post "/c/cps1234/blog?action=new"
 						.send {
 							"pid":blogpid.0
 							"title":""
@@ -500,7 +500,7 @@ describe "Course" ->
 							cont err
 				(cont)->
 					admin
-						.post "/cps1234/blog/title?action=edit&hmo=PUT"
+						.post "/c/cps1234/blog/title?action=edit&hmo=PUT"
 						.send {
 							"pid":blogpid.0
 							"title":"title"
@@ -511,7 +511,7 @@ describe "Course" ->
 							cont err
 				(cont)->
 					admin
-						.post "/cps1234/blog/title?action=edit&hmo=PUT"
+						.post "/c/cps1234/blog/title?action=edit&hmo=PUT"
 						.send {
 							"pid":blogpid.0
 							"title":""
@@ -526,13 +526,13 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					admin
-						.get "/cps1234/blog/title?action=edit"
+						.get "/c/cps1234/blog/title?action=edit"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
 				(cont)->
 					admin
-						.get "/cps4601/blog/title?action=edit"
+						.get "/c/cps4601/blog/title?action=edit"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
@@ -542,13 +542,13 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					admin
-						.get "/cps1234/blog/title?action=delete"
+						.get "/c/cps1234/blog/title?action=delete"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
 				(cont)->
 					admin
-						.get "/cps4601/blog/title?action=delete"
+						.get "/c/cps4601/blog/title?action=delete"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
@@ -558,34 +558,34 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					admin
-						.post "/cps1234/blog/title?action=edit&hmo=PUT"
+						.post "/c/cps1234/blog/title?action=edit&hmo=PUT"
 						.send {
 							"pid":blogpid.0
 							"title":"anything"
 							"text":"anything"
 						}
 						.end (err, res)->
-							expect res.header.location .to.equal "/cps1234/blog/title?action=edit&success=yes"
+							expect res.header.location .to.equal "/c/cps1234/blog/title?action=edit&success=yes"
 							expect res.status .to.equal 302
 							cont err
 				(cont)->
 					admin
-						.post "/cps1234/blog/title?action=delete&hmo=DELETE"
+						.post "/c/cps1234/blog/title?action=delete&hmo=DELETE"
 						.send {
 							"pid":blogpid.0
 						}
 						.end (err, res)->
-							expect res.header.location .to.equal "/cps1234/blog?action=delete&success=yes"
+							expect res.header.location .to.equal "/c/cps1234/blog?action=delete&success=yes"
 							expect res.status .to.equal 302
 							cont err
 				(cont)->
 					admin
-						.post "/cps1234/blog/title?action=deleteall&hmo=DELETE"
+						.post "/c/cps1234/blog/title?action=deleteall&hmo=DELETE"
 						.send {
 							"pid":blogpid.0
 						}
 						.end (err, res)->
-							expect res.header.location .to.equal "/cps1234/blog?action=delete&success=yes"
+							expect res.header.location .to.equal "/c/cps1234/blog?action=delete&success=yes"
 							expect res.status .to.equal 302
 							cont err
 			]
@@ -594,7 +594,7 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					admin
-						.post "/cps1234/blog/title?action=delete&hmo=PUT"
+						.post "/c/cps1234/blog/title?action=delete&hmo=PUT"
 						.send {
 							"pid":blogpid.0
 							"title":"anything"
@@ -605,7 +605,7 @@ describe "Course" ->
 							cont err
 				(cont)->
 					admin
-						.post "/cps1234/blog/title?action=edit&hmo=DELETE"
+						.post "/c/cps1234/blog/title?action=edit&hmo=DELETE"
 						.send {
 							"pid":blogpid.0
 						}
@@ -614,7 +614,7 @@ describe "Course" ->
 							cont err
 				(cont)->
 					admin
-						.post "/cps1234/blog/title?action=new&hmo=DELETE"
+						.post "/c/cps1234/blog/title?action=new&hmo=DELETE"
 						.send {
 							"pid":blogpid.0
 						}
@@ -627,32 +627,32 @@ describe "Course" ->
 			err <- async.parallel [
 				(cont)->
 					admin
-						.get "/cps1234/blog?action=edit"
+						.get "/c/cps1234/blog?action=edit"
 						.end (err, res)->
 							# console.log res
-							expect res.header.location .to.equal "/cps1234/blog"
+							expect res.header.location .to.equal "/c/cps1234/blog"
 							expect res.status .to.equal 302
 							cont err
 				(cont)->
 					admin
-						.get "/cps1234/blog?action=delete"
+						.get "/c/cps1234/blog?action=delete"
 						.end (err, res)->
-							expect res.header.location .to.equal "/cps1234/blog"
+							expect res.header.location .to.equal "/c/cps1234/blog"
 							expect res.status .to.equal 302
 							cont err
 				(cont)->
 					faculty
-						.get "/cps1234/blog/que?action=edit"
+						.get "/c/cps1234/blog/que?action=edit"
 						.end (err, res)->
 							# console.log res
-							expect res.header.location .to.equal "/cps1234/blog"
+							expect res.header.location .to.equal "/c/cps1234/blog"
 							expect res.status .to.equal 302
 							cont err
 				(cont)->
 					faculty
-						.get "/cps1234/blog/que?action=delete"
+						.get "/c/cps1234/blog/que?action=delete"
 						.end (err, res)->
-							expect res.header.location .to.equal "/cps1234/blog"
+							expect res.header.location .to.equal "/c/cps1234/blog"
 							expect res.status .to.equal 302
 							cont err
 			]

@@ -33,7 +33,7 @@
 		</div>
 		{% endif %}
 		<div class="row">
-			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="/{{ course.id }}/blog/{{ posts[0].title }}?action=deleteall&hmo=DELETE" enctype="multipart/form-data">
+			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="/c/{{ course.id }}/blog/{{ posts[0].title }}?action=deleteall&hmo=DELETE" enctype="multipart/form-data">
 				<div class="pull-left">
 					<h3>Delete Post{% if posts.length > 1 %}s{% endif %}</h3>
 				</div>
