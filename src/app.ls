@@ -128,6 +128,7 @@ app
 	.use express-session {
 		secret: process.env.cookie
 		-resave
+		+rolling
 		+saveUninitialized
 		cookie: {
 			path: "/"
