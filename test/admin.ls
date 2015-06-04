@@ -18,6 +18,10 @@ outside = req.agent app
 student = req.agent app
 faculty = req.agent app
 admin = req.agent app
+ObjectId = mongoose.Types.ObjectId
+_ = lodash
+Course = mongoose.models.Course
+User = mongoose.models.User
 describe "Admin" ->
 	before (done)->
 		student
@@ -309,20 +313,42 @@ describe "Admin" ->
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
-		it.skip "should allow an admin to remove a student to a course", (done)->
+		it "should allow an admin to remove a student to a course w/id", (done)->
 			admin
-				.post "/admin/?hmo=PUT&action=edit&type=course"
+				.post "/admin/?hmo=PUT&action=edit&type=rmstudent"
 				.send {
-
+					"course":"1234"
+					"id":"1001"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
-		it.skip "should allow an admin to remove a faculty to a course", (done)->
+		it "should allow an admin to remove a student to a course w/username", (done)->
 			admin
-				.post "/admin/?hmo=PUT&action=edit&type=course"
+				.post "/admin/?hmo=PUT&action=edit&type=rmstudent"
 				.send {
-
+					"course":"1234"
+					"username":"adminCreatedStudent"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it "should allow an admin to remove a faculty to a course w/id", (done)->
+			admin
+				.post "/admin/?hmo=PUT&action=edit&type=rmfaculty"
+				.send {
+					"course":"1234"
+					"id":"1002"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it "should allow an admin to remove a faculty to a course w/username", (done)->
+			admin
+				.post "/admin/?hmo=PUT&action=edit&type=rmfaculty"
+				.send {
+					"course":"1234"
+					"username":"adminCreatedFaculty"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 200
