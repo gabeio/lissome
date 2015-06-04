@@ -146,9 +146,9 @@ module.exports = (app)->
 				else if req.query.type is "addstudent"
 					err <- async.waterfall [
 						(cont)->
-							err,result <- Course.findOne { "id":req.body.id, "school":process.env.school }
+							err, result <- Course.findOne { "id":req.body.id, "school":process.env.school }
 							cont err, result
-						(course,cont)->
+						(course, cont)->
 							course.students.push ObjectId req.body.student
 							err <- course.save
 							cont err
@@ -162,9 +162,9 @@ module.exports = (app)->
 				else if req.query.type is "addfaculty"
 					err <- async.waterfall [
 						(cont)->
-							err,result <- Course.findOne { "id":req.body.id, "school":process.env.school }
+							err, result <- Course.findOne { "id":req.body.id, "school":process.env.school }
 							cont err, result
-						(course,cont)->
+						(course, cont)->
 							course.faculty.push ObjectId req.body.faculty
 							err <- course.save
 							cont err
@@ -178,9 +178,9 @@ module.exports = (app)->
 				else if req.query.type is "rmstudent"
 					err <- async.waterfall [
 						(cont)->
-							err,result <- Course.findOne { "id":req.body.id, "school":process.env.school }
+							err, result <- Course.findOne { "id":req.body.id, "school":process.env.school }
 							cont err, result
-						(course,cont)->
+						(course, cont)->
 							course.students.pop course.students.indexOf req.body.student
 							err <- course.save
 							cont err
@@ -194,9 +194,9 @@ module.exports = (app)->
 				else if req.query.type is "rmfaculty"
 					err <- async.waterfall [
 						(cont)->
-							err,result <- Course.findOne { "id":req.body.id, "school":process.env.school }
+							err, result <- Course.findOne { "id":req.body.id, "school":process.env.school }
 							cont err, result
-						(course,cont)->
+						(course, cont)->
 							course.faculty.pop course.faculty.indexOf req.body.faculty
 							err <- course.save
 							cont err
@@ -216,7 +216,7 @@ module.exports = (app)->
 				if req.query.type is "user"
 					err <- async.waterfall [
 						(cont)->
-							err,result <- User.findOneAndRemove { "username":req.body.username, "school":process.env.school }
+							err, result <- User.findOneAndRemove { "username":req.body.username, "school":process.env.school }
 							if err
 								winston.error err
 								cont err
@@ -228,7 +228,7 @@ module.exports = (app)->
 				else if req.query.type is "course"
 					err <- async.waterfall [
 						(cont)->
-							err,result <- Course.findOneAndRemove { "id":req.body.id, "school":process.env.school }
+							err, result <- Course.findOneAndRemove { "id":req.body.id, "school":process.env.school }
 							if err
 								winston.error err
 								cont err
