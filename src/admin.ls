@@ -210,10 +210,8 @@ module.exports = (app)->
 				next!
 		.delete (req, res, next)->
 			if req.query.action is "delete"
-				if req.query.type is "rmstudent"
+				if req.query.type is "user"
 					err <- async.waterfall [
-						# (cont)->
-						# add checks
 						(cont)->
 							err,result <- User.findOneAndRemove { "username":req.body.username, "school":process.env.school }
 							if err
@@ -224,10 +222,8 @@ module.exports = (app)->
 					]
 					res.status 200
 					res.send "ok"
-				else if req.query.type is "rmfaculty"
+				else if req.query.type is "course"
 					err <- async.waterfall [
-						# (cont)->
-						# add checks
 						(cont)->
 							err,result <- Course.findOneAndRemove { "id":req.body.id, "school":process.env.school }
 							if err
