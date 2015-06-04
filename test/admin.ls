@@ -60,7 +60,7 @@ describe "Admin" ->
 					"firstName":"John"
 					"middleName":"Middle"
 					"lastName":"ThisIsLastName"
-					"email":"myemail@email.com"
+					"email":"myemail1@email.com"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 200
@@ -75,7 +75,7 @@ describe "Admin" ->
 					"firstName":"John"
 					"middleName":"Middle"
 					"lastName":"ThisIsLastName"
-					"email":"myemail@email.com"
+					"email":"myemail2@email.com"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 200
@@ -90,7 +90,7 @@ describe "Admin" ->
 					"firstName":"John"
 					"middleName":"Middle"
 					"lastName":"ThisIsLastName"
-					"email":"myemail@email.com"
+					"email":"myemail3@email.com"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 200
