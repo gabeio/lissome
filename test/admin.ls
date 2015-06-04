@@ -54,6 +54,7 @@ describe "Admin" ->
 			admin
 				.post "/admin/?action=create&type=user"
 				.send {
+					"id":"134159"
 					"username":"adminCreatedStudent"
 					"type":"1"
 					"password":"password"
@@ -69,6 +70,7 @@ describe "Admin" ->
 			admin
 				.post "/admin/?action=create&type=user"
 				.send {
+					"id":"311459"
 					"username":"adminCreatedFaculty"
 					"type":"2"
 					"password":"password"
@@ -84,6 +86,7 @@ describe "Admin" ->
 			admin
 				.post "/admin/?action=create&type=user"
 				.send {
+					"id":"314199"
 					"username":"adminCreatedAdmin"
 					"type":"3"
 					"password":"password"
