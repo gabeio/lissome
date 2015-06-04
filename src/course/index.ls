@@ -7,7 +7,7 @@ module.exports = (app)->
 	Course = mongoose.models.Course
 	Post = mongoose.models.Post
 	app
-		..route "/:route(c|C|course)?/:course/settings"
+		..route "/:route(c|C|course)/:course/settings"
 		.all (req, res, next)->
 			res.locals.needs = 2 # maybe 3
 			app.locals.authorize req, res, next
@@ -37,7 +37,7 @@ module.exports = (app)->
 				res.send result
 			*/
 
-		..route "/:route(c|C|course)?/:course/:index(index|dash|dashboard)?"
+		..route "/:route(c|C|course)/:course/:index(index|dash|dashboard)?"
 		.all (req, res, next)->
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
@@ -70,4 +70,4 @@ module.exports = (app)->
 					res.locals.course = result
 					next!
 		.get (req, res, next)->
-			res.render "course"
+			res.render "course/index"

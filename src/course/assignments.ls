@@ -14,7 +14,7 @@ module.exports = (app)->
 	Assignment = mongoose.models.Assignment
 	Attempt = mongoose.models.Attempt
 	app
-		..route "/:route(c|C|course)?/:course/assignments/:assign?/:attempt?" # query :: action(new|edit|delete|grade)
+		..route "/:route(c|C|course)/:course/assignments/:assign?/:attempt?" # query :: action(new|edit|delete|grade)
 		.all (req, res, next)->
 			# to be in course auth needs to be min = 1
 			res.locals.needs = 1
@@ -162,15 +162,15 @@ module.exports = (app)->
 				(done)->
 					if !req.query.action? && !req.params.assign?
 						# show list of assignments by title
-						res.render "assignments/default"
+						res.render "course/assignments/default"
 				(done)->
 					if !req.query.action? && req.params.assign?
 						if req.params.attempt?
 							# show attempt
-							res.render "assignments/attempt"
+							res.render "course/assignments/attempt"
 						else
 							# show assignment details & attempt field
-							res.render "assignments/view"
+							res.render "course/assignments/view"
 				(done)->
 					if req.query.action?
 						next! # don't assume action, continue trying
@@ -180,7 +180,7 @@ module.exports = (app)->
 			switch req.query.action
 			| "attempt"
 				if !req.body.aid? or !req.body.text?
-					res.status 400 .render "assignments/view" { body: req.body, success:"error", error:"Attempt Text Can <b>not</b> be blank." }
+					res.status 400 .render "course/assignments/view" { body: req.body, success:"error", error:"Attempt Text Can <b>not</b> be blank." }
 				else
 					<- async.parallel [
 						(done)->
@@ -248,12 +248,12 @@ module.exports = (app)->
 								winston.error err
 								cont "Mongo Error"
 							else
-								res.redirect "/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
+								res.redirect "/c/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
 								cont null
 					]
 					if err and err isnt "redirect" and err isnt "Mongo Error"
 						res.status 400
-						res.render "assignments/view" { body:req.body, success:"error", error:err }
+						res.render "course/assignments/view" { body:req.body, success:"error", error:err }
 					else if err is "Mongo Error"
 						next new Error "Mongo Error"
 			| _
@@ -266,11 +266,11 @@ module.exports = (app)->
 		.get (req, res, next)->
 			switch req.query.action
 			| "new"
-				res.render "assignments/create"
+				res.render "course/assignments/create"
 			| "edit"
-				res.render "assignments/edit"
+				res.render "course/assignments/edit"
 			| "delete"
-				res.render "assignments/del"
+				res.render "course/assignments/del"
 			| _
 				next! # don't assume action
 		.put (req, res, next)->
@@ -278,7 +278,7 @@ module.exports = (app)->
 			switch req.query.action
 			| "edit"
 				if !req.body.aid? || !req.body.title? || !req.body.text? || !req.body.tries? # double check require fields exist
-					res.status 400 .render "assignments/edit" { body: req.body, success:"no", action:"edit" }
+					res.status 400 .render "course/assignments/edit" { body: req.body, success:"no", action:"edit" }
 				else
 					res.locals.start = new Date(req.body.opendate+" "+req.body.opentime)
 					res.locals.end = new Date(req.body.closedate+" "+req.body.closetime)
@@ -309,7 +309,7 @@ module.exports = (app)->
 						winston.error err
 						next new Error "Mongo Error"
 					else
-						res.redirect "/#{req.params.course}/assignments/#{assign._id.toString!}"
+						res.redirect "/c/#{req.params.course}/assignments/#{assign._id.toString!}"
 			| _
 				next! # don't assume action
 		.post (req, res, next)->
@@ -317,7 +317,7 @@ module.exports = (app)->
 			switch req.query.action
 			| "new"
 				if !req.body.title? || !req.body.text? || !req.body.tries? # double check require fields exist
-					res.status 400 .render "assignments/create" { body: req.body, success:"no", action:"edit"}
+					res.status 400 .render "course/assignments/create" { body: req.body, success:"no", action:"edit"}
 				else
 					res.locals.start = new Date req.body.opendate+" "+req.body.opentime
 					res.locals.end = new Date req.body.closedate+" "+req.body.closetime
@@ -344,10 +344,11 @@ module.exports = (app)->
 						winston.error err
 						next new Error "INTERNAL"
 					else
-						res.status 302 .redirect "/#{req.params.course}/assignments/" + assignment._id
+						res.status 302
+						res.redirect "/c/#{req.params.course}/assignments/" + assignment._id
 			| "grade"
 				if !req.body.points? || !req.body.aid? # double check require fields exist
-					res.status 400 .render "assignments/create" { assignments: [req.body], -success, action:"edit" }
+					res.status 400 .render "course/assignments/create" { assignments: [req.body], -success, action:"edit" }
 				else
 					err, attempt <- Attempt.findOneAndUpdate {
 						"course": ObjectId res.locals.course._id
@@ -360,7 +361,8 @@ module.exports = (app)->
 						winston.error err
 						next new Error "INTERNAL"
 					else
-						res.status 302 .redirect "/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
+						res.status 302
+						res.redirect "/c/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
 			| _
 				next! # don't assume action
 		.delete (req, res, next)->
@@ -385,6 +387,7 @@ module.exports = (app)->
 						winston.error err
 						next new Error "INTERNAL"
 					else
-						res.status 302 .redirect "/#{req.params.course}/assignments"
+						res.status 302
+						res.redirect "/c/#{req.params.course}/assignments"
 			| _
 				next! # don't assume action

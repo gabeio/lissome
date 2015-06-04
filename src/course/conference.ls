@@ -12,7 +12,7 @@ module.exports = (app)->
 	Thread = mongoose.models.Thread
 	Post = mongoose.models.Post
 	app
-		..route "/:route(c|C|course)?/:course/conference/:thread?/:post?" # query :: action(new|edit|delete)
+		..route "/:route(c|C|course)/:course/conference/:thread?/:post?" # query :: action(new|edit|delete)
 		.all (req, res, next)->
 			# auth level check
 			res.locals.needs = 1
@@ -132,28 +132,28 @@ module.exports = (app)->
 		.get (req, res, next)->
 			switch req.query.action
 			| "newthread"
-				res.render "conference/create"
+				res.render "course/conference/create"
 			| "editthread"
-				res.render "conference/editthread"
+				res.render "course/conference/editthread"
 			| "editpost"
-				res.render "conference/editpost"
+				res.render "course/conference/editpost"
 			| "deletethread"
-				res.render "conference/delthread"
+				res.render "course/conference/delthread"
 			| "deletepost"
-				res.render "conference/delpost"
+				res.render "course/conference/delpost"
 			| "report"
 				...
 			| _
-				res.render "conference/view"
+				res.render "course/conference/view"
 		.post (req, res, next)->
 			switch req.query.action
 			| "newpost"
 				if !req.body.thread? or req.body.thread is "" or !req.body.text? or req.body.text is ""
-					res.status 400 .render "conference/view" { body: req.body, success:"no", noun:"Post", verb:"created" }
+					res.status 400 .render "course/conference/view" { body: req.body, success:"no", noun:"Post", verb:"created" }
 				else
 					async.parallel [
 						(done)->
-							res.status 302 .redirect "/#{req.params.course}/conference/#{req.params.thread}"
+							res.status 302 .redirect "/c/#{req.params.course}/conference/#{req.params.thread}"
 						(done)->
 							if res.locals.thread?
 								# console.log "created post!"
@@ -174,7 +174,7 @@ module.exports = (app)->
 					]
 			| "newthread"
 				if !req.body.title? or req.body.title is "" or !req.body.text? or req.body.text is ""
-					res.status 400 .render "conference/create" { body: req.body, success:"no", noun:"Thread", verb:"created" }
+					res.status 400 .render "course/conference/create" { body: req.body, success:"no", noun:"Thread", verb:"created" }
 				else
 					thread = {
 						title: req.body.title
@@ -202,7 +202,7 @@ module.exports = (app)->
 							winston.error "post",err
 							next new Error "Mongo Error"
 						else
-							res.status 302 .redirect "/#{req.params.course}/conference/#{thread._id}"
+							res.status 302 .redirect "/c/#{req.params.course}/conference/#{thread._id}"
 			| "report"
 				...
 			| _
@@ -211,7 +211,7 @@ module.exports = (app)->
 			switch req.query.action
 			| "editpost"
 				if !req.body.thread? or !req.body.post? or !req.body.text? or req.body.text is ""
-					res.status 400 .render "conference/editpost" { body: req.body, success:"no", noun:"Post", verb:"edited" }
+					res.status 400 .render "course/conference/editpost" { body: req.body, success:"no", noun:"Post", verb:"edited" }
 				else
 					err, post <- Post.findOneAndUpdate {
 						_id: req.body.post
@@ -225,10 +225,10 @@ module.exports = (app)->
 						winston.error "conf" err
 						next new Error "INTERNAL"
 					else
-						res.status 302 .redirect "/#{req.params.course}/conference/#{req.params.thread}"
+						res.status 302 .redirect "/c/#{req.params.course}/conference/#{req.params.thread}"
 			| "editthread"
 				if !req.body.thread? or !req.body.title? or req.body.title is ""
-					res.status 400 .render "conference/editthread" { body: req.body, success:"no", noun:"Thread", verb:"edited" }
+					res.status 400 .render "course/conference/editthread" { body: req.body, success:"no", noun:"Thread", verb:"edited" }
 				else
 					err, post <- Thread.findOneAndUpdate {
 						_id: req.body.thread
@@ -241,14 +241,14 @@ module.exports = (app)->
 						winston.error "conf" err
 						next new Error "INTERNAL"
 					else
-						res.status 302 .redirect "/#{req.params.course}/conference/#{req.params.thread}"
+						res.status 302 .redirect "/c/#{req.params.course}/conference/#{req.params.thread}"
 			| _
 				next new Error "Action Error"
 		.delete (req, res, next)->
 			switch req.query.action
 			| "deletepost"
 				if !req.body.thread? or !req.body.post?
-					res.status 400 .render "conference/delpost" { body: req.body, success:"no", noun:"Post", verb:"deleted" }
+					res.status 400 .render "course/conference/delpost" { body: req.body, success:"no", noun:"Post", verb:"deleted" }
 				else
 					thePost =  {
 						_id: ObjectId req.body.post
@@ -261,12 +261,12 @@ module.exports = (app)->
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error err
-						res.status 400 .render "conference/delpost" { body: req.body, success:"no", noun:"Post", verb:"deleted" }
+						res.status 400 .render "course/conference/delpost" { body: req.body, success:"no", noun:"Post", verb:"deleted" }
 					else
-						res.status 302 .redirect "/#{req.params.course}/conference/#{req.params.thread}"
+						res.status 302 .redirect "/c/#{req.params.course}/conference/#{req.params.thread}"
 			| "deletethread"
 				if !req.body.thread?
-					res.status 400 .render "conference/delthread" { body: req.body, success:"no", noun:"Thread", verb:"deleted" }
+					res.status 400 .render "course/conference/delthread" { body: req.body, success:"no", noun:"Thread", verb:"deleted" }
 				else
 					theThread = {
 						_id: ObjectId req.body.thread
@@ -280,7 +280,7 @@ module.exports = (app)->
 					if err?
 						# error might be that they are not author
 						winston.error err
-						res.status 400 .render "conference/delthread" { body: req.body, success:"no", noun:"Thread", verb:"deleted" }
+						res.status 400 .render "course/conference/delthread" { body: req.body, success:"no", noun:"Thread", verb:"deleted" }
 					else
 						err, post <- Post.remove {
 							thread: ObjectId req.body.thread
@@ -288,8 +288,8 @@ module.exports = (app)->
 						/* istanbul ignore if should only really occur if db crashes */
 						if err?
 							winston.error err
-							res.status 400 .render "conference/delthread" { body: req.body, success:"no", noun:"Posts", verb:"deleted" }
+							res.status 400 .render "course/conference/delthread" { body: req.body, success:"no", noun:"Posts", verb:"deleted" }
 						else
-							res.status 302 .redirect "/#{req.params.course}/conference"
+							res.status 302 .redirect "/c/#{req.params.course}/conference"
 			| _
 				next new Error "Action Error"

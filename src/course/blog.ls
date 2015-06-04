@@ -13,7 +13,7 @@ module.exports = (app)->
 	Course = mongoose.models.Course
 	Post = mongoose.models.Post
 	app
-		..route "/:route(c|C|course)?/:course/blog/:unique?" # query action(new|edit|delete|deleteall)
+		..route "/:route(c|C|course)/:course/blog/:unique?" # query action(new|edit|delete|deleteall)
 		.all (req, res, next)->
 			if req.query.action in ["new","edit","delete","deleteall"]
 				next!
@@ -52,7 +52,7 @@ module.exports = (app)->
 		.get (req, res, next)->
 			if req.query.action in ["edit","delete"]
 				if !req.params.unique?
-					res.redirect "/#{res.locals.course.id}/blog"
+					res.redirect "/c/#{res.locals.course.id}/blog"
 				else
 					err, result <- Post.find {
 						"course": ObjectId res.locals.course._id
@@ -60,7 +60,7 @@ module.exports = (app)->
 						"title": req.params.unique
 					} .populate "author" .exec
 					if result.length is 0
-						res.redirect "/#{res.locals.course.id}/blog"
+						res.redirect "/c/#{res.locals.course.id}/blog"
 					else
 						/* istanbul ignore next else because it's hard to test for */
 						res.locals.posts = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
@@ -71,20 +71,20 @@ module.exports = (app)->
 			res.locals.blog = true
 			switch req.query.action
 			| "new"
-				res.render "blog/create", { on:"newblog", success:req.query.success, action:"created" }
+				res.render "course/blog/create", { on:"newblog", success:req.query.success, action:"created" }
 			| "edit"
-				res.render "blog/edit", { on:"editblog", success:req.query.success, action:"updated" }
+				res.render "course/blog/edit", { on:"editblog", success:req.query.success, action:"updated" }
 			| "delete"
-				res.render "blog/del", { on:"deleteblog", success:req.query.success, action:"deleted" }
+				res.render "course/blog/del", { on:"deleteblog", success:req.query.success, action:"deleted" }
 		.post (req, res, next)->
 			/* istanbul ignore else */
 			if req.query.action is "new"
 				async.parallel [
 					->
 						if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
-							res.render "blog/create", { "blog":true, "on":"newblog", success:"yes", action:"created" } # return
+							res.render "course/blog/create", { "blog":true, "on":"newblog", success:"yes", action:"created" } # return
 						else
-							res.status 400 .render "blog/create", { "blog":true, "on":"newblog", success:"no", action:"created", body: req.body }
+							res.status 400 .render "course/blog/create", { "blog":true, "on":"newblog", success:"no", action:"created", body: req.body }
 					->
 						if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 							post = new Post {
@@ -112,9 +112,9 @@ module.exports = (app)->
 				async.parallel [
 					->
 						if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
-							res.redirect "/#{res.locals.course.id}/blog/#{req.params.unique}?action=edit&success=yes"
+							res.redirect "/c/#{res.locals.course.id}/blog/#{req.params.unique}?action=edit&success=yes"
 						else
-							res.status 400 .render "blog/create", { blog:true, on:"editblog", success:"no", action:"updated", body: req.body}
+							res.status 400 .render "course/blog/create", { blog:true, on:"editblog", success:"no", action:"updated", body: req.body}
 					->
 						if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 							err, post <- Post.findOneAndUpdate {
@@ -135,7 +135,7 @@ module.exports = (app)->
 			if req.query.action in ["delete","deleteall"]
 				async.parallel [
 					->
-						res.redirect "/#{res.locals.course.id}/blog?action=delete&success=yes"
+						res.redirect "/c/#{res.locals.course.id}/blog?action=delete&success=yes"
 					->
 						if req.query.action is "delete"
 							err, post <- Post.findOneAndRemove {
@@ -160,7 +160,7 @@ module.exports = (app)->
 			else
 				next new Error "bad blog delete"
 
-		..route "/:route(c|C|course)?/:course/blog/:unique?" # query action(search)
+		..route "/:route(c|C|course)/:course/blog/:unique?" # query action(search)
 		.all (req, res, next)->
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
@@ -252,11 +252,11 @@ module.exports = (app)->
 				posts = _.flatten _.without(posts,undefined), true
 				posts = if posts.length > 0 then _.uniq _.sortBy(posts, "timestamp").reverse!,(input)->
 					return input.timestamp.toString!
-				res.render "blog/default", blog: posts
+				res.render "course/blog/default", blog: posts
 			else
 				err, posts <- Post.find {
 					"course": ObjectId res.locals.course._id
 					"type":"blog"
 				} .populate("author").exec
 				res.locals.blog = _.sortBy posts, "timestamp" .reverse!
-				res.render "blog/default"
+				res.render "course/blog/default"
