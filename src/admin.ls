@@ -235,6 +235,9 @@ module.exports = (app)->
 							if req.body.id?
 								err, result <- User.findOne { "id":req.body.id, "type":"1", "school":process.env.school }
 								cont err, result._id, course
+							if req.body._id?
+								err, result <- User.findOne { "_id":req.body._id, "type":"1", "school":process.env.school }
+								cont err, result._id, course
 						(student, course, cont)->
 							course.students.push ObjectId student
 							err <- course.save
@@ -262,6 +265,9 @@ module.exports = (app)->
 							if req.body.id?
 								err, result <- User.findOne { "id":req.body.id, "type":"2", "school":process.env.school }
 								cont err, result._id, course
+							if req.body._id?
+								err, result <- User.findOne { "_id":req.body._id, "type":"2", "school":process.env.school }
+								cont err, result._id, course
 						(faculty, course, cont)->
 							course.faculty.push ObjectId faculty
 							err <- course.save
@@ -285,6 +291,9 @@ module.exports = (app)->
 							if req.body.id?
 								err, result <- User.findOne { "id":req.body.id, "type":"1", "school":process.env.school }
 								cont err, result._id, course
+							if req.body._id?
+								err, result <- User.findOne { "_id":req.body._id, "type":"1", "school":process.env.school }
+								cont err, result._id, course
 						(student, course, cont)->
 							course.students.pop course.students.indexOf student
 							err <- course.save
@@ -307,6 +316,9 @@ module.exports = (app)->
 								cont err, result._id, course
 							if req.body.id?
 								err, result <- User.findOne { "id":req.body.id, "type":"2", "school":process.env.school }
+								cont err, result._id, course
+							if req.body._id?
+								err, result <- User.findOne { "_id":req.body._id, "type":"2", "school":process.env.school }
 								cont err, result._id, course
 						(faculty, course, cont)->
 							course.faculty.pop course.faculty.indexOf faculty
