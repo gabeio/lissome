@@ -30,13 +30,13 @@ md = new markdown-it {
 	linkify: true
 	typographer: true
 }
-
 # load needed libs into app locals
 app
 	# variables
-	..locals.recaptchaPrivateKey = process.env.RECAPKEY
+	# ..locals.recaptchaPrivateKey = process.env.RECAPKEY
 	..locals.school = process.env.school
 	..locals.swig = swig
+	..locals.smallpassword = parseInt (process.env.small||process.env.smallpassword||process.env.minpassword||6)
 	# errors
 	# ..locals.err = {
 	# 	"NOT FOUND": new Error
@@ -67,8 +67,6 @@ do ->
 		console.log "redisport env undefined\ntrying default anyway..."
 	if !process.env.redisauth? and !process.env.REDISAUTH? and !argv.redisauth?
 		console.log "redisauth env undefined\ntrying null anyway..."
-	if process.env.small? or process.env.smallpassword? or process.env.minpassword?
-		app.locals.smallpassword = parseInt (process.env.small||process.env.smallpassword||process.env.minpassword||6)
 
 # create swig |markdown filter
 swig.setFilter "markdown", (input)->
