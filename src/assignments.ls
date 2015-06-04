@@ -32,17 +32,16 @@ module.exports = (app)->
 					"id": req.params.course
 					"school": app.locals.school
 				}
-				/* istanbul ignore next there should be no way to hit that. */
-				switch res.locals.auth
-				| 3
+				/* istanbul ignore else there should be no way to hit that. */
+				if res.locals.auth >= 3
 					next!
-				| 2
+				else if res.locals.auth is 2
 					res.locals.course.faculty = ObjectId res.locals.uid
 					next!
-				| 1
+				else if res.locals.auth is 1
 					res.locals.course.students = ObjectId res.locals.uid
 					next!
-				| _
+				else
 					next new Error "UNAUTHORIZED"
 		.all (req, res, next)->
 			err, result <- Course.findOne res.locals.course
@@ -214,35 +213,49 @@ module.exports = (app)->
 								res.locals.assignment = result
 								done err
 					]
-					# date now gt start
-					if (new Date Date.now!) > res.locals.assignment.start
-						# no end OR date now < end OR allowLate is true
-						if !res.locals.assignment.end? or ((new Date Date.now!) < Date.parse(res.locals.assignment.end)) or (res.locals.assignment.allowLate is true)
+					err <- async.waterfall [
+						(cont)->
+							# date now gt start
+							if (new Date Date.now!) > res.locals.assignment.start
+								cont null
+							else
+								cont "Allowed assignment submission window has not opened."
+						(cont)->
+							# no end OR date now < end OR allowLate is true
+							if !res.locals.assignment.end? or ((new Date Date.now!) < Date.parse(res.locals.assignment.end)) or (res.locals.assignment.allowLate is true)
+								cont null
+							else
+								cont "Allowed assignment submission window has closed."
+						(cont)->
 							# only if my attempts are less than assignment tries create the new attempt
 							if !res.locals.assignment.tries? or res.locals.assignment.tries > res.locals.tries
-								theAttempt = {
-									assignment: ObjectId req.body.aid
-									course: ObjectId res.locals.course._id
-									text: req.body.text
-									author: ObjectId res.locals.uid
-								}
-								if res.locals.assignment.end? and (new Date Date.now!) > Date.parse(res.locals.assignment.end)
-									theAttempt.late = true
-								attempt = new Attempt theAttempt
-								err, attempt <- attempt.save
-								/* istanbul ignore if should only really occur if db crashes */
-								/* istanbul ignore if should only really occur if db crashes */
-								if err?
-									winston.error err
-									next new Error "Mongo Error"
-								else
-									res.redirect "/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
+								cont null
 							else
-								res.status 400 .render "assignments/view" { body:req.body, success:"error", error:"You have no more attempts." }
-						else
-							res.status 400 .render "assignments/view" { body:req.body, success:"error", error:"Allowed assignment submission time has closed." }
-					else
-						res.status 400 .render "assignments/view" { body:req.body, success:"error", error:"Allowed assignment submission time has not opened." }
+								cont "You have no more attempts."
+						(cont)->
+							res.locals.body = {
+								assignment: ObjectId req.body.aid
+								course: ObjectId res.locals.course._id
+								text: req.body.text
+								author: ObjectId res.locals.uid
+							}
+							if res.locals.assignment.end? and (new Date Date.now!) > Date.parse(res.locals.assignment.end)
+								res.locals.body.late = true
+							res.locals.attempt = new Attempt res.locals.body
+							err, attempt <- res.locals.attempt.save
+							/* istanbul ignore if should only really occur if db crashes */
+							if err?
+								winston.error err
+								cont "Mongo Error"
+							else
+								res.redirect "/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
+								cont null
+					]
+					if err and err isnt "redirect" and err isnt "Mongo Error"
+						res.status 400
+						res.render "assignments/view" { body:req.body, success:"error", error:err }
+					else if err is "Mongo Error"
+						next new Error "Mongo Error"
 			| _
 				next! # not an attempt
 		.all (req, res, next)->
