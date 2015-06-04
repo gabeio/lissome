@@ -111,11 +111,33 @@ module.exports = (app)->
 		.put (req, res, next)->
 			if req.query.action is "edit"
 				if req.query.type is "user"
-					...
-					# edit username
-					# edit 
+					err <- async.waterfall [
+						# (cont)->
+						# add checks
+						(cont)->
+							err,result <- User.find { "username":req.body.username, "school":process.env.school }
+							if err
+								winston.error err
+								cont err
+							else
+								cont null, result
+						(result, cont)->
+							cont null
+					]
 				else if req.query.type is "course"
-					...
+					err <- async.waterfall [
+						# (cont)->
+						# add checks
+						(cont)->
+							err,result <- Course.find { "id":req.body.id, "school":process.env.school }
+							if err
+								winston.error err
+								cont err
+							else
+								cont null, result
+						(result, cont)->
+							cont null
+					]
 				else if req.query.type is "addstudent"
 					err <- async.waterfall [
 						(cont)->
@@ -186,6 +208,35 @@ module.exports = (app)->
 				next!
 		.delete (req, res, next)->
 			if req.query.action is "delete"
-				...
+				if req.query.type is "rmstudent"
+					err <- async.waterfall [
+						# (cont)->
+						# add checks
+						(cont)->
+							err,result <- User.findOneAndRemove { "username":req.body.username, "school":process.env.school }
+							if err
+								winston.error err
+								cont err
+							else
+								cont null
+					]
+					res.status 200
+					res.send "ok"
+				else if req.query.type is "rmfaculty"
+					err <- async.waterfall [
+						# (cont)->
+						# add checks
+						(cont)->
+							err,result <- Course.findOneAndRemove { "id":req.body.id, "school":process.env.school }
+							if err
+								winston.error err
+								cont err
+							else
+								cont null
+					]
+					res.status 200
+					res.send "ok"
+				else
+					next!
 			else
 				next!
