@@ -58,13 +58,21 @@ module.exports = (app)->
 							# both can throw error
 							err, result <- async.parallel [
 								(para)->
-									err, result <- User.find { "id":req.body.id, "type":req.body.type, "school":process.env.school }
+									err, result <- User.find {
+										"id":req.body.id
+										"type":req.body.type
+										"school":process.env.school
+									}
 									if result? and result.length > 0
 										para "User Exists"
 									else
 										para null
 								(para)->
-									err, result <- User.find { "username":req.body.username, "type":req.body.type, "school":process.env.school }
+									err, result <- User.find {
+										"username":req.body.username
+										"type":req.body.type
+										"school":process.env.school
+									}
 									if result? and result.length > 0
 										para "User Exists"
 									else
@@ -98,7 +106,10 @@ module.exports = (app)->
 						# (cont)->
 						# 	add checks
 						(cont)->
-							err, result <- Course.find { "id":req.body.id, "school":process.env.school }
+							err, result <- Course.find {
+								"id":req.body.id
+								"school":process.env.school
+							}
 							cont err, result
 						(result, cont)->
 							# if the course doesn't already exist
@@ -151,7 +162,12 @@ module.exports = (app)->
 							else
 								cont null
 						(hash, cont)->
-							err, result <- User.findOne { "id":req.body.id, "username":req.body.username, "type":req.body.type, "school":process.env.school }
+							err, result <- User.findOne {
+								"id":req.body.id
+								"username":req.body.username
+								"type":req.body.type
+								"school":process.env.school
+							}
 							if err
 								winston.error err
 								cont err
@@ -188,7 +204,12 @@ module.exports = (app)->
 						(cont)->
 							# if we are changing the id do it now then change everything else
 							if req.body.newid?
-								err, result <- Course.findOneAndUpdate { "id":req.body.id, "school":process.env.school }, { "id":req.body.newid }
+								err, result <- Course.findOneAndUpdate {
+									"id":req.body.id
+									"school":process.env.school
+								}, {
+									"id":req.body.newid
+								}
 								if err
 									cont err
 								else
@@ -197,7 +218,10 @@ module.exports = (app)->
 							else
 								cont null
 						(cont)->
-							err, result <- Course.findOne { "id":req.body.id, "school":process.env.school }
+							err, result <- Course.findOne {
+								"id":req.body.id
+								"school":process.env.school
+							}
 							if err
 								winston.error err
 								cont err
@@ -226,17 +250,32 @@ module.exports = (app)->
 						res.end!
 					err <- async.waterfall [
 						(cont)->
-							err, result <- Course.findOne { "id":req.body.course, "school":process.env.school }
+							err, result <- Course.findOne {
+								"id":req.body.course
+								"school":process.env.school
+							}
 							cont err, result
 						(course, cont)->
 							if req.body.username?
-								err, result <- User.findOne { "username":req.body.username, "type":"1", "school":process.env.school }
+								err, result <- User.findOne {
+									"username":req.body.username
+									"type":"1"
+									"school":process.env.school
+								}
 								cont err, result._id, course
 							if req.body.id?
-								err, result <- User.findOne { "id":req.body.id, "type":"1", "school":process.env.school }
+								err, result <- User.findOne {
+									"id":req.body.id
+									"type":"1"
+									"school":process.env.school
+								}
 								cont err, result._id, course
 							if req.body._id?
-								err, result <- User.findOne { "_id":req.body._id, "type":"1", "school":process.env.school }
+								err, result <- User.findOne {
+									"_id":req.body._id
+									"type":"1"
+									"school":process.env.school
+								}
 								cont err, result._id, course
 						(student, course, cont)->
 							course.students.push ObjectId student
@@ -256,17 +295,32 @@ module.exports = (app)->
 						res.end!
 					err <- async.waterfall [
 						(cont)->
-							err, result <- Course.findOne { "id":req.body.course, "school":process.env.school }
+							err, result <- Course.findOne {
+								"id":req.body.course
+								"school":process.env.school
+							}
 							cont err, result
 						(course, cont)->
 							if req.body.username?
-								err, result <- User.findOne { "username":req.body.username, "type":"2", "school":process.env.school }
+								err, result <- User.findOne {
+									"username":req.body.username
+									"type":"2"
+									"school":process.env.school
+								}
 								cont err, result._id, course
 							if req.body.id?
-								err, result <- User.findOne { "id":req.body.id, "type":"2", "school":process.env.school }
+								err, result <- User.findOne {
+									"id":req.body.id
+									"type":"2"
+									"school":process.env.school
+								}
 								cont err, result._id, course
 							if req.body._id?
-								err, result <- User.findOne { "_id":req.body._id, "type":"2", "school":process.env.school }
+								err, result <- User.findOne {
+									"_id":req.body._id
+									"type":"2"
+									"school":process.env.school
+								}
 								cont err, result._id, course
 						(faculty, course, cont)->
 							course.faculty.push ObjectId faculty
@@ -282,17 +336,32 @@ module.exports = (app)->
 				else if req.query.type is "rmstudent"
 					err <- async.waterfall [
 						(cont)->
-							err, result <- Course.findOne { "id":req.body.course, "school":process.env.school }
+							err, result <- Course.findOne {
+								"id":req.body.course
+								"school":process.env.school
+							}
 							cont err, result
 						(course, cont)->
 							if req.body.username?
-								err, result <- User.findOne { "username":req.body.username, "type":"1", "school":process.env.school }
+								err, result <- User.findOne {
+									"username":req.body.username
+									"type":"1"
+									"school":process.env.school
+								}
 								cont err, result._id, course
 							if req.body.id?
-								err, result <- User.findOne { "id":req.body.id, "type":"1", "school":process.env.school }
+								err, result <- User.findOne {
+									"id":req.body.id
+									"type":"1"
+									"school":process.env.school
+								}
 								cont err, result._id, course
 							if req.body._id?
-								err, result <- User.findOne { "_id":req.body._id, "type":"1", "school":process.env.school }
+								err, result <- User.findOne {
+									"_id":req.body._id
+									"type":"1"
+									"school":process.env.school
+								}
 								cont err, result._id, course
 						(student, course, cont)->
 							course.students.pop course.students.indexOf student
@@ -308,17 +377,32 @@ module.exports = (app)->
 				else if req.query.type is "rmfaculty"
 					err <- async.waterfall [
 						(cont)->
-							err, result <- Course.findOne { "id":req.body.course, "school":process.env.school }
+							err, result <- Course.findOne {
+								"id":req.body.course
+								"school":process.env.school
+							}
 							cont err, result
 						(course, cont)->
 							if req.body.username?
-								err, result <- User.findOne { "username":req.body.username, "type":"2", "school":process.env.school }
+								err, result <- User.findOne {
+									"username":req.body.username
+									"type":"2"
+									"school":process.env.school
+								}
 								cont err, result._id, course
 							if req.body.id?
-								err, result <- User.findOne { "id":req.body.id, "type":"2", "school":process.env.school }
+								err, result <- User.findOne {
+									"id":req.body.id
+									"type":"2"
+									"school":process.env.school
+								}
 								cont err, result._id, course
 							if req.body._id?
-								err, result <- User.findOne { "_id":req.body._id, "type":"2", "school":process.env.school }
+								err, result <- User.findOne {
+									"_id":req.body._id
+									"type":"2"
+									"school":process.env.school
+								}
 								cont err, result._id, course
 						(faculty, course, cont)->
 							course.faculty.pop course.faculty.indexOf faculty
@@ -340,7 +424,10 @@ module.exports = (app)->
 				if req.query.type is "user"
 					err <- async.waterfall [
 						(cont)->
-							err, result <- User.findOneAndRemove { "username":req.body.username, "school":process.env.school }
+							err, result <- User.findOneAndRemove {
+								"username":req.body.username
+								"school":process.env.school
+							}
 							if err
 								winston.error err
 								cont err
@@ -352,7 +439,10 @@ module.exports = (app)->
 				else if req.query.type is "course"
 					err <- async.waterfall [
 						(cont)->
-							err, result <- Course.findOneAndRemove { "id":req.body.id, "school":process.env.school }
+							err, result <- Course.findOneAndRemove {
+								"id":req.body.id
+								"school":process.env.school
+							}
 							if err
 								winston.error err
 								cont err
