@@ -112,7 +112,7 @@ describe "Admin" ->
 					"email":"myemailq@email.com"
 				}
 				.end (err, res)->
-					expect res.status .to.equal 200
+					expect res.status .to.equal 400
 					done err
 		it "should not allow an admin to create a user with the same id", (done)->
 			admin
@@ -128,7 +128,7 @@ describe "Admin" ->
 					"email":"myemails@email.com"
 				}
 				.end (err, res)->
-					expect res.status .to.equal 200
+					expect res.status .to.equal 400
 					done err
 		it "should not allow an admin to create a user with the same email", (done)->
 			admin
@@ -144,7 +144,7 @@ describe "Admin" ->
 					"email":"myemail3@email.com"
 				}
 				.end (err, res)->
-					expect res.status .to.equal 200
+					expect res.status .to.equal 400
 					done err
 		it "should not allow an admin to create an outsider", (done)->
 			admin
