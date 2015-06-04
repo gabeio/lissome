@@ -220,12 +220,23 @@ module.exports = (app)->
 					else
 						res.send "OK"
 				else if req.query.type is "addstudent"
+					if !req.body.course?
+						res.status 400
+						res.send "No Course Given"
+						res.end!
 					err <- async.waterfall [
 						(cont)->
-							err, result <- Course.findOne { "id":req.body.id, "school":process.env.school }
+							err, result <- Course.findOne { "id":req.body.course, "school":process.env.school }
 							cont err, result
 						(course, cont)->
-							course.students.push ObjectId req.body.student
+							if req.body.username?
+								err, result <- User.findOne { "username":req.body.username, "type":"1", "school":process.env.school }
+								cont err, result._id, course
+							if req.body.id?
+								err, result <- User.findOne { "id":req.body.id, "type":"1", "school":process.env.school }
+								cont err, result._id, course
+						(student, course, cont)->
+							course.students.push ObjectId student
 							err <- course.save
 							cont err
 					]
@@ -236,12 +247,23 @@ module.exports = (app)->
 					else
 						res.send "OK"
 				else if req.query.type is "addfaculty"
+					if !req.body.course?
+						res.status 400
+						res.send "No Course Given"
+						res.end!
 					err <- async.waterfall [
 						(cont)->
-							err, result <- Course.findOne { "id":req.body.id, "school":process.env.school }
+							err, result <- Course.findOne { "id":req.body.course, "school":process.env.school }
 							cont err, result
 						(course, cont)->
-							course.faculty.push ObjectId req.body.faculty
+							if req.body.username?
+								err, result <- User.findOne { "username":req.body.username, "type":"2", "school":process.env.school }
+								cont err, result._id, course
+							if req.body.id?
+								err, result <- User.findOne { "id":req.body.id, "type":"2", "school":process.env.school }
+								cont err, result._id, course
+						(faculty, course, cont)->
+							course.faculty.push ObjectId faculty
 							err <- course.save
 							cont err
 					]

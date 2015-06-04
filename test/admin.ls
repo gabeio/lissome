@@ -269,6 +269,64 @@ describe "Admin" ->
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
+		it "should allow an admin to add a student to a course w/id", (done)->
+			admin
+				.post "/admin/?hmo=PUT&action=edit&type=addstudent"
+				.send {
+					"course":"1234"
+					"id":"1001"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it "should allow an admin to add a student to a course w/username", (done)->
+			admin
+				.post "/admin/?hmo=PUT&action=edit&type=addstudent"
+				.send {
+					"course":"1234"
+					"username":"adminCreatedStudent"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it "should allow an admin to add a faculty to a course w/id", (done)->
+			admin
+				.post "/admin/?hmo=PUT&action=edit&type=addfaculty"
+				.send {
+					"course":"1234"
+					"id":"1002"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it "should allow an admin to add a faculty to a course w/username", (done)->
+			admin
+				.post "/admin/?hmo=PUT&action=edit&type=addfaculty"
+				.send {
+					"course":"1234"
+					"username":"adminCreatedFaculty"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it.skip "should allow an admin to remove a student to a course", (done)->
+			admin
+				.post "/admin/?hmo=PUT&action=edit&type=course"
+				.send {
+
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it.skip "should allow an admin to remove a faculty to a course", (done)->
+			admin
+				.post "/admin/?hmo=PUT&action=edit&type=course"
+				.send {
+
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
 	describe "Delete Course", (...)->
 		it "should allow an admin to delete a course", (done)->
 			admin
