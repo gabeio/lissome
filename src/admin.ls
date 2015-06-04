@@ -41,8 +41,6 @@ module.exports = (app)->
 						(cont)->
 							if req.body.type > 3 or req.body.type < 1
 								cont "Invalid User Auth Level"
-								# res.status 400
-								# res.send "Invalid User Auth Level"
 							else
 								cont null
 						# add more checks here
@@ -73,7 +71,7 @@ module.exports = (app)->
 								cont err
 					]
 					if err
-						winston.error err
+						console.error err
 						res.status 400
 						res.send err
 					else
