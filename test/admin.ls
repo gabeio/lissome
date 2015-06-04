@@ -98,6 +98,54 @@ describe "Admin" ->
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
+		it "should not allow an admin to create a user with the same username", (done)->
+			admin
+				.post "/admin/?action=create&type=user"
+				.send {
+					"id":"12345"
+					"username":"adminCreatedAdmin"
+					"type":"3"
+					"password":"password"
+					"firstName":"John"
+					"middleName":"Middle"
+					"lastName":"ThisIsLastName"
+					"email":"myemailq@email.com"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it "should not allow an admin to create a user with the same id", (done)->
+			admin
+				.post "/admin/?action=create&type=user"
+				.send {
+					"id":"314199"
+					"username":"adminCreatedAdmin1"
+					"type":"3"
+					"password":"password"
+					"firstName":"John"
+					"middleName":"Middle"
+					"lastName":"ThisIsLastName"
+					"email":"myemails@email.com"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it "should not allow an admin to create a user with the same email", (done)->
+			admin
+				.post "/admin/?action=create&type=user"
+				.send {
+					"id":"3141995"
+					"username":"adminCreatedAdmin2"
+					"type":"3"
+					"password":"password"
+					"firstName":"John"
+					"middleName":"Middle"
+					"lastName":"ThisIsLastName"
+					"email":"myemail3@email.com"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
 		it "should not allow an admin to create an outsider", (done)->
 			admin
 				.post "/admin/?action=create&type=user"
