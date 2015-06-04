@@ -74,9 +74,10 @@ module.exports = (app)->
 					]
 					if err
 						winston.error err
-						res.status = 400
+						res.status 400
 						res.send err
 					else
+						res.status 200
 						res.send "OK"
 				else if req.query.type is "course"
 					err <- async.waterfall [
