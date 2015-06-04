@@ -54,7 +54,7 @@ describe "Admin" ->
 			admin
 				.post "/admin/?action=create&type=user"
 				.send {
-					"id":"134159"
+					"id":"1001"
 					"username":"adminCreatedStudent"
 					"type":"1"
 					"password":"password"
@@ -70,7 +70,7 @@ describe "Admin" ->
 			admin
 				.post "/admin/?action=create&type=user"
 				.send {
-					"id":"311459"
+					"id":"1002"
 					"username":"adminCreatedFaculty"
 					"type":"2"
 					"password":"password"
@@ -86,7 +86,7 @@ describe "Admin" ->
 			admin
 				.post "/admin/?action=create&type=user"
 				.send {
-					"id":"314199"
+					"id":"1003"
 					"username":"adminCreatedAdmin"
 					"type":"3"
 					"password":"password"
@@ -102,7 +102,7 @@ describe "Admin" ->
 			admin
 				.post "/admin/?action=create&type=user"
 				.send {
-					"id":"12345"
+					"id":"1004"
 					"username":"adminCreatedAdmin"
 					"type":"3"
 					"password":"password"
@@ -118,7 +118,7 @@ describe "Admin" ->
 			admin
 				.post "/admin/?action=create&type=user"
 				.send {
-					"id":"314199"
+					"id":"1003"
 					"username":"adminCreatedAdmin1"
 					"type":"3"
 					"password":"password"
@@ -134,7 +134,7 @@ describe "Admin" ->
 			admin
 				.post "/admin/?action=create&type=user"
 				.send {
-					"id":"3141995"
+					"id":"1006"
 					"username":"adminCreatedAdmin2"
 					"type":"3"
 					"password":"password"
@@ -150,7 +150,7 @@ describe "Admin" ->
 			admin
 				.post "/admin/?action=create&type=user"
 				.send {
-					"id":"300"
+					"id":"1007"
 					"username":"adminCreatedOutsider"
 					"type":"0"
 					"password":"password"
@@ -166,7 +166,7 @@ describe "Admin" ->
 			admin
 				.post "/admin/?action=create&type=user"
 				.send {
-					"id":"301"
+					"id":"1008"
 					"username":"adminCreatedSuperAdmin"
 					"type":"4"
 					"password":"password"
@@ -182,7 +182,7 @@ describe "Admin" ->
 			admin
 				.post "/admin/?action=create&type=user"
 				.send {
-					"id":"6495"
+					"id":"1009"
 					"username":"adminCreatedTinyPass"
 					"type":"2"
 					"password":"pass"
@@ -193,6 +193,91 @@ describe "Admin" ->
 				}
 				.end (err, res)->
 					expect res.status .to.equal 400
+					done err
+	describe "Create Course", (...)->
+		it "should allow an admin to create a student", (done)->
+			admin
+				.post "/admin/?action=create&type=course"
+				.send {
+					"id":"1234"
+					"title":"SomethingAwesome"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+	describe "Edit User", (...)->
+		it "should allow an admin to edit a student", (done)->
+			admin
+				.post "/admin/?hmo=PUT&action=edit&type=user"
+				.send {
+					"id":"1001"
+					"newid":"1001"
+					"username":"adminCreatedStudent"
+					"type":"1"
+					"newusername":"adminCreatedStudent"
+					"password":"somethingElse"
+					"firstName":"first"
+					"middleName":"middle"
+					"lastName":"last"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it "should allow an admin to edit a faculty", (done)->
+			admin
+				.post "/admin/?hmo=PUT&action=edit&type=user"
+				.send {
+					"id":"1002"
+					"newid":"1002"
+					"username":"adminCreatedFaculty"
+					"type":"2"
+					"newusername":"adminCreatedFaculty"
+					"password":"somethingElse"
+					"firstName":"first"
+					"middleName":"middle"
+					"lastName":"last"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it "should allow an admin to edit an admin", (done)->
+			admin
+				.post "/admin/?hmo=PUT&action=edit&type=user"
+				.send {
+					"id":"1003"
+					"newid":"1003"
+					"username":"adminCreatedAdmin"
+					"type":"3"
+					"newusername":"adminCreatedAdmin"
+					"password":"somethingElse"
+					"firstName":"first"
+					"middleName":"middle"
+					"lastName":"last"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+	describe "Edit Course", (...)->
+		it "should allow an admin to edit a course", (done)->
+			admin
+				.post "/admin/?hmo=PUT&action=edit&type=course"
+				.send {
+					"id":"1234"
+					"newid":"1234"
+					"title":"theNewTitle"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+	describe "Delete Course", (...)->
+		it "should allow an admin to delete a course", (done)->
+			admin
+				.post "/admin/?hmo=DELETE&action=delete&type=course"
+				.send {
+					"id":"1234"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
 					done err
 	describe "Delete user", (...)->
 		it "should allow an admin to delete a student", (done)->
@@ -221,27 +306,6 @@ describe "Admin" ->
 				.send {
 					"username":"adminCreatedAdmin"
 					"type":"3"
-				}
-				.end (err, res)->
-					expect res.status .to.equal 200
-					done err
-	describe "Create Course", (...)->
-		it "should allow an admin to create a student", (done)->
-			admin
-				.post "/admin/?action=create&type=course"
-				.send {
-					"id":"1234"
-					"title":"SomethingAwesome"
-				}
-				.end (err, res)->
-					expect res.status .to.equal 200
-					done err
-	describe "Delete Course", (...)->
-		it "should allow an admin to delete a course", (done)->
-			admin
-				.post "/admin/?hmo=DELETE&action=delete&type=course"
-				.send {
-					"id":"1234"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 200

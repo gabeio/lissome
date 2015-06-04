@@ -151,7 +151,7 @@ module.exports = (app)->
 							else
 								cont null
 						(hash, cont)->
-							err, result <- User.findOne { "id":req.body.id, "username":req.body.username, "school":process.env.school }
+							err, result <- User.findOne { "id":req.body.id, "username":req.body.username, "type":req.body.type, "school":process.env.school }
 							if err
 								winston.error err
 								cont err
