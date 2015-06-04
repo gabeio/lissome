@@ -43,6 +43,11 @@ module.exports = (app)->
 								cont "Invalid User Auth Level"
 							else
 								cont null
+						(cont)->
+							if req.body.password.length < res.locals.smallpassword
+								cont "Password Too Small"
+							else
+								cont null
 						# add more checks here
 						(cont)->
 							# hash password

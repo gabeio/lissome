@@ -67,6 +67,8 @@ do ->
 		console.log "redisport env undefined\ntrying default anyway..."
 	if !process.env.redisauth? and !process.env.REDISAUTH? and !argv.redisauth?
 		console.log "redisauth env undefined\ntrying null anyway..."
+	if process.env.small? or process.env.smallpassword? or process.env.minpassword?
+		app.locals.smallpassword = parseInt (process.env.small||process.env.smallpassword||process.env.minpassword||6)
 
 # create swig |markdown filter
 swig.setFilter "markdown", (input)->
@@ -172,6 +174,7 @@ app
 					res.locals.lastName = req.session.lastName
 					res.locals.username = req.session.username
 					res.locals.auth = req.session.auth # save auth level for template
+					res.locals.smallpassword = app.locals.smallpassword
 			!->
 				next!
 		]
