@@ -44,6 +44,12 @@ module.exports = (app)->
 							else
 								cont null
 						(cont)->
+							if req.body.randpassword in [true,"true"]
+								... # generate and set to req.body.password
+							else
+								cont null
+						# double check password & repeat are the same
+						(cont)->
 							if req.body.password.length < res.locals.smallpassword
 								cont "Password Too Small"
 							else
