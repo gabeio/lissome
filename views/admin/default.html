@@ -33,27 +33,34 @@
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<div class="pull-left">
-					<h3>Administration Dashboard</h3>
+					<h2>Administration Dashboard</h2>
 				</div>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				<h4>Course(s)</h4>
 				<ul class="list-group">
-					<a class="list-group-item" href="/admin/course/create">Create Course</a>
-					<a class="list-group-item" href="">Edit Course</a>
-					<a class="list-group-item" href="">Delete Course</a>
+					<a class="list-group-item" href="/admin/?action=search">Search</a>
 				</ul>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				<h4>User(s)</h4>
+				<h3>Course(s)</h3>
 				<ul class="list-group">
-					<a class="list-group-item" href="">Create User</a>
-					<a class="list-group-item" href="">Edit User</a>
-					<a class="list-group-item" href="">Delete User</a>
+					<a class="list-group-item" href="/admin/?type=course&action=create">Create Course</a>
+					<a class="list-group-item" href="/admin/?type=course&action=edit">Edit Course</a>
+					<a class="list-group-item" href="/admin/?type=course&action=delete">Delete Course</a>
+				</ul>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<h3>User(s)</h3>
+				<ul class="list-group">
+					<a class="list-group-item" href="/admin/?type=user&action=create">Create User</a>
+					<a class="list-group-item" href="/admin/?type=user&action=edit">Edit User</a>
+					<a class="list-group-item" href="/admin/?type=user&action=delete">Delete User</a>
 				</ul>
 			</div>
 		</div>
