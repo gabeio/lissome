@@ -1,0 +1,96 @@
+{% extends '../base.html' %}
+
+{% block head %}
+	<title>Admin - {{ school }}</title>
+{% endblock %}
+
+{% block body %}
+	<div class="container-fluid">
+		{% include '../navbar.html' %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ol class="breadcrumb">
+					<li><a href="/">Dash</a></li>
+					<li><a href="/admin/">Admin Dash</a></li>
+					<li class="active">Create {{ type }}</li>
+				</ol>
+			</div>
+		</div>
+		{%- if success %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				{% if success == 'yes' or success == 'true' %}
+				<div class="alert alert-success" role="alert">
+					{{ noun }} <strong>{{ verb }}</strong> successfully.
+				</div>
+				{% elif success == 'no' or success == 'false' %}
+				<div class="alert alert-danger" role="alert">
+					{{ noun }} <strong>not</strong> {{ verb }} successfully. Missing required field.
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		{% endif -%}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>Create {{ type }} - Administration Dashboard</h3>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<form method="POST" action="?action=create&type={{type}}">
+					{% if type == "user" %}
+					<div class="form-group">
+						<label for="formId">Id</label>
+						<input type="text" class="form-control" id="formId" name="id" placeholder="Id" tabindex="1" autofocus />
+					</div>
+					<div class="form-group">
+						<label for="formUsername">Username</label>
+						<input type="text" class="form-control" id="formUsername" name="username" placeholder="Username" tabindex="2" autofocus />
+					</div>
+					<div class="form-group">
+						<label for="formLevel">Authorization Level</label>
+						<select id="formLevel" name="type" tabindex="3">
+							<option value="1">Student</option>
+							<option value="2">Faculty</option>
+							<option value="3">Admin</option>
+						</select>
+					</div>
+					<div class="checkbox">
+						<label for="formRandPassword">
+							<input type="checkbox" id="formRandPassword" name="randpassword" tabindex="4" /> Randomly Generated Password
+						</label>
+					</div>
+					OR
+					<div class="form-group">
+						<label for="formPassword">Password</label>
+						<input type="password" class="form-control" id="formPassword" name="password" placeholder="Password" tabindex="5" />
+					</div>
+					<div class="form-group">
+						<label for="formRePassword">Repeat Password</label>
+						<input type="password" class="form-control" id="formRePassword" name="repeat" placeholder="Repeat Password" tabindex="6" />
+					</div>
+
+					<div class="form-group">
+						<button type="submit" class="btn btn-default" tabindex="7">Submit</button>
+					</div>
+					{% elif type == "course" %}
+					<div class="form-group">
+						<label form="formId">Id</label>
+						<input type="text" class="form-control" id="formId" name="id" placeholder="cps1231*02" tabindex="1" autofocus />
+					</div>
+					<div class="form-group">
+						<label form="formTitle">Title</label>
+						<input type="text" class="form-control" id="formTitle" name="title" placeholder="Intro to Java" tabindex="2" autofocus />
+					</div>
+					<div class="form-group">
+						<button type="submit" class="btn btn-default" tabindex="3">Submit</button>
+					</div>
+					{% endif %}
+				</form>
+			</div>
+		</div>
+	</div>
+{% endblock %}
