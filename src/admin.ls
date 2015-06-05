@@ -32,8 +32,50 @@ module.exports = (app)->
 				res.render "admin/edit", {type:req.query.type}
 			| "delete"
 				res.render "admin/delete", {type:req.query.type}
+			| "search"
+				next!
 			| _
 				res.render "admin/default"
+		.get (req, res, next)->
+			if req.query.type is "student"
+				err, result <- async.parallel [
+					(para)->
+						err, result <- User.find {
+							"id":req.query.id
+							"type":1
+							"school":process.env.school
+						}
+						para err, result
+					(para)->
+						err, result <- User.find {
+							"username":req.query.username
+							"type":1
+							"school":process.env.school
+						}
+						para err, result
+					(para)->
+						err, result <- User.find {
+							"email":req.query.email
+							"type":1
+							"school":process.env.school
+						}
+						para err, result
+				]
+				if err
+					winston.error err
+					res.status 400
+					res.send err
+				else
+					res.status 200
+					res.send _.uniq _.flatten result
+			else if req.query.type is "faculty"
+				...
+			else if req.query.type is "admin"
+				...
+			else if req.query.type is "course"
+				...
+			else
+				res.render "admin/search"
 		.post (req, res, next)->
 			if req.query.action is "create"
 				if req.query.type is "user"
@@ -106,7 +148,8 @@ module.exports = (app)->
 						res.send err
 					else
 						res.status 200
-						res.send "OK"
+						res.render "admin/create", { noun:"User", verb:"created", success:'true', type:"user" }
+						# res.send "OK"
 				else if req.query.type is "course"
 					err <- async.waterfall [
 						# (cont)->
@@ -139,7 +182,9 @@ module.exports = (app)->
 						res.status 400
 						res.send err
 					else
-						res.send "OK"
+						res.status 200
+						res.render "admin/create", { noun:"Course", verb:"created", success:'true', type:"course" }
+						# res.send "OK"
 				else
 					next!
 			else
