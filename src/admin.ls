@@ -67,7 +67,9 @@ module.exports = (app)->
 					res.send err
 				else
 					res.status 200
-					res.send _.uniq _.flatten result
+					res.send _.uniq(_.flatten(result), ->
+						it.toObject
+					,'_id')
 			else if req.query.type is "faculty"
 				...
 			else if req.query.type is "admin"
