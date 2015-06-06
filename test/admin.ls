@@ -72,6 +72,12 @@ describe "Admin" ->
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
+		it "should allow an admin to search for a course", (done)->
+			admin
+				.get "/admin/?action=search&type=course&title=Intro to Java"
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
 		it "should not return duplicate results", (done)->
 			admin
 				.get "/admin/?action=search&type=student&id=1&username=student&email=student@kean.edu"
