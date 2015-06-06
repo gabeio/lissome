@@ -67,15 +67,99 @@ module.exports = (app)->
 					res.send err
 				else
 					res.status 200
-					res.send _.uniq(_.flatten(result), ->
+					res.send _.uniq _.flatten(result), ->
 						it.toObject
-					,'_id')
+					,'_id'
 			else if req.query.type is "faculty"
-				...
+				err, result <- async.parallel [
+					(para)->
+						err, result <- User.find {
+							"id":req.query.id
+							"type":2
+							"school":process.env.school
+						}
+						para err, result
+					(para)->
+						err, result <- User.find {
+							"username":req.query.username
+							"type":2
+							"school":process.env.school
+						}
+						para err, result
+					(para)->
+						err, result <- User.find {
+							"email":req.query.email
+							"type":2
+							"school":process.env.school
+						}
+						para err, result
+				]
+				if err
+					winston.error err
+					res.status 400
+					res.send err
+				else
+					res.status 200
+					res.send _.uniq _.flatten(result), ->
+						it.toObject
+					,'_id'
 			else if req.query.type is "admin"
-				...
+				err, result <- async.parallel [
+					(para)->
+						err, result <- User.find {
+							"id":req.query.id
+							"type":3
+							"school":process.env.school
+						}
+						para err, result
+					(para)->
+						err, result <- User.find {
+							"username":req.query.username
+							"type":3
+							"school":process.env.school
+						}
+						para err, result
+					(para)->
+						err, result <- User.find {
+							"email":req.query.email
+							"type":3
+							"school":process.env.school
+						}
+						para err, result
+				]
+				if err
+					winston.error err
+					res.status 400
+					res.send err
+				else
+					res.status 200
+					res.send _.uniq _.flatten(result), ->
+						it.toObject
+					,'_id'
 			else if req.query.type is "course"
-				...
+				err, result <- async.parallel [
+					(para)->
+						err, result <- Course.find {
+							"id":req.query.id
+							"school":process.env.school
+						}
+						para err, result
+					(para)->
+						err, result <- Course.find {
+							"title":req.query.title
+							"school":process.env.school
+						}
+						para err, result
+				]
+				if err
+					winston.error err
+					res.status 400
+					res.send err
+				else
+					res.status 200
+					res.send _.uniq _.flatten(result), ->
+						it.toObject
+					,'_id'
 			else
 				res.render "admin/search"
 		.post (req, res, next)->
