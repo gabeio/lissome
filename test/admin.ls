@@ -59,6 +59,12 @@ describe "Admin" ->
 				.get "/admin/?action=search&type=student&id=1&username=student&email=student@kean.edu"
 				.end (err, res)->
 					expect res.status .to.equal 200
+					done err
+		it "should not return duplicate results", (done)->
+			admin
+				.get "/admin/?action=search&type=student&id=1&username=student&email=student@kean.edu"
+				.end (err, res)->
+					expect res.status .to.equal 200
 					expect res.body.length .to.equal 1
 					done err
 	describe "Create User", (...)->
