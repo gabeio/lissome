@@ -53,6 +53,14 @@ describe "Admin" ->
 			.end (err, res)->
 				expect res.status .to.equal 302
 				done!
+	describe "Search", (...)->
+		it "should allow an admin to search for a student", (done)->
+			admin
+				.get "/admin/?action=search&type=student&id=1&username=student&email=student@kean.edu"
+				.end (err, res)->
+					expect res.status .to.equal 200
+					expect res.body.length .to.equal 1
+					done err
 	describe "Create User", (...)->
 		it "should allow an admin to create a student", (done)->
 			admin
