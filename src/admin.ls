@@ -32,6 +32,8 @@ module.exports = (app)->
 				res.render "admin/edit", {type:req.query.type}
 			| "delete"
 				res.render "admin/delete", {type:req.query.type}
+			| "search"
+				res.render "admin/search"
 			| _
 				res.render "admin/default"
 		.post (req, res, next)->
