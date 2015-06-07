@@ -37,7 +37,40 @@ module.exports = (app)->
 			| _
 				res.render "admin/default"
 		.get (req, res, next)->
-			if req.query.type is "student"
+			if req.query.type is "user"
+				err, result <- async.parallel [
+					(para)->
+						err, result <- User.find {
+							"id":req.query.id
+							"school":process.env.school
+						}
+						para err, result
+					(para)->
+						err, result <- User.find {
+							"username":req.query.username
+							"school":process.env.school
+						}
+						para err, result
+					(para)->
+						err, result <- User.find {
+							"email":req.query.email
+							"school":process.env.school
+						}
+						para err, result
+				]
+				if err
+					winston.error err
+					res.status 400
+					res.send err
+				else
+					res.status 200
+					result = _.uniq _.flatten(result), ->
+						it.toObject
+					,'_id'
+					res.render "admin/edit" {
+						"objs":result
+					}
+			else if req.query.type is "student"
 				err, result <- async.parallel [
 					(para)->
 						err, result <- User.find {
@@ -67,9 +100,12 @@ module.exports = (app)->
 					res.send err
 				else
 					res.status 200
-					res.send _.uniq _.flatten(result), ->
+					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,'_id'
+					res.render "admin/edit" {
+						"objs":result
+					}
 			else if req.query.type is "faculty"
 				err, result <- async.parallel [
 					(para)->
@@ -100,9 +136,12 @@ module.exports = (app)->
 					res.send err
 				else
 					res.status 200
-					res.send _.uniq _.flatten(result), ->
+					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,'_id'
+					res.render "admin/edit" {
+						"objs":result
+					}
 			else if req.query.type is "admin"
 				err, result <- async.parallel [
 					(para)->
@@ -133,9 +172,12 @@ module.exports = (app)->
 					res.send err
 				else
 					res.status 200
-					res.send _.uniq _.flatten(result), ->
+					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,'_id'
+					res.render "admin/edit" {
+						"objs":result
+					}
 			else if req.query.type is "course"
 				err, result <- async.parallel [
 					(para)->
@@ -157,9 +199,13 @@ module.exports = (app)->
 					res.send err
 				else
 					res.status 200
-					res.send _.uniq _.flatten(result), ->
+					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,'_id'
+					console.log result
+					res.render "admin/edit" {
+						"objs":result
+					}
 			else
 				res.render "admin/search"
 		.post (req, res, next)->
