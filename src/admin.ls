@@ -32,182 +32,8 @@ module.exports = (app)->
 				res.render "admin/edit", {type:req.query.type}
 			| "delete"
 				res.render "admin/delete", {type:req.query.type}
-			| "search"
-				next!
 			| _
 				res.render "admin/default"
-		.get (req, res, next)->
-			if req.query.type is "user"
-				err, result <- async.parallel [
-					(para)->
-						err, result <- User.find {
-							"id":req.query.id
-							"school":process.env.school
-						}
-						para err, result
-					(para)->
-						err, result <- User.find {
-							"username":req.query.username
-							"school":process.env.school
-						}
-						para err, result
-					(para)->
-						err, result <- User.find {
-							"email":req.query.email
-							"school":process.env.school
-						}
-						para err, result
-				]
-				if err
-					winston.error err
-					res.status 400
-					res.send err
-				else
-					res.status 200
-					result = _.uniq _.flatten(result), ->
-						it.toObject
-					,'_id'
-					res.render "admin/edit" {
-						"objs":result
-					}
-			else if req.query.type is "student"
-				err, result <- async.parallel [
-					(para)->
-						err, result <- User.find {
-							"id":req.query.id
-							"type":1
-							"school":process.env.school
-						}
-						para err, result
-					(para)->
-						err, result <- User.find {
-							"username":req.query.username
-							"type":1
-							"school":process.env.school
-						}
-						para err, result
-					(para)->
-						err, result <- User.find {
-							"email":req.query.email
-							"type":1
-							"school":process.env.school
-						}
-						para err, result
-				]
-				if err
-					winston.error err
-					res.status 400
-					res.send err
-				else
-					res.status 200
-					result = _.uniq _.flatten(result), ->
-						it.toObject
-					,'_id'
-					res.render "admin/edit" {
-						"objs":result
-					}
-			else if req.query.type is "faculty"
-				err, result <- async.parallel [
-					(para)->
-						err, result <- User.find {
-							"id":req.query.id
-							"type":2
-							"school":process.env.school
-						}
-						para err, result
-					(para)->
-						err, result <- User.find {
-							"username":req.query.username
-							"type":2
-							"school":process.env.school
-						}
-						para err, result
-					(para)->
-						err, result <- User.find {
-							"email":req.query.email
-							"type":2
-							"school":process.env.school
-						}
-						para err, result
-				]
-				if err
-					winston.error err
-					res.status 400
-					res.send err
-				else
-					res.status 200
-					result = _.uniq _.flatten(result), ->
-						it.toObject
-					,'_id'
-					res.render "admin/edit" {
-						"objs":result
-					}
-			else if req.query.type is "admin"
-				err, result <- async.parallel [
-					(para)->
-						err, result <- User.find {
-							"id":req.query.id
-							"type":3
-							"school":process.env.school
-						}
-						para err, result
-					(para)->
-						err, result <- User.find {
-							"username":req.query.username
-							"type":3
-							"school":process.env.school
-						}
-						para err, result
-					(para)->
-						err, result <- User.find {
-							"email":req.query.email
-							"type":3
-							"school":process.env.school
-						}
-						para err, result
-				]
-				if err
-					winston.error err
-					res.status 400
-					res.send err
-				else
-					res.status 200
-					result = _.uniq _.flatten(result), ->
-						it.toObject
-					,'_id'
-					res.render "admin/edit" {
-						"objs":result
-					}
-			else if req.query.type is "course"
-				err, result <- async.parallel [
-					(para)->
-						err, result <- Course.find {
-							"id":req.query.id
-							"school":process.env.school
-						}
-						para err, result
-					(para)->
-						err, result <- Course.find {
-							"title":req.query.title
-							"school":process.env.school
-						}
-						para err, result
-				]
-				if err
-					winston.error err
-					res.status 400
-					res.send err
-				else
-					res.status 200
-					result = _.uniq _.flatten(result), ->
-						it.toObject
-					,'_id'
-					console.log result
-					res.render "admin/edit" {
-						"objs":result
-					}
-			else
-				res.render "admin/search"
 		.post (req, res, next)->
 			if req.query.action is "create"
 				if req.query.type is "user"
@@ -319,6 +145,180 @@ module.exports = (app)->
 						# res.send "OK"
 				else
 					next!
+			else
+				next!
+		.post (req, res, next)->
+			if req.query.action is "search"
+				if req.query.type||req.body.type is "user"
+					err, result <- async.parallel [
+						(para)->
+							err, result <- User.find {
+								"id":req.body.id
+								"school":process.env.school
+							}
+							para err, result
+						(para)->
+							err, result <- User.find {
+								"username":req.body.username
+								"school":process.env.school
+							}
+							para err, result
+						(para)->
+							err, result <- User.find {
+								"email":req.body.email
+								"school":process.env.school
+							}
+							para err, result
+					]
+					if err
+						winston.error err
+						res.status 400
+						res.send err
+					else
+						res.status 200
+						result = _.uniq _.flatten(result), ->
+							it.toObject
+						,'_id'
+						res.render "admin/edit" {
+							"objs":result
+						}
+				else if req.query.type||req.body.type is "student"
+					err, result <- async.parallel [
+						(para)->
+							err, result <- User.find {
+								"id":req.body.id
+								"type":1
+								"school":process.env.school
+							}
+							para err, result
+						(para)->
+							err, result <- User.find {
+								"username":req.body.username
+								"type":1
+								"school":process.env.school
+							}
+							para err, result
+						(para)->
+							err, result <- User.find {
+								"email":req.body.email
+								"type":1
+								"school":process.env.school
+							}
+							para err, result
+					]
+					if err
+						winston.error err
+						res.status 400
+						res.send err
+					else
+						res.status 200
+						result = _.uniq _.flatten(result), ->
+							it.toObject
+						,'_id'
+						res.render "admin/edit" {
+							"objs":result
+						}
+				else if req.query.type||req.body.type is "faculty"
+					err, result <- async.parallel [
+						(para)->
+							err, result <- User.find {
+								"id":req.body.id
+								"type":2
+								"school":process.env.school
+							}
+							para err, result
+						(para)->
+							err, result <- User.find {
+								"username":req.body.username
+								"type":2
+								"school":process.env.school
+							}
+							para err, result
+						(para)->
+							err, result <- User.find {
+								"email":req.body.email
+								"type":2
+								"school":process.env.school
+							}
+							para err, result
+					]
+					if err
+						winston.error err
+						res.status 400
+						res.send err
+					else
+						res.status 200
+						result = _.uniq _.flatten(result), ->
+							it.toObject
+						,'_id'
+						res.render "admin/edit" {
+							"objs":result
+						}
+				else if req.query.type||req.body.type is "admin"
+					err, result <- async.parallel [
+						(para)->
+							err, result <- User.find {
+								"id":req.body.id
+								"type":3
+								"school":process.env.school
+							}
+							para err, result
+						(para)->
+							err, result <- User.find {
+								"username":req.body.username
+								"type":3
+								"school":process.env.school
+							}
+							para err, result
+						(para)->
+							err, result <- User.find {
+								"email":req.body.email
+								"type":3
+								"school":process.env.school
+							}
+							para err, result
+					]
+					if err
+						winston.error err
+						res.status 400
+						res.send err
+					else
+						res.status 200
+						result = _.uniq _.flatten(result), ->
+							it.toObject
+						,'_id'
+						res.render "admin/edit" {
+							"objs":result
+						}
+				else if req.query.type||req.body.type is "course"
+					err, result <- async.parallel [
+						(para)->
+							err, result <- Course.find {
+								"id":req.body.id
+								"school":process.env.school
+							}
+							para err, result
+						(para)->
+							err, result <- Course.find {
+								"title":req.body.title
+								"school":process.env.school
+							}
+							para err, result
+					]
+					if err
+						winston.error err
+						res.status 400
+						res.send err
+					else
+						res.status 200
+						result = _.uniq _.flatten(result), ->
+							it.toObject
+						,'_id'
+						res.render "admin/edit" {
+							"objs":result
+						}
+				else
+					res.render "admin/search"
 			else
 				next!
 		.put (req, res, next)->

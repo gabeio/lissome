@@ -56,31 +56,54 @@ describe "Admin" ->
 	describe "Search", (...)->
 		it "should allow an admin to search for a student", (done)->
 			admin
-				.get "/admin/?action=search&type=student&id=1&username=student&email=student@kean.edu"
+				.post "/admin/?action=search&type=student"
+				.send {
+					"id": "1"
+					"username": "student"
+					"email": "student@kean.edu"
+				}
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
 		it "should allow an admin to search for a faculty", (done)->
 			admin
-				.get "/admin/?action=search&type=faculty&id=2&username=faculty&email=faculty@kean.edu"
+				.post "/admin/?action=search&type=faculty"
+				.send {
+					"id": "2"
+					"username": "faculty"
+					"email": "faculty@kean.edu"
+				}
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
 		it "should allow an admin to search for a admin", (done)->
 			admin
-				.get "/admin/?action=search&type=admin&id=3&username=admin&email=admin@kean.edu"
+				.post "/admin/?action=search&type=admin"
+				.send {
+					"id": "3"
+					"username": "admin"
+					"email": "admin@kean.edu"
+				}
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
 		it "should allow an admin to search for a course", (done)->
 			admin
-				.get "/admin/?action=search&type=course&title=Intro to Java"
+				.post "/admin/?action=search&type=course&"
+				.send {
+					"title":"Intro to Java"
+				}
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
 		it.skip "should not return duplicate results", (done)->
 			admin
-				.get "/admin/?action=search&type=student&id=1&username=student&email=student@kean.edu"
+				.post "/admin/?action=search&type=student"
+				.send {
+					"id":"1"
+					"username":"student"
+					"email":"student@kean.edu"
+				}
 				.end (err, res)->
 					expect res.status .to.equal 200
 					expect res.body.length .to.equal 1
