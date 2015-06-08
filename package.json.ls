@@ -20,7 +20,7 @@ repository:
 	url: 'git://github.com/gabeio/lissome.git'
 
 dependencies:
-	"async": '~1.2.0'
+	"async": '~1.2.1'
 	"bcrypt": '~0.8.3'
 	"body-parser": '~1.12.4'
 	"compression": '~1.4.4'
@@ -53,7 +53,7 @@ devDependencies:
 	"del": '~1.2.0'
 	"gulp": '~3.9.0'
 	"gulp-coveralls": '~0.1.4'
-	"gulp-livescript": '~2.3.1'
+	"gulp-livescript": '~2.4.0'
 	"gulp-mocha": '~2.1.1'
 	"istanbul": '~0.3.14'
 	"mocha": '~2.2.5'
