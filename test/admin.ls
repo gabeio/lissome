@@ -22,7 +22,7 @@ ObjectId = mongoose.Types.ObjectId
 _ = lodash
 Course = mongoose.models.Course
 User = mongoose.models.User
-describe "Admin" ->
+describe "Admin", (...)->
 	before (done)->
 		student
 			.post "/login"
@@ -53,7 +53,19 @@ describe "Admin" ->
 			.end (err, res)->
 				expect res.status .to.equal 302
 				done!
+	it "should return the admin dashboard", (done)->
+		admin
+			.get "/admin"
+			.end (err, res)->
+				expect res.status .to.equal 200
+				done err
 	describe "Search", (...)->
+		it "should return a search page", (done)->
+			admin
+				.get "/admin/?action=search"
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
 		it "should allow an admin to search for a student", (done)->
 			admin
 				.post "/admin/?action=search&type=student"
@@ -109,6 +121,12 @@ describe "Admin" ->
 					expect res.body.length .to.equal 1
 					done err
 	describe "Create User", (...)->
+		it "should return a create user page", (done)->
+			admin
+				.get "/admin/?action=create&type=user"
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
 		it "should allow an admin to create a student", (done)->
 			admin
 				.post "/admin/?action=create&type=user"
@@ -254,7 +272,13 @@ describe "Admin" ->
 					expect res.status .to.equal 400
 					done err
 	describe "Create Course", (...)->
-		it "should allow an admin to create a student", (done)->
+		it "should return a create course page", (done)->
+			admin
+				.get "/admin/?action=create&type=course"
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
+		it "should allow an admin to create a course", (done)->
 			admin
 				.post "/admin/?action=create&type=course"
 				.send {
@@ -265,6 +289,12 @@ describe "Admin" ->
 					expect res.status .to.equal 200
 					done err
 	describe "Edit User", (...)->
+		it "should return an edit user page", (done)->
+			admin
+				.get "/admin/?action=edit&type=user"
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
 		it "should allow an admin to edit a student", (done)->
 			admin
 				.post "/admin/?hmo=PUT&action=edit&type=user"
@@ -317,6 +347,12 @@ describe "Admin" ->
 					expect res.status .to.equal 200
 					done err
 	describe "Edit Course", (...)->
+		it "should return an edit course page", (done)->
+			admin
+				.get "/admin/?action=edit&type=course"
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
 		it "should allow an admin to edit a course", (done)->
 			admin
 				.post "/admin/?hmo=PUT&action=edit&type=course"
@@ -409,6 +445,12 @@ describe "Admin" ->
 					expect res.status .to.equal 200
 					done err
 	describe "Delete Course", (...)->
+		it.skip "should return a delete course page", (done)->
+			admin
+				.get "/admin/?action=delete&type=course"
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
 		it "should allow an admin to delete a course", (done)->
 			admin
 				.post "/admin/?hmo=DELETE&action=delete&type=course"
@@ -418,7 +460,13 @@ describe "Admin" ->
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
-	describe "Delete user", (...)->
+	describe "Delete User", (...)->
+		it.skip "should return a delete user page", (done)->
+			admin
+				.get "/admin/?action=delete&type=user"
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
 		it "should allow an admin to delete a student", (done)->
 			admin
 				.post "/admin/?hmo=DELETE&action=delete&type=user"
