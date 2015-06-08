@@ -221,13 +221,14 @@ else
 	winston.remove winston.transports.Console
 	/*winston.add winston.transports.Console, {level:"warn"}*/
 	require("./test")(app)
-
+/* istanbul ignore next this is only executed when sigterm is sent */
 process.on "SIGTERM", ->
 	console.log "\nShutting down from SIGTERM"
 	server.close!
 	mongoose.disconnect!
 	redis.end!
 	process.exit 0
+/* istanbul ignore next this is only executed when sigint is sent */
 process.on "SIGINT", ->
 	console.log "\nGracefully shutting down from SIGINT (Ctrl-C)"
 	server.close!
