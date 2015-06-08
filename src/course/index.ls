@@ -7,6 +7,7 @@ module.exports = (app)->
 	Course = mongoose.models.Course
 	Post = mongoose.models.Post
 	app
+		/* istanbul ignore next until is actually created */
 		..route "/:route(c|C|course)/:course/settings"
 		.all (req, res, next)->
 			res.locals.needs = 2 # maybe 3
@@ -46,7 +47,7 @@ module.exports = (app)->
 				"id": req.params.course
 				"school": app.locals.school
 			}
-			/* istanbul ignore else there should be no way to hit that. */
+			/* istanbul ignore else there should be no way to hit the else. */
 			if res.locals.auth >= 3
 				next!
 			else if res.locals.auth is 2
