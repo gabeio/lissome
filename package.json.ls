@@ -20,7 +20,7 @@ repository:
 	url: 'git://github.com/gabeio/lissome.git'
 
 dependencies:
-	"async": '~1.2.0'
+	"async": '~1.2.1'
 	"bcrypt": '~0.8.3'
 	"body-parser": '~1.12.4'
 	"compression": '~1.4.4'
