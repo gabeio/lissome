@@ -66,6 +66,17 @@ describe "Admin", (...)->
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
+		it "should allow an admin to search for a user", (done)->
+			admin
+				.post "/admin/?action=search&type=user"
+				.send {
+					"id": "1"
+					"username": "student"
+					"email": "student@kean.edu"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
 		it "should allow an admin to search for a student", (done)->
 			admin
 				.post "/admin/?action=search&type=student"
@@ -101,13 +112,74 @@ describe "Admin", (...)->
 					done err
 		it "should allow an admin to search for a course", (done)->
 			admin
-				.post "/admin/?action=search&type=course&"
+				.post "/admin/?action=search&type=course"
 				.send {
 					"title":"Intro to Java"
 				}
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
+		it "should not care where type is coming from (body)", (done)->
+			err <- async.parallel [
+				(para)->
+					admin
+						.post "/admin/?action=search"
+						.send {
+							"type": "user"
+							"id": "1"
+							"username": "student"
+							"email": "student@kean.edu"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 200
+							para err
+				(para)->
+					admin
+						.post "/admin/?action=search"
+						.send {
+							"type": "student"
+							"id": "1"
+							"username": "student"
+							"email": "student@kean.edu"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 200
+							para err
+				(para)->
+					admin
+						.post "/admin/?action=search"
+						.send {
+							"type": "faculty"
+							"id": "2"
+							"username": "faculty"
+							"email": "faculty@kean.edu"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 200
+							para err
+				(para)->
+					admin
+						.post "/admin/?action=search"
+						.send {
+							"type": "admin"
+							"id": "3"
+							"username": "admin"
+							"email": "admin@kean.edu"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 200
+							para err
+				(para)->
+					admin
+						.post "/admin/?action=search"
+						.send {
+							"title": "Intro to Java"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 200
+							para err
+			]
+			done err
 		it.skip "should not return duplicate results", (done)->
 			admin
 				.post "/admin/?action=search&type=student"

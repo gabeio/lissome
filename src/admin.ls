@@ -151,7 +151,7 @@ module.exports = (app)->
 				next!
 		.post (req, res, next)->
 			if req.query.action is "search"
-				if req.query.type||req.body.type is "user"
+				if (req.query.type||req.body.type) is "user"
 					err, result <- async.parallel [
 						(para)->
 							err, result <- User.find {
@@ -184,7 +184,7 @@ module.exports = (app)->
 						res.render "admin/edit" {
 							"objs":result
 						}
-				else if req.query.type||req.body.type is "student"
+				else if (req.query.type||req.body.type) is "student"
 					err, result <- async.parallel [
 						(para)->
 							err, result <- User.find {
@@ -220,7 +220,7 @@ module.exports = (app)->
 						res.render "admin/edit" {
 							"objs":result
 						}
-				else if req.query.type||req.body.type is "faculty"
+				else if (req.query.type||req.body.type) is "faculty"
 					err, result <- async.parallel [
 						(para)->
 							err, result <- User.find {
@@ -256,7 +256,7 @@ module.exports = (app)->
 						res.render "admin/edit" {
 							"objs":result
 						}
-				else if req.query.type||req.body.type is "admin"
+				else if (req.query.type||req.body.type) is "admin"
 					err, result <- async.parallel [
 						(para)->
 							err, result <- User.find {
@@ -292,7 +292,7 @@ module.exports = (app)->
 						res.render "admin/edit" {
 							"objs":result
 						}
-				else if req.query.type||req.body.type is "course"
+				else if (req.query.type||req.body.type) is "course"
 					err, result <- async.parallel [
 						(para)->
 							err, result <- Course.find {
