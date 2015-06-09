@@ -401,7 +401,7 @@ describe "Admin", (...)->
 					"email":"mydiffemail@email.com"
 				}
 				.end (err, res)->
-					expect res.status .to.equal 400
+					expect res.status .to.equal 404
 					done err
 		it "should not do anything for delete action=create", (done)->
 			admin
@@ -417,7 +417,7 @@ describe "Admin", (...)->
 					"email":"mydiffemail@email.com"
 				}
 				.end (err, res)->
-					expect res.status .to.equal 400
+					expect res.status .to.equal 404
 					done err
 	describe "Create Course", (...)->
 		it "should return a create course page", (done)->
