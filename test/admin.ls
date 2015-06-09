@@ -180,6 +180,50 @@ describe "Admin", (...)->
 							para err
 			]
 			done err
+		it "should not do anything for put action=search", (done)->
+			err <- async.parallel [
+				(para)->
+					admin
+						.put "/admin/?action=search&type=course"
+						.send {
+							"title":"Intro to Java"
+						}
+						.expect 404
+						.end (err, res)->
+							para err
+				(para)->
+					admin
+						.put "/admin/?action=search&type=user"
+						.send {
+							"id":"1"
+						}
+						.expect 404
+						.end (err, res)->
+							para err
+			]
+			done err
+		it "should not do anything for delete action=search", (done)->
+			err <- async.parallel [
+				(para)->
+					admin
+						.delete "/admin/?action=search&type=course"
+						.send {
+							"title":"Intro to Java"
+						}
+						.expect 404
+						.end (err, res)->
+							para err
+				(para)->
+					admin
+						.delete "/admin/?action=search&type=user"
+						.send {
+							"id":"1"
+						}
+						.expect 404
+						.end (err, res)->
+							para err
+			]
+			done err
 		it.skip "should not return duplicate results", (done)->
 			admin
 				.post "/admin/?action=search&type=student"
@@ -335,6 +379,38 @@ describe "Admin", (...)->
 					"username":"adminCreatedTinyPass"
 					"type":"2"
 					"password":"pass"
+					"firstName":"John"
+					"middleName":"Middle"
+					"lastName":"ThisIsLastName"
+					"email":"mydiffemail@email.com"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 400
+					done err
+		it "should not do anything for put action=create", (done)->
+			admin
+				.put "/admin/?action=create&type=user"
+				.send {
+					"id":"1009"
+					"username":"adminCreatedTinyPass"
+					"type":"2"
+					"password":"password"
+					"firstName":"John"
+					"middleName":"Middle"
+					"lastName":"ThisIsLastName"
+					"email":"mydiffemail@email.com"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 400
+					done err
+		it "should not do anything for delete action=create", (done)->
+			admin
+				.delete "/admin/?action=create&type=user"
+				.send {
+					"id":"1009"
+					"username":"adminCreatedTinyPass"
+					"type":"2"
+					"password":"password"
 					"firstName":"John"
 					"middleName":"Middle"
 					"lastName":"ThisIsLastName"
