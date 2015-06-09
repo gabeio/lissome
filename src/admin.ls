@@ -108,7 +108,7 @@ module.exports = (app)->
 						res.send err
 					else
 						res.status 200
-						res.render "admin/create", { noun:"User", verb:"created", success:'true', type:"user" }
+						res.render "admin/create", { noun:"User", verb:"created", success:"true", type:"user" }
 						# res.send "OK"
 				else if req.query.type is "course"
 					err <- async.waterfall [
@@ -143,7 +143,7 @@ module.exports = (app)->
 						res.send err
 					else
 						res.status 200
-						res.render "admin/create", { noun:"Course", verb:"created", success:'true', type:"course" }
+						res.render "admin/create", { noun:"Course", verb:"created", success:"true", type:"course" }
 						# res.send "OK"
 				else
 					next!
@@ -180,7 +180,7 @@ module.exports = (app)->
 						res.status 200
 						result = _.uniq _.flatten(result), ->
 							it.toObject
-						,'_id'
+						,"_id"
 						res.render "admin/edit" {
 							"objs":result
 						}
@@ -216,7 +216,7 @@ module.exports = (app)->
 						res.status 200
 						result = _.uniq _.flatten(result), ->
 							it.toObject
-						,'_id'
+						,"_id"
 						res.render "admin/edit" {
 							"objs":result
 						}
@@ -252,7 +252,7 @@ module.exports = (app)->
 						res.status 200
 						result = _.uniq _.flatten(result), ->
 							it.toObject
-						,'_id'
+						,"_id"
 						res.render "admin/edit" {
 							"objs":result
 						}
@@ -288,7 +288,7 @@ module.exports = (app)->
 						res.status 200
 						result = _.uniq _.flatten(result), ->
 							it.toObject
-						,'_id'
+						,"_id"
 						res.render "admin/edit" {
 							"objs":result
 						}
@@ -315,7 +315,7 @@ module.exports = (app)->
 						res.status 200
 						result = _.uniq _.flatten(result), ->
 							it.toObject
-						,'_id'
+						,"_id"
 						res.render "admin/edit" {
 							"objs":result
 						}
