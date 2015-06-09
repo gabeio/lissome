@@ -6,6 +6,10 @@ module.exports = (app)->
 		"mongoose"
 		"winston"
 	}
+	lower = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
+	upper = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
+	num = ["0","1","2","3","4","5","6","7","8","9"]
+	alphanum = lower.concat upper.concat num
 	ObjectId = mongoose.Types.ObjectId
 	_ = lodash
 	Course = mongoose.models.Course
@@ -47,7 +51,12 @@ module.exports = (app)->
 								cont null
 						(cont)->
 							if req.body.randpassword in [true,"true"]
-								... # generate and set to req.body.password
+								newpass = []
+								for x from 1 to 7
+									index = Math.floor alphanum.length * Math.random()
+									newpass.push alphanum[index]
+								req.body.password = newpass.join ''
+								cont null
 							else
 								cont null
 						# double check password & repeat are the same
