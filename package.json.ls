@@ -23,7 +23,7 @@ dependencies:
 	"async": '~1.2.1'
 	"bcrypt": '~0.8.3'
 	"body-parser": '~1.12.4'
-	"compression": '~1.4.4'
+	"compression": '~1.5.0'
 	"connect-redis": '~2.3.0'
 	"csurf": '~1.8.2'
 	"express": '~4.12.4'
