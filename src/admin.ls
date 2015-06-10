@@ -190,7 +190,7 @@ module.exports = (app)->
 						result = _.uniq _.flatten(result), ->
 							it.toObject
 						,"_id"
-						res.render "admin/edit" {
+						res.render "admin/list" {
 							"objs":result
 						}
 				else if (req.query.type||req.body.type) is "student"
@@ -226,7 +226,7 @@ module.exports = (app)->
 						result = _.uniq _.flatten(result), ->
 							it.toObject
 						,"_id"
-						res.render "admin/edit" {
+						res.render "admin/list" {
 							"objs":result
 						}
 				else if (req.query.type||req.body.type) is "faculty"
@@ -262,7 +262,7 @@ module.exports = (app)->
 						result = _.uniq _.flatten(result), ->
 							it.toObject
 						,"_id"
-						res.render "admin/edit" {
+						res.render "admin/list" {
 							"objs":result
 						}
 				else if (req.query.type||req.body.type) is "admin"
@@ -298,7 +298,7 @@ module.exports = (app)->
 						result = _.uniq _.flatten(result), ->
 							it.toObject
 						,"_id"
-						res.render "admin/edit" {
+						res.render "admin/list" {
 							"objs":result
 						}
 				else if (req.query.type||req.body.type) is "course"
@@ -325,7 +325,7 @@ module.exports = (app)->
 						result = _.uniq _.flatten(result), ->
 							it.toObject
 						,"_id"
-						res.render "admin/edit" {
+						res.render "admin/list" {
 							"objs":result
 						}
 				else
