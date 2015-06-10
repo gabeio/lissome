@@ -64,9 +64,9 @@ describe "Course" ->
 					expect res.status .to.not.equal 200
 					done err
 	describe "Settings", (...)->
-		it "should allow a teacher should be able to edit their classes"
-		it "should allow a teacher should NOT be ablt to edit any other classes"
-		it "should allow an admin should be able to edit any class"
+		it.skip "should allow a teacher should be able to edit their classes", (done)->
+		it.skip "should allow a teacher should NOT be ablt to edit any other classes", (done)->
+		it.skip "should allow an admin should be able to edit any class", (done)->
 	describe "Blog", (...)->
 		beforeEach (done)->
 			admin
