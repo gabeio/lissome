@@ -10,14 +10,14 @@ req = supertest
 expect = chai.expect
 assert = chai.assert
 should = chai.should!
-var app, agent, student, faculty, admin
+var app, outside, student, faculty, admin
 describe "Core" ->
 	before (done)->
 		app := require "../lib/app"
 		app.locals.mongo.on "open", ->
 			done!
 	before (done)-> # setup user agents
-		agent := req.agent app
+		outside := req.agent app
 		student := req.agent app
 		faculty := req.agent app
 		admin := req.agent app
@@ -25,31 +25,31 @@ describe "Core" ->
 	before (done)->
 		# this is to allow app setup
 		this.timeout 0
-		setTimeout done, 1000
+		setTimeout done, 2000
 	describe "Index", (...)->
 		it "should respond to a GET", (done)->
-			agent
+			outside
 				.get "/"
 				.end (err, res)->
 					expect res.header.location .to.equal "/login"
 					expect res.status .to.equal 302
 					done err
 		it "should error to a POST", (done)->
-			agent
+			outside
 				.post "/"
 				.end (err, res)->
 					expect res.header.location .to.equal "/login"
 					expect res.status .to.not.equal 200
 					done err
 		it "should error to a PUT", (done)->
-			agent
+			outside
 				.put "/"
 				.end (err, res)->
 					expect res.header.location .to.equal "/login"
 					expect res.status .to.not.equal 200
 					done err
 		it "should error to a DELETE", (done)->
-			agent
+			outside
 				.delete "/"
 				.end (err, res)->
 					expect res.header.location .to.equal "/login"
@@ -59,7 +59,7 @@ describe "Core" ->
 		afterEach (complete)->
 			<- async.parallel [
 				(done)->
-					agent
+					outside
 						.get "/logout"
 						.end (err, res)->
 							done err
@@ -81,7 +81,7 @@ describe "Core" ->
 			]
 			complete!
 		it "should respond to a GET", (done)->
-			agent
+			outside
 				.get "/login"
 				.end (err, res)->
 					expect res.status .to.equal 200
@@ -150,7 +150,7 @@ describe "Core" ->
 		it "should ignore put/delete to login as outside", (done)->
 			err <- async.parallel [
 				(cont)->
-					agent
+					outside
 						.put "/login"
 						.send {
 							"username":"gibberish"
@@ -161,7 +161,7 @@ describe "Core" ->
 							expect res.status .to.not.equal 200
 							cont err
 				(cont)->
-					agent
+					outside
 						.delete "/login"
 						.send {
 							"username":"gibberish"
