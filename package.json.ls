@@ -55,7 +55,7 @@ devDependencies:
 	"gulp-coveralls": '~0.1.4'
 	"gulp-livescript": '~2.4.0'
 	"gulp-mocha": '~2.1.1'
-	"istanbul": '~0.3.14'
+	"istanbul": '~0.3.15'
 	"mocha": '~2.2.5'
 	"nodemon": '~1.3.7'
 	"supertest": '~0.15.0'
