@@ -25,6 +25,7 @@ dependencies:
 	"body-parser": '~1.12.4'
 	"compression": '~1.5.0'
 	"connect-redis": '~2.3.0'
+	"cors":"~2.7.1"
 	"csurf": '~1.8.2'
 	"express": '~4.12.4'
 	"express-partial-response": '~0.3.4'

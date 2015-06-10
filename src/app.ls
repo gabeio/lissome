@@ -4,6 +4,7 @@ require! {
 	"body-parser"
 	"compression" # nginx gzip
 	"connect-redis"
+	"cors"
 	"express" # router
 	"express-partial-response"
 	"express-session" # session
@@ -14,33 +15,21 @@ require! {
 	"moment-timezone"
 	"mongoose"
 	"multer"
+	"response-time"
 	"serve-static" # nginx static
 	"swig" # templates
 	"util"
 	"winston"
 	"yargs" # --var val
 }
-var timezone
-RedisStore = connect-redis express-session
-argv = yargs.argv
-app = module.exports = express!
-md = new markdown-it {
-	html: false
-	xhtml: false
-	linkify: true
-	typographer: true
-}
 
-# load needed libs into app locals
-app
-	# variables
-	..locals.recaptchaPrivateKey = process.env.RECAPKEY
-	..locals.school = process.env.school
-	..locals.swig = swig
-	# errors
-	# ..locals.err = {
-	# 	"NOT FOUND": new Error
-	# }
+# argv parser
+argv = yargs.argv
+# express
+app = module.exports = express!
+
+# app locals
+app.locals.school = process.env.school
 
 /* istanbul ignore next this is just for assurance the env vars are defined */
 do ->
@@ -67,6 +56,14 @@ do ->
 		console.log "redisport env undefined\ntrying default anyway..."
 	if !process.env.redisauth? and !process.env.REDISAUTH? and !argv.redisauth?
 		console.log "redisauth env undefined\ntrying null anyway..."
+
+# markdown-it options
+md = new markdown-it {
+	html: false
+	xhtml: false
+	linkify: true
+	typographer: true
+}
 
 # create swig |markdown filter
 swig.setFilter "markdown", (input)->
@@ -97,8 +94,11 @@ redis = require("./redisClient")(app,\
 	(process.env.redisauth||process.env.REDISAUTH||argv.redisauth||void),\
 	(process.env.redisdb||process.env.REDISDB||argv.redisdb||0))
 
+RedisStore = connect-redis express-session
+
 # App Settings/Middleware
 app
+	.use response-time!
 	.use helmet!
 	.use helmet.contentSecurityPolicy {
 		default-src: ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com"]
@@ -106,9 +106,10 @@ app
 		style-src:   ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com", "fonts.googleapis.com"]
 		font-src:    ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com", "fonts.googleapis.com", "fonts.gstatic.com"]
 	}
+	.use helmet.frameguard 'deny'
 	# body parser
 	.use bodyParser.urlencoded {
-		-extended
+		+extended
 	}
 	.use bodyParser.json!
 	.use bodyParser.text! # idk
@@ -154,6 +155,8 @@ app
 	# 	secretLength: 32
 	# 	saltLength: 10
 	# }
+	# Cross Origin Resourse Sharing
+	.use cors!
 	# compress large files
 	.use compression!
 
@@ -182,23 +185,13 @@ switch process.env.NODE_ENV
 | "production"
 	# production run
 	winston.info "Production Mode"
-	require! {
-		"response-time"
-	}
-	app.use response-time!
 | _
 	# development/other run
 	if !module.parent
-		winston.info "Development Mode/Unknown Mode"
-	require! {
-		"util"
-		"response-time"
-	}
+		winston.info "Development Mode"
 	# disable template cache
 	app.set "view cache" false
 	swig.setDefaults { -cache }
-	app.locals.util = if util? then util
-	app.use response-time!
 
 # Attach base
 require("./base")(app)
