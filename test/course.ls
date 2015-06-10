@@ -57,7 +57,7 @@ describe "Course" ->
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
-		it "should not allow a student should NOT be able to access any other classes", (done)->
+		it "should not allow a student to access any other classes", (done)->
 			student
 				.get "/cps4601" # student is not in cps4601
 				.end (err, res)->
@@ -237,7 +237,7 @@ describe "Course" ->
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
-		it "should not crash when searching", (done)->
+		it "should not crash when searching 1", (done)->
 			err <- async.parallel [
 				(cont)->
 					student
@@ -251,6 +251,10 @@ describe "Course" ->
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
+			]
+			done err
+		it "should not crash when searching 2", (done)->
+			err <- async.parallel [
 				(cont)->
 					admin
 						.get "/cps1234/blog?search=title"
@@ -265,7 +269,7 @@ describe "Course" ->
 							cont err
 			]
 			done err
-		it "should not crash when searching (more)", (done)->
+		it "should not crash when searching 3", (done)->
 			err <- async.parallel [
 				(cont)->
 					student
@@ -279,6 +283,10 @@ describe "Course" ->
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
+			]
+			done err
+		it "should not crash when searching 4", (done)->
+			err <- async.parallel [
 				(cont)->
 					admin
 						.get "/cps1234/blog?search=not+a+title"
