@@ -33,7 +33,7 @@ dependencies:
 	"hiredis": '~0.4.0'
 	"livescript": '~1.4.0'
 	"lodash": '~3.9.3'
-	"markdown-it": '~4.2.1'
+	"markdown-it": '~4.2.2'
 	"method-override": '~2.3.3'
 	"moment": '~2.10.3'
 	"moment-timezone": '~0.4.0'
