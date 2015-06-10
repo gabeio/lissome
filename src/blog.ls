@@ -159,6 +159,7 @@ module.exports = (app)->
 				]
 			else
 				next new Error "bad blog delete"
+
 		..route "/:course/blog/:unique?" # query action(search)
 		.all (req, res, next)->
 			res.locals.needs = 1

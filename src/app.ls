@@ -7,7 +7,6 @@ require! {
 	"express" # router
 	"express-partial-response"
 	"express-session" # session
-	"fs-extra" # only if needed
 	"helmet"
 	"markdown-it"
 	"method-override"
@@ -25,7 +24,6 @@ var timezone
 RedisStore = connect-redis express-session
 argv = yargs.argv
 app = module.exports = express!
-fs = fsExtra
 md = new markdown-it {
 	html: false
 	xhtml: false
@@ -222,13 +220,14 @@ else
 	winston.remove winston.transports.Console
 	/*winston.add winston.transports.Console, {level:"warn"}*/
 	require("./test")(app)
-
+/* istanbul ignore next this is only executed when sigterm is sent */
 process.on "SIGTERM", ->
 	console.log "\nShutting down from SIGTERM"
 	server.close!
 	mongoose.disconnect!
 	redis.end!
 	process.exit 0
+/* istanbul ignore next this is only executed when sigint is sent */
 process.on "SIGINT", ->
 	console.log "\nGracefully shutting down from SIGINT (Ctrl-C)"
 	server.close!

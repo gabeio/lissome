@@ -1069,7 +1069,7 @@ describe "Assignments" ->
 				}
 				.end (err, res)->
 					expect res.status .to.equal 400
-					expect res.text .to.have.string "Allowed assignment submission time has not opened."
+					expect res.text .to.have.string "Allowed assignment submission window has not opened."
 					done err
 		it "should not allow late submissions if not allowed", (done)->
 			student
@@ -1080,7 +1080,7 @@ describe "Assignments" ->
 				}
 				.end (err, res)->
 					expect res.status .to.equal 400
-					expect res.text .to.have.string "Allowed assignment submission time has closed."
+					expect res.text .to.have.string "Allowed assignment submission window has closed."
 					done err
 		it "should allow late submissions if allowed", (done)->
 			student

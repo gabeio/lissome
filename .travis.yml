@@ -2,7 +2,7 @@
 language: node_js
 node_js:
     - 'iojs-v1.0'
-    - 'iojs-v2.1'
+    - 'iojs-v2.2'
     - '0.10'
     - '0.12'
 sudo: false
@@ -28,3 +28,5 @@ before_install:
     - npm install coveralls
 script:
     - npm run-script testCi
+after_script:
+    - "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
