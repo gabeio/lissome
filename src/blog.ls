@@ -88,13 +88,10 @@ module.exports = (app)->
 					->
 						if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 							post = new Post {
-								# uuid: res.locals.postuuid
 								title: encodeURIComponent req.body.title
 								text: req.body.text
 								# files: req.body.files
 								author: ObjectId res.locals.uid
-								authorName: res.locals.firstName+" "+res.locals.lastName
-								authorUsername: res.locals.username
 								tags: []
 								type: "blog"
 								school: app.locals.school
