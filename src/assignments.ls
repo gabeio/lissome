@@ -327,7 +327,7 @@ module.exports = (app)->
 			# handle new assignment
 			switch req.query.action
 			| "new"
-				if !req.body.title? || !req.body.text? || !req.body.tries? # double check require fields exist
+				if !req.body.title? || !req.body.text? || !req.body.tries? || req.body.title is "" || req.body.text is "" # double check require fields exist
 					res.status 400 .render "assignments/create" { body: req.body, success:"no", action:"edit"}
 				else
 					# winston.info "J1"

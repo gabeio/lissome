@@ -102,8 +102,7 @@ describe "Assignments Module" ->
 					"text":"you will fail!"
 				}
 				.end (err, res)->
-					expect res.status .to.equal 302
-					expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
+					expect res.status .to.equal 400
 					done err
 		it "should return an assignment", (done)->
 			err <- async.waterfall [
