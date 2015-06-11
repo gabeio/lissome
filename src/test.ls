@@ -1,5 +1,5 @@
 /*
-	this module is meant only to load for testing.
+	this module is should only to load for testing.
 */
 /* istanbul ignore next only for testing anyway */
 module.exports = (app)->
