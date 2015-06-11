@@ -31,7 +31,7 @@ module.exports = (app)->
 				next new Error "UNAUTHORIZED"
 		.all (req, res, next)->
 			err, result <- Course.findOne res.locals.course
-			/* istanbul ignore if should only really occur if db crashes */
+			/* istanbul ignore if should only occur if db crashes */
 			if err
 				winston.error "course findOne conf", err
 				next new Error "INTERNAL"
@@ -50,6 +50,7 @@ module.exports = (app)->
 			.populate "author"
 			.sort!
 			.exec
+			/* istanbul ignore if should only occur if db crashes */
 			if err?
 				winston.error "assign findOne conf", err
 				next new Error "INTERNAL"
