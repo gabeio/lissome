@@ -45,7 +45,7 @@ module.exports = (app)->
 					next new Error "UNAUTHORIZED"
 		.all (req, res, next)->
 			err, result <- Course.findOne res.locals.course
-			/* istanbul ignore if should only really occur if db crashes */
+			/* istanbul ignore if should only occur if db crashes */
 			if err
 				winston.error "course findOne conf", err
 				next new Error "INTERNAL"
@@ -60,6 +60,8 @@ module.exports = (app)->
 			<- async.parallel [
 				(done)->
 					# default view
+					# no assignment given
+					# no attempt given
 					if !req.params.assign? && !req.params.attempt?
 						# find all assignments
 						res.locals.assignments = {
@@ -72,7 +74,7 @@ module.exports = (app)->
 						err, result <- Assignment.find res.locals.assignments
 						.populate "author"
 						.exec
-						/* istanbul ignore if should only really occur if db crashes */
+						/* istanbul ignore if should only occur if db crashes */
 						if err
 							winston.error "assign findOne conf", err
 							next new Error "INTERNAL"
@@ -83,6 +85,8 @@ module.exports = (app)->
 						done!
 				(done)->
 					# assignment view
+					# assignment given
+					# no attempt given
 					if req.params.assign? && !req.params.attempt?
 						# grab the assignment
 						err, result <- Assignment.findOne {
@@ -91,7 +95,7 @@ module.exports = (app)->
 						}
 						.populate "author"
 						.exec
-						/* istanbul ignore if should only really occur if db crashes */
+						/* istanbul ignore if should only occur if db crashes */
 						if err
 							winston.error "assign findOne conf", err
 							next new Error "INTERNAL"
@@ -104,6 +108,7 @@ module.exports = (app)->
 					else
 						done!
 				(done)->
+					# attempt given
 					if req.params.attempt?
 						# findOne attempt
 						res.locals.attempts = {
@@ -117,7 +122,7 @@ module.exports = (app)->
 						.populate "assignment"
 						.populate "author"
 						.exec
-						/* istanbul ignore if should only really occur if db crashes */
+						/* istanbul ignore if should only occur if db crashes */
 						if err
 							winston.error "assign findOne conf", err
 							next new Error "INTERNAL"
@@ -140,7 +145,7 @@ module.exports = (app)->
 						.populate "author"
 						.sort!
 						.exec
-						/* istanbul ignore if should only really occur if db crashes */
+						/* istanbul ignore if should only occur if db crashes */
 						if err
 							winston.error "assign findOne conf", err
 							next new Error "INTERNAL"
@@ -191,7 +196,7 @@ module.exports = (app)->
 							}
 							.count!
 							.exec
-							/* istanbul ignore if should only really occur if db crashes */
+							/* istanbul ignore if should only occur if db crashes */
 							if err
 								winston.error "attempt find conf",err
 								next new Error "INTERNAL"
@@ -205,7 +210,7 @@ module.exports = (app)->
 							}
 							.populate "author"
 							.exec
-							/* istanbul ignore if should only really occur if db crashes */
+							/* istanbul ignore if should only occur if db crashes */
 							if err
 								winston.error "assign find conf",err
 								next new Error "INTERNAL"
@@ -243,7 +248,7 @@ module.exports = (app)->
 								res.locals.body.late = true
 							res.locals.attempt = new Attempt res.locals.body
 							err, attempt <- res.locals.attempt.save
-							/* istanbul ignore if should only really occur if db crashes */
+							/* istanbul ignore if should only occur if db crashes */
 							if err?
 								winston.error err
 								cont "Mongo Error"
@@ -251,11 +256,14 @@ module.exports = (app)->
 								res.redirect "/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
 								cont null
 					]
+					/* istanbul ignore else should only occur if db crashes */
 					if err and err isnt "redirect" and err isnt "Mongo Error"
 						res.status 400
 						res.render "assignments/view" { body:req.body, success:"error", error:err }
 					else if err is "Mongo Error"
 						next new Error "Mongo Error"
+					else
+						next new Error "Internal"
 			| _
 				next! # not an attempt
 		.all (req, res, next)->
@@ -309,7 +317,7 @@ module.exports = (app)->
 						"course": ObjectId res.locals.course._id
 						# don"t check for author as me might not be...
 					}, assign
-					/* istanbul ignore if should only really occur if db crashes */
+					/* istanbul ignore if should only occur if db crashes */
 					if err?
 						# winston.info "I4"
 						winston.error err
@@ -348,7 +356,7 @@ module.exports = (app)->
 						delete assign.end
 					assignment = new Assignment assign
 					err, assignment <- assignment.save
-					/* istanbul ignore if should only really occur if db crashes */
+					/* istanbul ignore if should only occur if db crashes */
 					if err?
 						winston.error err
 						next new Error "INTERNAL"
@@ -366,7 +374,7 @@ module.exports = (app)->
 						"points": req.body.points
 					}
 					# winston.info attempt
-					/* istanbul ignore if should only really occur if db crashes */
+					/* istanbul ignore if should only occur if db crashes */
 					if err?
 						winston.error err
 						next new Error "INTERNAL"
@@ -384,7 +392,7 @@ module.exports = (app)->
 					"course": ObjectId res.locals.course._id
 				}
 				# winston.info "deleted:",attempts
-				/* istanbul ignore if should only really occur if db crashes */
+				/* istanbul ignore if should only occur if db crashes */
 				if err?
 					winston.error err
 					next new Error "INTERNAL"
@@ -394,7 +402,7 @@ module.exports = (app)->
 						"course": ObjectId res.locals.course._id
 					}
 					# winston.info "deleted:",assignments
-					/* istanbul ignore if should only really occur if db crashes */
+					/* istanbul ignore if should only occur if db crashes */
 					if err?
 						winston.error err
 						next new Error "INTERNAL"
