@@ -40,6 +40,7 @@ module.exports = (app)->
 				next new Error "UNAUTHORIZED"
 		.all (req, res, next)->
 			err, result <- Course.findOne res.locals.course
+			/* istanbul ignore if should only occur if database crashes */
 			if err
 				winston.error "course findOne conf", err
 				next new Error "INTERNAL"
@@ -179,6 +180,7 @@ module.exports = (app)->
 				next new Error "UNAUTHORIZED"
 		.all (req, res, next)->
 			err, result <- Course.findOne res.locals.course
+			/* istanbul ignore if should only occur if database crashes */
 			if err
 				winston.error "course findOne conf", err
 				next new Error "INTERNAL"

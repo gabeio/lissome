@@ -366,6 +366,67 @@ describe "Blog", (...)->
 				.expect 302
 				.end (err, res)->
 					done err
+		it "is not a test", (done)->
+			err <- async.parallel [
+				(cont)->
+					admin
+						.post "/cps1234/blog?action=new"
+						.send {
+							"title":"title"
+							"text":"student"
+						}
+						.end (err, res)->
+							done err
+				(cont)->
+					admin
+						.post "/test/getpid/cps1234"
+						.send {}
+						.end (err, res)->
+							blogpid.0 := res.body.0._id
+							cont err
+			]
+			done err
+		it "should not edit a post", (done)->
+			outside
+				.post "/cps1234/blog/title?action=edit&hmo=PUT"
+				.send {
+					"pid":blogpid.0
+					"title":"anything"
+					"text":"anything"
+				}
+				.expect 302
+				.end (err, res)->
+					expect res.header.location .to.equal "/login"
+					done err
+		it "should not delete a post", (done)->
+			outside
+				.post "/cps1234/blog/title?action=delete&hmo=DELETE"
+				.send {
+					"pid":blogpid.0
+				}
+				.expect 302
+				.end (err, res)->
+					expect res.header.location .to.equal "/login"
+					done err
+		it "should not delete all posts", (done)->
+			outside
+				.post "/cps1234/blog/title?action=deleteall&hmo=DELETE"
+				.expect 302
+				.end (err, res)->
+					expect res.header.location .to.equal "/login"
+					done err
+	it "should return an error on a bad course", (done)->
+		admin
+			.get "/cpsWHAT/blog"
+			.end (err, res)->
+				expect res.status .to.not.equal 200
+				done err
+	it "should return an error on a bad course while editing", (done)->
+		admin
+			.post "/cpsWHAT/blog?action=edit&hmo=PUT"
+			.end (err, res)->
+				expect res.status .to.not.equal 200
+				done err
 	it "should not crash when searching with date", (done)->
 		admin
 			.get "/cps1234/blog?search=Jan+1+2014...Jan+1+2015"
@@ -490,70 +551,70 @@ describe "Blog", (...)->
 						cont err
 		]
 		done err
-	# it "should not allow cross contamination of new/edit/delete posts", (done)->
-	# 	err <- async.parallel [
-	# 		(cont)->
-	# 			admin
-	# 				.post "/cps1234/blog/title?action=delete&hmo=PUT"
-	# 				.send {
-	# 					"pid":blogpid.0
-	# 					"title":"anything"
-	# 					"text":"anything"
-	# 				}
-	# 				.end (err, res)->
-	# 					expect res.status .to.not.equal 302
-	# 					cont err
-	# 		(cont)->
-	# 			admin
-	# 				.post "/cps1234/blog/title?action=edit&hmo=DELETE"
-	# 				.send {
-	# 					"pid":blogpid.0
-	# 				}
-	# 				.end (err, res)->
-	# 					expect res.status .to.not.equal 302
-	# 					cont err
-	# 		(cont)->
-	# 			admin
-	# 				.post "/cps1234/blog/title?action=new&hmo=DELETE"
-	# 				.send {
-	# 					"pid":blogpid.0
-	# 				}
-	# 				.end (err, res)->
-	# 					expect res.status .to.not.equal 302
-	# 					cont err
-	# 	]
-	# 	done err
-	# it "should redirect if editing nothing", (done)->
-	# 	err <- async.parallel [
-	# 		(cont)->
-	# 			admin
-	# 				.get "/cps1234/blog?action=edit"
-	# 				.end (err, res)->
-	# 					# console.log res
-	# 					expect res.header.location .to.equal "/cps1234/blog"
-	# 					expect res.status .to.equal 302
-	# 					cont err
-	# 		(cont)->
-	# 			admin
-	# 				.get "/cps1234/blog?action=delete"
-	# 				.end (err, res)->
-	# 					expect res.header.location .to.equal "/cps1234/blog"
-	# 					expect res.status .to.equal 302
-	# 					cont err
-	# 		(cont)->
-	# 			faculty
-	# 				.get "/cps1234/blog/que?action=edit"
-	# 				.end (err, res)->
-	# 					# console.log res
-	# 					expect res.header.location .to.equal "/cps1234/blog"
-	# 					expect res.status .to.equal 302
-	# 					cont err
-	# 		(cont)->
-	# 			faculty
-	# 				.get "/cps1234/blog/que?action=delete"
-	# 				.end (err, res)->
-	# 					expect res.header.location .to.equal "/cps1234/blog"
-	# 					expect res.status .to.equal 302
-	# 					cont err
-	# 	]
-	# 	done err
+	it "should not allow cross contamination of new/edit/delete posts", (done)->
+		err <- async.parallel [
+			(cont)->
+				admin
+					.post "/cps1234/blog/title?action=delete&hmo=PUT"
+					.send {
+						"pid":blogpid.0
+						"title":"anything"
+						"text":"anything"
+					}
+					.end (err, res)->
+						expect res.status .to.not.equal 302
+						cont err
+			(cont)->
+				admin
+					.post "/cps1234/blog/title?action=edit&hmo=DELETE"
+					.send {
+						"pid":blogpid.0
+					}
+					.end (err, res)->
+						expect res.status .to.not.equal 302
+						cont err
+			(cont)->
+				admin
+					.post "/cps1234/blog/title?action=new&hmo=DELETE"
+					.send {
+						"pid":blogpid.0
+					}
+					.end (err, res)->
+						expect res.status .to.not.equal 302
+						cont err
+		]
+		done err
+	it "should redirect if editing nothing", (done)->
+		err <- async.parallel [
+			(cont)->
+				admin
+					.get "/cps1234/blog?action=edit"
+					.end (err, res)->
+						# console.log res
+						expect res.header.location .to.equal "/cps1234/blog"
+						expect res.status .to.equal 302
+						cont err
+			(cont)->
+				admin
+					.get "/cps1234/blog?action=delete"
+					.end (err, res)->
+						expect res.header.location .to.equal "/cps1234/blog"
+						expect res.status .to.equal 302
+						cont err
+			(cont)->
+				faculty
+					.get "/cps1234/blog/que?action=edit"
+					.end (err, res)->
+						# console.log res
+						expect res.header.location .to.equal "/cps1234/blog"
+						expect res.status .to.equal 302
+						cont err
+			(cont)->
+				faculty
+					.get "/cps1234/blog/que?action=delete"
+					.end (err, res)->
+						expect res.header.location .to.equal "/cps1234/blog"
+						expect res.status .to.equal 302
+						cont err
+		]
+		done err
