@@ -57,6 +57,12 @@ describe "Assignments Module" ->
 			.end (err,res)->
 				done err
 	describe "(User: Admin)", (...)->
+		it "should return the assignment default view", (done)->
+			admin
+				.get "/cps1234/assignments"
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
 		it "should return the create assignment view", (done)->
 			admin
 				.get "/cps1234/assignments?action=new"
@@ -67,7 +73,25 @@ describe "Assignments Module" ->
 			admin
 				.post "/cps1234/assignments?action=new"
 				.send {
-					"title":"anotherTitle"
+					"title":"admin"
+					"opendate":"1/1/2000"
+					"opentime":"1:00 AM"
+					"closedate":"1/1/3000"
+					"closetime":"1:00 PM"
+					"total":"100"
+					"tries":"1"
+					"late":"yes"
+					"text":"you will fail!"
+				}
+				.end (err, res)->
+					expect res.status .to.equal 302
+					expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
+					done err
+		it "should not create an assignment without a title", (done)->
+			admin
+				.post "/cps1234/assignments?action=new"
+				.send {
+					"title":""
 					"opendate":"1/1/2000"
 					"opentime":"1:00 AM"
 					"closedate":"1/1/3000"
@@ -85,7 +109,7 @@ describe "Assignments Module" ->
 			err <- async.waterfall [
 				(cont)->
 					admin
-						.get "/test/getaid/cps1234?title=anotherTitle"
+						.get "/test/getaid/cps1234?title=admin"
 						.end (err, res)->
 							cont err, res.body
 				(aid,cont)->
@@ -96,11 +120,26 @@ describe "Assignments Module" ->
 							cont err
 			]
 			done err
+		it "should return the edit assignment view", (done)->
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get "/test/getaid/cps1234?title=admin"
+						.end (err, res)->
+							cont err, res.body
+				(aid,cont)->
+					admin
+						.get "/cps1234/assignments/#{aid.0._id}?action=edit"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							cont err
+			]
+			done err
 		it "should edit an assignment", (done)->
 			err <- async.waterfall [
 				(cont)->
 					admin
-						.get "/test/getaid/cps1234?title=anotherTitle"
+						.get "/test/getaid/cps1234?title=admin"
 						.end (err, res)->
 							cont err, res.body
 				(aid, cont)->
@@ -124,11 +163,178 @@ describe "Assignments Module" ->
 							cont err
 			]
 			done err
+		it "should edit an assignment and remove total with total blank", (done)->
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get "/test/getaid/cps1234?title=admin"
+						.end (err, res)->
+							cont err, res.body
+				(aid, cont)->
+					admin
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.send {
+							"aid": aid.0._id
+							"title": aid.0.title
+							"opendate": "12/31/1999"
+							"opentime": "1:00 AM"
+							"closedate": "1/1/2000"
+							"closetime": "1:00 PM"
+							"total": ""
+							"tries": "1"
+							"late": "yes"
+							"text": "you will fail!"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
+							cont err
+			]
+			done err
+		it "should edit an assignment and remove total with total undefined", (done)->
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get "/test/getaid/cps1234?title=admin"
+						.end (err, res)->
+							cont err, res.body
+				(aid, cont)->
+					admin
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.send {
+							"aid": aid.0._id
+							"title": aid.0.title
+							"opendate": "12/31/1999"
+							"opentime": "1:00 AM"
+							"closedate": "1/1/2000"
+							"closetime": "1:00 PM"
+							"tries": "1"
+							"late": "yes"
+							"text": "you will fail!"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
+							cont err
+			]
+			done err
+		it "should edit an assignment and remove open date/open time", (done)->
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get "/test/getaid/cps1234?title=admin"
+						.end (err, res)->
+							cont err, res.body
+				(aid, cont)->
+					admin
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.send {
+							"aid": aid.0._id
+							"title": aid.0.title
+							"opendate": ""
+							"opentime": ""
+							"closedate": "1/1/2000"
+							"closetime": "1:00 PM"
+							"total": ""
+							"tries": "1"
+							"late": "yes"
+							"text": "you will fail!"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
+							cont err
+			]
+			done err
+		it "should edit an assignment and remove close date/close time", (done)->
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get "/test/getaid/cps1234?title=admin"
+						.end (err, res)->
+							cont err, res.body
+				(aid, cont)->
+					admin
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.send {
+							"aid": aid.0._id
+							"title": aid.0.title
+							"opendate": "12/31/1999"
+							"opentime": "1:00 AM"
+							"closedate": ""
+							"closetime": ""
+							"total": ""
+							"tries": "1"
+							"late": "yes"
+							"text": "you will fail!"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
+							cont err
+			]
+			done err
+		it "should edit an assignment and remove close date/close time with rediculously bad close date/time", (done)->
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get "/test/getaid/cps1234?title=admin"
+						.end (err, res)->
+							cont err, res.body
+				(aid, cont)->
+					admin
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.send {
+							"aid": aid.0._id
+							"title": aid.0.title
+							"opendate": "12/31/1999"
+							"opentime": "1:00 AM"
+							"closedate": "13/45/1"
+							"closetime": "32:00 AM"
+							"total": ""
+							"tries": "1"
+							"late": "no"
+							"text": "you will fail!"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
+							cont err
+			]
+			done err
+		it "should not edit an assignment without a title", (done)->
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get "/test/getaid/cps1234?title=admin"
+						.end (err, res)->
+							cont err, res.body
+				(aid, cont)->
+					admin
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.send {
+							"aid": aid.0._id
+							"title": aid.0.title
+							"opendate": "12/31/1999"
+							"opentime": "1:00 AM"
+							"closedate": "1/1/2000"
+							"closetime": "1:00 PM"
+							"total": "100"
+							"tries": "1"
+							"late": "yes"
+							"text": ""
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/?/i
+							cont err
+			]
+			done err
 		it "should submit an attempt", (done)->
 			err <- async.waterfall [
 				(cont)->
 					admin
-						.get "/test/getaid/cps1234?title=anotherTitle"
+						.get "/test/getaid/cps1234?title=admin"
 						.end (err, res)->
 							cont err, res.body
 				(aid,cont)->
@@ -148,12 +354,12 @@ describe "Assignments Module" ->
 			err <- async.waterfall [
 				(cont)->
 					admin
-						.get "/test/getaid/cps1234?title=anotherTitle"
+						.get "/test/getaid/cps1234?title=admin"
 						.end (err, res)->
 							cont err, res.body
 				(assign,cont)->
 					admin
-						.get "/test/getattempt/cps1234?title=anotherTitle&text=adminAttempt"
+						.get "/test/getattempt/cps1234?title=admin&text=adminAttempt"
 						.end (err, res)->
 							cont err, assign, res.body
 				(assign,attempt,cont)->
@@ -169,11 +375,26 @@ describe "Assignments Module" ->
 							cont err
 			]
 			done err
+		it "should return the delete assignment view", (done)->
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get "/test/getaid/cps1234?title=admin"
+						.end (err, res)->
+							cont err, res.body
+				(aid,cont)->
+					admin
+						.get "/cps1234/assignments/#{aid.0._id}?action=delete"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							cont err
+			]
+			done err
 		it "should delete an assignment", (done)->
 			err <- async.waterfall [
 				(cont)->
 					admin
-						.get "/test/getaid/cps1234?title=anotherTitle"
+						.get "/test/getaid/cps1234?title=admin"
 						.end (err, res)->
 							cont err, res.body
 				(aid,cont)->
@@ -196,6 +417,12 @@ describe "Assignments Module" ->
 					done err
 
 	describe "(User: Faculty)", (...)->
+		it "should return the assignment default view", (done)->
+			faculty
+				.get "/cps1234/assignments"
+				.end (err, res)->
+					expect res.status .to.equal 200
+					done err
 		it "should return the create assignment view", (done)->
 			faculty
 				.get "/cps1234/assignments?action=new"
@@ -206,7 +433,7 @@ describe "Assignments Module" ->
 			faculty
 				.post "/cps1234/assignments?action=new"
 				.send {
-					"title":"title"
+					"title":"faculty"
 					"opendate":"2/1/2000"
 					"opentime":"1:00 AM"
 					"closedate":"1/1/3000"
@@ -224,7 +451,7 @@ describe "Assignments Module" ->
 			err <- async.waterfall [
 				(cont)->
 					faculty
-						.get "/test/getaid/cps1234?title=title"
+						.get "/test/getaid/cps1234?title=faculty"
 						.end (err, res)->
 							cont err, res.body
 				(aid,cont)->
@@ -235,11 +462,26 @@ describe "Assignments Module" ->
 							cont err
 			]
 			done err
+		it "should return the edit assignment view", (done)->
+			err <- async.waterfall [
+				(cont)->
+					faculty
+						.get "/test/getaid/cps1234?title=faculty"
+						.end (err, res)->
+							cont err, res.body
+				(aid,cont)->
+					faculty
+						.get "/cps1234/assignments/#{aid.0._id}?action=edit"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							cont err
+			]
+			done err
 		it "should edit an assignment", (done)->
 			err <- async.waterfall [
 				(cont)->
 					faculty
-						.get "/test/getaid/cps1234?title=title"
+						.get "/test/getaid/cps1234?title=faculty"
 						.end (err, res)->
 							cont err, res.body
 				(aid, cont)->
@@ -267,7 +509,7 @@ describe "Assignments Module" ->
 			err <- async.waterfall [
 				(cont)->
 					faculty
-						.get "/test/getaid/cps1234?title=title"
+						.get "/test/getaid/cps1234?title=faculty"
 						.end (err, res)->
 							cont err, res.body
 				(aid,cont)->
@@ -287,12 +529,12 @@ describe "Assignments Module" ->
 			err <- async.waterfall [
 				(cont)->
 					faculty
-						.get "/test/getaid/cps1234?title=title"
+						.get "/test/getaid/cps1234?title=faculty"
 						.end (err, res)->
 							cont err, res.body
 				(assign,cont)->
 					faculty
-						.get "/test/getattempt/cps1234?title=title&text=facultyAttempt"
+						.get "/test/getattempt/cps1234?title=faculty&text=facultyAttempt"
 						.end (err, res)->
 							cont err, assign, res.body
 				(assign,attempt,cont)->
@@ -308,11 +550,26 @@ describe "Assignments Module" ->
 							cont err
 			]
 			done err
+		it "should return the delete assignment view", (done)->
+			err <- async.waterfall [
+				(cont)->
+					faculty
+						.get "/test/getaid/cps1234?title=faculty"
+						.end (err, res)->
+							cont err, res.body
+				(aid,cont)->
+					faculty
+						.get "/cps1234/assignments/#{aid.0._id}?action=delete"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							cont err
+			]
+			done err
 		it "should delete an assignment", (done)->
 			err <- async.waterfall [
 				(cont)->
 					faculty
-						.get "/test/getaid/cps1234?title=title"
+						.get "/test/getaid/cps1234?title=faculty"
 						.end (err, res)->
 							cont err, res.body
 				(aid,cont)->
@@ -406,6 +663,12 @@ describe "Assignments Module" ->
 							cont err
 			]
 			done err
+		it "should not return the assignment default view", (done)->
+			faculty
+				.get "/cps1234/assignments"
+				.end (err, res)->
+					expect res.status .to.not.equal 200
+					done err
 		it "should not return the create assignment view", (done)->
 			faculty
 				.get "/cps1234/assignments?action=new"
@@ -440,6 +703,21 @@ describe "Assignments Module" ->
 				(aid,cont)->
 					faculty
 						.get "/cps1234/assignments/#{aid.0._id.toString()}"
+						.end (err, res)->
+							expect res.status .to.not.equal 200
+							cont err
+			]
+			done err
+		it "should not return the edit assignment view", (done)->
+			err <- async.waterfall [
+				(cont)->
+					faculty
+						.get "/test/getaid/cps1234?title=outsideFaculty"
+						.end (err, res)->
+							cont err, res.body
+				(aid,cont)->
+					faculty
+						.get "/cps1234/assignments/#{aid.0._id}?action=edit"
 						.end (err, res)->
 							expect res.status .to.not.equal 200
 							cont err
@@ -493,6 +771,21 @@ describe "Assignments Module" ->
 							cont err
 			]
 			done err
+		it "should not return the delete assignment view", (done)->
+			err <- async.waterfall [
+				(cont)->
+					faculty
+						.get "/test/getaid/cps1234?title=outsideFaculty"
+						.end (err, res)->
+							cont err, res.body
+				(aid,cont)->
+					faculty
+						.get "/cps1234/assignments/#{aid.0._id}?action=delete"
+						.end (err, res)->
+							expect res.status .to.not.equal 200
+							cont err
+			]
+			done err
 		it "should not delete an assignment", (done)->
 			err <- async.waterfall [
 				(cont)->
@@ -537,6 +830,12 @@ describe "Assignments Module" ->
 				.end (err, res)->
 					expect res.status .to.equal 302
 					expect res.header.location .to.match /^\/cps1234\/assignments\/?/i
+					done err
+		it "should return the assignment default view", (done)->
+			student
+				.get "/cps1234/assignments"
+				.end (err, res)->
+					expect res.status .to.equal 200
 					done err
 		it "should not create an assignment", (done)->
 			student

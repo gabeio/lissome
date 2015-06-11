@@ -262,8 +262,8 @@ module.exports = (app)->
 						res.render "assignments/view" { body:req.body, success:"error", error:err }
 					else if err is "Mongo Error"
 						next new Error "Mongo Error"
-					else
-						next new Error "Internal"
+					# else
+					# 	should never get here everthing should be handled above
 			| _
 				next! # not an attempt
 		.all (req, res, next)->
@@ -272,7 +272,6 @@ module.exports = (app)->
 			app.locals.authorize req, res, next
 		### EVERYTHING AFTER HERE IS FACULTY+ ###
 		.get (req, res, next)->
-			# winston.info "H"
 			switch req.query.action
 			| "new"
 				res.render "assignments/create"
@@ -283,7 +282,6 @@ module.exports = (app)->
 			| _
 				next! # don"t assume action
 		.put (req, res, next)->
-			# winston.info "I"
 			# handle edit assignment
 			switch req.query.action
 			| "edit"
@@ -301,16 +299,13 @@ module.exports = (app)->
 						allowLate: if req.body.late is "yes" then true else false
 						totalPoints: req.body.total
 					}
-					if !req.body.total?
-						# winston.info "I1"
+					if !req.body.total? or req.body.total is ""
 						delete assign.totalPoints
 					if !moment(res.locals.start).isValid!
-						# winston.info "I2"
 						delete assign.start
 					if res.locals.assignment.end? and ( !req.body.closedate? or req.body.closedate is "" )
 						assign.end = ""
 					else if !moment(res.locals.end).isValid!
-						# winston.info "I3"
 						delete assign.end
 					err, assign <- Assignment.findOneAndUpdate {
 						"_id": ObjectId req.body.aid
