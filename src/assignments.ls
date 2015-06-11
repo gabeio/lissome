@@ -150,6 +150,7 @@ module.exports = (app)->
 							winston.error "assign findOne conf", err
 							next new Error "INTERNAL"
 						else
+							/* istanbul ignore else should never occur */
 							if result?
 								res.locals.attempts = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
 								done!

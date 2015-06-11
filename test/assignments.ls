@@ -329,6 +329,32 @@ describe "Assignments Module" ->
 							cont err
 			]
 			done err
+		it "should not edit an assignment without an aid", (done)->
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get "/test/getaid/cps1234?title=admin"
+						.end (err, res)->
+							cont err, res.body
+				(aid, cont)->
+					admin
+						.post "/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.send {
+							"title": aid.0.title
+							"opendate": "12/31/1999"
+							"opentime": "1:00 AM"
+							"closedate": "1/1/2000"
+							"closetime": "1:00 PM"
+							"total": "100"
+							"tries": "1"
+							"late": "yes"
+							"text": ""
+						}
+						.end (err, res)->
+							expect res.status .to.match /^(4)/
+							cont err
+			]
+			done err
 		it "should submit an attempt", (done)->
 			err <- async.waterfall [
 				(cont)->
@@ -346,6 +372,28 @@ describe "Assignments Module" ->
 						.end (err, res)->
 							expect res.status .to.match /^(2|3)/
 							expect res.header.location .to.match /^\/cps1234\/assignments\/.{24}\/.{24}\/?/i
+							cont err
+			]
+			done err
+		it "should not grade if no aid given", (done)->
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.get "/test/getaid/cps1234?title=admin"
+						.end (err, res)->
+							cont err, res.body
+				(assign,cont)->
+					admin
+						.get "/test/getattempt/cps1234?title=admin&text=adminAttempt"
+						.end (err, res)->
+							cont err, assign, res.body
+				(assign,attempt,cont)->
+					admin
+						.post "/cps1234/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
+						.send {
+						}
+						.end (err, res)->
+							expect res.status .to.match /^(4)/
 							cont err
 			]
 			done err
@@ -414,7 +462,6 @@ describe "Assignments Module" ->
 				.end (err, res)->
 					expect res.status .to.match /200/
 					done err
-
 	describe "(User: Faculty)", (...)->
 		it "should return the assignment default view", (done)->
 			faculty
@@ -934,7 +981,7 @@ describe "Assignments Module" ->
 						.post "/cps1234/assignments/#{aid.0._id.toString()}?action=attempt"
 						.send {
 							"aid":aid.0._id
-							"text":"something right here"
+							"text":"studentAttempt"
 						}
 						.end (err, res)->
 							expect res.status .to.not.match /^(4|5)/i
@@ -948,6 +995,31 @@ describe "Assignments Module" ->
 				.get attemptid
 				.end (err, res)->
 					done err, res.body
+		it "should not grade an assignment", (done)->
+			err <- async.waterfall [
+				(cont)->
+					student
+						.get "/test/getaid/cps1234?title=student"
+						.end (err, res)->
+							cont err, res.body
+				(assign,cont)->
+					student
+						.get "/test/getattempt/cps1234?title=student&text=studentAttempt"
+						.end (err, res)->
+							cont err, assign, res.body
+				(assign,attempt,cont)->
+					student
+						.post "/cps1234/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
+						.send {
+							"aid": attempt.0._id
+							"points": "10"
+						}
+						.end (err, res)->
+							expect res.status .to.match /^(3)/
+							expect res.header.location .to.match /^\//i
+							cont err
+			]
+			done err
 		it "should see the grades view", (done)->
 			student
 				.get "/cps1234/grades"
@@ -1456,19 +1528,42 @@ describe "Assignments Module" ->
 					expect res.status .to.match /^(3|4|5)/
 					done err
 		it "should give an error for a bad assignment", (done)->
-			# this might succeed...fail in edge cases
 			admin
 				.get "/cps1234/assignments/123456789012345678901234"
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
 					done err
-		it "should give an error for a bad attempt", (done)->
-			# this might succeed...fail in edge cases
-			admin
-				.get "/cps1234/assignments/123456789012345678901234/123456789012345678901234"
-				.end (err, res)->
-					expect res.status .to.match /^(3|4|5)/
-					done err
+		it "should give an error for a bad attempt good assignment", (done)->
+			err <- async.waterfall [
+				(cont)->
+					admin
+						.post "/cps1234/assignments?action=new"
+						.send {
+							"title":"goodAssign"
+							"opendate":"1/1/2000"
+							"opentime":"1:00 AM"
+							"closedate":"1/1/3000"
+							"closetime":"1:00 PM"
+							"total":"100"
+							"tries":"1"
+							"late":"yes"
+							"text":"you will fail!"
+						}
+						.end (err, res)->
+							cont err
+				(cont)->
+					admin
+						.get "/test/getaid/cps1234?title=goodAssign"
+						.end (err, res)->
+							cont err, res.body
+				(aid, cont)->
+					admin
+						.get "/cps1234/assignments/#{aid.0._id}/123456789012345678901234"
+						.end (err, res)->
+							expect res.status .to.match /^(3|4|5)/
+							cont err
+			]
+			done err
 		it "should give an error for attempting to post with different action", (done)->
 			admin
 				.post "/cps1234/assignments?action=anything"
