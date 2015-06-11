@@ -30,30 +30,30 @@ describe "Core" ->
 		it "should respond to a GET", (done)->
 			outside
 				.get "/"
+				.expect 302
 				.end (err, res)->
 					expect res.header.location .to.equal "/login"
-					expect res.status .to.equal 302
 					done err
 		it "should error to a POST", (done)->
 			outside
 				.post "/"
+				.expect 302
 				.end (err, res)->
 					expect res.header.location .to.equal "/login"
-					expect res.status .to.not.equal 200
 					done err
 		it "should error to a PUT", (done)->
 			outside
 				.put "/"
+				.expect 302
 				.end (err, res)->
 					expect res.header.location .to.equal "/login"
-					expect res.status .to.not.equal 200
 					done err
 		it "should error to a DELETE", (done)->
 			outside
 				.delete "/"
+				.expect 302
 				.end (err, res)->
 					expect res.header.location .to.equal "/login"
-					expect res.status .to.not.equal 200
 					done err
 	describe "Login", (...)->
 		afterEach (complete)->
@@ -83,195 +83,209 @@ describe "Core" ->
 		it "should respond to a GET", (done)->
 			outside
 				.get "/login"
+				.expect 200
 				.end (err, res)->
-					expect res.status .to.equal 200
-					# expect res.text .to.
 					done err
-		it "should login with valid student credentials", (done)->
-			student
-				.post "/login"
-				.send {
-					"username": "Student"
-					"password": "password"
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
-		it "should login with valid faculty credentials", (done)->
-			faculty
-				.post "/login"
-				.send {
-					"username": "Faculty"
-					"password": "password"
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
-		it "should login with valid admin credentials", (done)->
-			admin
-				.post "/login"
-				.send {
-					"username": "Admin"
-					"password": "password"
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
-		it "should not matter how the student caps the username", (done)->
-			student
-				.post "/login"
-				.send {
-					"username": "stuDENT"
-					"password": "password"
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
-		it "should not matter how the faculty caps the username", (done)->
-			faculty
-				.post "/login"
-				.send {
-					"username": "facULTY"
-					"password": "password"
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
-		it "should not matter how the admin caps the username", (done)->
-			admin
-				.post "/login"
-				.send {
-					"username": "adMIN"
-					"password": "password"
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
-		it "should ignore put/delete to login as outside", (done)->
-			err <- async.parallel [
-				(cont)->
-					outside
-						.put "/login"
-						.send {
-							"username":"gibberish"
-							"password":"idk"
-							"anything":"else"
-						}
-						.end (err, res)->
-							expect res.status .to.not.equal 200
-							cont err
-				(cont)->
-					outside
-						.delete "/login"
-						.send {
-							"username":"gibberish"
-							"password":"idk"
-							"anything":"else"
-						}
-						.end (err, res)->
-							expect res.status .to.not.equal 200
-							cont err
-			]
-			done err
-		it "should ignore put/delete to login as student", (done)->
-			student
-				.post "/login"
-				.send {
-					"username": "stuDENT"
-					"password": "password"
-				}
-				.end (err, res)->
-					err <- async.parallel [
-						(cont)->
-							student
-								.put "/login"
-								.send {
-									"username":"gibberish"
-									"password":"idk"
-									"anything":"else"
-								}
-								.end (err, res)->
-									expect res.status .to.not.equal 200
-									cont err
-						(cont)->
-							student
-								.delete "/login"
-								.send {
-									"username":"gibberish"
-									"password":"idk"
-									"anything":"else"
-								}
-								.end (err, res)->
-									expect res.status .to.not.equal 200
-									cont err
-					]
-					done err
-		it "should ignore put/delete to login as faculty", (done)->
-			faculty
-				.post "/login"
-				.send {
-					"username": "Faculty"
-					"password": "password"
-				}
-				.end (err, res)->
-					err <- async.parallel [
-						(cont)->
-							faculty
-								.put "/login"
-								.send {
-									"username":"gibberish"
-									"password":"idk"
-									"anything":"else"
-								}
-								.end (err, res)->
-									expect res.status .to.not.equal 200
-									cont err
-						(cont)->
-							faculty
-								.delete "/login"
-								.send {
-									"username":"gibberish"
-									"password":"idk"
-									"anything":"else"
-								}
-								.end (err, res)->
-									expect res.status .to.not.equal 200
-									cont err
-					]
-					done err
-		it "should ignore put/delete to login as admin", (done)->
-			admin
-				.post "/login"
-				.send {
-					"username": "Admin"
-					"password": "password"
-				}
-				.end (err, res)->
-					err <- async.parallel [
-						(cont)->
-							admin
-								.put "/login"
-								.send {
-									"username":"gibberish"
-									"password":"idk"
-									"anything":"else"
-								}
-								.end (err, res)->
-									expect res.status .to.not.equal 200
-									cont err
-						(cont)->
-							admin
-								.delete "/login"
-								.send {
-									"username":"gibberish"
-									"password":"idk"
-									"anything":"else"
-								}
-								.end (err, res)->
-									expect res.status .to.not.equal 200
-									cont err
-					]
-					done err
+		describe "(User: Admin)", (...)->
+			it "should login with valid credentials", (done)->
+				admin
+					.post "/login"
+					.send {
+						"username": "Admin"
+						"password": "password"
+					}
+					.expect 302
+					.end (err, res)->
+						done err
+			it "should not matter how the caps the username", (done)->
+				admin
+					.post "/login"
+					.send {
+						"username": "adMIN"
+						"password": "password"
+					}
+					.expect 302
+					.end (err, res)->
+						done err
+			it "should fail for a good username bad password", (done)->
+				admin
+					.post "/login"
+					.send {
+						"username": "Admin"
+						"password": "badpassword"
+					}
+					.end (err, res)->
+						expect res.text .to.have.string "bad login credentials"
+						done err
+			it "should fail for a good username blank password", (done)->
+				admin
+					.post "/login"
+					.send {
+						"username": "Admin"
+						"password": ""
+					}
+					.end (err, res)->
+						expect res.header.location .to.be.a "undefined"
+						expect res.text .to.have.string "bad login credentials"
+						done err
+			it "should not crash for just username defined", (done)->
+				admin
+					.post "/login"
+					.send {
+						"username":"admin"
+					}
+					.end (err, res)->
+						# expect res.text .to.not.be ""
+						expect res.text .to.have.string "bad login credentials"
+						# expect res.status .to.equal 401
+						done err
+			it "should redirect if already logged in", (done)->
+				admin
+					.post "/login"
+					.send {
+						"username": "Admin"
+						"password": "password"
+					}
+					.expect 302
+					.end (err, res)->
+						admin
+							.get "/login"
+							.expect 302
+							.end (err, res)->
+								expect res.header.location .to.equal "/"
+								done err
+		describe "(User: Faculty)", (...)->
+			it "should login with valid credentials", (done)->
+				faculty
+					.post "/login"
+					.send {
+						"username": "Faculty"
+						"password": "password"
+					}
+					.expect 302
+					.end (err, res)->
+						done err
+			it "should not matter how the caps the username", (done)->
+				faculty
+					.post "/login"
+					.send {
+						"username": "facULTY"
+						"password": "password"
+					}
+					.expect 302
+					.end (err, res)->
+						done err
+			it "should fail for a good username bad password", (done)->
+				faculty
+					.post "/login"
+					.send {
+						"username": "Faculty"
+						"password": "badpassword"
+					}
+					.end (err, res)->
+						expect res.text .to.have.string "bad login credentials"
+						done err
+			it "should fail for a good username blank password", (done)->
+				faculty
+					.post "/login"
+					.send {
+						"username": "Faculty"
+						"password": ""
+					}
+					.end (err, res)->
+						expect res.header.location .to.be.a "undefined"
+						expect res.text .to.have.string "bad login credentials"
+						done err
+			it "should not crash for just username defined", (done)->
+				faculty
+					.post "/login"
+					.send {
+						"username":"faculty"
+					}
+					.end (err, res)->
+						expect res.text .to.have.string "bad login credentials"
+						done err
+			it "should redirect if already logged in", (done)->
+				faculty
+					.post "/login"
+					.send {
+						"username": "Faculty"
+						"password": "password"
+					}
+					.expect 302
+					.end (err, res)->
+						faculty
+							.get "/login"
+							.expect 302
+							.end (err, res)->
+								expect res.header.location .to.equal "/"
+								done err
+		describe "(User: Student)", (...)->
+			it "should login with valid credentials", (done)->
+				student
+					.post "/login"
+					.send {
+						"username": "Student"
+						"password": "password"
+					}
+					.expect 302
+					.end (err, res)->
+						done err
+			it "should not matter how the caps the username", (done)->
+				student
+					.post "/login"
+					.send {
+						"username": "stuDENT"
+						"password": "password"
+					}
+					.expect 302
+					.end (err, res)->
+						done err
+			it "should fail for a good username bad password", (done)->
+				student
+					.post "/login"
+					.send {
+						"username": "Student"
+						"password": "badpassword"
+					}
+					.end (err, res)->
+						expect res.text .to.have.string "bad login credentials"
+						done err
+			it "should fail for a good username blank password", (done)->
+				student
+					.post "/login"
+					.send {
+						"username": "Student"
+						"password": ""
+					}
+					.end (err, res)->
+						expect res.header.location .to.be.a "undefined"
+						expect res.text .to.have.string "bad login credentials"
+						done err
+			it "should not crash for just username defined", (done)->
+				student
+					.post "/login"
+					.send {
+						"username":"student"
+					}
+					.end (err, res)->
+						expect res.text .to.have.string "bad login credentials"
+						done err
+			it "should redirect if already logged in", (done)->
+				student
+					.post "/login"
+					.send {
+						"username": "Student"
+						"password": "password"
+					}
+					.expect 302
+					.end (err, res)->
+						student
+							.get "/login"
+							.expect 302
+							.end (err, res)->
+								expect res.header.location .to.equal "/"
+								done err
 		it "should fail for a blank user", (done)->
 			student
 				.post "/login"
@@ -282,36 +296,6 @@ describe "Core" ->
 				.end (err, res)->
 					expect res.text .to.have.string "bad login credentials"
 					expect res.headers.location .to.be.an "undefined"
-					done err
-		it "should fail for a good student username bad password", (done)->
-			student
-				.post "/login"
-				.send {
-					"username": "Student"
-					"password": "badpassword"
-				}
-				.end (err, res)->
-					expect res.text .to.have.string "bad login credentials"
-					done err
-		it "should fail for a good faculty username bad password", (done)->
-			faculty
-				.post "/login"
-				.send {
-					"username": "Faculty"
-					"password": "badpassword"
-				}
-				.end (err, res)->
-					expect res.text .to.have.string "bad login credentials"
-					done err
-		it "should fail for a good admin username bad password", (done)->
-			admin
-				.post "/login"
-				.send {
-					"username": "Admin"
-					"password": "badpassword"
-				}
-				.end (err, res)->
-					expect res.text .to.have.string "bad login credentials"
 					done err
 		it "should fail for a bad username", (done)->
 			admin
@@ -324,149 +308,63 @@ describe "Core" ->
 					expect res.text .to.have.string "username not found"
 					expect res.headers.location .to.be.an "undefined"
 					done err
-		it "should fail for a good student username blank password", (done)->
-			student
-				.post "/login"
-				.send {
-					"username": "Student"
-					"password": "bad"
-				}
-				.end (err, res)->
-					expect res.header.location .to.be.a "undefined"
-					expect res.text .to.have.string "bad login credentials"
-					done err
-		it "should fail for a good faculty username blank password", (done)->
-			faculty
-				.post "/login"
-				.send {
-					"username": "Faculty"
-					"password": "bad"
-				}
-				.end (err, res)->
-					expect res.header.location .to.be.a "undefined"
-					expect res.text .to.have.string "bad login credentials"
-					done err
-		it "should fail for a good admin username blank password", (done)->
-			admin
-				.post "/login"
-				.send {
-					"username": "Admin"
-					"password": "bad"
-				}
-				.end (err, res)->
-					expect res.header.location .to.be.a "undefined"
-					expect res.text .to.have.string "bad login credentials"
-					done err
-		it "should not crash for just username defined", (done)->
-			student
-				.post "/login"
-				.send {
-					"username":"student"
-				}
-				.end (err, res)->
-					# expect res.text .to.not.be ""
-					expect res.text .to.have.string "bad login credentials"
-					# expect res.status .to.equal 401
-					done err
-		it "should redirect if already logged in (student)", (done)->
-			student
-				.post "/login"
-				.send {
-					"username": "Student"
-					"password": "password"
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					student
-						.get "/login"
-						.end (err, res)->
-							expect res.header.location .to.equal "/"
-							done err
-		it "should redirect if already logged in (faculty)", (done)->
-			faculty
-				.post "/login"
-				.send {
-					"username": "Faculty"
-					"password": "password"
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					faculty
-						.get "/login"
-						.end (err, res)->
-							expect res.header.location .to.equal "/"
-							done err
-		it "should redirect if already logged in (admin)", (done)->
-			admin
-				.post "/login"
-				.send {
-					"username": "Admin"
-					"password": "password"
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					admin
-						.get "/login"
-						.end (err, res)->
-							expect res.header.location .to.equal "/"
-							done err
 	describe "Dashboard", (...)->
 		before (done)->
-			err <- async.parallel [
-				(cont)->
-					student
-						.post "/login"
-						.send {
-							"username": "Student"
-							"password": "password"
-						}
-						.end (err, res)->
-							expect res.status .to.equal 302
-							cont err
-				(cont)->
-					faculty
-						.post "/login"
-						.send {
-							"username": "Faculty"
-							"password": "password"
-						}
-						.end (err, res)->
-							expect res.status .to.equal 302
-							cont err
-				(cont)->
-					admin
-						.post "/login"
-						.send {
-							"username": "Admin"
-							"password": "password"
-						}
-						.end (err, res)->
-							expect res.status .to.equal 302
-							cont err
-			]
-			done err
-		it "should display your courses", (done)->
-			err <- async.parallel [
-				(cont)->
-					student
-						.get "/"
-						.end (err, res)->
-							expect res.status .to.equal 200
-							expect res.text .to.have.string "Your Courses"
-							cont err
-				(cont)->
-					faculty
-						.get "/"
-						.end (err, res)->
-							expect res.status .to.equal 200
-							expect res.text .to.have.string "Your Courses"
-							cont err
-				(cont)->
-					admin
-						.get "/"
-						.end (err, res)->
-							expect res.status .to.equal 200
-							expect res.text .to.have.string "Your Courses"
-							cont err
-			]
-			done err
+			student
+				.post "/login"
+				.send {
+					"username": "Student"
+					"password": "password"
+				}
+				.end (err, res)->
+					done err
+		before (done)->
+			faculty
+				.post "/login"
+				.send {
+					"username": "Faculty"
+					"password": "password"
+				}
+				.end (err, res)->
+					done err
+		before (done)->
+			admin
+				.post "/login"
+				.send {
+					"username": "Admin"
+					"password": "password"
+				}
+				.end (err, res)->
+					done err
+		describe "(User: Admin)", (...)->
+			it "should display your courses", (done)->
+				admin
+					.get "/"
+					.end (err, res)->
+						expect res.status .to.equal 200
+						expect res.text .to.have.string "Your Courses"
+						done err
+		describe "(User: Faculty)", (...)->
+			it "should display your courses", (done)->
+				faculty
+					.get "/"
+					.end (err, res)->
+						expect res.status .to.equal 200
+						expect res.text .to.have.string "Your Courses"
+						done err
+		describe "(User: Student)", (...)->
+			it "should display your courses", (done)->
+				student
+					.get "/"
+					.end (err, res)->
+						expect res.status .to.equal 200
+						expect res.text .to.have.string "Your Courses"
+						done err
+		describe "(User: Outside)", (...)->
+			it "should display your courses", (done)->
+				outside
+					.get "/"
+					.end (err, res)->
+						expect res.status .to.not.equal 200
+						expect res.text .to.not.have.string "Your Courses"
+						done err
