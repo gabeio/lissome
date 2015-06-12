@@ -40,6 +40,7 @@ module.exports = (app)->
 				next new Error "UNAUTHORIZED"
 		.all (req, res, next)->
 			err, result <- Course.findOne res.locals.course
+			/* istanbul ignore if should only occur if database crashes */
 			if err
 				winston.error "course findOne conf", err
 				next new Error "INTERNAL"
@@ -88,13 +89,10 @@ module.exports = (app)->
 					->
 						if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 							post = new Post {
-								# uuid: res.locals.postuuid
 								title: encodeURIComponent req.body.title
 								text: req.body.text
 								# files: req.body.files
 								author: ObjectId res.locals.uid
-								authorName: res.locals.firstName+" "+res.locals.lastName
-								authorUsername: res.locals.username
 								tags: []
 								type: "blog"
 								school: app.locals.school
@@ -182,6 +180,7 @@ module.exports = (app)->
 				next new Error "UNAUTHORIZED"
 		.all (req, res, next)->
 			err, result <- Course.findOne res.locals.course
+			/* istanbul ignore if should only occur if database crashes */
 			if err
 				winston.error "course findOne conf", err
 				next new Error "INTERNAL"
