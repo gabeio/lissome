@@ -1,5 +1,5 @@
 /*
-	this module is meant only to load for testing.
+	this module is should only to load for testing.
 */
 /* istanbul ignore next only for testing anyway */
 module.exports = (app)->
@@ -44,10 +44,12 @@ module.exports = (app)->
 					winston.error "test:course:findOne:blog", err
 					next new Error "INTERNAL"
 				else
-					err, result <- Assignment.find {
+					assign = {
 						"course": ObjectId result._id
-						"title": req.query.title
 					}
+					if req.query.title?
+						assign.title = req.query.title
+					err, result <- Assignment.find assign
 					if err
 						winston.error "test:course:find:assignment", err
 						next new Error "INTERNAL"
@@ -73,6 +75,33 @@ module.exports = (app)->
 						err, result <- Attempt.find {
 							"assignment": ObjectId result._id
 							"text": req.query.text
+						}
+						if err
+							winston.error "test:course:find:assignment", err
+							next new Error "INTERNAL"
+						else
+							res.json result
+			| "getattemptof"
+				err, result <- Course.findOne {
+					"id": req.params.more
+					"school": app.locals.school
+				}
+				if err
+					winston.error "test:course:findOne:blog", err
+					next new Error "INTERNAL"
+				else
+					err, result <- Assignment.findOne {
+						"course": ObjectId result._id
+						"title": req.query.title
+					}
+					if err
+						winston.error "test:course:find:assignment", err
+						next new Error "INTERNAL"
+					else
+						err, result <- Attempt.find {
+							"assignment": ObjectId result._id
+							"text": req.query.text
+							"author": ObjectId req.query.author
 						}
 						if err
 							winston.error "test:course:find:assignment", err

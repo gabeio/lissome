@@ -26,10 +26,10 @@ dependencies:
 	"compression": '~1.5.0'
 	"connect-redis": '~2.3.0'
 	"cors":"~2.7.1"
-	"csurf": '~1.8.2'
+	"csurf": '~1.8.3'
 	"express": '~4.12.4'
 	"express-partial-response": '~0.3.4'
-	"express-session": '~1.11.2'
+	"express-session": '~1.11.3'
 	"helmet": '~0.9.1'
 	"hiredis": '~0.4.0'
 	"livescript": '~1.4.0'
