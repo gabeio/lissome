@@ -282,14 +282,17 @@ module.exports = (app)->
 						winston.error err
 						res.status 400 .render "conference/delthread" { body: req.body, success:"no", noun:"Thread", verb:"deleted" }
 					else
-						err, post <- Post.remove {
-							thread: ObjectId req.body.thread
-						}
-						/* istanbul ignore if should only really occur if db crashes */
-						if err?
-							winston.error err
-							res.status 400 .render "conference/delthread" { body: req.body, success:"no", noun:"Posts", verb:"deleted" }
+						if thread?
+							err, post <- Post.remove {
+								thread: ObjectId thread._id
+							}
+							/* istanbul ignore if should only really occur if db crashes */
+							if err?
+								winston.error err
+								res.status 400 .render "conference/delthread" { body: req.body, success:"no", noun:"Posts", verb:"deleted" }
+							else
+								res.status 302 .redirect "/#{req.params.course}/conference"
 						else
-							res.status 302 .redirect "/#{req.params.course}/conference"
+							res.status 400 .render "conference/delthread" { body: req.body, success:"no", noun:"Posts", verb:"deleted" }
 			| _
 				next new Error "Action Error"
