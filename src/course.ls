@@ -7,6 +7,7 @@ module.exports = (app)->
 	Course = mongoose.models.Course
 	Post = mongoose.models.Post
 	app
+		/* istanbul ignore next until settings are actually created */
 		..route "/:course/settings"
 		.all (req, res, next)->
 			res.locals.needs = 2 # maybe 3
