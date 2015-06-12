@@ -250,14 +250,14 @@ module.exports = (app)->
 				if !req.body.thread? or !req.body.post?
 					res.status 400 .render "conference/delpost" { body: req.body, success:"no", noun:"Post", verb:"deleted" }
 				else
-					thePost =  {
+					res.locals.thePost =  {
 						_id: ObjectId req.body.post
 						thread: ObjectId req.body.thread
 						author: res.locals.uid
 					}
 					if res.locals.auth > 1
-						delete thePost.author
-					err, post <- Post.findOneAndRemove thePost
+						delete res.locals.thePost.author
+					err, post <- Post.findOneAndRemove res.locals.thePost
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error err
@@ -268,14 +268,14 @@ module.exports = (app)->
 				if !req.body.thread?
 					res.status 400 .render "conference/delthread" { body: req.body, success:"no", noun:"Thread", verb:"deleted" }
 				else
-					theThread = {
+					res.locals.theThread = {
 						_id: ObjectId req.body.thread
 						author: res.locals.uid
 					}
 					if res.locals.auth > 1
-						delete theThread.author
+						delete res.locals.theThread.author
 					# first delete thread
-					err, thread <- Thread.findOneAndRemove theThread
+					err, thread <- Thread.findOneAndRemove res.locals.theThread
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						# error might be that they are not author

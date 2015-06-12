@@ -1673,3 +1673,27 @@ describe "Conference" ->
 							fin err
 			]
 			done err
+		it "should error for no conference id edit/delete", (done)->
+			err <- async.parallel [
+				(para)->
+					student
+						.post "/cps1234/conference/123456789012345678901234/123456789012345678901234?hmo=put&action=editpost"
+						.send {
+							post: "123456789012345678901234"
+							text: "anyting"
+						}
+						.end (err, res)->
+							expect res.status .to.not.match /^(2|3)/
+							para err
+				(para)->
+					student
+						.post "/cps1234/conference/123456789012345678901234/123456789012345678901234?hmo=delete&action=deletepost"
+						.send {
+							post: "123456789012345678901234"
+							text: "anyting"
+						}
+						.end (err, res)->
+							expect res.status .to.not.match /^(2|3)/
+							para err
+			]
+			done err
