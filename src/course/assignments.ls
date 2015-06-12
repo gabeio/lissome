@@ -228,7 +228,7 @@ module.exports = (app)->
 								cont "Allowed assignment submission window has not opened."
 						(cont)->
 							# no end OR date now < end OR allowLate is true
-							if !res.locals.assignment.end? or ((new Date Date.now!) < Date.parse(res.locals.assignment.end)) or (res.locals.assignment.allowLate is true)
+							if !res.locals.assignment.end? or res.locals.assignment.end is "" or ((new Date Date.now!) < Date.parse(res.locals.assignment.end)) or (res.locals.assignment.allowLate is true)
 								cont null
 							else
 								cont "Allowed assignment submission window has closed."
@@ -258,7 +258,7 @@ module.exports = (app)->
 								cont null
 					]
 					/* istanbul ignore else should only occur if db crashes */
-					if err and err isnt "redirect" and err isnt "Mongo Error"
+					if err? and err isnt "redirect" and err isnt "Mongo Error"
 						res.status 400
 						res.render "course/assignments/view" { body:req.body, success:"error", error:err }
 					else if err is "Mongo Error"
@@ -286,7 +286,7 @@ module.exports = (app)->
 			# handle edit assignment
 			switch req.query.action
 			| "edit"
-				if !req.body.aid? || !req.body.title? || !req.body.text? || !req.body.tries? # double check require fields exist
+				if !req.body.aid? || !req.body.title? || !req.body.text? || !req.body.tries? || req.body.title is "" || req.body.text is "" # double check require fields exist
 					res.status 400 .render "course/assignments/edit" { body: req.body, success:"no", action:"edit" }
 				else
 					res.locals.start = new Date(req.body.opendate+" "+req.body.opentime)
@@ -305,7 +305,7 @@ module.exports = (app)->
 					if !moment(res.locals.start).isValid!
 						delete assign.start
 					if res.locals.assignment.end? and ( !req.body.closedate? or req.body.closedate is "" )
-						assign.end = ""
+						assign.end = "" # delete it if it already exists
 					else if !moment(res.locals.end).isValid!
 						delete assign.end
 					err, assign <- Assignment.findOneAndUpdate {
@@ -325,8 +325,8 @@ module.exports = (app)->
 			# handle new assignment
 			switch req.query.action
 			| "new"
-				if !req.body.title? || !req.body.text? || !req.body.tries? || req.body.title is "" || req.body.text is "" # double check require fields exist
-					res.status 400 .render "assignments/create" { body: req.body, success:"no", action:"edit"}
+				if !req.body.title? || !req.body.text? || !req.body.tries? || req.body.title is "" || req.body.text is "" # double check require fields exists
+					res.status 400 .render "course/assignments/create" { body: req.body, success:"no", action:"edit"}
 				else
 					res.locals.start = new Date req.body.opendate+" "+req.body.opentime
 					res.locals.end = new Date req.body.closedate+" "+req.body.closetime

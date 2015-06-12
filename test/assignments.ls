@@ -262,7 +262,7 @@ describe "Assignments Module" ->
 							"opentime": "1:00 AM"
 							"closedate": ""
 							"closetime": ""
-							"total": ""
+							"total": "100"
 							"tries": "1"
 							"late": "yes"
 							"text": "you will fail!"
@@ -290,7 +290,7 @@ describe "Assignments Module" ->
 							"opentime": "1:00 AM"
 							"closedate": "13/45/1"
 							"closetime": "32:00 AM"
-							"total": ""
+							"total": "100"
 							"tries": "1"
 							"late": "no"
 							"text": "you will fail!"
@@ -301,7 +301,7 @@ describe "Assignments Module" ->
 							cont err
 			]
 			done err
-		it "should not edit an assignment without a title", (done)->
+		it "should not edit an assignment to remove a title", (done)->
 			err <- async.waterfall [
 				(cont)->
 					admin
@@ -313,7 +313,7 @@ describe "Assignments Module" ->
 						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
 							"aid": aid.0._id
-							"title": aid.0.title
+							"title": ""
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
 							"closedate": "1/1/2000"
@@ -324,8 +324,7 @@ describe "Assignments Module" ->
 							"text": ""
 						}
 						.end (err, res)->
-							expect res.status .to.equal 302
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+							expect res.status .to.equal 400
 							cont err
 			]
 			done err
@@ -462,6 +461,7 @@ describe "Assignments Module" ->
 				.end (err, res)->
 					expect res.status .to.match /200/
 					done err
+
 	describe "(User: Faculty)", (...)->
 		it "should return the assignment default view", (done)->
 			faculty
@@ -1026,6 +1026,7 @@ describe "Assignments Module" ->
 				.end (err, res)->
 					expect res.status .to.match /200/
 					done err
+
 	describe "(User: Non-Student)", (...)->
 		before (done)->
 			faculty
@@ -1173,6 +1174,7 @@ describe "Assignments Module" ->
 				.end (err, res)->
 					expect res.status .to.not.match /200/
 					done err
+
 	describe "Crash Checks", (...)->
 		it "should not crash when creating/editing an assignment without opendate", (done)->
 			faculty
@@ -1339,6 +1341,7 @@ describe "Assignments Module" ->
 					# expect res.status .to.not.match /^(4|5)/i
 					expect res.header.location .to.not.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
 					done err
+
 	describe "Other Functions", (...)->
 		otherFunc = {}
 		before (done)->
@@ -1514,6 +1517,7 @@ describe "Assignments Module" ->
 					expect res.status .to.equal 400
 					expect res.text .to.have.string "You have no more attempts."
 					done err
+
 	describe "Other", (...)->
 		it "should give an error for bad assignment length", (done)->
 			student
