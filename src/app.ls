@@ -47,7 +47,7 @@ do ->
 		else
 			console.log "Unknown Timezone; crashing..."
 			process.exit 1
-	if !process.env.mongo? and !process.env.MONGOURL? and !argv.mongo?
+	if !process.env.mongo? and !process.env.MONGO? and !argv.mongo?
 		console.log "mongo env undefined\ntrying localhost anyway..."
 	if !process.env.redishost? and !process.env.REDISHOST? and !argv.redishost?
 		console.log "redishost env undefined\ntrying localhost anyway..."
@@ -83,7 +83,7 @@ swig.setFilter "timezone", (input)->
 # MONGOOSE
 /* istanbul ignore next */
 mongo = require("./mongoClient")(app,mongoose,\
-	(process.env.mongo||process.env.MONGOURL||argv.mongo||"mongodb://localhost/smrtboard"))
+	(process.env.mongo||process.env.MONGO||argv.mongo||"mongodb://localhost/smrtboard"))
 
 # REDIS
 /* istanbul ignore next */
