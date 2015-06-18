@@ -28,17 +28,16 @@ argv = yargs.argv
 # express
 app = module.exports = express!
 
-# app locals
-app.locals.school = process.env.school
-
 /* istanbul ignore next this is just for assurance the env vars are defined */
 do ->
-	if !process.env.cookie? and !argv.cookie?
+	if !process.env.cookie? and !process.env.COOKIE? and !argv.cookie?
 		console.log "REQUIRES COOKIE SECRET"
 		process.exit 1
-	if !process.env.school? and !argv.school?
+	if !process.env.school? and !process.env.SCHOOL? and !argv.school?
 		console.log "REQUIRES SCHOOL NAME"
 		process.exit 1
+	else
+		app.locals.school = (process.env.school||process.env.SCHOOL||argv.school)
 	if !process.env.timezone? and !process.env.TIMEZONE? and !argv.timezone?
 		console.log "REQUIRES SCHOOL TIMEZONE"
 		process.exit 1
@@ -127,7 +126,7 @@ app
 	.use method-override "hmo" # Http-Method-Override
 	# sessions
 	.use express-session {
-		secret: process.env.cookie
+		secret: (process.env.cookie||process.env.COOKIE||argv.cookie)
 		-resave
 		+saveUninitialized
 		cookie: {
