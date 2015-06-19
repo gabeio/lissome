@@ -78,7 +78,7 @@ module.exports = (app)->
 									err, result <- User.find {
 										"id":req.body.id
 										"type":req.body.type
-										"school":process.env.school
+										"school":app.locals.school
 									}
 									if result? and result.length > 0
 										para "User Exists"
@@ -88,7 +88,7 @@ module.exports = (app)->
 									err, result <- User.find {
 										"username":req.body.username
 										"type":req.body.type
-										"school":process.env.school
+										"school":app.locals.school
 									}
 									if result? and result.length > 0
 										para "User Exists"
@@ -104,7 +104,7 @@ module.exports = (app)->
 								lastName: req.body.lastName
 								email: req.body.email
 								hash: hash
-								school: process.env.school
+								school: app.locals.school
 								type: req.body.type
 								creator: ObjectId res.locals.uid
 							}
@@ -126,7 +126,7 @@ module.exports = (app)->
 						(cont)->
 							err, result <- Course.find {
 								"id":req.body.id
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							cont err, result
 						(result, cont)->
@@ -140,7 +140,7 @@ module.exports = (app)->
 									title: req.body.title
 									faculty: []
 									students: []
-									school: process.env.school
+									school: app.locals.school
 									author: ObjectId res.locals.uid
 								}
 								err, course <- course.save
@@ -165,19 +165,19 @@ module.exports = (app)->
 						(para)->
 							err, result <- User.find {
 								"id":req.body.id
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							para err, result
 						(para)->
 							err, result <- User.find {
 								"username":req.body.username
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							para err, result
 						(para)->
 							err, result <- User.find {
 								"email":req.body.email
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							para err, result
 					]
@@ -199,21 +199,21 @@ module.exports = (app)->
 							err, result <- User.find {
 								"id":req.body.id
 								"type":1
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							para err, result
 						(para)->
 							err, result <- User.find {
 								"username":req.body.username
 								"type":1
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							para err, result
 						(para)->
 							err, result <- User.find {
 								"email":req.body.email
 								"type":1
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							para err, result
 					]
@@ -235,21 +235,21 @@ module.exports = (app)->
 							err, result <- User.find {
 								"id":req.body.id
 								"type":2
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							para err, result
 						(para)->
 							err, result <- User.find {
 								"username":req.body.username
 								"type":2
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							para err, result
 						(para)->
 							err, result <- User.find {
 								"email":req.body.email
 								"type":2
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							para err, result
 					]
@@ -271,21 +271,21 @@ module.exports = (app)->
 							err, result <- User.find {
 								"id":req.body.id
 								"type":3
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							para err, result
 						(para)->
 							err, result <- User.find {
 								"username":req.body.username
 								"type":3
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							para err, result
 						(para)->
 							err, result <- User.find {
 								"email":req.body.email
 								"type":3
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							para err, result
 					]
@@ -306,13 +306,13 @@ module.exports = (app)->
 						(para)->
 							err, result <- Course.find {
 								"id":req.body.id
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							para err, result
 						(para)->
 							err, result <- Course.find {
 								"title":req.body.title
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							para err, result
 					]
@@ -360,7 +360,7 @@ module.exports = (app)->
 								"id":req.body.id
 								"username":req.body.username
 								"type":req.body.type
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							if err
 								winston.error err
@@ -400,7 +400,7 @@ module.exports = (app)->
 							if req.body.newid?
 								err, result <- Course.findOneAndUpdate {
 									"id":req.body.id
-									"school":process.env.school
+									"school":app.locals.school
 								}, {
 									"id":req.body.newid
 								}
@@ -414,7 +414,7 @@ module.exports = (app)->
 						(cont)->
 							err, result <- Course.findOne {
 								"id":req.body.id
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							if err
 								winston.error err
@@ -446,7 +446,7 @@ module.exports = (app)->
 						(cont)->
 							err, result <- Course.findOne {
 								"id":req.body.course
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							cont err, result
 						(course, cont)->
@@ -454,21 +454,21 @@ module.exports = (app)->
 								err, result <- User.findOne {
 									"username":req.body.username
 									"type":"1"
-									"school":process.env.school
+									"school":app.locals.school
 								}
 								cont err, result._id, course
 							if req.body.id?
 								err, result <- User.findOne {
 									"id":req.body.id
 									"type":"1"
-									"school":process.env.school
+									"school":app.locals.school
 								}
 								cont err, result._id, course
 							if req.body._id?
 								err, result <- User.findOne {
 									"_id":req.body._id
 									"type":"1"
-									"school":process.env.school
+									"school":app.locals.school
 								}
 								cont err, result._id, course
 						(student, course, cont)->
@@ -491,7 +491,7 @@ module.exports = (app)->
 						(cont)->
 							err, result <- Course.findOne {
 								"id":req.body.course
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							cont err, result
 						(course, cont)->
@@ -499,21 +499,21 @@ module.exports = (app)->
 								err, result <- User.findOne {
 									"username":req.body.username
 									"type":"2"
-									"school":process.env.school
+									"school":app.locals.school
 								}
 								cont err, result._id, course
 							if req.body.id?
 								err, result <- User.findOne {
 									"id":req.body.id
 									"type":"2"
-									"school":process.env.school
+									"school":app.locals.school
 								}
 								cont err, result._id, course
 							if req.body._id?
 								err, result <- User.findOne {
 									"_id":req.body._id
 									"type":"2"
-									"school":process.env.school
+									"school":app.locals.school
 								}
 								cont err, result._id, course
 						(faculty, course, cont)->
@@ -532,7 +532,7 @@ module.exports = (app)->
 						(cont)->
 							err, result <- Course.findOne {
 								"id":req.body.course
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							cont err, result
 						(course, cont)->
@@ -540,21 +540,21 @@ module.exports = (app)->
 								err, result <- User.findOne {
 									"username":req.body.username
 									"type":"1"
-									"school":process.env.school
+									"school":app.locals.school
 								}
 								cont err, result._id, course
 							if req.body.id?
 								err, result <- User.findOne {
 									"id":req.body.id
 									"type":"1"
-									"school":process.env.school
+									"school":app.locals.school
 								}
 								cont err, result._id, course
 							if req.body._id?
 								err, result <- User.findOne {
 									"_id":req.body._id
 									"type":"1"
-									"school":process.env.school
+									"school":app.locals.school
 								}
 								cont err, result._id, course
 						(student, course, cont)->
@@ -573,7 +573,7 @@ module.exports = (app)->
 						(cont)->
 							err, result <- Course.findOne {
 								"id":req.body.course
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							cont err, result
 						(course, cont)->
@@ -581,21 +581,21 @@ module.exports = (app)->
 								err, result <- User.findOne {
 									"username":req.body.username
 									"type":"2"
-									"school":process.env.school
+									"school":app.locals.school
 								}
 								cont err, result._id, course
 							if req.body.id?
 								err, result <- User.findOne {
 									"id":req.body.id
 									"type":"2"
-									"school":process.env.school
+									"school":app.locals.school
 								}
 								cont err, result._id, course
 							if req.body._id?
 								err, result <- User.findOne {
 									"_id":req.body._id
 									"type":"2"
-									"school":process.env.school
+									"school":app.locals.school
 								}
 								cont err, result._id, course
 						(faculty, course, cont)->
@@ -620,7 +620,7 @@ module.exports = (app)->
 						(cont)->
 							err, result <- User.findOneAndRemove {
 								"username":req.body.username
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							if err
 								winston.error err
@@ -635,7 +635,7 @@ module.exports = (app)->
 						(cont)->
 							err, result <- Course.findOneAndRemove {
 								"id":req.body.id
-								"school":process.env.school
+								"school":app.locals.school
 							}
 							if err
 								winston.error err
