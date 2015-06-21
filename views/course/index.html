@@ -26,5 +26,17 @@
 				</ul>
 			</div>
 		</div>
+		{% if auth >= 3 %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ul class="list-group">
+					<a class="list-group-item" href="/admin/{{ course.id }}?action=addstudent">Add Student to Course</a>
+					<a class="list-group-item" href="/admin/{{ course.id }}?action=addfaculty">Add Faculty to Course</a>
+					<a class="list-group-item" href="/admin/{{ course.id }}?action=rmstudent">Remove Student to Course</a>
+					<a class="list-group-item" href="/admin/{{ course.id }}?action=rmfaculty">Remove Faculty to Course</a>
+				</ul>
+			</div>
+		</div>
+		{% endif %}
 	</div>
 {% endblock %}
