@@ -16,7 +16,7 @@ module.exports = (app)->
 	User = mongoose.models.User
 	app
 		# @param {ObjectId} [object] should be an ObjectId
-		..route "/admin/:object?"
+		..route "/admin/:object1?/:object2?"
 		# @query {string} [action] is what the user wishes to do:
 		#   create, edit, delete, etc.
 		# @query {string} [type] is the model we are working with
@@ -26,23 +26,33 @@ module.exports = (app)->
 			app.locals.authorize req, res, next
 		.all (req, res, next)->
 			if req.query.action? then req.query.action = req.query.action.toLowerCase!
-			if req.query.type? then req.query.type = req.query.type.toLowerCase!
+			if req.query.type? or req.body.type?
+				res.locals.type = (req.query.type||req.body.type)
+			if res.locals.type? then res.locals.type = res.locals.type.toLowerCase!
 			next!
 		.get (req, res, next)->
 			switch req.query.action
 			| "create"
-				res.render "admin/create", {type:req.query.type}
+				res.render "admin/create", {type:res.locals.type}
 			| "edit"
-				res.render "admin/edit", {type:req.query.type}
+				res.render "admin/edit", {type:res.locals.type}
 			| "delete"
-				res.render "admin/delete", {type:req.query.type}
+				res.render "admin/delete", {type:res.locals.type}
 			| "search"
 				res.render "admin/search"
+			| "addstudent"
+				res.render "admin/addstudent"
+			| "addfaculty"
+				res.render "admin/addfaculty"
+			| "rmstudent"
+				res.render "admin/rmstudent"
+			| "rmfaculty"
+				res.render "admin/rmfaculty"
 			| _
 				res.render "admin/default"
 		.post (req, res, next)->
 			if req.query.action is "create"
-				if req.query.type is "user"
+				if res.locals.type is "user"
 					err <- async.waterfall [
 						(cont)->
 							if req.body.type > 3 or req.body.type < 1
@@ -119,7 +129,7 @@ module.exports = (app)->
 						res.status 200
 						res.render "admin/create", { noun:"User", verb:"created", success:"true", type:"user" }
 						# res.send "OK"
-				else if req.query.type is "course"
+				else if res.locals.type is "course"
 					err <- async.waterfall [
 						# (cont)->
 						# 	add checks
@@ -160,7 +170,7 @@ module.exports = (app)->
 				next!
 		.post (req, res, next)->
 			if req.query.action is "search"
-				if (req.query.type||req.body.type) is "user"
+				if res.locals.type is "user"
 					err, result <- async.parallel [
 						(para)->
 							err, result <- User.find {
@@ -191,29 +201,30 @@ module.exports = (app)->
 							it.toObject
 						,"_id"
 						res.render "admin/list" {
-							"objs":result
+							"objs": result
+							"type:": res.locals.type
 						}
-				else if (req.query.type||req.body.type) is "student"
+				else if res.locals.type is "student"
 					err, result <- async.parallel [
 						(para)->
 							err, result <- User.find {
-								"id":req.body.id
-								"type":1
-								"school":app.locals.school
+								"id": req.body.id
+								"type": 1
+								"school": app.locals.school
 							}
 							para err, result
 						(para)->
 							err, result <- User.find {
-								"username":req.body.username
-								"type":1
-								"school":app.locals.school
+								"username": req.body.username
+								"type": 1
+								"school": app.locals.school
 							}
 							para err, result
 						(para)->
 							err, result <- User.find {
-								"email":req.body.email
-								"type":1
-								"school":app.locals.school
+								"email": req.body.email
+								"type": 1
+								"school": app.locals.school
 							}
 							para err, result
 					]
@@ -227,29 +238,30 @@ module.exports = (app)->
 							it.toObject
 						,"_id"
 						res.render "admin/list" {
-							"objs":result
+							"objs": result
+							"type:": res.locals.type
 						}
-				else if (req.query.type||req.body.type) is "faculty"
+				else if res.locals.type is "faculty"
 					err, result <- async.parallel [
 						(para)->
 							err, result <- User.find {
-								"id":req.body.id
-								"type":2
-								"school":app.locals.school
+								"id": req.body.id
+								"type": 2
+								"school": app.locals.school
 							}
 							para err, result
 						(para)->
 							err, result <- User.find {
-								"username":req.body.username
-								"type":2
-								"school":app.locals.school
+								"username": req.body.username
+								"type": 2
+								"school": app.locals.school
 							}
 							para err, result
 						(para)->
 							err, result <- User.find {
-								"email":req.body.email
-								"type":2
-								"school":app.locals.school
+								"email": req.body.email
+								"type": 2
+								"school": app.locals.school
 							}
 							para err, result
 					]
@@ -263,29 +275,30 @@ module.exports = (app)->
 							it.toObject
 						,"_id"
 						res.render "admin/list" {
-							"objs":result
+							"objs": result
+							"type:": res.locals.type
 						}
-				else if (req.query.type||req.body.type) is "admin"
+				else if res.locals.type is "admin"
 					err, result <- async.parallel [
 						(para)->
 							err, result <- User.find {
-								"id":req.body.id
-								"type":3
-								"school":app.locals.school
+								"id": req.body.id
+								"type": 3
+								"school": app.locals.school
 							}
 							para err, result
 						(para)->
 							err, result <- User.find {
-								"username":req.body.username
-								"type":3
-								"school":app.locals.school
+								"username": req.body.username
+								"type": 3
+								"school": app.locals.school
 							}
 							para err, result
 						(para)->
 							err, result <- User.find {
-								"email":req.body.email
-								"type":3
-								"school":app.locals.school
+								"email": req.body.email
+								"type": 3
+								"school": app.locals.school
 							}
 							para err, result
 					]
@@ -298,21 +311,22 @@ module.exports = (app)->
 						result = _.uniq _.flatten(result), ->
 							it.toObject
 						,"_id"
-						res.render "admin/list" {
-							"objs":result
+						res.render "admin/create" {
+							"objs": result
+							"type": res.locals.type
 						}
-				else if (req.query.type||req.body.type) is "course"
+				else if res.locals.type is "course"
 					err, result <- async.parallel [
 						(para)->
 							err, result <- Course.find {
-								"id":req.body.id
-								"school":app.locals.school
+								"id": req.body.id
+								"school": app.locals.school
 							}
 							para err, result
 						(para)->
 							err, result <- Course.find {
-								"title":req.body.title
-								"school":app.locals.school
+								"title": req.body.title
+								"school": app.locals.school
 							}
 							para err, result
 					]
@@ -326,7 +340,8 @@ module.exports = (app)->
 							it.toObject
 						,"_id"
 						res.render "admin/list" {
-							"objs":result
+							"objs": result
+							"type:": res.locals.type
 						}
 				else
 					res.render "admin/search"
@@ -334,7 +349,7 @@ module.exports = (app)->
 				next!
 		.put (req, res, next)->
 			if req.query.action is "edit"
-				if req.query.type is "user"
+				if res.locals.type is "user"
 					err <- async.waterfall [
 						# (cont)->
 						# add checks
@@ -357,10 +372,10 @@ module.exports = (app)->
 								cont null
 						(hash, cont)->
 							err, result <- User.findOne {
-								"id":req.body.id
-								"username":req.body.username
-								"type":req.body.type
-								"school":app.locals.school
+								"id": req.body.id
+								"username": req.body.username
+								"type": req.body.type
+								"school": app.locals.school
 							}
 							if err
 								winston.error err
@@ -391,7 +406,7 @@ module.exports = (app)->
 					else
 						res.status 200
 						res.send "OK"
-				else if req.query.type is "course"
+				else if res.locals.type is "course"
 					err <- async.waterfall [
 						# (cont)->
 						# add checks
@@ -399,10 +414,10 @@ module.exports = (app)->
 							# if we are changing the id do it now then change everything else
 							if req.body.newid?
 								err, result <- Course.findOneAndUpdate {
-									"id":req.body.id
-									"school":app.locals.school
+									"id": req.body.id
+									"school": app.locals.school
 								}, {
-									"id":req.body.newid
+									"id": req.body.newid
 								}
 								if err
 									cont err
@@ -413,8 +428,8 @@ module.exports = (app)->
 								cont null
 						(cont)->
 							err, result <- Course.findOne {
-								"id":req.body.id
-								"school":app.locals.school
+								"id": req.body.id
+								"school": app.locals.school
 							}
 							if err
 								winston.error err
@@ -437,7 +452,7 @@ module.exports = (app)->
 						res.send err
 					else
 						res.send "OK"
-				else if req.query.type is "addstudent"
+				else if res.locals.type is "addstudent"
 					if !req.body.course?
 						res.status 400
 						res.send "No Course Given"
@@ -445,30 +460,30 @@ module.exports = (app)->
 					err <- async.waterfall [
 						(cont)->
 							err, result <- Course.findOne {
-								"id":req.body.course
-								"school":app.locals.school
+								"id": req.body.course
+								"school": app.locals.school
 							}
 							cont err, result
 						(course, cont)->
 							if req.body.username?
 								err, result <- User.findOne {
-									"username":req.body.username
-									"type":"1"
-									"school":app.locals.school
+									"username": req.body.username
+									"type": 1
+									"school": app.locals.school
 								}
 								cont err, result._id, course
 							if req.body.id?
 								err, result <- User.findOne {
-									"id":req.body.id
-									"type":"1"
-									"school":app.locals.school
+									"id": req.body.id
+									"type": 1
+									"school": app.locals.school
 								}
 								cont err, result._id, course
 							if req.body._id?
 								err, result <- User.findOne {
-									"_id":req.body._id
-									"type":"1"
-									"school":app.locals.school
+									"_id": req.body._id
+									"type": 1
+									"school": app.locals.school
 								}
 								cont err, result._id, course
 						(student, course, cont)->
@@ -482,7 +497,7 @@ module.exports = (app)->
 						res.send err
 					else
 						res.send "OK"
-				else if req.query.type is "addfaculty"
+				else if res.locals.type is "addfaculty"
 					if !req.body.course?
 						res.status 400
 						res.send "No Course Given"
@@ -490,30 +505,30 @@ module.exports = (app)->
 					err <- async.waterfall [
 						(cont)->
 							err, result <- Course.findOne {
-								"id":req.body.course
-								"school":app.locals.school
+								"id": req.body.course
+								"school": app.locals.school
 							}
 							cont err, result
 						(course, cont)->
 							if req.body.username?
 								err, result <- User.findOne {
-									"username":req.body.username
-									"type":"2"
-									"school":app.locals.school
+									"username": req.body.username
+									"type": 2
+									"school": app.locals.school
 								}
 								cont err, result._id, course
 							if req.body.id?
 								err, result <- User.findOne {
-									"id":req.body.id
-									"type":"2"
-									"school":app.locals.school
+									"id": req.body.id
+									"type": 2
+									"school": app.locals.school
 								}
 								cont err, result._id, course
 							if req.body._id?
 								err, result <- User.findOne {
-									"_id":req.body._id
-									"type":"2"
-									"school":app.locals.school
+									"_id": req.body._id
+									"type": 2
+									"school": app.locals.school
 								}
 								cont err, result._id, course
 						(faculty, course, cont)->
@@ -527,34 +542,34 @@ module.exports = (app)->
 						res.send err
 					else
 						res.send "OK"
-				else if req.query.type is "rmstudent"
+				else if res.locals.type is "rmstudent"
 					err <- async.waterfall [
 						(cont)->
 							err, result <- Course.findOne {
-								"id":req.body.course
-								"school":app.locals.school
+								"id": req.body.course
+								"school": app.locals.school
 							}
 							cont err, result
 						(course, cont)->
 							if req.body.username?
 								err, result <- User.findOne {
-									"username":req.body.username
-									"type":"1"
-									"school":app.locals.school
+									"username": req.body.username
+									"type": 1
+									"school": app.locals.school
 								}
 								cont err, result._id, course
 							if req.body.id?
 								err, result <- User.findOne {
-									"id":req.body.id
-									"type":"1"
-									"school":app.locals.school
+									"id": req.body.id
+									"type": 1
+									"school": app.locals.school
 								}
 								cont err, result._id, course
 							if req.body._id?
 								err, result <- User.findOne {
-									"_id":req.body._id
-									"type":"1"
-									"school":app.locals.school
+									"_id": req.body._id
+									"type": 1
+									"school": app.locals.school
 								}
 								cont err, result._id, course
 						(student, course, cont)->
@@ -568,34 +583,34 @@ module.exports = (app)->
 						res.send err
 					else
 						res.send "OK"
-				else if req.query.type is "rmfaculty"
+				else if res.locals.type is "rmfaculty"
 					err <- async.waterfall [
 						(cont)->
 							err, result <- Course.findOne {
-								"id":req.body.course
-								"school":app.locals.school
+								"id": req.body.course
+								"school": app.locals.school
 							}
 							cont err, result
 						(course, cont)->
 							if req.body.username?
 								err, result <- User.findOne {
-									"username":req.body.username
-									"type":"2"
-									"school":app.locals.school
+									"username": req.body.username
+									"type": 2
+									"school": app.locals.school
 								}
 								cont err, result._id, course
 							if req.body.id?
 								err, result <- User.findOne {
-									"id":req.body.id
-									"type":"2"
-									"school":app.locals.school
+									"id": req.body.id
+									"type": 2
+									"school": app.locals.school
 								}
 								cont err, result._id, course
 							if req.body._id?
 								err, result <- User.findOne {
-									"_id":req.body._id
-									"type":"2"
-									"school":app.locals.school
+									"_id": req.body._id
+									"type": 2
+									"school": app.locals.school
 								}
 								cont err, result._id, course
 						(faculty, course, cont)->
@@ -615,12 +630,12 @@ module.exports = (app)->
 				next!
 		.delete (req, res, next)->
 			if req.query.action is "delete"
-				if req.query.type is "user"
+				if res.locals.type is "user"
 					err <- async.waterfall [
 						(cont)->
 							err, result <- User.findOneAndRemove {
-								"username":req.body.username
-								"school":app.locals.school
+								"username": req.body.username
+								"school": app.locals.school
 							}
 							if err
 								winston.error err
@@ -630,12 +645,12 @@ module.exports = (app)->
 					]
 					res.status 200
 					res.send "ok"
-				else if req.query.type is "course"
+				else if res.locals.type is "course"
 					err <- async.waterfall [
 						(cont)->
 							err, result <- Course.findOneAndRemove {
-								"id":req.body.id
-								"school":app.locals.school
+								"id": req.body.id
+								"school": app.locals.school
 							}
 							if err
 								winston.error err
