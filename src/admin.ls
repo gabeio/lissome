@@ -15,8 +15,8 @@ module.exports = (app)->
 	Course = mongoose.models.Course
 	User = mongoose.models.User
 	app
-		# @param {ObjectId} [object] should be an ObjectId
-		..route "/admin/:object1?/:object2?"
+		# @param {ObjectId} [object] *should* be an ObjectId
+		..route "/admin/:object?"
 		# @query {string} [action] is what the user wishes to do:
 		#   create, edit, delete, etc.
 		# @query {string} [type] is the model we are working with
@@ -347,6 +347,122 @@ module.exports = (app)->
 					res.render "admin/search"
 			else
 				next!
+		.post (req, res, next)->
+			if req.query.action is "addstudent"
+				# search for student to add
+				if !req.params.object?
+					res.status 400
+					res.send "No Course Given"
+					res.end!
+				else
+					err, result <- async.parallel [
+						(para)->
+							if req.body.name?
+								err, result <- User.findOne {
+									"name": new RegExp req.body.name, "i"
+									"type": 1
+									"school": app.locals.school
+								}
+								para err, result
+						(para)->
+							if req.body.id?
+								err, result <- User.findOne {
+									"id": req.body.id
+									"type": 1
+									"school": app.locals.school
+								}
+								para err, result
+						(para)->
+							if req.body._id?
+								err, result <- User.findOne {
+									"_id": req.body._id
+									"type": 1
+									"school": app.locals.school
+								}
+								para err, result
+						(para)->
+							if req.body.username?
+								err, result <- User.findOne {
+									"username": req.body.username
+									"type": 1
+									"school": app.locals.school
+								}
+								para err, result
+					]
+					if err?
+						winston.error err
+						res.status 400
+						res.send err
+					else
+						res.status 200
+						result = _.uniq _.flatten(result), ->
+							it.toObject
+						,"_id"
+						res.render "admin/addstudent", {
+							"objs": result
+						}
+			else if req.query.action is "addfaculty"
+				# search for faculty to add
+				if !req.params.object?
+					res.status 400
+					res.send "No Course Given"
+					res.end!
+				else
+					err, result <- async.parallel [
+						(para)->
+							if req.body.name?
+								err, result <- User.findOne {
+									"name": new RegExp req.body.name, "i"
+									"type": 2
+									"school": app.locals.school
+								}
+								para err, result
+
+						(para)->
+							if req.body.id?
+								err, result <- User.findOne {
+									"id": req.body.id
+									"type": 2
+									"school": app.locals.school
+								}
+								para err, result
+						(para)->
+							if req.body._id?
+								err, result <- User.findOne {
+									"_id": req.body._id
+									"type": 2
+									"school": app.locals.school
+								}
+								para err, result
+						(para)->
+							if req.body.username?
+								err, result <- User.findOne {
+									"username": req.body.username
+									"type": 2
+									"school": app.locals.school
+								}
+								para err, result
+					]
+					if err?
+						winston.error err
+						res.status 400
+						res.send err
+					else
+						res.status 200
+						result = _.uniq _.flatten(result), ->
+							it.toObject
+						,"_id"
+						res.render "admin/addstudent", {
+							"objs": result
+						}
+			else if req.query.action is "rmstudent"
+				# search for student to rm
+				...
+			else if req.query.action is "rmfaculty"
+				# search for faculty to rm
+				...
+			else
+				next!
 		.put (req, res, next)->
 			if req.query.action is "edit"
 				if res.locals.type is "user"
@@ -414,7 +530,7 @@ module.exports = (app)->
 							# if we are changing the id do it now then change everything else
 							if req.body.newid?
 								err, result <- Course.findOneAndUpdate {
-									"id": req.body.id
+									"id": req.params.object
 									"school": app.locals.school
 								}, {
 									"id": req.body.newid
@@ -422,13 +538,13 @@ module.exports = (app)->
 								if err
 									cont err
 								else
-									req.body.id = req.body.newid
+									req.params.object = req.body.newid
 									cont null
 							else
 								cont null
 						(cont)->
 							err, result <- Course.findOne {
-								"id": req.body.id
+								"id": req.params.object
 								"school": app.locals.school
 							}
 							if err
@@ -453,100 +569,109 @@ module.exports = (app)->
 					else
 						res.send "OK"
 				else if res.locals.type is "addstudent"
-					if !req.body.course?
+					# add student to course
+					if !req.params.object?
 						res.status 400
 						res.send "No Course Given"
 						res.end!
-					err <- async.waterfall [
-						(cont)->
-							err, result <- Course.findOne {
-								"id": req.body.course
-								"school": app.locals.school
-							}
-							cont err, result
-						(course, cont)->
-							if req.body.username?
-								err, result <- User.findOne {
-									"username": req.body.username
-									"type": 1
-									"school": app.locals.school
-								}
-								cont err, result._id, course
-							if req.body.id?
-								err, result <- User.findOne {
-									"id": req.body.id
-									"type": 1
-									"school": app.locals.school
-								}
-								cont err, result._id, course
-							if req.body._id?
-								err, result <- User.findOne {
-									"_id": req.body._id
-									"type": 1
-									"school": app.locals.school
-								}
-								cont err, result._id, course
-						(student, course, cont)->
-							course.students.push ObjectId student
-							err <- course.save
-							cont err
-					]
-					if err
-						winston.error err
-						res.status 400
-						res.send err
 					else
-						res.send "OK"
+						err <- async.waterfall [
+							(cont)->
+								err, result <- Course.findOne {
+									"id": req.params.object
+									"school": app.locals.school
+								}
+								cont err, result
+							(course, cont)->
+								if req.body.username?
+									err, result <- User.findOne {
+										"username": req.body.username
+										"type": 1
+										"school": app.locals.school
+									}
+									cont err, result._id, course
+								else if req.body.id?
+									err, result <- User.findOne {
+										"id": req.body.id
+										"type": 1
+										"school": app.locals.school
+									}
+									cont err, result._id, course
+								else if req.body._id?
+									err, result <- User.findOne {
+										"_id": req.body._id
+										"type": 1
+										"school": app.locals.school
+									}
+									cont err, result._id, course
+								else
+									cont "No Student Given"
+							(student, course, cont)->
+								course.students.push ObjectId student
+								err <- course.save
+								cont err
+						]
+						if err
+							winston.error err
+							res.status 400
+							res.send err
+						else
+							res.send "OK"
 				else if res.locals.type is "addfaculty"
-					if !req.body.course?
+					# add faculty to course
+					if !req.params.object?
 						res.status 400
 						res.send "No Course Given"
 						res.end!
-					err <- async.waterfall [
-						(cont)->
-							err, result <- Course.findOne {
-								"id": req.body.course
-								"school": app.locals.school
-							}
-							cont err, result
-						(course, cont)->
-							if req.body.username?
-								err, result <- User.findOne {
-									"username": req.body.username
-									"type": 2
-									"school": app.locals.school
-								}
-								cont err, result._id, course
-							if req.body.id?
-								err, result <- User.findOne {
-									"id": req.body.id
-									"type": 2
-									"school": app.locals.school
-								}
-								cont err, result._id, course
-							if req.body._id?
-								err, result <- User.findOne {
-									"_id": req.body._id
-									"type": 2
-									"school": app.locals.school
-								}
-								cont err, result._id, course
-						(faculty, course, cont)->
-							course.faculty.push ObjectId faculty
-							err <- course.save
-							cont err
-					]
-					if err
-						winston.error err
-						res.status 400
-						res.send err
 					else
-						res.send "OK"
+						err <- async.waterfall [
+							(cont)->
+								err, result <- Course.findOne {
+									"id": req.params.object
+									"school": app.locals.school
+								}
+								cont err, result
+							(course, cont)->
+								if req.body.username?
+									err, result <- User.findOne {
+										"username": req.body.username
+										"type": 2
+										"school": app.locals.school
+									}
+									cont err, result._id, course
+								else if req.body.id?
+									err, result <- User.findOne {
+										"id": req.body.id
+										"type": 2
+										"school": app.locals.school
+									}
+									cont err, result._id, course
+								else if req.body._id?
+									err, result <- User.findOne {
+										"_id": req.body._id
+										"type": 2
+										"school": app.locals.school
+									}
+									cont err, result._id, course
+								else
+									cont "No Faculty Given"
+							(faculty, course, cont)->
+								course.faculty.push ObjectId faculty
+								err <- course.save
+								cont err
+						]
+						if err
+							winston.error err
+							res.status 400
+							res.send err
+						else
+							res.send "OK"
 				else if res.locals.type is "rmstudent"
+					# rm student to course
 					err <- async.waterfall [
 						(cont)->
 							err, result <- Course.findOne {
-								"id": req.body.course
+								"id": req.params.object
 								"school": app.locals.school
 							}
 							cont err, result
@@ -558,20 +683,22 @@ module.exports = (app)->
 									"school": app.locals.school
 								}
 								cont err, result._id, course
-							if req.body.id?
+							else if req.body.id?
 								err, result <- User.findOne {
 									"id": req.body.id
 									"type": 1
 									"school": app.locals.school
 								}
 								cont err, result._id, course
-							if req.body._id?
+							else if req.body._id?
 								err, result <- User.findOne {
 									"_id": req.body._id
 									"type": 1
 									"school": app.locals.school
 								}
 								cont err, result._id, course
+							else
+								cont "No Student Given"
 						(student, course, cont)->
 							course.students.pop course.students.indexOf student
 							err <- course.save
@@ -584,10 +711,11 @@ module.exports = (app)->
 					else
 						res.send "OK"
 				else if res.locals.type is "rmfaculty"
+					# rm faculty to course
 					err <- async.waterfall [
 						(cont)->
 							err, result <- Course.findOne {
-								"id": req.body.course
+								"id": req.params.object
 								"school": app.locals.school
 							}
 							cont err, result
@@ -599,20 +727,22 @@ module.exports = (app)->
 									"school": app.locals.school
 								}
 								cont err, result._id, course
-							if req.body.id?
+							else if req.body.id?
 								err, result <- User.findOne {
 									"id": req.body.id
 									"type": 2
 									"school": app.locals.school
 								}
 								cont err, result._id, course
-							if req.body._id?
+							else if req.body._id?
 								err, result <- User.findOne {
 									"_id": req.body._id
 									"type": 2
 									"school": app.locals.school
 								}
 								cont err, result._id, course
+							else
+								cont "No Faculty Given"
 						(faculty, course, cont)->
 							course.faculty.pop course.faculty.indexOf faculty
 							err <- course.save
