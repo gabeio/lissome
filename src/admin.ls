@@ -457,8 +457,10 @@ module.exports = (app)->
 						}
 			else if req.query.action is "rmstudent"
 				# search for student to rm
+				...
 			else if req.query.action is "rmfaculty"
 				# search for faculty to rm
+				...
 			else
 				next!
 		.put (req, res, next)->
