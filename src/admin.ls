@@ -25,9 +25,12 @@ module.exports = (app)->
 			res.locals.needs = 3
 			app.locals.authorize req, res, next
 		.all (req, res, next)->
+			# force all actions to be lowercase
 			if req.query.action? then req.query.action = req.query.action.toLowerCase!
+			# get type from body and query
 			if req.query.type? or req.body.type?
 				res.locals.type = (req.query.type||req.body.type)
+			# force all type to be lowercase
 			if res.locals.type? then res.locals.type = res.locals.type.toLowerCase!
 			next!
 		.get (req, res, next)->
@@ -55,11 +58,13 @@ module.exports = (app)->
 				if res.locals.type is "user"
 					err <- async.waterfall [
 						(cont)->
+							# checking new user's level is within client levels
 							if req.body.type > 3 or req.body.type < 1
 								cont "Invalid User Auth Level"
 							else
 								cont null
 						(cont)->
+							# if admin wants a random password
 							if req.body.randpassword in [true,"true"]
 								newpass = []
 								for x from 1 to 7
@@ -71,6 +76,7 @@ module.exports = (app)->
 								cont null
 						# double check password & repeat are the same
 						(cont)->
+							# assure password is not smaller than small limit
 							if req.body.password.length < res.locals.smallpassword
 								cont "Password Too Small"
 							else
@@ -81,8 +87,7 @@ module.exports = (app)->
 							err, result <- bcrypt.hash "password", 10
 							cont err, result
 						(hash, cont)->
-							# check id & username existance seperately
-							# both can throw error
+							# check id & username existance
 							err, result <- async.parallel [
 								(para)->
 									err, result <- User.find {
@@ -107,6 +112,7 @@ module.exports = (app)->
 							]
 							cont err, hash
 						(hash, cont)->
+							# if everything checks out create the user
 							user = new User {
 								id: req.body.id
 								username: req.body.username
@@ -122,7 +128,7 @@ module.exports = (app)->
 							err, user <- user.save
 							cont err
 					]
-					if err
+					if err?
 						res.status 400
 						res.send err
 					else
@@ -134,27 +140,27 @@ module.exports = (app)->
 						# (cont)->
 						# 	add checks
 						(cont)->
+							# see if the course id already exists
 							err, result <- Course.find {
 								"id":req.body.id
 								"school":app.locals.school
 							}
-							cont err, result
-						(result, cont)->
-							# if the course doesn't already exist
 							if result? and result.length > 0
 								cont "Course Exists"
 							else
-								# create it
-								course = new Course {
-									id: req.body.id
-									title: req.body.title
-									faculty: []
-									students: []
-									school: app.locals.school
-									author: ObjectId res.locals.uid
-								}
-								err, course <- course.save
-								cont err
+								cont err, result
+						(result, cont)->
+							# create the course
+							course = new Course {
+								id: req.body.id
+								title: req.body.title
+								faculty: []
+								students: []
+								school: app.locals.school
+								author: ObjectId res.locals.uid
+							}
+							err, course <- course.save
+							cont err
 					]
 					if err
 						winston.error err
@@ -349,7 +355,7 @@ module.exports = (app)->
 				next!
 		.post (req, res, next)->
 			if req.query.action is "addstudent"
-				# search for student to add
+				# *SEARCH* for student to add to course
 				if !req.params.object?
 					res.status 400
 					res.send "No Course Given"
@@ -402,7 +408,7 @@ module.exports = (app)->
 							"objs": result
 						}
 			else if req.query.action is "addfaculty"
-				# search for faculty to add
+				# *SEARCH* for faculty to add
 				if !req.params.object?
 					res.status 400
 					res.send "No Course Given"
@@ -456,10 +462,10 @@ module.exports = (app)->
 							"objs": result
 						}
 			else if req.query.action is "rmstudent"
-				# search for student to rm
+				# *SEARCH* for student to rm
 				...
 			else if req.query.action is "rmfaculty"
-				# search for faculty to rm
+				# *SEARCH* for faculty to rm
 				...
 			else
 				next!
@@ -764,7 +770,7 @@ module.exports = (app)->
 					err <- async.waterfall [
 						(cont)->
 							err, result <- User.findOneAndRemove {
-								"username": req.body.username
+								"username": req.params.object
 								"school": app.locals.school
 							}
 							if err
@@ -779,7 +785,7 @@ module.exports = (app)->
 					err <- async.waterfall [
 						(cont)->
 							err, result <- Course.findOneAndRemove {
-								"id": req.body.id
+								"id": req.params.object
 								"school": app.locals.school
 							}
 							if err

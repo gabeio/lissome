@@ -1014,9 +1014,9 @@ describe "Admin Module", (...)->
 						done err
 			it "should edit a course", (done)->
 				admin
-					.post "/admin/?hmo=PUT&action=edit&type=course"
+					.post "/admin/1234?hmo=PUT&action=edit&type=course"
 					.send {
-						"id":"1234"
+						# "id":"1234"
 						"newid":"1234"
 						"title":"theNewTitle"
 					}
@@ -1025,9 +1025,9 @@ describe "Admin Module", (...)->
 						done err
 			it "should add a student to a course w/id", (done)->
 				admin
-					.post "/admin/?hmo=PUT&action=edit&type=addstudent"
+					.post "/admin/1234?hmo=PUT&action=edit&type=addstudent"
 					.send {
-						"course":"1234"
+						# "course":"1234"
 						"id":"1001"
 					}
 					.end (err, res)->
@@ -1035,9 +1035,9 @@ describe "Admin Module", (...)->
 						done err
 			it "should add a student to a course w/username", (done)->
 				admin
-					.post "/admin/?hmo=PUT&action=edit&type=addstudent"
+					.post "/admin/1234?hmo=PUT&action=edit&type=addstudent"
 					.send {
-						"course":"1234"
+						# "course":"1234"
 						"username":"adminCreatedStudent"
 					}
 					.end (err, res)->
@@ -1045,9 +1045,9 @@ describe "Admin Module", (...)->
 						done err
 			it "should add a faculty to a course w/id", (done)->
 				admin
-					.post "/admin/?hmo=PUT&action=edit&type=addfaculty"
+					.post "/admin/1234?hmo=PUT&action=edit&type=addfaculty"
 					.send {
-						"course":"1234"
+						# "course":"1234"
 						"id":"1002"
 					}
 					.end (err, res)->
@@ -1055,17 +1055,17 @@ describe "Admin Module", (...)->
 						done err
 			it "should add a faculty to a course w/username", (done)->
 				admin
-					.post "/admin/?hmo=PUT&action=edit&type=addfaculty"
+					.post "/admin/1234?hmo=PUT&action=edit&type=addfaculty"
 					.send {
-						"course":"1234"
+						# "course":"1234"
 						"username":"adminCreatedFaculty"
 					}
 					.end (err, res)->
 						expect res.status .to.equal 200
 						done err
-			it "should remove a student to a course w/id", (done)->
+			it "should remove a student from a course w/id", (done)->
 				admin
-					.post "/admin/?hmo=PUT&action=edit&type=rmstudent"
+					.post "/admin/1234?hmo=PUT&action=edit&type=rmstudent"
 					.send {
 						"course":"1234"
 						"id":"1001"
@@ -1073,9 +1073,9 @@ describe "Admin Module", (...)->
 					.end (err, res)->
 						expect res.status .to.equal 200
 						done err
-			it "should remove a student to a course w/username", (done)->
+			it "should remove a student from a course w/username", (done)->
 				admin
-					.post "/admin/?hmo=PUT&action=edit&type=rmstudent"
+					.post "/admin/1234?hmo=PUT&action=edit&type=rmstudent"
 					.send {
 						"course":"1234"
 						"username":"adminCreatedStudent"
@@ -1083,9 +1083,9 @@ describe "Admin Module", (...)->
 					.end (err, res)->
 						expect res.status .to.equal 200
 						done err
-			it "should remove a faculty to a course w/id", (done)->
+			it "should remove a faculty from a course w/id", (done)->
 				admin
-					.post "/admin/?hmo=PUT&action=edit&type=rmfaculty"
+					.post "/admin/1234?hmo=PUT&action=edit&type=rmfaculty"
 					.send {
 						"course":"1234"
 						"id":"1002"
@@ -1093,9 +1093,9 @@ describe "Admin Module", (...)->
 					.end (err, res)->
 						expect res.status .to.equal 200
 						done err
-			it "should remove a faculty to a course w/username", (done)->
+			it "should remove a faculty from a course w/username", (done)->
 				admin
-					.post "/admin/?hmo=PUT&action=edit&type=rmfaculty"
+					.post "/admin/1234?hmo=PUT&action=edit&type=rmfaculty"
 					.send {
 						"course":"1234"
 						"username":"adminCreatedFaculty"
