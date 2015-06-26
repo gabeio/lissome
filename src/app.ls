@@ -198,8 +198,28 @@ switch process.env.NODE_ENV
 	app.set "view cache" false
 	swig.setDefaults { -cache }
 
+app
+	..locals.authorize = (req, res, next)->
+		if res.locals.auth? and res.locals.needs? and res.locals.needs <= res.locals.auth
+			next!
+		else
+			next new Error "UNAUTHORIZED" # other unauth
+
 # Attach base
-require("./base")(app)
+require("./mongoose")(app)
+# require("./auth")(app)
+
+app.use "/login", require("./login")
+app.use "/logout", require("./logout")
+app.use "/admin", require("./admin")
+app.use "/:course(c|C|course)", require("./course/assignments")
+app.use "/:course(c|C|course)", require("./course/blog")
+app.use "/:course(c|C|course)", require("./course/conference")
+app.use "/:course(c|C|course)", require("./course/grades")
+app.use "/:course(c|C|course)", require("./course/index")
+app.use "/:index(index|dash|dashboard)?", require("./dashboard")
+# require("./base")(app)
+require("./error")(app)
 
 /* istanbul ignore next */
 if !module.parent # assure this file is not being run by a different file
