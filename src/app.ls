@@ -28,6 +28,10 @@ argv = yargs.argv
 # express
 app = module.exports = express!
 
+# app locals
+app
+	..locals.smallpassword = parseInt (process.env.small||process.env.smallpassword||process.env.minpassword||6)
+
 /* istanbul ignore next this is just for assurance the env vars are defined */
 do ->
 	if !process.env.cookie? and !process.env.COOKIE? and !argv.cookie?
@@ -128,6 +132,7 @@ app
 	.use express-session {
 		secret: (process.env.cookie||process.env.COOKIE||argv.cookie)
 		-resave
+		+rolling
 		+saveUninitialized
 		cookie: {
 			path: "/"
@@ -174,6 +179,7 @@ app
 					res.locals.lastName = req.session.lastName
 					res.locals.username = req.session.username
 					res.locals.auth = req.session.auth # save auth level for template
+					res.locals.smallpassword = app.locals.smallpassword
 			!->
 				next!
 		]

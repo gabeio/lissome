@@ -1,4 +1,4 @@
-{% extends '../base.html' %}
+{% extends '../../base.html' %}
 
 {% block head %}
 	<title>Blog - {{ course.title }} - {{ school }}</title>
@@ -6,12 +6,12 @@
 
 {% block body %}
 	<div class="container-fluid">
-		{% include '../navbar.html' %}
+		{% include '../../navbar.html' %}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<ol class="breadcrumb">
 					<li><a href="/">Dash</a></li>
-					<li><a href="/{{ course.id }}">{{ course.title }}</a></li>
+					<li><a href="/c/{{ course.id }}">{{ course.title }}</a></li>
 					<li class="active">Blog</li>
 				</ol>
 			</div>
@@ -46,7 +46,7 @@
 						</div>
 					</div>
 					{% if 2 <= auth %}
-					<a href="/{{ course.id }}/blog?action=new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Post</a>
+					<a href="/c/{{ course.id }}/blog?action=new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Post</a>
 					{% endif %}
 				</form>
 			</div>
@@ -65,10 +65,10 @@
 								</button>
 								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
 									<li role="presentation">
-										<a role="menuitem" href="/{{ course.id }}/blog/{{ post.title|url_encode }}?action=edit"><span class="glyphicon glyphicon-edit"></span> Edit This Post</a>
+										<a role="menuitem" href="/c/{{ course.id }}/blog/{{ post.title|url_encode }}?action=edit"><span class="glyphicon glyphicon-edit"></span> Edit This Post</a>
 									</li>
 									<li role="presentation">
-										<a role="menuitem" href="/{{ course.id }}/blog/{{ post.title|url_encode }}?action=delete"><span class="glyphicon glyphicon-remove"></span> Delete This Post</a>
+										<a role="menuitem" href="/c/{{ course.id }}/blog/{{ post.title|url_encode }}?action=delete"><span class="glyphicon glyphicon-remove"></span> Delete This Post</a>
 									</li>
 								</ul>
 							</div>

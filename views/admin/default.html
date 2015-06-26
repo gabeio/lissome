@@ -1,0 +1,68 @@
+{% extends '../base.html' %}
+
+{% block head %}
+	<title>Admin - {{ school }}</title>
+{% endblock %}
+
+{% block body %}
+	<div class="container-fluid">
+		{% include '../navbar.html' %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ol class="breadcrumb">
+					<li><a href="/">Dash</a></li>
+					<li class="active">Admin Dash</li>
+				</ol>
+			</div>
+		</div>
+		{%- if success %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				{% if success == 'yes' or success == 'true' %}
+				<div class="alert alert-success" role="alert">
+					{{ noun }} <strong>{{ verb }}</strong> successfully.
+				</div>
+				{% elif success == 'no' or success == 'false' %}
+				<div class="alert alert-danger" role="alert">
+					{{ noun }} <strong>not</strong> {{ verb }} successfully. Missing required field.
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		{% endif -%}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h2>Administration Dashboard</h2>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ul class="list-group">
+					<a class="list-group-item" href="/admin/?action=search">Search</a>
+				</ul>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<h3>Course(s)</h3>
+				<ul class="list-group">
+					<a class="list-group-item" href="/admin/?type=course&action=create">Create Course</a>
+					{#<a class="list-group-item" href="/admin/?type=course&action=edit">Edit Course</a>#}
+					{#<a class="list-group-item" href="/admin/?type=course&action=delete">Delete Course</a>#}
+				</ul>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<h3>User(s)</h3>
+				<ul class="list-group">
+					<a class="list-group-item" href="/admin/?type=user&action=create">Create User</a>
+					{#<a class="list-group-item" href="/admin/?type=user&action=edit">Edit User</a>#}
+					{#<a class="list-group-item" href="/admin/?type=user&action=delete">Delete User</a>#}
+				</ul>
+			</div>
+		</div>
+	</div>
+{% endblock %}

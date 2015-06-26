@@ -14,7 +14,7 @@ module.exports = (app)->
 	Assignment = mongoose.models.Assignment
 	Attempt = mongoose.models.Attempt
 	app
-		..route "/:course/assignments/:assign?/:attempt?" # query :: action(new|edit|delete|grade)
+		..route "/:route(c|C|course)/:course/assignments/:assign?/:attempt?" # query :: action(new|edit|delete|grade)
 		.all (req, res, next)->
 			# to be in course auth needs to be min = 1
 			res.locals.needs = 1
@@ -168,25 +168,25 @@ module.exports = (app)->
 				(done)->
 					if !req.query.action? && !req.params.assign?
 						# show list of assignments by title
-						res.render "assignments/default"
+						res.render "course/assignments/default"
 				(done)->
 					if !req.query.action? && req.params.assign?
 						if req.params.attempt?
 							# show attempt
-							res.render "assignments/attempt"
+							res.render "course/assignments/attempt"
 						else
 							# show assignment details & attempt field
-							res.render "assignments/view"
+							res.render "course/assignments/view"
 				(done)->
 					if req.query.action?
-						next! # don"t assume action, continue trying
+						next! # don't assume action, continue trying
 			]
 		.post (req, res, next)->
 			# handle new attempt
 			switch req.query.action
 			| "attempt"
 				if !req.body.aid? or !req.body.text?
-					res.status 400 .render "assignments/view" { body: req.body, success:"error", error:"Attempt Text Can <b>not</b> be blank." }
+					res.status 400 .render "course/assignments/view" { body: req.body, success:"error", error:"Attempt Text Can <b>not</b> be blank." }
 				else
 					<- async.parallel [
 						(done)->
@@ -228,7 +228,7 @@ module.exports = (app)->
 								cont "Allowed assignment submission window has not opened."
 						(cont)->
 							# no end OR date now < end OR allowLate is true
-							if !res.locals.assignment.end? or ((new Date Date.now!) < Date.parse(res.locals.assignment.end)) or (res.locals.assignment.allowLate is true)
+							if !res.locals.assignment.end? or res.locals.assignment.end is "" or ((new Date Date.now!) < Date.parse(res.locals.assignment.end)) or (res.locals.assignment.allowLate is true)
 								cont null
 							else
 								cont "Allowed assignment submission window has closed."
@@ -254,13 +254,13 @@ module.exports = (app)->
 								winston.error err
 								cont "Mongo Error"
 							else
-								res.redirect "/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
+								res.redirect "/c/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
 								cont null
 					]
 					/* istanbul ignore else should only occur if db crashes */
-					if err and err isnt "redirect" and err isnt "Mongo Error"
+					if err? and err isnt "redirect" and err isnt "Mongo Error"
 						res.status 400
-						res.render "assignments/view" { body:req.body, success:"error", error:err }
+						res.render "course/assignments/view" { body:req.body, success:"error", error:err }
 					else if err is "Mongo Error"
 						next new Error "Mongo Error"
 					# else
@@ -275,19 +275,19 @@ module.exports = (app)->
 		.get (req, res, next)->
 			switch req.query.action
 			| "new"
-				res.render "assignments/create"
+				res.render "course/assignments/create"
 			| "edit"
-				res.render "assignments/edit"
+				res.render "course/assignments/edit"
 			| "delete"
-				res.render "assignments/del"
+				res.render "course/assignments/del"
 			| _
-				next! # don"t assume action
+				next! # don't assume action
 		.put (req, res, next)->
 			# handle edit assignment
 			switch req.query.action
 			| "edit"
-				if !req.body.aid? || !req.body.title? || !req.body.text? || !req.body.tries? # double check require fields exist
-					res.status 400 .render "assignments/edit" { body: req.body, success:"no", action:"edit" }
+				if !req.body.aid? || !req.body.title? || !req.body.text? || !req.body.tries? || req.body.title is "" || req.body.text is "" # double check require fields exist
+					res.status 400 .render "course/assignments/edit" { body: req.body, success:"no", action:"edit" }
 				else
 					res.locals.start = new Date(req.body.opendate+" "+req.body.opentime)
 					res.locals.end = new Date(req.body.closedate+" "+req.body.closetime)
@@ -305,33 +305,29 @@ module.exports = (app)->
 					if !moment(res.locals.start).isValid!
 						delete assign.start
 					if res.locals.assignment.end? and ( !req.body.closedate? or req.body.closedate is "" )
-						assign.end = ""
+						assign.end = "" # delete it if it already exists
 					else if !moment(res.locals.end).isValid!
 						delete assign.end
 					err, assign <- Assignment.findOneAndUpdate {
 						"_id": ObjectId req.body.aid
 						"course": ObjectId res.locals.course._id
-						# don"t check for author as me might not be...
+						# don't check for author as me might not be...
 					}, assign
 					/* istanbul ignore if should only occur if db crashes */
 					if err?
-						# winston.info "I4"
 						winston.error err
 						next new Error "Mongo Error"
 					else
-						# winston.info "I5"
-						res.redirect "/#{req.params.course}/assignments/#{assign._id.toString!}"
+						res.redirect "/c/#{req.params.course}/assignments/#{assign._id.toString!}"
 			| _
-				next! # don"t assume action
+				next! # don't assume action
 		.post (req, res, next)->
-			# winston.info "J"
 			# handle new assignment
 			switch req.query.action
 			| "new"
-				if !req.body.title? || !req.body.text? || !req.body.tries? || req.body.title is "" || req.body.text is "" # double check require fields exist
-					res.status 400 .render "assignments/create" { body: req.body, success:"no", action:"edit"}
+				if !req.body.title? || !req.body.text? || !req.body.tries? || req.body.title is "" || req.body.text is "" # double check require fields exists
+					res.status 400 .render "course/assignments/create" { body: req.body, success:"no", action:"edit"}
 				else
-					# winston.info "J1"
 					res.locals.start = new Date req.body.opendate+" "+req.body.opentime
 					res.locals.end = new Date req.body.closedate+" "+req.body.closetime
 					assign = {
@@ -357,11 +353,11 @@ module.exports = (app)->
 						winston.error err
 						next new Error "INTERNAL"
 					else
-						res.status 302 .redirect "/#{req.params.course}/assignments/" + assignment._id
+						res.status 302
+						res.redirect "/c/#{req.params.course}/assignments/" + assignment._id
 			| "grade"
-				# winston.info "J2"
 				if !req.body.points? || !req.body.aid? # double check require fields exist
-					res.status 400 .render "assignments/create" { assignments: [req.body], -success, action:"edit" }
+					res.status 400 .render "course/assignments/create" { assignments: [req.body], -success, action:"edit" }
 				else
 					err, attempt <- Attempt.findOneAndUpdate {
 						"course": ObjectId res.locals.course._id
@@ -369,17 +365,16 @@ module.exports = (app)->
 					}, {
 						"points": req.body.points
 					}
-					# winston.info attempt
 					/* istanbul ignore if should only occur if db crashes */
 					if err?
 						winston.error err
 						next new Error "INTERNAL"
 					else
-						res.status 302 .redirect "/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
+						res.status 302
+						res.redirect "/c/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
 			| _
-				next! # don"t assume action
+				next! # don't assume action
 		.delete (req, res, next)->
-			# winston.info "K"
 			# handle delete assignment (faculty+)
 			switch req.query.action
 			| "delete"
@@ -387,7 +382,6 @@ module.exports = (app)->
 					"assignment": ObjectId req.body.aid
 					"course": ObjectId res.locals.course._id
 				}
-				# winston.info "deleted:",attempts
 				/* istanbul ignore if should only occur if db crashes */
 				if err?
 					winston.error err
@@ -397,12 +391,12 @@ module.exports = (app)->
 						"_id": ObjectId req.body.aid
 						"course": ObjectId res.locals.course._id
 					}
-					# winston.info "deleted:",assignments
 					/* istanbul ignore if should only occur if db crashes */
 					if err?
 						winston.error err
 						next new Error "INTERNAL"
 					else
-						res.status 302 .redirect "/#{req.params.course}/assignments"
+						res.status 302
+						res.redirect "/c/#{req.params.course}/assignments"
 			| _
-				next! # don"t assume action
+				next! # don't assume action

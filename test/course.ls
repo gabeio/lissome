@@ -48,21 +48,21 @@ describe "Course" ->
 		describe "(User: Admin)", (...)->
 			it "should allow access to any classes", (done)->
 				admin
-					.get "/cps1234"
+					.get "/c/cps1234"
 					.end (err, res)->
 						expect res.status .to.equal 200
 						done err
 		describe "(User: Faculty)", (...)->
 			it "should allow access to their classes", (done)->
 				faculty
-					.get "/cps1234"
+					.get "/c/cps1234"
 					.end (err, res)->
 						expect res.status .to.equal 200
 						done err
 		describe "(User: Student)", (...)->
 			it "should allow access to their classes", (done)->
 				student
-					.get "/cps1234"
+					.get "/c/cps1234"
 					.end (err, res)->
 						expect res.status .to.equal 200
 						done err
@@ -75,7 +75,7 @@ describe "Course" ->
 		describe "(User: Outside)", (...)->
 			it "should not allow any access to classes", (done)->
 				outside
-					.get "/cps1234"
+					.get "/c/cps1234"
 					.end (err, res)->
 						expect res.status .to.not.equal 200
 						done err

@@ -16,6 +16,7 @@ Lissome
 - redisport|REDISPORT = the port redis is running on
 - redisauth|REDISAUTH = the auth for redis
 - redisdb|REDISDB = the db index redis connects to
+- small|smallpassword = the minimum password length all passwords must be
 
 ## auth levels
 - 0|undefined = outside

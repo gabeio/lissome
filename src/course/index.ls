@@ -7,8 +7,8 @@ module.exports = (app)->
 	Course = mongoose.models.Course
 	Post = mongoose.models.Post
 	app
-		/* istanbul ignore next until settings are actually created */
-		..route "/:course/settings"
+		/* istanbul ignore next until is actually created */
+		..route "/:route(c|C|course)/:course/settings"
 		.all (req, res, next)->
 			res.locals.needs = 2 # maybe 3
 			app.locals.authorize req, res, next
@@ -38,7 +38,7 @@ module.exports = (app)->
 				res.send result
 			*/
 
-		..route "/:course/:index(index|dash|dashboard)?"
+		..route "/:route(c|C|course)/:course/:index(index|dash|dashboard)?"
 		.all (req, res, next)->
 			res.locals.needs = 1
 			app.locals.authorize req, res, next
@@ -47,7 +47,7 @@ module.exports = (app)->
 				"id": req.params.course
 				"school": app.locals.school
 			}
-			/* istanbul ignore else there should be no way to hit that. */
+			/* istanbul ignore else there should be no way to hit the else. */
 			if res.locals.auth >= 3
 				next!
 			else if res.locals.auth is 2
@@ -71,4 +71,4 @@ module.exports = (app)->
 					res.locals.course = result
 					next!
 		.get (req, res, next)->
-			res.render "course"
+			res.render "course/index"
