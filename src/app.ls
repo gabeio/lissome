@@ -205,10 +205,8 @@ app
 		else
 			next new Error "UNAUTHORIZED" # other unauth
 
-# Attach base
+# Routers
 require("./mongoose")(app)
-# require("./auth")(app)
-
 app.use "/login", require("./login")
 app.use "/logout", require("./logout")
 app.use "/admin", require("./admin")
@@ -218,7 +216,6 @@ app.use "/:course(c|C|course)", require("./course/conference")
 app.use "/:course(c|C|course)", require("./course/grades")
 app.use "/:course(c|C|course)", require("./course/index")
 app.use "/:index(index|dash|dashboard)?", require("./dashboard")
-# require("./base")(app)
 require("./error")(app)
 
 /* istanbul ignore next */

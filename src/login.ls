@@ -10,7 +10,6 @@ router = express.Router!
 router
 	..route "/"
 	.get (req, res, next)->
-		console.log "login router"
 		if res.locals.auth? or res.locals.userid? or res.locals.username?
 			res.redirect "/"
 		else
