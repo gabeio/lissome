@@ -121,8 +121,8 @@ app
 	.use multer { # requires: enctype="multipart/form-data"
 		dest: "./uploads/"
 		limits:
-			fileSize: 10000000
-			files: 10
+			# fileSize: 10000000mb
+			files: 0
 		-includeEmptyFields
 		-inMemory
 	}
