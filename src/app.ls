@@ -29,16 +29,19 @@ argv = yargs.argv
 app = module.exports = express!
 
 # app locals
-app.locals.school = process.env.school
+app
+	..locals.smallpassword = parseInt (process.env.small||process.env.smallpassword||process.env.minpassword||6)
 
 /* istanbul ignore next this is just for assurance the env vars are defined */
 do ->
-	if !process.env.cookie? and !argv.cookie?
+	if !process.env.cookie? and !process.env.COOKIE? and !argv.cookie?
 		console.log "REQUIRES COOKIE SECRET"
 		process.exit 1
-	if !process.env.school? and !argv.school?
+	if !process.env.school? and !process.env.SCHOOL? and !argv.school?
 		console.log "REQUIRES SCHOOL NAME"
 		process.exit 1
+	else
+		app.locals.school = (process.env.school||process.env.SCHOOL||argv.school)
 	if !process.env.timezone? and !process.env.TIMEZONE? and !argv.timezone?
 		console.log "REQUIRES SCHOOL TIMEZONE"
 		process.exit 1
@@ -48,7 +51,7 @@ do ->
 		else
 			console.log "Unknown Timezone; crashing..."
 			process.exit 1
-	if !process.env.mongo? and !process.env.MONGOURL? and !argv.mongo?
+	if !process.env.mongo? and !process.env.MONGO? and !argv.mongo?
 		console.log "mongo env undefined\ntrying localhost anyway..."
 	if !process.env.redishost? and !process.env.REDISHOST? and !argv.redishost?
 		console.log "redishost env undefined\ntrying localhost anyway..."
@@ -84,7 +87,7 @@ swig.setFilter "timezone", (input)->
 # MONGOOSE
 /* istanbul ignore next */
 mongo = require("./mongoClient")(app,mongoose,\
-	(process.env.mongo||process.env.MONGOURL||argv.mongo||"mongodb://localhost/smrtboard"))
+	(process.env.mongo||process.env.MONGO||argv.mongo||"mongodb://localhost/smrtboard"))
 
 # REDIS
 /* istanbul ignore next */
@@ -119,8 +122,8 @@ app
 	.use multer { # requires: enctype="multipart/form-data"
 		dest: "./uploads/"
 		limits:
-			fileSize: 10000000
-			files: 10
+			# fileSize: 10000000mb
+			files: 0
 		-includeEmptyFields
 		-inMemory
 	}
@@ -128,8 +131,9 @@ app
 	.use method-override "hmo" # Http-Method-Override
 	# sessions
 	.use express-session {
-		secret: process.env.cookie
+		secret: (process.env.cookie||process.env.COOKIE||argv.cookie)
 		-resave
+		+rolling
 		+saveUninitialized
 		cookie: {
 			path: "/"
@@ -176,6 +180,7 @@ app
 					res.locals.lastName = req.session.lastName
 					res.locals.username = req.session.username
 					res.locals.auth = req.session.auth # save auth level for template
+					res.locals.smallpassword = app.locals.smallpassword
 			!->
 				next!
 		]
@@ -194,8 +199,25 @@ switch process.env.NODE_ENV
 	app.set "view cache" false
 	swig.setDefaults { -cache }
 
-# Attach base
-require("./base")(app)
+app
+	..locals.authorize = (req, res, next)->
+		if res.locals.auth? and res.locals.needs? and res.locals.needs <= res.locals.auth
+			next!
+		else
+			next new Error "UNAUTHORIZED" # other unauth
+
+# Routers
+require("./mongoose")(app)
+app.use "/login", require("./login")
+app.use "/logout", require("./logout")
+app.use "/admin", require("./admin")
+app.use "/:course(c|C|course)", require("./course/assignments")
+app.use "/:course(c|C|course)", require("./course/blog")
+app.use "/:course(c|C|course)", require("./course/conference")
+app.use "/:course(c|C|course)", require("./course/grades")
+app.use "/:course(c|C|course)", require("./course/index")
+app.use "/:index(index|dash|dashboard)?", require("./dashboard")
+require("./error")(app)
 
 /* istanbul ignore next */
 if !module.parent # assure this file is not being run by a different file

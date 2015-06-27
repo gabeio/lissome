@@ -1,4 +1,4 @@
-{% extends '../base.html' %}
+{% extends '../../base.html' %}
 
 {% block head %}
 	<title>Conference - {{ course.title }} - {{ school }}</title>
@@ -6,14 +6,14 @@
 
 {% block body %}
 	<div class="container-fluid">
-		{% include '../navbar.html' %}
+		{% include '../../navbar.html' %}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<ol class="breadcrumb">
 					<li><a href="/">Dash</a></li>
-					<li><a href="/{{ course.id }}">{{ course.title }}</a></li>
+					<li><a href="/c/{{ course.id }}">{{ course.title }}</a></li>
 					{% if posts %}
-					<li><a href="/{{ course.id }}/conference">Conference</a></li>
+					<li><a href="/c/{{ course.id }}/conference">Conference</a></li>
 					<li class="active">Thread</li>
 					{% else %}
 					<li class="active">Conference</a></li>
@@ -47,7 +47,7 @@
 						<input type="hidden" name="post" value="{{ post._id|toString }}" />
 						<div class="form-group btn-group">
 							<button type="submit" class="btn btn-danger">Yes, Delete this post.</button>
-							<a href="/{{ course.id }}/conference/{{ thread._id|toString }}" class="btn btn-default">No, leave this post alone!</a>
+							<a href="/c/{{ course.id }}/conference/{{ thread._id|toString }}" class="btn btn-default">No, leave this post alone!</a>
 						</div>
 					</form>
 				</div>
