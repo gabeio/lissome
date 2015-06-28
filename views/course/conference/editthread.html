@@ -1,4 +1,4 @@
-{% extends '../base.html' %}
+{% extends '../../base.html' %}
 
 {% block head %}
 	<title>Conference - {{ course.title }} - {{ school }}</title>
@@ -6,14 +6,14 @@
 
 {% block body %}
 	<div class="container-fluid">
-		{% include '../navbar.html' %}
+		{% include '../../navbar.html' %}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<ol class="breadcrumb">
 					<li><a href="/">Dash</a></li>
-					<li><a href="/{{ course.id }}">{{ course.title }}</a></li>
+					<li><a href="/c/{{ course.id }}">{{ course.title }}</a></li>
 					{% if posts %}
-					<li><a href="/{{ course.id }}/conference">Conference</a></li>
+					<li><a href="/c/{{ course.id }}/conference">Conference</a></li>
 					<li class="active">Thread</li>
 					{% else %}
 					<li class="active">Conference</a></li>
@@ -43,29 +43,29 @@
 				</div>
 				{% if posts %}{% if thread.author.toString() === uid %}
 				<div class="pull-right btn-group" role="group" style="padding-top: 8px;">
-					<a href="/{{ course.id }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
+					<a href="/c/{{ course.id }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 					<div class="btn-group" role="group">
 						<button class="btn btn-default dropdown-toggle" type="button" id="blogPostMenu" data-toggle="dropdown" aria-expanded="true">
 							<span class="glyphicon glyphicon-cog"></span>
 						</button>
 						<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
 							<li role="presentation">
-								<a role="menuitem" href="/{{ course.id }}/conference/{{ thread._id|toString }}?action=editthread"><span class="glyphicon glyphicon-edit"></span> Edit This Thread</a>
+								<a role="menuitem" href="/c/{{ course.id }}/conference/{{ thread._id|toString }}?action=editthread"><span class="glyphicon glyphicon-edit"></span> Edit This Thread</a>
 							</li>
 							<li role="presentation">
-								<a role="menuitem" href="/{{ course.id }}/conference/{{ thread._id|toString }}?action=deletethread"><span class="glyphicon glyphicon-remove"></span> Delete This Thread</a>
+								<a role="menuitem" href="/c/{{ course.id }}/conference/{{ thread._id|toString }}?action=deletethread"><span class="glyphicon glyphicon-remove"></span> Delete This Thread</a>
 							</li>
 						</ul>
 					</div>
 				</div>
 				{% else %}
 				<div class="pull-right" style="padding-top: 8px;">
-					<a href="/{{ course.id }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
+					<a href="/c/{{ course.id }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 				</div>
 				{% endif %}
 				{% else %}
 				<div class="pull-right" style="padding-top: 8px;">
-					<a href="/{{ course.id }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
+					<a href="/c/{{ course.id }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 				</div>
 				{% endif %}
 			</div>

@@ -67,7 +67,7 @@ describe "Conference" ->
 							cont err, res.body
 				(tid,cont)->
 					faculty
-						.post "/cps1234/conference?action=newthread"
+						.post "/c/cps1234/conference?action=newthread"
 						.send {
 							title:"facultyThread"
 							text:"facultyPost"
@@ -79,7 +79,7 @@ describe "Conference" ->
 									cont err, res.body
 				(tid,fin)->
 					faculty
-						.post "/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"facultyPost"
@@ -99,7 +99,7 @@ describe "Conference" ->
 							cont err, res.body
 				(tid,cont)->
 					admin
-						.post "/cps1234/conference?action=newthread"
+						.post "/c/cps1234/conference?action=newthread"
 						.send {
 							title:"adminThread"
 							text:"adminPost"
@@ -111,7 +111,7 @@ describe "Conference" ->
 									cont err, res.body
 				(tid,fin)->
 					admin
-						.post "/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"adminPost"
@@ -130,13 +130,13 @@ describe "Conference" ->
 			err <- async.parallel [
 				(fin)->
 					admin
-						.get "/cps1234/conference?action=newthread"
+						.get "/c/cps1234/conference?action=newthread"
 						.end (err, res)->
 							expect res.status .to.not.match /^(4|5)/
 							fin err
 				(fin)->
 					admin
-						.post "/cps1234/conference?action=newthread"
+						.post "/c/cps1234/conference?action=newthread"
 						.send {
 							title:"adminThread"
 							text:"adminPost"
@@ -160,13 +160,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							admin
-								.get "/cps1234/conference/#{tid.0._id.toString()}?action=editthread"
+								.get "/c/cps1234/conference/#{tid.0._id.toString()}?action=editthread"
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
 									fin err
 						(fin)->
 							admin
-								.post "/cps1234/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
+								.post "/c/cps1234/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 								.send {
 									thread: tid.0._id.toString()
 									title: "adminThread"
@@ -190,7 +190,7 @@ describe "Conference" ->
 					if !tid? or tid.length < 1
 						console.log "no thread"
 					admin
-						.post "/cps1234/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
+						.post "/c/cps1234/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 						.send {
 							thread: tid.0._id.toString()
 							title: "facultyThread"
@@ -210,7 +210,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					admin
-						.post "/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"adminPost"
@@ -232,13 +232,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(cont)->
 							admin
-								.get "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?action=editpost"
+								.get "/c/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?action=editpost"
 								.end (err, res)->
 									expect res.status .to.not.match /^(4|5)/
 									cont err
 						(cont)->
 							admin
-								.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
+								.post "/c/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
 								.send {
 									thread: tid.0.thread._id.toString!
 									post: tid.0._id.toString!
@@ -261,7 +261,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					admin
-						.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
+						.post "/c/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -282,7 +282,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					admin
-						.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
+						.post "/c/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -302,7 +302,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					admin
-						.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
+						.post "/c/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -314,7 +314,7 @@ describe "Conference" ->
 			done err
 		it "should view thread list", (done)->
 			admin
-				.get "/cps1234/conference"
+				.get "/c/cps1234/conference"
 				.end (err, res)->
 					expect res.status .to.match /^(2|3)/
 					done err
@@ -328,7 +328,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					admin
-						.get "/cps1234/conference/#{tid.0._id.toString()}"
+						.get "/c/cps1234/conference/#{tid.0._id.toString()}"
 						.end (err, res)->
 							expect res.status .to.match /^(2|3)/
 							fin err
@@ -346,13 +346,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							admin
-								.get "/cps1234/conference/#{tid.0._id.toString()}?action=deletethread"
+								.get "/c/cps1234/conference/#{tid.0._id.toString()}?action=deletethread"
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
 									fin err
 						(fin)->
 							admin
-								.post "/cps1234/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
+								.post "/c/cps1234/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
 								.send {
 									thread: tid.0._id.toString()
 								}
@@ -377,13 +377,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							admin
-								.get "/cps1234/conference/#{tid.0._id.toString()}?action=deletethread"
+								.get "/c/cps1234/conference/#{tid.0._id.toString()}?action=deletethread"
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
 									fin err
 						(fin)->
 							admin
-								.post "/cps1234/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
+								.post "/c/cps1234/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
 								.send {
 									thread: tid.0._id.toString()
 								}
@@ -405,7 +405,7 @@ describe "Conference" ->
 							cont err, res.body
 				(tid,cont)->
 					faculty
-						.post "/cps1234/conference?action=newthread"
+						.post "/c/cps1234/conference?action=newthread"
 						.send {
 							title:"facultyThread"
 							text:"facultyPost"
@@ -417,7 +417,7 @@ describe "Conference" ->
 									cont err, res.body
 				(tid,fin)->
 					faculty
-						.post "/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"facultyPost"
@@ -437,7 +437,7 @@ describe "Conference" ->
 							cont err, res.body
 				(tid,cont)->
 					admin
-						.post "/cps1234/conference?action=newthread"
+						.post "/c/cps1234/conference?action=newthread"
 						.send {
 							title:"adminThread"
 							text:"adminPost"
@@ -449,7 +449,7 @@ describe "Conference" ->
 									cont err, res.body
 				(tid,fin)->
 					admin
-						.post "/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"adminPost"
@@ -468,13 +468,13 @@ describe "Conference" ->
 			err <- async.parallel [
 				(fin)->
 					faculty
-						.get "/cps1234/conference?action=newthread"
+						.get "/c/cps1234/conference?action=newthread"
 						.end (err, res)->
 							expect res.status .to.not.match /^(4|5)/
 							fin err
 				(fin)->
 					faculty
-						.post "/cps1234/conference?action=newthread"
+						.post "/c/cps1234/conference?action=newthread"
 						.send {
 							title:"facultyThread"
 							text:"facultyPost"
@@ -498,13 +498,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							faculty
-								.get "/cps1234/conference/#{tid.0._id.toString()}?action=editthread"
+								.get "/c/cps1234/conference/#{tid.0._id.toString()}?action=editthread"
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
 									fin err
 						(fin)->
 							faculty
-								.post "/cps1234/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
+								.post "/c/cps1234/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 								.send {
 									thread: tid.0._id.toString()
 									title: "facultyThread"
@@ -528,7 +528,7 @@ describe "Conference" ->
 					if !tid? or tid.length < 1
 						console.log "no thread"
 					faculty
-						.post "/cps1234/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
+						.post "/c/cps1234/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 						.send {
 							thread: tid.0._id.toString()
 							title: "facultyThread"
@@ -548,7 +548,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.post "/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"facultyPost"
@@ -570,13 +570,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(cont)->
 							faculty
-								.get "/cps1234/conference/#{tid.0.thread._id.toString!}/#{tid.0._id.toString!}?action=editpost"
+								.get "/c/cps1234/conference/#{tid.0.thread._id.toString!}/#{tid.0._id.toString!}?action=editpost"
 								.end (err, res)->
 									expect res.status .to.not.match /^(4|5)/
 									cont err
 						(cont)->
 							faculty
-								.post "/cps1234/conference/#{tid.0.thread._id.toString!}/#{tid.0._id.toString!}?hmo=put&action=editpost"
+								.post "/c/cps1234/conference/#{tid.0.thread._id.toString!}/#{tid.0._id.toString!}?hmo=put&action=editpost"
 								.send {
 									thread: tid.0.thread._id.toString!
 									post: tid.0._id.toString!
@@ -599,7 +599,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
+						.post "/c/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -620,7 +620,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
+						.post "/c/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -640,7 +640,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
+						.post "/c/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -652,7 +652,7 @@ describe "Conference" ->
 			done err
 		it "should view thread list", (done)->
 			faculty
-				.get "/cps1234/conference"
+				.get "/c/cps1234/conference"
 				.end (err, res)->
 					expect res.status .to.match /^(2|3)/
 					done err
@@ -666,7 +666,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.get "/cps1234/conference/#{tid.0._id.toString()}"
+						.get "/c/cps1234/conference/#{tid.0._id.toString()}"
 						.end (err, res)->
 							expect res.status .to.match /^(2|3)/
 							fin err
@@ -686,13 +686,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							faculty
-								.get "/cps1234/conference/#{tid.0._id.toString()}?action=deletethread"
+								.get "/c/cps1234/conference/#{tid.0._id.toString()}?action=deletethread"
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
 									fin err
 						(fin)->
 							faculty
-								.post "/cps1234/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
+								.post "/c/cps1234/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
 								.send {
 									thread: tid.0._id.toString()
 								}
@@ -717,13 +717,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							faculty
-								.get "/cps1234/conference/#{tid.0._id.toString()}?action=deletethread"
+								.get "/c/cps1234/conference/#{tid.0._id.toString()}?action=deletethread"
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
 									fin err
 						(fin)->
 							faculty
-								.post "/cps1234/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
+								.post "/c/cps1234/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
 								.send {
 									thread: tid.0._id.toString()
 								}
@@ -740,7 +740,7 @@ describe "Conference" ->
 			err <- async.waterfall [
 				(cont)->
 					faculty
-						.post "/cps1234/conference?action=newthread"
+						.post "/c/cps1234/conference?action=newthread"
 						.send {
 							title:"facultyThread"
 							text:"facultyPost"
@@ -752,7 +752,7 @@ describe "Conference" ->
 									cont err, res.body
 				(tid,fin)->
 					faculty
-						.post "/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"facultyPost"
@@ -799,14 +799,14 @@ describe "Conference" ->
 					done err
 		it "should not create a thread", (done)->
 			faculty
-				.post "/cps1234/conference?action=newthread"
+				.post "/c/cps1234/conference?action=newthread"
 				.send {
 					title:"anything"
 					text:"anything"
 				}
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
-					expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+					expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 					done err
 		it "should not edit a thread", (done)->
 			this.timeout = 2000
@@ -820,21 +820,21 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							faculty
-								.get "/cps1234/conference/#{tid.0._id.toString()}?action=editthread"
+								.get "/c/cps1234/conference/#{tid.0._id.toString()}?action=editthread"
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/
-									expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+									expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 									fin err
 						(fin)->
 							faculty
-								.post "/cps1234/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
+								.post "/c/cps1234/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 								.send {
 									thread: tid.0._id.toString()
 									title: "facultyThread"
 								}
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/
-									expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+									expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 									fin err
 					]
 					cont err
@@ -852,20 +852,20 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							faculty
-								.get "/cps1234/conference/#{tid.0._id.toString()}?action=deletethread"
+								.get "/c/cps1234/conference/#{tid.0._id.toString()}?action=deletethread"
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/
-									expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+									expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 									fin err
 						(fin)->
 							faculty
-								.post "/cps1234/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
+								.post "/c/cps1234/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
 								.send {
 									thread: tid.0._id.toString()
 								}
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/
-									expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+									expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 									fin err
 					]
 					cont err
@@ -881,14 +881,14 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.post "/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"facultyPost"
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 							fin err
 			]
 			done err
@@ -902,7 +902,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
+						.post "/c/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -910,7 +910,7 @@ describe "Conference" ->
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 							fin err
 			]
 			done err
@@ -924,23 +924,23 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
+						.post "/c/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 							fin err
 			]
 			done err
 		it "should not view thread list", (done)->
 			faculty
-				.get "/cps1234/conference"
+				.get "/c/cps1234/conference"
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
-					expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+					expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 					done err
 		it "should not view a thread", (done)->
 			this.timeout = 2000
@@ -952,10 +952,10 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.get "/cps1234/conference/#{tid.0._id.toString()}"
+						.get "/c/cps1234/conference/#{tid.0._id.toString()}"
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 							fin err
 			]
 			done err
@@ -965,7 +965,7 @@ describe "Conference" ->
 			err <- async.waterfall [
 				(cont)->
 					faculty
-						.post "/cps1234/conference?action=newthread"
+						.post "/c/cps1234/conference?action=newthread"
 						.send {
 							title:"facultyThread"
 							text:"facultyPost"
@@ -977,7 +977,7 @@ describe "Conference" ->
 									cont err, res.body
 				(tid,fin)->
 					faculty
-						.post "/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"facultyPost"
@@ -994,7 +994,7 @@ describe "Conference" ->
 					done err
 		it "should create a thread", (done)->
 			student
-				.post "/cps1234/conference?action=newthread"
+				.post "/c/cps1234/conference?action=newthread"
 				.send {
 					title:"studentThread"
 					text:"studentPost"
@@ -1014,13 +1014,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							student
-								.get "/cps1234/conference/#{tid.0._id.toString()}?action=editthread"
+								.get "/c/cps1234/conference/#{tid.0._id.toString()}?action=editthread"
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
 									fin err
 						(fin)->
 							student
-								.post "/cps1234/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
+								.post "/c/cps1234/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 								.send {
 									thread: tid.0._id.toString()
 									title: "studentThread"
@@ -1042,7 +1042,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					student
-						.post "/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"facultyPost"
@@ -1062,7 +1062,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					student
-						.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
+						.post "/c/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -1083,7 +1083,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					student
-						.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
+						.post "/c/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -1105,13 +1105,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							student
-								.get "/cps1234/conference/#{tid.0._id.toString()}?action=deletethread"
+								.get "/c/cps1234/conference/#{tid.0._id.toString()}?action=deletethread"
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
 									fin err
 						(fin)->
 							student
-								.post "/cps1234/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
+								.post "/c/cps1234/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
 								.send {
 									thread: tid.0._id.toString()
 								}
@@ -1124,7 +1124,7 @@ describe "Conference" ->
 			done err
 		it "should view thread list", (done)->
 			student
-				.get "/cps1234/conference"
+				.get "/c/cps1234/conference"
 				.end (err, res)->
 					expect res.status .to.match /^(2|3)/
 					done err
@@ -1138,7 +1138,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					student
-						.get "/cps1234/conference/#{tid.0._id.toString()}"
+						.get "/c/cps1234/conference/#{tid.0._id.toString()}"
 						.end (err, res)->
 							expect res.status .to.match /^(2|3)/
 							fin err
@@ -1154,14 +1154,14 @@ describe "Conference" ->
 							cont err, res.body
 				(tid,cont)->
 					student
-						.post "/cps1234/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
+						.post "/c/cps1234/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 						.send {
 							thread: tid.0._id.toString()
 							title: "facultyThread"
 						}
 						.expect 302
 						.end (err, res)->
-							expect res.header.location .to.match /^\/cps1234\/conference\/?.{24}?\/?/
+							expect res.header.location .to.match /^\/c\/cps1234\/conference\/?.{24}?\/?/
 							cont err
 			]
 			done err
@@ -1180,7 +1180,7 @@ describe "Conference" ->
 							cont err, tid, res.body
 				(tid,pid,fin)->
 					student
-						.post "/cps1234/conference/#{tid.0._id.toString()}/#{pid.0._id.toString()}?hmo=put&action=editpost"
+						.post "/c/cps1234/conference/#{tid.0._id.toString()}/#{pid.0._id.toString()}?hmo=put&action=editpost"
 						.send {
 							thread: tid.0._id.toString!
 							post: pid.0._id.toString!
@@ -1188,7 +1188,7 @@ describe "Conference" ->
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 							fin err
 			]
 			done err
@@ -1202,13 +1202,13 @@ describe "Conference" ->
 							cont err, res.body
 				(tid,cont)->
 					student
-						.post "/cps1234/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
+						.post "/c/cps1234/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
 						.send {
 							thread: tid.0._id.toString()
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 							cont err
 				(cont)->
 					student
@@ -1237,14 +1237,14 @@ describe "Conference" ->
 							cont err, tid, res.body
 				(tid,pid,fin)->
 					student
-						.post "/cps1234/conference/#{tid.0._id.toString()}/#{pid.0._id.toString()}?hmo=delete&action=deletepost"
+						.post "/c/cps1234/conference/#{tid.0._id.toString()}/#{pid.0._id.toString()}?hmo=delete&action=deletepost"
 						.send {
 							thread: tid.0._id.toString!
 							post: pid.0._id.toString!
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 							fin err
 			]
 			done err
@@ -1254,7 +1254,7 @@ describe "Conference" ->
 			err <- async.waterfall [
 				(cont)->
 					faculty
-						.post "/cps1234/conference?action=newthread"
+						.post "/c/cps1234/conference?action=newthread"
 						.send {
 							title:"facultyThread"
 							text:"facultyPost"
@@ -1266,7 +1266,7 @@ describe "Conference" ->
 									cont err, res.body
 				(tid,fin)->
 					faculty
-						.post "/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"facultyPost"
@@ -1313,14 +1313,14 @@ describe "Conference" ->
 					done err
 		it "should not create a thread", (done)->
 			student
-				.post "/cps1234/conference?action=newthread"
+				.post "/c/cps1234/conference?action=newthread"
 				.send {
 					title:"anything"
 					text:"anything"
 				}
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
-					expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+					expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 					done err
 		it "should not edit a thread", (done)->
 			this.timeout = 2000
@@ -1334,21 +1334,21 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							student
-								.get "/cps1234/conference/#{tid.0._id.toString()}?action=editthread"
+								.get "/c/cps1234/conference/#{tid.0._id.toString()}?action=editthread"
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/
-									expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+									expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 									fin err
 						(fin)->
 							student
-								.post "/cps1234/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
+								.post "/c/cps1234/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 								.send {
 									thread: tid.0._id.toString()
 									title: "studentThread"
 								}
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/
-									expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+									expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 									fin err
 					]
 					cont err
@@ -1366,20 +1366,20 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							student
-								.get "/cps1234/conference/#{tid.0._id.toString()}?action=deletethread"
+								.get "/c/cps1234/conference/#{tid.0._id.toString()}?action=deletethread"
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/
-									expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+									expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 									fin err
 						(fin)->
 							student
-								.post "/cps1234/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
+								.post "/c/cps1234/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
 								.send {
 									thread: tid.0._id.toString()
 								}
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/
-									expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+									expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 									fin err
 					]
 					cont err
@@ -1395,14 +1395,14 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					student
-						.post "/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"studentPost"
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 							fin err
 			]
 			done err
@@ -1416,7 +1416,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					student
-						.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
+						.post "/c/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -1424,7 +1424,7 @@ describe "Conference" ->
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 							fin err
 			]
 			done err
@@ -1438,23 +1438,23 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					student
-						.post "/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
+						.post "/c/cps1234/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 							fin err
 			]
 			done err
 		it "should not view thread list", (done)->
 			student
-				.get "/cps1234/conference"
+				.get "/c/cps1234/conference"
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
-					expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+					expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 					done err
 		it "should not view a thread", (done)->
 			this.timeout = 2000
@@ -1466,29 +1466,29 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					student
-						.get "/cps1234/conference/#{tid.0._id.toString()}"
+						.get "/c/cps1234/conference/#{tid.0._id.toString()}"
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 							fin err
 			]
 			done err
 	describe "Other", (...)->
 		it "should redirect outsider", (done)->
 			outside
-				.post "/cps1234/conference?action=newthread"
+				.post "/c/cps1234/conference?action=newthread"
 				.send {
 					title: "theThread"
 					text: "thePost"
 				}
 				.end (err, res)->
 					expect res.status .to.match /^(3)/
-					expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+					expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 					done err
 		it "should not crash for bad conference length", (done)->
 			# this may fail if that ends up being a real conference _id
 			student
-				.post "/cps1234/conference/12345678901234567890123?hmo=put&action=editthread"
+				.post "/c/cps1234/conference/12345678901234567890123?hmo=put&action=editthread"
 				.send {
 					thread: "12345678901234567890123"
 				}
@@ -1497,7 +1497,7 @@ describe "Conference" ->
 					done err
 		it "should not crash for bad conference length & bad post length", (done)->
 			student
-				.post "/cps1234/conference/12345678901234567890123/12345678901234567890123?hmo=put&action=editpost"
+				.post "/c/cps1234/conference/12345678901234567890123/12345678901234567890123?hmo=put&action=editpost"
 				.send {
 					thread: "12345678901234567890123"
 					post: "12345678901234567890123"
@@ -1512,7 +1512,7 @@ describe "Conference" ->
 				(fin)->
 					# create thread
 					student
-						.post "/cps1234/conference?action=newthread"
+						.post "/c/cps1234/conference?action=newthread"
 						.send {
 							title: "theThread"
 							text: "thePost"
@@ -1528,7 +1528,7 @@ describe "Conference" ->
 				(tid,fin)->
 					# try to post to thread
 					student
-						.post "/cps1234/conference/#{tid.0._id.toString!}/12345678901234567890123?hmo=put&action=editpost"
+						.post "/c/cps1234/conference/#{tid.0._id.toString!}/12345678901234567890123?hmo=put&action=editpost"
 						.send {
 							thread: tid.0._id.toString!
 							post: "12345678901234567890123"
@@ -1542,7 +1542,7 @@ describe "Conference" ->
 		it "should not crash for bad conference id", (done)->
 			# this may fail if that ends up being a real conference _id
 			student
-				.post "/cps1234/conference/123456789012345678901234?hmo=put&action=editthread"
+				.post "/c/cps1234/conference/123456789012345678901234?hmo=put&action=editthread"
 				.send {
 					thread: "123456789012345678901234"
 				}
@@ -1551,7 +1551,7 @@ describe "Conference" ->
 					done err
 		it "should not crash for bad conference id & bad post id", (done)->
 			student
-				.post "/cps1234/conference/123456789012345678901234/123456789012345678901234?hmo=put&action=editpost"
+				.post "/c/cps1234/conference/123456789012345678901234/123456789012345678901234?hmo=put&action=editpost"
 				.send {
 					thread: "123456789012345678901234"
 					post: "123456789012345678901234"
@@ -1566,7 +1566,7 @@ describe "Conference" ->
 				(fin)->
 					# create thread
 					student
-						.post "/cps1234/conference?action=newthread"
+						.post "/c/cps1234/conference?action=newthread"
 						.send {
 							title: "theThread"
 							text: "thePost"
@@ -1582,7 +1582,7 @@ describe "Conference" ->
 				(tid,fin)->
 					# try to post to thread
 					student
-						.post "/cps1234/conference/#{tid.0._id.toString!}/123456789012345678901234?hmo=put&action=editpost"
+						.post "/c/cps1234/conference/#{tid.0._id.toString!}/123456789012345678901234?hmo=put&action=editpost"
 						.send {
 							thread: tid.0._id.toString!
 							post: "123456789012345678901234"
@@ -1599,7 +1599,7 @@ describe "Conference" ->
 				(fin)->
 					# create thread
 					student
-						.post "/cps1234/conference?action=newthread"
+						.post "/c/cps1234/conference?action=newthread"
 						.send {
 							title: "theThread"
 							text: "thePost"
@@ -1615,7 +1615,7 @@ describe "Conference" ->
 				(tid,fin)->
 					# delete post
 					student
-						.post "/cps1234/conference/#{tid.0.thread._id.toString!}/#{tid.0._id.toString!}?hmo=delete&action=deletepost"
+						.post "/c/cps1234/conference/#{tid.0.thread._id.toString!}/#{tid.0._id.toString!}?hmo=delete&action=deletepost"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -1625,7 +1625,7 @@ describe "Conference" ->
 				(tid,fin)->
 					# try to post to thread
 					student
-						.get "/cps1234/conference/#{tid.0._id.toString!}"
+						.get "/c/cps1234/conference/#{tid.0._id.toString!}"
 						.end (err, res)->
 							fin err
 			]
@@ -1636,7 +1636,7 @@ describe "Conference" ->
 				(fin)->
 					# create thread
 					student
-						.post "/cps1234/conference?action=newthread"
+						.post "/c/cps1234/conference?action=newthread"
 						.send {
 							title: "deletedThread"
 							text: "deletedPost"
@@ -1652,7 +1652,7 @@ describe "Conference" ->
 				(tid,fin)->
 					# delete thread
 					student
-						.post "/cps1234/conference/#{tid.0._id.toString!}?hmo=delete&action=deletethread"
+						.post "/c/cps1234/conference/#{tid.0._id.toString!}?hmo=delete&action=deletethread"
 						.send {
 							thread: tid.0._id.toString!
 						}
@@ -1661,14 +1661,14 @@ describe "Conference" ->
 				(tid,fin)->
 					# try to post to thread
 					student
-						.post "/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/cps1234/conference/#{tid.0._id.toString!}?action=newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text: "deletedPost"
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/cps1234\/conference\/?.{24}?\/?.{24}?\/?/
 							expect res.text .to.not.have.string "deletedPost"
 							fin err
 			]
@@ -1677,7 +1677,7 @@ describe "Conference" ->
 			err <- async.parallel [
 				(para)->
 					student
-						.post "/cps1234/conference/123456789012345678901234/123456789012345678901234?hmo=put&action=editpost"
+						.post "/c/cps1234/conference/123456789012345678901234/123456789012345678901234?hmo=put&action=editpost"
 						.send {
 							post: "123456789012345678901234"
 							text: "anyting"
@@ -1687,7 +1687,7 @@ describe "Conference" ->
 							para err
 				(para)->
 					student
-						.post "/cps1234/conference/123456789012345678901234/123456789012345678901234?hmo=delete&action=deletepost"
+						.post "/c/cps1234/conference/123456789012345678901234/123456789012345678901234?hmo=delete&action=deletepost"
 						.send {
 							post: "123456789012345678901234"
 							text: "anyting"
