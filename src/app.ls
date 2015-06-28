@@ -105,6 +105,7 @@ app
 	.use helmet!
 	.use helmet.contentSecurityPolicy {
 		default-src: ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com"]
+		img-src:     ["'self'", "img.shields.io"]
 		script-src:  ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com"]
 		style-src:   ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com", "fonts.googleapis.com"]
 		font-src:    ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com", "fonts.googleapis.com", "fonts.gstatic.com"]

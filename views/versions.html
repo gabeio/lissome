@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block head %}
+	<title>Package Versions</title>
+{% endblock %}
+
+{% block body %}
+	<div class="container-fluid">
+		{% include 'navbar.html' %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<table class="table table-striped">
+					<thead>
+						<td>Package</td><td>Version</td><td>Latest</td>
+					</thead>
+					{% for k,v in packages %}
+					<tr>
+						<td>{{k}}</td><td>{{v}}</td><td><img src="https://img.shields.io/npm/v/{{k}}.svg?style=flat-square" /></td>
+					</tr>
+					{% endfor %}
+				</table>
+			</div>
+		</div>
+	</div>
+{% endblock %}
