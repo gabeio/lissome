@@ -38,7 +38,7 @@ dependencies:
 	"method-override": '~2.3.3'
 	"moment": '~2.10.3'
 	"moment-timezone": '~0.4.0'
-	"mongoose": '~4.0.5'
+	"mongoose": '~4.0.6'
 	"multer": '~0.1.8'
 	"read-package-json": '~2.0.0'
 	"redis": '~0.12.1'
@@ -46,7 +46,7 @@ dependencies:
 	"serve-static": '~1.10.0'
 	"swig": '~1.4.2'
 	"uuid": '~2.0.1'
-	"winston": '~1.0.0'
+	"winston": '~1.0.1'
 	"yargs": '~3.13.0'
 
 devDependencies:
@@ -56,8 +56,8 @@ devDependencies:
 	"gulp": '~3.9.0'
 	"gulp-coveralls": '~0.1.4'
 	"gulp-livescript": '~2.4.0'
-	"gulp-mocha": '~2.1.1'
-	"istanbul": '~0.3.15'
+	"gulp-mocha": '~2.1.2'
+	"istanbul": '~0.3.17'
 	"mocha": '~2.2.5'
 	"nodemon": '~1.3.7'
 	"supertest": '~0.15.0'
