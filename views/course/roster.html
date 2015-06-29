@@ -25,12 +25,14 @@
 		</div>
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<h4>Faculty</h4>
 				<ul class="list-group">
 					{% for faculty in course.faculty %}
 					<a class="list-group-item">{{ faculty.firstName }} {{ faculty.lastName }}</a>
 					{% endfor %}
 				</ul>
 				<hr />
+				<h4>Students</h4>
 				<ul class="list-group">
 					{% for student in course.students %}
 					<a class="list-group-item">{{ student.firstName }} {{ student.lastName }}</a>
