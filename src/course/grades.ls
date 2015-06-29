@@ -72,7 +72,7 @@ router
 						res.locals.average.total += grade.assignment.totalPoints
 				water null
 			(water)->
-				res.locals.average.ave = res.locals.points / res.locals.total
+				res.locals.average.ave = res.locals.average.points / res.locals.average.total
 				if res.locals.average.ave === NaN
 					res.locals.average.ave = 0
 				next!
