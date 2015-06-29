@@ -73,7 +73,7 @@ router
 				water null
 			(water)->
 				res.locals.average.ave = res.locals.points / res.locals.total
-				if res.locals.average.ave is NaN
+				if res.locals.average.ave === NaN
 					res.locals.average.ave = 0
 				next!
 				water null
