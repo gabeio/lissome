@@ -21,6 +21,9 @@
 				<div class="pull-left">
 					<h3>{{ course.title }} - {% if auth == 1%}Your {% endif %}Grades</h3>
 				</div>
+				<div class="pull-right">
+					<h3><small{% if average.ave == 0 and average.points == 0 and average.total == 0 %} title="{{ average.points }} / {{ average.total }}"{% endif %}>Current Average: {{ average.ave }}%</small></h3>
+				</div>
 			</div>
 		</div>
 		<div class="row">
@@ -29,7 +32,7 @@
 				<div class="panel panel-default">
 					<div class="panel-heading clearfix">
 						<h3 class="panel-title pull-left">{{ attempt.assignment.title }}</h3>
-						<div class="pull-right">{% if attempt.late == true %}<span class="label label-danger">Late</span>{% endif %} <span class="label label-success" title="{{ attempt.points }}/{{ attempt.assignment.totalPoints }}">{% if attempt.points %}{{ ( attempt.points / attempt.assignment.totalPoints ) * 100 }}%{% else %}ungraded{% endif %}</span></div>
+						<div class="pull-right">{% if attempt.late == true %}<span class="label label-danger">Late</span>{% endif %} <span class="label label-success"{% if attempt.points %} title="{{ attempt.points }}/{{ attempt.assignment.totalPoints }}"{% endif %}>{% if attempt.points %}{{ ( attempt.points / attempt.assignment.totalPoints ) * 100 }}%{% else %}ungraded{% endif %}</span></div>
 					</div>
 					<div class="panel-body">{{ attempt.text|markdown|safe }}
 					</div>
