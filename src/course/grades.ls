@@ -70,8 +70,10 @@ router
 					if grade.points?
 						res.locals.average.points += grade.points
 						res.locals.average.total += grade.assignment.totalPoints
+				water null
 			(water)->
 				next!
+				water null
 		]
 	.get (req, res, next)->
 		res.render "course/grades"
