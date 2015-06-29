@@ -22,7 +22,7 @@
 					<h3>{{ course.title }} - {% if auth == 1%}Your {% endif %}Grades</h3>
 				</div>
 				<div class="pull-right">
-					<span title="{{ average.points }} / {{ average.total }}">{{ average.ave }}</span>
+					<h3><small title="{{ average.points }} / {{ average.total }}">Current Average: {{ average.ave }}</small></h3>
 				</div>
 			</div>
 		</div>
