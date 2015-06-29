@@ -59,6 +59,20 @@ router
 		else
 			res.locals.attempts = result
 			next!
+	.all (req, res, next)->
+		res.locals.average = {
+			"points":0
+			"total":0
+		}
+		async.waterfall [
+			(water)->
+				for grade in res.locals.attempts
+					if grade.points?
+						res.locals.average.points += grade.points
+						res.locals.average.total += grade.assignment.totalPoints
+			(water)->
+				next!
+		]
 	.get (req, res, next)->
 		res.render "course/grades"
 
