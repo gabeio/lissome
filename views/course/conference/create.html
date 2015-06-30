@@ -44,6 +44,7 @@
 		</div>
 		<div class="row">
 			<form action="?action=newthread" method="POST" class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<input type="hidden" name="_csrf" value="{{csrf}}" />
 				<div class="form-group">
 					<label for="formTitle">Title</label>
 					<input type="text" class="form-control" id="formTitle" name="title" value="{{ body.title }}" autofocus tabindex="1" />

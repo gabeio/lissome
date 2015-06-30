@@ -38,23 +38,23 @@ router
 	.get (req, res, next)->
 		switch req.query.action
 		| "create"
-			res.render "admin/create", {type:res.locals.type}
+			res.render "admin/create", { type:res.locals.type, csrf: req.csrfToken! }
 		| "edit"
-			res.render "admin/edit", {type:res.locals.type}
+			res.render "admin/edit", { type:res.locals.type, csrf: req.csrfToken! }
 		| "delete"
-			res.render "admin/delete", {type:res.locals.type}
+			res.render "admin/delete", { type:res.locals.type, csrf: req.csrfToken! }
 		| "search"
-			res.render "admin/search"
+			res.render "admin/search", { csrf: req.csrfToken! }
 		| "addstudent"
-			res.render "admin/addstudent"
+			res.render "admin/addstudent", { csrf: req.csrfToken! }
 		| "addfaculty"
-			res.render "admin/addfaculty"
+			res.render "admin/addfaculty", { csrf: req.csrfToken! }
 		| "rmstudent"
-			res.render "admin/rmstudent"
+			res.render "admin/rmstudent", { csrf: req.csrfToken! }
 		| "rmfaculty"
-			res.render "admin/rmfaculty"
+			res.render "admin/rmfaculty", { csrf: req.csrfToken! }
 		| _
-			res.render "admin/default"
+			res.render "admin/default", { csrf: req.csrfToken! }
 	.post (req, res, next)->
 		if req.query.action is "create"
 			if res.locals.type is "user"
@@ -135,7 +135,7 @@ router
 					res.send err
 				else
 					res.status 200
-					res.render "admin/create", { noun:"User", verb:"created", success:"true", type:"user" }
+					res.render "admin/create", { noun:"User", verb:"created", success:"true", type:"user", csrf: req.csrfToken! }
 					# res.send "OK"
 			else if res.locals.type is "course"
 				err <- async.waterfall [
@@ -170,7 +170,7 @@ router
 					res.send err
 				else
 					res.status 200
-					res.render "admin/create", { noun:"Course", verb:"created", success:"true", type:"course" }
+					res.render "admin/create", { noun:"Course", verb:"created", success:"true", type:"course", csrf: req.csrfToken! }
 					# res.send "OK"
 			else
 				next!
@@ -208,10 +208,7 @@ router
 					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,"_id"
-					res.render "admin/list" {
-						"objs": result
-						"type:": res.locals.type
-					}
+					res.render "admin/list" { objs: result, type: res.locals.type }
 			else if res.locals.type is "student"
 				err, result <- async.parallel [
 					(para)->
@@ -245,10 +242,7 @@ router
 					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,"_id"
-					res.render "admin/list" {
-						"objs": result
-						"type:": res.locals.type
-					}
+					res.render "admin/list" { objs: result, type: res.locals.type }
 			else if res.locals.type is "faculty"
 				err, result <- async.parallel [
 					(para)->
@@ -282,10 +276,7 @@ router
 					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,"_id"
-					res.render "admin/list" {
-						"objs": result
-						"type:": res.locals.type
-					}
+					res.render "admin/list" { objs: result, type: res.locals.type }
 			else if res.locals.type is "admin"
 				err, result <- async.parallel [
 					(para)->
@@ -319,10 +310,7 @@ router
 					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,"_id"
-					res.render "admin/create" {
-						"objs": result
-						"type": res.locals.type
-					}
+					res.render "admin/create" { objs: result, type: res.locals.type }
 			else if res.locals.type is "course"
 				err, result <- async.parallel [
 					(para)->
@@ -347,12 +335,9 @@ router
 					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,"_id"
-					res.render "admin/list" {
-						"objs": result
-						"type:": res.locals.type
-					}
+					res.render "admin/list" { objs: result, type: res.locals.type }
 			else
-				res.render "admin/search"
+				res.render "admin/search", { csrf: req.csrfToken! }
 		else
 			next!
 	.post (req, res, next)->
@@ -406,9 +391,7 @@ router
 					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,"_id"
-					res.render "admin/addstudent", {
-						"objs": result
-					}
+					res.render "admin/addstudent", { objs: result, csrf: req.csrfToken! }
 		else if req.query.action is "addfaculty"
 			# *SEARCH* for faculty to add
 			if !req.params.object?
@@ -460,9 +443,7 @@ router
 					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,"_id"
-					res.render "admin/addstudent", {
-						"objs": result
-					}
+					res.render "admin/addstudent", { objs: result, csrf: req.csrfToken! }
 		else if req.query.action is "rmstudent"
 			# *SEARCH* for student to rm
 			...

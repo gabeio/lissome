@@ -115,6 +115,7 @@
 						</span>
 					</div>
 					<form action="?hmo=put&action=editpost" method="POST" class="panel-body">
+						<input type="hidden" name="_csrf" value="{{csrf}}" />
 						<input type="hidden" name="thread" value="{{ thread._id|toString }}" />
 						<input type="hidden" name="post" value="{{ post._id|toString }}" />
 						<div class="form-group">

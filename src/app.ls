@@ -166,10 +166,6 @@ app
 	.use (req, res, next)->
 		async.parallel [
 			!->
-				/* istanbul ignore next if remove after implementing csrf tokens around the entire site */
-				if res.locals.csrfToken? and req.method.lowerCase! is "get" # if csurf enabled
-					res.locals.csrfToken = req.csrfToken!
-			!->
 				if req.session? and req.session.auth?
 					res.locals.uid = req.session.uid.toString!
 					res.locals.firstName = req.session.firstName

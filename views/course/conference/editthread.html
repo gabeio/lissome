@@ -73,6 +73,7 @@
 		{% for post in posts %}{% if loop.first %}{% set thread = post.thread %}{% endif %}{% endfor %}
 		<div class="row">
 			<form action="?hmo=put&action=editthread" method="POST" class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<input type="hidden" name="_csrf" value="{{csrf}}" />
 				<input type="hidden" name="thread" value="{{ thread._id|toString }}" />
 				<div class="form-group">
 					<label for="formTitle">Title</label>

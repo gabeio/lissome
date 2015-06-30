@@ -170,6 +170,7 @@
 				</div>
 				{% endfor %}
 				<form method="POST" action="?action=newpost">
+					<input type="hidden" name="_csrf" value="{{csrf}}" />
 					<input type="hidden" name="thread" value="{{ thread._id|toString }}" />
 					<div class="form-group">
 						<label for="formBody">Reply <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
