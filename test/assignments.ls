@@ -416,8 +416,7 @@ describe "Assignments Module" ->
 							"points": "10"
 						}
 						.end (err, res)->
-							expect res.status .to.match /^(2|3)/
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/.{24}\/?/i
+							expect res.status .to.equal 200
 							cont err
 			]
 			done err
@@ -591,8 +590,7 @@ describe "Assignments Module" ->
 							"points": "10"
 						}
 						.end (err, res)->
-							expect res.status .to.match /^(2|3)/
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/.{24}\/?/i
+							expect res.status .to.equal 200
 							cont err
 			]
 			done err
