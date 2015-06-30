@@ -194,6 +194,10 @@ switch app.get("env")
 	# disable template cache
 	app.set "view cache" false
 	swig.setDefaults { -cache }
+	app.use (req,res,next)->
+		req.csrfToken = ->
+			return ""
+		next!
 
 app
 	..locals.authorize = (req, res, next)->
