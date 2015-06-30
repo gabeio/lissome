@@ -155,10 +155,13 @@ app
 	.use "/static" serveStatic "./public/static" # static
 	.use "/assets" serveStatic "./public/assets"
 	# Cross Site Request Forgery
-	# .use csurf {
-	# 	secretLength: 32
-	# 	saltLength: 10
-	# }
+console.log app.get("env")
+if app.get("env") == "production"
+	app.use csurf {
+		secretLength: 32
+		saltLength: 10
+	}
+app
 	# Cross Origin Resourse Sharing
 	.use cors!
 	# compress large files
@@ -186,7 +189,7 @@ app
 
 # Production Switch
 /* istanbul ignore next switch */
-switch process.env.NODE_ENV
+switch app.get("env")
 | "production"
 	# production run
 	winston.info "Production Mode"
