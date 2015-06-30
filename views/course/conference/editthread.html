@@ -1,0 +1,87 @@
+{% extends '../../base.html' %}
+
+{% block head %}
+	<title>Conference - {{ course.title }} - {{ school }}</title>
+{% endblock %}
+
+{% block body %}
+	<div class="container-fluid">
+		{% include '../../navbar.html' %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ol class="breadcrumb">
+					<li><a href="/">Dash</a></li>
+					<li><a href="/c/{{ course.id }}">{{ course.title }}</a></li>
+					{% if posts %}
+					<li><a href="/c/{{ course.id }}/conference">Conference</a></li>
+					<li class="active">Thread</li>
+					{% else %}
+					<li class="active">Conference</a></li>
+					{% endif %}
+				</ol>
+			</div>
+		</div>
+		{% if success %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				{% if success == 'yes' or success == 'true' %}
+				<div class="alert alert-success" role="alert">
+					{{ noun }} <strong>{{ verb }}</strong> successfully.
+				</div>
+				{% elif success == 'no' or success == 'false' %}
+				<div class="alert alert-danger" role="alert">
+					{{ noun }} <strong>not</strong> {{ verb }} successfully. Missing required field.
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		{% endif %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>{{ course.title }} - Conference</h3>
+				</div>
+				{% if posts %}{% if thread.author.toString() === uid %}
+				<div class="pull-right btn-group" role="group" style="padding-top: 8px;">
+					<a href="/c/{{ course.id }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
+					<div class="btn-group" role="group">
+						<button class="btn btn-default dropdown-toggle" type="button" id="blogPostMenu" data-toggle="dropdown" aria-expanded="true">
+							<span class="glyphicon glyphicon-cog"></span>
+						</button>
+						<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
+							<li role="presentation">
+								<a role="menuitem" href="/c/{{ course.id }}/conference/{{ thread._id|toString }}?action=editthread"><span class="glyphicon glyphicon-edit"></span> Edit This Thread</a>
+							</li>
+							<li role="presentation">
+								<a role="menuitem" href="/c/{{ course.id }}/conference/{{ thread._id|toString }}?action=deletethread"><span class="glyphicon glyphicon-remove"></span> Delete This Thread</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				{% else %}
+				<div class="pull-right" style="padding-top: 8px;">
+					<a href="/c/{{ course.id }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
+				</div>
+				{% endif %}
+				{% else %}
+				<div class="pull-right" style="padding-top: 8px;">
+					<a href="/c/{{ course.id }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		{% for post in posts %}{% if loop.first %}{% set thread = post.thread %}{% endif %}{% endfor %}
+		<div class="row">
+			<form action="?hmo=put&action=editthread" method="POST" class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<input type="hidden" name="thread" value="{{ thread._id|toString }}" />
+				<div class="form-group">
+					<label for="formTitle">Title</label>
+					<input type="text" class="form-control" id="formTitle" name="title" value="{{ thread.title }}" autofocus tabindex="1" />
+				</div>
+				<div class="form-group">
+					<button type="submit" class="btn btn-default" tabindex="2">Submit</button>
+				</div>
+			</form>
+		</div>
+	</div>
+{% endblock %}

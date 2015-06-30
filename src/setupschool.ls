@@ -26,7 +26,7 @@ async.series [
 		done!
 	(done)->
 		# school
-		err,result <- School.find { "name":process.env.school }
+		err,result <- School.find { "name":(process.env.school||process.env.SCHOOL) }
 		if err
 			console.error err
 			done err
@@ -37,7 +37,7 @@ async.series [
 				done!
 			else
 				school := new School {
-					name: process.env.school
+					name: (process.env.school||process.env.SCHOOL)
 				}
 				err, school <- school.save
 				if err
@@ -47,7 +47,7 @@ async.series [
 				done!
 	(done)->
 		# student
-		err,result <- User.find { "username":"student", "type":1, "school":process.env.school }
+		err,result <- User.find { "username":"student", "type":1, "school":(process.env.school||process.env.SCHOOL) }
 		if err
 			console.error err
 			done err
@@ -64,7 +64,7 @@ async.series [
 					lastName: "Jakeman"
 					email: "student@kean.edu"
 					hash: hashPassword
-					school: process.env.school
+					school: (process.env.school||process.env.SCHOOL)
 					type: 1
 					courses:["cps1234*02", "ge1000*04"]
 				}
@@ -76,7 +76,7 @@ async.series [
 				done!
 	(done)->
 		# astudent
-		err,result <- User.find { "username":"astudent", "type":1, "school":process.env.school }
+		err,result <- User.find { "username":"astudent", "type":1, "school":(process.env.school||process.env.SCHOOL) }
 		if err
 			console.error err
 			done err
@@ -93,7 +93,7 @@ async.series [
 					lastName: "Traiylor"
 					email: "astudent@kean.edu"
 					hash: hashPassword
-					school: process.env.school
+					school: (process.env.school||process.env.SCHOOL)
 					type: 1
 					courses:["cps1234*02", "ge1000*04"]
 				}
@@ -105,7 +105,7 @@ async.series [
 				done!
 	(done)->
 		# faculty
-		err,result <- User.find { "username":"faculty", "type":2, "school":process.env.school }
+		err,result <- User.find { "username":"faculty", "type":2, "school":(process.env.school||process.env.SCHOOL) }
 		if err
 			console.error err
 			done err
@@ -122,7 +122,7 @@ async.series [
 					lastName: "Frost"
 					email: "faculty@kean.edu"
 					hash: hashPassword
-					school: process.env.school
+					school: (process.env.school||process.env.SCHOOL)
 					type: 2
 					courses:["cps1234*02"]
 				}
@@ -134,7 +134,7 @@ async.series [
 				done!
 	(done)->
 		# gfaculty
-		err,result <- User.find { "username":"gfaculty", "type":2, "school":process.env.school }
+		err,result <- User.find { "username":"gfaculty", "type":2, "school":(process.env.school||process.env.SCHOOL) }
 		if err
 			console.error err
 			done err
@@ -151,7 +151,7 @@ async.series [
 					lastName: "Hanson"
 					email: "gfaculty@kean.edu"
 					hash: hashPassword
-					school: process.env.school
+					school: (process.env.school||process.env.SCHOOL)
 					type: 2
 					courses:["ge1000*04"]
 				}
@@ -163,7 +163,7 @@ async.series [
 				done!
 	(done)->
 		# admin
-		err,result <- User.find { "username":"admin", "type":3, "school":process.env.school }
+		err,result <- User.find { "username":"admin", "type":3, "school":(process.env.school||process.env.SCHOOL) }
 		if err
 			console.error err
 			done err
@@ -180,7 +180,7 @@ async.series [
 					lastName: "Pearce"
 					email: "admin@kean.edu"
 					hash: hashPassword
-					school: process.env.school
+					school: (process.env.school||process.env.SCHOOL)
 					type: 3
 				}
 				err, admin <- admin.save
@@ -191,7 +191,7 @@ async.series [
 				done!
 	(done)->
 		# cps1234*02
-		err,result <- Course.find { "id":"cps1234", "school":process.env.school }
+		err,result <- Course.find { "id":"cps1234", "school":(process.env.school||process.env.SCHOOL) }
 		if err
 			console.error err
 			done err
@@ -216,7 +216,7 @@ async.series [
 					students: [ # student's username(s)
 						student._id
 					]
-					school: process.env.school
+					school: (process.env.school||process.env.SCHOOL)
 				}
 				err,course <- course1.save
 				course1 := course
@@ -226,7 +226,7 @@ async.series [
 				done!
 	(done)->
 		# ge1000
-		err,result <- Course.find { "id":"ge1000", "school":process.env.school }
+		err,result <- Course.find { "id":"ge1000", "school":(process.env.school||process.env.SCHOOL) }
 		if err
 			console.error err
 			done err
@@ -251,7 +251,7 @@ async.series [
 					students: [ # student's username(s)
 						student._id
 					]
-					school: process.env.school
+					school: (process.env.school||process.env.SCHOOL)
 				}
 				err,course <- course2.save
 				course2 := course
@@ -261,7 +261,7 @@ async.series [
 				done!
 	(done)->
 		# cps4601
-		err,result <- Course.find { "id":"cps4601", "school":process.env.school }
+		err,result <- Course.find { "id":"cps4601", "school":(process.env.school||process.env.SCHOOL) }
 		if err
 			console.error err
 			done err
@@ -286,7 +286,7 @@ async.series [
 					students: [ # student's username(s)
 						astudent._id
 					]
-					school: process.env.school
+					school: (process.env.school||process.env.SCHOOL)
 				}
 				err,course <- course3.save
 				course3 := course

@@ -4,10 +4,10 @@ require! {
 	"body-parser"
 	"compression" # nginx gzip
 	"connect-redis"
+	"cors"
 	"express" # router
 	"express-partial-response"
 	"express-session" # session
-	"fs-extra" # only if needed
 	"helmet"
 	"markdown-it"
 	"method-override"
@@ -15,43 +15,33 @@ require! {
 	"moment-timezone"
 	"mongoose"
 	"multer"
+	"response-time"
 	"serve-static" # nginx static
 	"swig" # templates
 	"util"
 	"winston"
 	"yargs" # --var val
 }
-var timezone
-RedisStore = connect-redis express-session
-argv = yargs.argv
-app = module.exports = express!
-fs = fsExtra
-md = new markdown-it {
-	html: false
-	xhtml: false
-	linkify: true
-	typographer: true
-}
 
-# load needed libs into app locals
+# argv parser
+argv = yargs.argv
+# express
+app = module.exports = express!
+
+# app locals
 app
-	# variables
-	..locals.recaptchaPrivateKey = process.env.RECAPKEY
-	..locals.school = process.env.school
-	..locals.swig = swig
-	# errors
-	# ..locals.err = {
-	# 	"NOT FOUND": new Error
-	# }
+	..locals.smallpassword = parseInt (process.env.small||process.env.smallpassword||process.env.minpassword||6)
 
 /* istanbul ignore next this is just for assurance the env vars are defined */
 do ->
-	if !process.env.cookie? and !argv.cookie?
+	if !process.env.cookie? and !process.env.COOKIE? and !argv.cookie?
 		console.log "REQUIRES COOKIE SECRET"
 		process.exit 1
-	if !process.env.school? and !argv.school?
+	if !process.env.school? and !process.env.SCHOOL? and !argv.school?
 		console.log "REQUIRES SCHOOL NAME"
 		process.exit 1
+	else
+		app.locals.school = (process.env.school||process.env.SCHOOL||argv.school)
 	if !process.env.timezone? and !process.env.TIMEZONE? and !argv.timezone?
 		console.log "REQUIRES SCHOOL TIMEZONE"
 		process.exit 1
@@ -61,7 +51,7 @@ do ->
 		else
 			console.log "Unknown Timezone; crashing..."
 			process.exit 1
-	if !process.env.mongo? and !process.env.MONGOURL? and !argv.mongo?
+	if !process.env.mongo? and !process.env.MONGO? and !argv.mongo?
 		console.log "mongo env undefined\ntrying localhost anyway..."
 	if !process.env.redishost? and !process.env.REDISHOST? and !argv.redishost?
 		console.log "redishost env undefined\ntrying localhost anyway..."
@@ -69,6 +59,14 @@ do ->
 		console.log "redisport env undefined\ntrying default anyway..."
 	if !process.env.redisauth? and !process.env.REDISAUTH? and !argv.redisauth?
 		console.log "redisauth env undefined\ntrying null anyway..."
+
+# markdown-it options
+md = new markdown-it {
+	html: false
+	xhtml: false
+	linkify: true
+	typographer: true
+}
 
 # create swig |markdown filter
 swig.setFilter "markdown", (input)->
@@ -89,7 +87,7 @@ swig.setFilter "timezone", (input)->
 # MONGOOSE
 /* istanbul ignore next */
 mongo = require("./mongoClient")(app,mongoose,\
-	(process.env.mongo||process.env.MONGOURL||argv.mongo||"mongodb://localhost/smrtboard"))
+	(process.env.mongo||process.env.MONGO||argv.mongo||"mongodb://localhost/smrtboard"))
 
 # REDIS
 /* istanbul ignore next */
@@ -99,18 +97,22 @@ redis = require("./redisClient")(app,\
 	(process.env.redisauth||process.env.REDISAUTH||argv.redisauth||void),\
 	(process.env.redisdb||process.env.REDISDB||argv.redisdb||0))
 
+RedisStore = connect-redis express-session
+
 # App Settings/Middleware
 app
+	.use response-time!
 	.use helmet!
 	.use helmet.contentSecurityPolicy {
-		default-src: ["'self'", "lissome.co", "assets.lissome.co", "cdnjs.cloudflare.com"]
-		script-src: ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com"]
-		style-src: ["'self'", "'unsafe-inline'", "assets.lissome.co", "cdnjs.cloudflare.com", "fonts.googleapis.com"]
-		font-src: ["'self'", "assets.lissome.co", "fonts.googleapis.com", "fonts.gstatic.com"]
+		default-src: ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com"]
+		script-src:  ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com"]
+		style-src:   ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com", "fonts.googleapis.com"]
+		font-src:    ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com", "fonts.googleapis.com", "fonts.gstatic.com"]
 	}
+	.use helmet.frameguard 'deny'
 	# body parser
 	.use bodyParser.urlencoded {
-		-extended
+		+extended
 	}
 	.use bodyParser.json!
 	.use bodyParser.text! # idk
@@ -119,8 +121,8 @@ app
 	.use multer { # requires: enctype="multipart/form-data"
 		dest: "./uploads/"
 		limits:
-			fileSize: 10000000
-			files: 10
+			# fileSize: 10000000mb
+			files: 0
 		-includeEmptyFields
 		-inMemory
 	}
@@ -128,8 +130,9 @@ app
 	.use method-override "hmo" # Http-Method-Override
 	# sessions
 	.use express-session {
-		secret: process.env.cookie
+		secret: (process.env.cookie||process.env.COOKIE||argv.cookie)
 		-resave
+		+rolling
 		+saveUninitialized
 		cookie: {
 			path: "/"
@@ -156,6 +159,8 @@ app
 	# 	secretLength: 32
 	# 	saltLength: 10
 	# }
+	# Cross Origin Resourse Sharing
+	.use cors!
 	# compress large files
 	.use compression!
 
@@ -174,6 +179,7 @@ app
 					res.locals.lastName = req.session.lastName
 					res.locals.username = req.session.username
 					res.locals.auth = req.session.auth # save auth level for template
+					res.locals.smallpassword = app.locals.smallpassword
 			!->
 				next!
 		]
@@ -184,26 +190,35 @@ switch process.env.NODE_ENV
 | "production"
 	# production run
 	winston.info "Production Mode"
-	require! {
-		"response-time"
-	}
-	app.use response-time!
 | _
 	# development/other run
 	if !module.parent
-		winston.info "Development Mode/Unknown Mode"
-	require! {
-		"util"
-		"response-time"
-	}
+		winston.info "Development Mode"
 	# disable template cache
 	app.set "view cache" false
 	swig.setDefaults { -cache }
-	app.locals.util = if util? then util
-	app.use response-time!
 
-# Attach base
-require("./base")(app)
+app
+	..locals.authorize = (req, res, next)->
+		if res.locals.auth? and res.locals.needs? and res.locals.needs <= res.locals.auth
+			next!
+		else
+			next new Error "UNAUTHORIZED" # other unauth
+
+# Routers
+require("./mongoose")(app)
+app.use "/login", require("./login")
+app.use "/logout", require("./logout")
+app.use "/admin", require("./admin")
+app.use "/:course(c|C|course)", require("./course/assignments")
+app.use "/:course(c|C|course)", require("./course/blog")
+app.use "/:course(c|C|course)", require("./course/conference")
+app.use "/:course(c|C|course)", require("./course/grades")
+app.use "/:course(c|C|course)", require("./course/roster")
+app.use "/:course(c|C|course)", require("./course/settings")
+app.use "/:course(c|C|course)", require("./course/index")
+app.use "/:index(index|dash|dashboard)?", require("./dashboard")
+require("./error")(app)
 
 /* istanbul ignore next */
 if !module.parent # assure this file is not being run by a different file
@@ -221,14 +236,17 @@ else
 	winston.remove winston.transports.Console
 	/*winston.add winston.transports.Console, {level:"warn"}*/
 	require("./test")(app)
-
+/* istanbul ignore next this is only executed when sigterm is sent */
 process.on "SIGTERM", ->
 	console.log "\nShutting down from SIGTERM"
+	server.close!
 	mongoose.disconnect!
 	redis.end!
 	process.exit 0
+/* istanbul ignore next this is only executed when sigint is sent */
 process.on "SIGINT", ->
 	console.log "\nGracefully shutting down from SIGINT (Ctrl-C)"
+	server.close!
 	mongoose.disconnect!
 	redis.end!
 	process.exit 0

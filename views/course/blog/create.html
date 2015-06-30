@@ -1,0 +1,56 @@
+{% extends '../../base.html' %}
+
+{% block head %}
+	<title>Blog - {{ course.title }} - {{ school }}</title>
+{% endblock %}
+
+{% block body %}
+	<div class="container-fluid">
+		{% include '../../navbar.html' %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ol class="breadcrumb">
+					<li><a href="/">Dash</a></li>
+					<li><a href="/c/{{ course.id }}">{{ course.title }}</a></li>
+					<li><a href="/c/{{ course.id }}/blog">Blog</a></li>
+					<li class="active">Creating Blog Post</li>
+				</ol>
+			</div>
+		</div>
+		{% if success %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				{% if success == 'yes' or success == 'true' %}
+				<div class="alert alert-success" role="alert">
+					Blog post <strong>{{ action }}</strong> successfully.
+				</div>
+				{% elif success == 'no' or success == 'false' %}
+				<div class="alert alert-danger" role="alert">
+					Blog post <strong>not</strong> {{ action }} successfully. Missing required field.
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		{% endif %}
+		<div class="row">
+			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=new" enctype="multipart/form-data">
+				<div class="form-group">
+					<label for="formTitle">Title</label>
+					<input type="text" class="form-control" id="formTitle" name="title" value="{{ body.title }}" tabindex="1" autofocus />
+				</div>
+				<div class="form-group">
+					<label for="formBody">Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
+					<textarea class="form-control" id="formBody" name="text" rows="7" tabindex="2" >{{ body.text }}</textarea>
+				</div>
+				{#<div class="form-group">
+					<label for="formUpload">Files</label>
+					<input type="file" id="formUpload" name="files" />
+				</div>#}
+				<div class="form-group">
+					<button type="submit" class="btn btn-default" tabindex="3">Submit</button>
+				</div>
+			</form>
+		</div>
+	</div>
+	<script src="/assets/custom/smrtboard.js"></script>
+{% endblock %}

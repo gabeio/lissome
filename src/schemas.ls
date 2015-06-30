@@ -12,7 +12,7 @@ module.exports = (mongoose)->
 		# AUTOCREATED
 		# _id
 		# REQUIRED
-		username: { type: String, +required, +trim }
+		username: { type: String, +required, +unique, +trim }
 		hash: { type: String, +required }
 		school: { type: String, +required, ref: "School" }
 		type: { type: Number, +required, default: 1 }

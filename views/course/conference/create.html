@@ -1,0 +1,61 @@
+{% extends '../../base.html' %}
+
+{% block head %}
+	<title>Conference - {{ course.title }} - {{ school }}</title>
+{% endblock %}
+
+{% block body %}
+	<div class="container-fluid">
+		{% include '../../navbar.html' %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ol class="breadcrumb">
+					<li><a href="/">Dash</a></li>
+					<li><a href="/c/{{ course.id }}">{{ course.title }}</a></li>
+					<li><a href="/c/{{ course.id }}/conference">Conference</a></li>
+					<li class="active">Create Thread</li>
+				</ol>
+			</div>
+		</div>
+		{% if success %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				{% if success == 'yes' or success == 'true' %}
+				<div class="alert alert-success" role="alert">
+					{{ noun }} <strong>{{ verb }}</strong> successfully.
+				</div>
+				{% elif success == 'no' or success == 'false' %}
+				<div class="alert alert-danger" role="alert">
+					{{ noun }} <strong>not</strong> {{ verb }} successfully. Missing required field.
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		{% endif %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>{{ course.title }} - Conference</h3>
+				</div>
+				<div class="pull-right" style="padding-top: 8px;">
+					<a href="/c/{{ course.id }}/conference?action=newthread" class="btn btn-default" alt="New Thread"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<form action="?action=newthread" method="POST" class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="form-group">
+					<label for="formTitle">Title</label>
+					<input type="text" class="form-control" id="formTitle" name="title" value="{{ body.title }}" autofocus tabindex="1" />
+				</div>
+				<div class="form-group">
+					<label for="formBody">Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>
+					<textarea class="form-control" id="formBody" name="text" rows="7" tabindex="2">{{ body.text }}</textarea>
+				</div>
+				<div class="form-group">
+					<button type="submit" class="btn btn-default" tabindex="3">Submit</button>
+				</div>
+			</form>
+		</div>
+	</div>
+{% endblock %}
