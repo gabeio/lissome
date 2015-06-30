@@ -5,6 +5,7 @@ require! {
 	"compression" # nginx gzip
 	"connect-redis"
 	"cors"
+	"csurf"
 	"express" # router
 	"express-partial-response"
 	"express-session" # session
@@ -154,14 +155,6 @@ app
 	# static assets (html,js,css)
 	.use "/static" serveStatic "./public/static" # static
 	.use "/assets" serveStatic "./public/assets"
-	# Cross Site Request Forgery
-console.log app.get("env")
-if app.get("env") == "production"
-	app.use csurf {
-		secretLength: 32
-		saltLength: 10
-	}
-app
 	# Cross Origin Resourse Sharing
 	.use cors!
 	# compress large files
@@ -193,6 +186,10 @@ switch app.get("env")
 | "production"
 	# production run
 	winston.info "Production Mode"
+	app.use csurf {
+		secretLength: 32
+		saltLength: 10
+	}
 | _
 	# development/other run
 	if !module.parent
