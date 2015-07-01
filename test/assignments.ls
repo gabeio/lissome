@@ -393,7 +393,7 @@ describe "Assignments Module" ->
 							"points": "100"
 						}
 						.end (err, res)->
-							expect res.status .to.match /^(4|5)/
+							expect res.status .to.match /^(4)/
 							cont err
 			]
 			done err
@@ -590,7 +590,7 @@ describe "Assignments Module" ->
 							"points": "100"
 						}
 						.end (err, res)->
-							expect res.status .to.match /^(4|5)/
+							expect res.status .to.match /^(4)/
 							cont err
 			]
 			done err

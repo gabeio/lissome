@@ -720,7 +720,7 @@ describe "Admin Module", (...)->
 					.end (err, res)->
 						expect res.status .to.equal 200
 						done err
-		describe "(User: Facult)", (...)->
+		describe "(User: Faculty)", (...)->
 			it "should return a create course page", (done)->
 				faculty
 					.get "/admin/?action=create&type=course"

@@ -734,7 +734,7 @@ describe "Conference" ->
 					cont err
 			]
 			done err
-	describe "(User: Non-Faculty", (...)->
+	describe "(User: Non-Faculty)", (...)->
 		before (done)->
 			this.timeout = 2000
 			err <- async.waterfall [
