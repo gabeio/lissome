@@ -111,6 +111,16 @@ router
 									para "User Exists"
 								else
 									para null
+							(para)->
+								err, result <- User.find {
+									"email": req.body.email
+									"type":req.body.level
+									"school":app.locals.school
+								}
+								if result? and result.length > 0
+									para "User Exists"
+								else
+									para null
 						]
 						cont err, hash
 					(hash, cont)->
@@ -126,11 +136,12 @@ router
 							type: req.body.level
 							creator: ObjectId res.locals.uid
 						}
-						if req.body.middleName? then user.middleName = req.body.middleName
+						user.middleName? = req.body.middleName
 						err, user <- user.save
 						cont err
 				]
-				if err?
+				if err
+					winston.error err
 					res.status 400
 					res.send err
 				else
@@ -346,7 +357,6 @@ router
 			if !req.params.object?
 				res.status 400
 				res.send "No Course Given"
-				res.end!
 			else
 				err, result <- async.parallel [
 					(para)->
@@ -397,7 +407,6 @@ router
 			if !req.params.object?
 				res.status 400
 				res.send "No Course Given"
-				res.end!
 			else
 				err, result <- async.parallel [
 					(para)->
@@ -758,13 +767,19 @@ router
 							"school": app.locals.school
 						}
 						if err
-							winston.error err
 							cont err
+						else if !result? or result.length < 1
+							cont "Could Not Find Course To Delete"
 						else
 							cont null
 				]
-				res.status 200
-				res.send "ok"
+				if err
+					winston.error err
+					res.status 400
+					res.send err
+				else
+					res.status 200
+					res.send "ok"
 			else if res.locals.type is "course"
 				err <- async.waterfall [
 					(cont)->
@@ -773,13 +788,20 @@ router
 							"school": app.locals.school
 						}
 						if err
-							winston.error err
 							cont err
+						else if !result? or result.length < 1
+							cont "Could Not Find Course To Delete"
 						else
 							cont null
 				]
-				res.status 200
-				res.send "ok"
+				if err
+					console.log err
+					winston.error err
+					res.status 400
+					res.send err
+				else
+					res.status 200
+					res.send "ok"
 			else
 				next!
 		else
