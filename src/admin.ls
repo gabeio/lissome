@@ -123,7 +123,7 @@ router
 							email: req.body.email
 							hash: hash
 							school: app.locals.school
-							type: req.body.type
+							type: req.body.level
 							creator: ObjectId res.locals.uid
 						}
 						if req.body.middleName? then user.middleName = req.body.middleName
@@ -459,7 +459,7 @@ router
 					# (cont)->
 					# add checks
 					(cont)->
-						if req.body.type > 3 or req.body.type < 1
+						if req.body.level > 3 or req.body.level < 1
 							cont "Invalid User Auth Level"
 						else
 							cont null
@@ -479,7 +479,7 @@ router
 						err, result <- User.findOne {
 							"id": req.body.id
 							"username": req.body.username
-							"type": req.body.type
+							"type": req.body.level
 							"school": app.locals.school
 						}
 						if err
@@ -494,8 +494,8 @@ router
 							user.username = req.body.newusername
 						if req.body.password?
 							user.hash = hash
-						if req.body.type?
-							user.type = req.body.type
+						if req.body.level?
+							user.type = req.body.level
 						if req.body.firstName?
 							user.firstName = req.body.middleName
 						if req.body.middleName?
