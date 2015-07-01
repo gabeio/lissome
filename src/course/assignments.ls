@@ -357,7 +357,7 @@ router
 					res.status 302
 					res.redirect "/c/#{req.params.course}/assignments/" + assignment._id
 		| "grade" # handle assignment grading
-			req.body.points? = Number.parseInt req.body.points
+			req.body.points? = parseInt req.body.points
 			if req.body.points === NaN || !req.body.aid? # double check require fields exist
 				res.status 400 .render "course/assignments/attempt", { success:"no", action:"graded", csrf: req.csrfToken! }
 				# res.status 400 .render "course/assignments/create" { assignments: [req.body], -success, action:"edit", csrf: req.csrfToken! }
