@@ -234,7 +234,7 @@ if !module.parent # assure this file is not being run by a different file
 else
 	app.locals.testing = true
 	# silence all logging on testing
-	winston.remove winston.transports.Console
+	winston.level = "error"
 	/*winston.add winston.transports.Console, {level:"warn"}*/
 	require("./test")(app)
 /* istanbul ignore next this is only executed when sigterm is sent */
