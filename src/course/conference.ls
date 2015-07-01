@@ -291,11 +291,11 @@ router
 						/* istanbul ignore if should only really occur if db crashes */
 						if err?
 							winston.error err
-							res.status 400 .render "conference/delthread" { body: req.body, success:"no", noun:"Posts", verb:"deleted", csrf: req.csrfToken! }
+							res.status 400 .render "course/conference/delthread" { body: req.body, success:"no", noun:"Posts", verb:"deleted", csrf: req.csrfToken! }
 						else
 							res.status 302 .redirect "/c/#{req.params.course}/conference"
 					else
-						res.status 400 .render "conference/delthread" { body: req.body, success:"no", noun:"Posts", verb:"deleted", csrf: req.csrfToken! }
+						res.status 400 .render "course/conference/delthread" { body: req.body, success:"no", noun:"Posts", verb:"deleted", csrf: req.csrfToken! }
 		| _
 			next new Error "Action Error"
 
