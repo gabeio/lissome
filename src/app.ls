@@ -5,6 +5,7 @@ require! {
 	"compression" # nginx gzip
 	"connect-redis"
 	"cors"
+	"csurf"
 	"express" # router
 	"express-partial-response"
 	"express-session" # session
@@ -109,7 +110,7 @@ app
 		style-src:   ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com", "fonts.googleapis.com"]
 		font-src:    ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com", "fonts.googleapis.com", "fonts.gstatic.com"]
 	}
-	.use helmet.frameguard 'deny'
+	.use helmet.frameguard "deny"
 	# body parser
 	.use bodyParser.urlencoded {
 		+extended
@@ -134,6 +135,7 @@ app
 		-resave
 		+rolling
 		+saveUninitialized
+		name: "lissome"
 		cookie: {
 			path: "/"
 			+httpOnly
@@ -154,11 +156,6 @@ app
 	# static assets (html,js,css)
 	.use "/static" serveStatic "./public/static" # static
 	.use "/assets" serveStatic "./public/assets"
-	# Cross Site Request Forgery
-	# .use csurf {
-	# 	secretLength: 32
-	# 	saltLength: 10
-	# }
 	# Cross Origin Resourse Sharing
 	.use cors!
 	# compress large files
@@ -168,10 +165,6 @@ app
 app
 	.use (req, res, next)->
 		async.parallel [
-			!->
-				/* istanbul ignore next if remove after implementing csrf tokens around the entire site */
-				if res.locals.csrfToken? and req.method.lowerCase! is "get" # if csurf enabled
-					res.locals.csrfToken = req.csrfToken!
 			!->
 				if req.session? and req.session.auth?
 					res.locals.uid = req.session.uid.toString!
@@ -186,10 +179,14 @@ app
 
 # Production Switch
 /* istanbul ignore next switch */
-switch process.env.NODE_ENV
+switch app.get("env")
 | "production"
 	# production run
 	winston.info "Production Mode"
+	app.use csurf {
+		secretLength: 32
+		saltLength: 10
+	}
 | _
 	# development/other run
 	if !module.parent
@@ -197,6 +194,10 @@ switch process.env.NODE_ENV
 	# disable template cache
 	app.set "view cache" false
 	swig.setDefaults { -cache }
+	app.use (req,res,next)->
+		req.csrfToken = ->
+			return ""
+		next!
 
 app
 	..locals.authorize = (req, res, next)->
@@ -233,7 +234,7 @@ if !module.parent # assure this file is not being run by a different file
 else
 	app.locals.testing = true
 	# silence all logging on testing
-	winston.remove winston.transports.Console
+	winston.level = "error"
 	/*winston.add winston.transports.Console, {level:"warn"}*/
 	require("./test")(app)
 /* istanbul ignore next this is only executed when sigterm is sent */

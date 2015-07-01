@@ -170,15 +170,15 @@ router
 			(done)->
 				if !req.query.action? && !req.params.assign?
 					# show list of assignments by title
-					res.render "course/assignments/default"
+					res.render "course/assignments/default", { success: req.query.success, action: req.query.verb, csrf: req.csrfToken! }
 			(done)->
 				if !req.query.action? && req.params.assign?
 					if req.params.attempt?
 						# show attempt
-						res.render "course/assignments/attempt"
+						res.render "course/assignments/attempt", { csrf: req.csrfToken! }
 					else
 						# show assignment details & attempt field
-						res.render "course/assignments/view"
+						res.render "course/assignments/view", { csrf: req.csrfToken! }
 			(done)->
 				if req.query.action?
 					next! # don't assume action, continue trying
@@ -188,7 +188,7 @@ router
 		switch req.query.action
 		| "attempt"
 			if !req.body.aid? or !req.body.text?
-				res.status 400 .render "course/assignments/view" { body: req.body, success:"error", error:"Attempt Text Can <b>not</b> be blank." }
+				res.status 400 .render "course/assignments/view" { body: req.body, success:"error", error:"Attempt Text Can <b>not</b> be blank.", csrf: req.csrfToken! }
 			else
 				<- async.parallel [
 					(done)->
@@ -262,7 +262,7 @@ router
 				/* istanbul ignore else should only occur if db crashes */
 				if err? and err isnt "redirect" and err isnt "Mongo Error"
 					res.status 400
-					res.render "course/assignments/view" { body:req.body, success:"error", error:err }
+					res.render "course/assignments/view" { body:req.body, success:"error", error:err, csrf: req.csrfToken! }
 				else if err is "Mongo Error"
 					next new Error "Mongo Error"
 				# else
@@ -277,11 +277,11 @@ router
 	.get (req, res, next)->
 		switch req.query.action
 		| "new"
-			res.render "course/assignments/create"
+			res.render "course/assignments/create", { csrf: req.csrfToken! }
 		| "edit"
-			res.render "course/assignments/edit"
+			res.render "course/assignments/edit", { csrf: req.csrfToken! }
 		| "delete"
-			res.render "course/assignments/del"
+			res.render "course/assignments/del", { csrf: req.csrfToken! }
 		| _
 			next! # don't assume action
 	.put (req, res, next)->
@@ -289,7 +289,7 @@ router
 		switch req.query.action
 		| "edit"
 			if !req.body.aid? || !req.body.title? || !req.body.text? || !req.body.tries? || req.body.title is "" || req.body.text is "" # double check require fields exist
-				res.status 400 .render "course/assignments/edit" { body: req.body, success:"no", action:"edit" }
+				res.status 400 .render "course/assignments/edit" { body: req.body, success:"no", action:"edit", csrf: req.csrfToken! }
 			else
 				res.locals.start = new Date(req.body.opendate+" "+req.body.opentime)
 				res.locals.end = new Date(req.body.closedate+" "+req.body.closetime)
@@ -324,11 +324,10 @@ router
 		| _
 			next! # don't assume action
 	.post (req, res, next)->
-		# handle new assignment
 		switch req.query.action
-		| "new"
+		| "new" # handle new assignment
 			if !req.body.title? || !req.body.text? || !req.body.tries? || req.body.title is "" || req.body.text is "" # double check require fields exists
-				res.status 400 .render "course/assignments/create" { body: req.body, success:"no", action:"edit"}
+				res.status 400 .render "course/assignments/create" { body: req.body, success:"no", action:"edit", csrf: req.csrfToken! }
 			else
 				res.locals.start = new Date req.body.opendate+" "+req.body.opentime
 				res.locals.end = new Date req.body.closedate+" "+req.body.closetime
@@ -357,9 +356,11 @@ router
 				else
 					res.status 302
 					res.redirect "/c/#{req.params.course}/assignments/" + assignment._id
-		| "grade"
-			if !req.body.points? || !req.body.aid? # double check require fields exist
-				res.status 400 .render "course/assignments/create" { assignments: [req.body], -success, action:"edit" }
+		| "grade" # handle assignment grading
+			req.body.points? = parseInt req.body.points
+			if req.body.points === NaN || !req.body.aid? # double check require fields exist
+				res.status 400 .render "course/assignments/attempt", { success:"no", action:"graded", csrf: req.csrfToken! }
+				# res.status 400 .render "course/assignments/create" { assignments: [req.body], -success, action:"edit", csrf: req.csrfToken! }
 			else
 				err, attempt <- Attempt.findOneAndUpdate {
 					"course": ObjectId res.locals.course._id
@@ -372,8 +373,7 @@ router
 					winston.error err
 					next new Error "INTERNAL"
 				else
-					res.status 302
-					res.redirect "/c/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
+					res.render "course/assignments/attempt", { success:"yes", action:"graded", csrf: req.csrfToken! }
 		| _
 			next! # don't assume action
 	.delete (req, res, next)->
@@ -399,7 +399,7 @@ router
 					next new Error "INTERNAL"
 				else
 					res.status 302
-					res.redirect "/c/#{req.params.course}/assignments"
+					res.redirect "/c/#{req.params.course}/assignments?success=yes&verb=deleted"
 		| _
 			next! # don't assume action
 

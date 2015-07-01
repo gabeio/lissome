@@ -37,6 +37,7 @@
 					<h3>{{ course.title }} - Blog</h3>
 				</div>
 				<form action="?action=search" class="form-inline pull-right" style="padding-top: 8px;">
+					<input type="hidden" name="_csrf" value="{{csrf}}" />
 					<div class="input-group">
 						<div class="input-group">
 							<input type="text" class="form-control" id="search" name="search" placeholder="Search" class="form-control" tabindex="1" />

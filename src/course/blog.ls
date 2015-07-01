@@ -74,20 +74,20 @@ router
 		res.locals.blog = true
 		switch req.query.action
 		| "new"
-			res.render "course/blog/create", { on:"newblog", success:req.query.success, action:"created" }
+			res.render "course/blog/create", { on:"newblog", success:req.query.success, action:"created", csrf: req.csrfToken! }
 		| "edit"
-			res.render "course/blog/edit", { on:"editblog", success:req.query.success, action:"updated" }
+			res.render "course/blog/edit", { on:"editblog", success:req.query.success, action:"updated", csrf: req.csrfToken! }
 		| "delete"
-			res.render "course/blog/del", { on:"deleteblog", success:req.query.success, action:"deleted" }
+			res.render "course/blog/del", { on:"deleteblog", success:req.query.success, action:"deleted", csrf: req.csrfToken! }
 	.post (req, res, next)->
 		/* istanbul ignore else */
 		if req.query.action is "new"
 			async.parallel [
 				->
 					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
-						res.render "course/blog/create", { "blog":true, "on":"newblog", success:"yes", action:"created" } # return
+						res.render "course/blog/create", { "blog":true, "on":"newblog", success:"yes", action:"created", csrf: req.csrfToken! } # return
 					else
-						res.status 400 .render "course/blog/create", { "blog":true, "on":"newblog", success:"no", action:"created", body: req.body }
+						res.status 400 .render "course/blog/create", { "blog":true, "on":"newblog", success:"no", action:"created", body: req.body, csrf: req.csrfToken! }
 				->
 					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 						post = new Post {
@@ -114,7 +114,7 @@ router
 					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 						res.redirect "/c/#{res.locals.course.id}/blog/#{req.params.unique}?action=edit&success=yes"
 					else
-						res.status 400 .render "course/blog/create", { blog:true, on:"editblog", success:"no", action:"updated", body: req.body}
+						res.status 400 .render "course/blog/create", { blog:true, on:"editblog", success:"no", action:"updated", body: req.body, csrf: req.csrfToken! }
 				->
 					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 						err, post <- Post.findOneAndUpdate {
@@ -253,13 +253,13 @@ router
 			posts = _.flatten _.without(posts,undefined), true
 			posts = if posts.length > 0 then _.uniq _.sortBy(posts, "timestamp").reverse!,(input)->
 				return input.timestamp.toString!
-			res.render "course/blog/default", blog: posts
+			res.render "course/blog/default", { blog: posts, csrf: req.csrfToken! }
 		else
 			err, posts <- Post.find {
 				"course": ObjectId res.locals.course._id
 				"type":"blog"
 			} .populate("author").exec
 			res.locals.blog = _.sortBy posts, "timestamp" .reverse!
-			res.render "course/blog/default"
+			res.render "course/blog/default", { csrf: req.csrfToken! }
 
 module.exports = router
