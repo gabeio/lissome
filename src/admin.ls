@@ -61,7 +61,7 @@ router
 				err <- async.waterfall [
 					(cont)->
 						# checking new user's level is within client levels
-						if req.body.type > 3 or req.body.type < 1
+						if req.body.level > 3 or req.body.level < 1
 							cont "Invalid User Auth Level"
 						else
 							cont null
@@ -94,7 +94,7 @@ router
 							(para)->
 								err, result <- User.find {
 									"id":req.body.id
-									"type":req.body.type
+									"type":req.body.level
 									"school":app.locals.school
 								}
 								if result? and result.length > 0
@@ -104,7 +104,7 @@ router
 							(para)->
 								err, result <- User.find {
 									"username":req.body.username
-									"type":req.body.type
+									"type":req.body.level
 									"school":app.locals.school
 								}
 								if result? and result.length > 0
@@ -753,6 +753,7 @@ router
 				err <- async.waterfall [
 					(cont)->
 						err, result <- User.findOneAndRemove {
+							"type": req.body.level
 							"username": req.params.object
 							"school": app.locals.school
 						}

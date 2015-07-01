@@ -367,8 +367,8 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1001"
 						"username":"adminCreatedStudent"
-						"type":"1"
-						"password":"password"
+						"level":"1"
+						"password":"passwordIspassword"
 						"firstName":"John"
 						"middleName":"Middle"
 						"lastName":"ThisIsLastName"
@@ -383,8 +383,8 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1002"
 						"username":"adminCreatedFaculty"
-						"type":"2"
-						"password":"password"
+						"level":"2"
+						"password":"passwordIspassword"
 						"firstName":"John"
 						"middleName":"Middle"
 						"lastName":"ThisIsLastName"
@@ -399,8 +399,8 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1003"
 						"username":"adminCreatedAdmin"
-						"type":"3"
-						"password":"password"
+						"level":"3"
+						"password":"passwordIspassword"
 						"firstName":"John"
 						"middleName":"Middle"
 						"lastName":"ThisIsLastName"
@@ -415,8 +415,8 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1004"
 						"username":"adminCreatedAdmin"
-						"type":"3"
-						"password":"password"
+						"level":"3"
+						"password":"passwordIspassword"
 						"firstName":"John"
 						"middleName":"Middle"
 						"lastName":"ThisIsLastName"
@@ -431,7 +431,7 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1003"
 						"username":"adminCreatedAdmin1"
-						"type":"3"
+						"level":"3"
 						"password":"password"
 						"firstName":"John"
 						"middleName":"Middle"
@@ -447,7 +447,7 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1006"
 						"username":"adminCreatedAdmin2"
-						"type":"3"
+						"level":"3"
 						"password":"password"
 						"firstName":"John"
 						"middleName":"Middle"
@@ -463,7 +463,7 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1007"
 						"username":"adminCreatedOutsider"
-						"type":"0"
+						"level":"0"
 						"password":"password"
 						"firstName":"John"
 						"middleName":"Middle"
@@ -479,7 +479,7 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1008"
 						"username":"adminCreatedSuperAdmin"
-						"type":"4"
+						"level":"4"
 						"password":"password"
 						"firstName":"John"
 						"middleName":"Middle"
@@ -495,7 +495,7 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1009"
 						"username":"adminCreatedTinyPass"
-						"type":"2"
+						"level":"2"
 						"password":"pass"
 						"firstName":"John"
 						"middleName":"Middle"
@@ -511,7 +511,7 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1009"
 						"username":"adminCreatedTinyPass"
-						"type":"2"
+						"level":"2"
 						"password":"password"
 						"firstName":"John"
 						"middleName":"Middle"
@@ -527,7 +527,7 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1009"
 						"username":"adminCreatedTinyPass"
-						"type":"2"
+						"level":"2"
 						"password":"password"
 						"firstName":"John"
 						"middleName":"Middle"
@@ -550,7 +550,7 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1001"
 						"username":"adminCreatedStudent"
-						"type":"1"
+						"level":"1"
 						"password":"password"
 						"firstName":"John"
 						"middleName":"Middle"
@@ -566,7 +566,7 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1002"
 						"username":"adminCreatedFaculty"
-						"type":"2"
+						"level":"2"
 						"password":"password"
 						"firstName":"John"
 						"middleName":"Middle"
@@ -582,7 +582,7 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1003"
 						"username":"adminCreatedAdmin"
-						"type":"3"
+						"level":"3"
 						"password":"password"
 						"firstName":"John"
 						"middleName":"Middle"
@@ -605,7 +605,7 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1001"
 						"username":"adminCreatedStudent"
-						"type":"1"
+						"level":"1"
 						"password":"password"
 						"firstName":"John"
 						"middleName":"Middle"
@@ -621,7 +621,7 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1002"
 						"username":"adminCreatedFaculty"
-						"type":"2"
+						"level":"2"
 						"password":"password"
 						"firstName":"John"
 						"middleName":"Middle"
@@ -637,7 +637,7 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1003"
 						"username":"adminCreatedAdmin"
-						"type":"3"
+						"level":"3"
 						"password":"password"
 						"firstName":"John"
 						"middleName":"Middle"
@@ -660,7 +660,7 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1001"
 						"username":"adminCreatedStudent"
-						"type":"1"
+						"level":"1"
 						"password":"password"
 						"firstName":"John"
 						"middleName":"Middle"
@@ -676,7 +676,7 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1002"
 						"username":"adminCreatedFaculty"
-						"type":"2"
+						"level":"2"
 						"password":"password"
 						"firstName":"John"
 						"middleName":"Middle"
@@ -692,7 +692,7 @@ describe "Admin Module", (...)->
 					.send {
 						"id":"1003"
 						"username":"adminCreatedAdmin"
-						"type":"3"
+						"level":"3"
 						"password":"password"
 						"firstName":"John"
 						"middleName":"Middle"
@@ -1407,9 +1407,8 @@ describe "Admin Module", (...)->
 						done err
 			it "should delete a course", (done)->
 				admin
-					.post "/admin/?hmo=DELETE&action=delete&type=course"
+					.post "/admin/1234?hmo=DELETE&action=delete&type=course"
 					.send {
-						"id":"1234"
 					}
 					.end (err, res)->
 						expect res.status .to.equal 200
@@ -1423,9 +1422,8 @@ describe "Admin Module", (...)->
 						done err
 			it "should not delete a course", (done)->
 				faculty
-					.post "/admin/?hmo=DELETE&action=delete&type=course"
+					.post "/admin/1234?hmo=DELETE&action=delete&type=course"
 					.send {
-						"id":"1234"
 					}
 					.end (err, res)->
 						expect res.status .to.not.equal 200
@@ -1439,9 +1437,8 @@ describe "Admin Module", (...)->
 						done err
 			it "should not delete a course", (done)->
 				student
-					.post "/admin/?hmo=DELETE&action=delete&type=course"
+					.post "/admin/1234?hmo=DELETE&action=delete&type=course"
 					.send {
-						"id":"1234"
 					}
 					.end (err, res)->
 						expect res.status .to.not.equal 200
@@ -1455,9 +1452,8 @@ describe "Admin Module", (...)->
 						done err
 			it "should not delete a course", (done)->
 				outside
-					.post "/admin/?hmo=DELETE&action=delete&type=course"
+					.post "/admin/1234?hmo=DELETE&action=delete&type=course"
 					.send {
-						"id":"1234"
 					}
 					.end (err, res)->
 						expect res.status .to.not.equal 200
@@ -1472,30 +1468,27 @@ describe "Admin Module", (...)->
 						done err
 			it "should delete a student", (done)->
 				admin
-					.post "/admin/?hmo=DELETE&action=delete&type=user"
+					.post "/admin/adminCreatedStudent?hmo=DELETE&action=delete&type=user"
 					.send {
-						"username":"adminCreatedStudent"
-						"type":"1"
+						"level":"1"
 					}
 					.end (err, res)->
 						expect res.status .to.equal 200
 						done err
 			it "should delete a faculty", (done)->
 				admin
-					.post "/admin/?hmo=DELETE&action=delete&type=user"
+					.post "/admin/adminCreatedFaculty?hmo=DELETE&action=delete&type=user"
 					.send {
-						"username":"adminCreatedFaculty"
-						"type":"2"
+						"level":"2"
 					}
 					.end (err, res)->
 						expect res.status .to.equal 200
 						done err
 			it "should delete a admin", (done)->
 				admin
-					.post "/admin/?hmo=DELETE&action=delete&type=user"
+					.post "/admin/adminCreatedAdmin?hmo=DELETE&action=delete&type=user"
 					.send {
-						"username":"adminCreatedAdmin"
-						"type":"3"
+						"level":"3"
 					}
 					.end (err, res)->
 						expect res.status .to.equal 200
@@ -1509,9 +1502,8 @@ describe "Admin Module", (...)->
 						done err
 			it "should not delete a student", (done)->
 				faculty
-					.post "/admin/?hmo=DELETE&action=delete&type=user"
+					.post "/admin/adminCreatedStudent?hmo=DELETE&action=delete&type=user"
 					.send {
-						"username":"adminCreatedStudent"
 						"type":"1"
 					}
 					.end (err, res)->
@@ -1519,9 +1511,8 @@ describe "Admin Module", (...)->
 						done err
 			it "should not delete a faculty", (done)->
 				faculty
-					.post "/admin/?hmo=DELETE&action=delete&type=user"
+					.post "/admin/adminCreatedFaculty?hmo=DELETE&action=delete&type=user"
 					.send {
-						"username":"adminCreatedFaculty"
 						"type":"2"
 					}
 					.end (err, res)->
@@ -1529,9 +1520,8 @@ describe "Admin Module", (...)->
 						done err
 			it "should not delete a admin", (done)->
 				faculty
-					.post "/admin/?hmo=DELETE&action=delete&type=user"
+					.post "/admin/adminCreatedAdmin?hmo=DELETE&action=delete&type=user"
 					.send {
-						"username":"adminCreatedAdmin"
 						"type":"3"
 					}
 					.end (err, res)->
@@ -1546,9 +1536,8 @@ describe "Admin Module", (...)->
 						done err
 			it "should not delete a student", (done)->
 				student
-					.post "/admin/?hmo=DELETE&action=delete&type=user"
+					.post "/admin/adminCreatedStudent?hmo=DELETE&action=delete&type=user"
 					.send {
-						"username":"adminCreatedStudent"
 						"type":"1"
 					}
 					.end (err, res)->
@@ -1556,9 +1545,8 @@ describe "Admin Module", (...)->
 						done err
 			it "should not delete a faculty", (done)->
 				student
-					.post "/admin/?hmo=DELETE&action=delete&type=user"
+					.post "/admin/adminCreatedFaculty?hmo=DELETE&action=delete&type=user"
 					.send {
-						"username":"adminCreatedFaculty"
 						"type":"2"
 					}
 					.end (err, res)->
@@ -1566,9 +1554,8 @@ describe "Admin Module", (...)->
 						done err
 			it "should not delete a admin", (done)->
 				student
-					.post "/admin/?hmo=DELETE&action=delete&type=user"
+					.post "/admin/adminCreatedAdmin?hmo=DELETE&action=delete&type=user"
 					.send {
-						"username":"adminCreatedAdmin"
 						"type":"3"
 					}
 					.end (err, res)->
@@ -1583,9 +1570,8 @@ describe "Admin Module", (...)->
 						done err
 			it "should not delete a student", (done)->
 				outside
-					.post "/admin/?hmo=DELETE&action=delete&type=user"
+					.post "/admin/adminCreatedStudent?hmo=DELETE&action=delete&type=user"
 					.send {
-						"username":"adminCreatedStudent"
 						"type":"1"
 					}
 					.end (err, res)->
@@ -1593,9 +1579,8 @@ describe "Admin Module", (...)->
 						done err
 			it "should not delete a faculty", (done)->
 				outside
-					.post "/admin/?hmo=DELETE&action=delete&type=user"
+					.post "/admin/adminCreatedFaculty?hmo=DELETE&action=delete&type=user"
 					.send {
-						"username":"adminCreatedFaculty"
 						"type":"2"
 					}
 					.end (err, res)->
@@ -1603,9 +1588,8 @@ describe "Admin Module", (...)->
 						done err
 			it "should not delete a admin", (done)->
 				outside
-					.post "/admin/?hmo=DELETE&action=delete&type=user"
+					.post "/admin/adminCreatedAdmin?hmo=DELETE&action=delete&type=user"
 					.send {
-						"username":"adminCreatedAdmin"
 						"type":"3"
 					}
 					.end (err, res)->
