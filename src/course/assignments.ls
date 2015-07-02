@@ -326,39 +326,42 @@ router
 	.post (req, res, next)->
 		switch req.query.action
 		| "new" # handle new assignment
-			if !req.body.title? || !req.body.text? || !req.body.tries? || req.body.title is "" || req.body.text is "" # double check require fields exists
-				res.status 400 .render "course/assignments/create" { body: req.body, success:"no", action:"edit", csrf: req.csrfToken! }
-			else
-				res.locals.start = new Date req.body.opendate+" "+req.body.opentime
-				res.locals.end = new Date req.body.closedate+" "+req.body.closetime
-				assign = {
-					title: req.body.title
-					text: req.body.text
-					start: res.locals.start
-					end: res.locals.end
-					tries: req.body.tries
-					allowLate: if req.body.late is "yes" then true else false
-					totalPoints: req.body.total
-					# unchangeable
-					author: ObjectId res.locals.uid
-					course: res.locals.course._id
-				}
-				if !moment(res.locals.start).isValid!
-					delete assign.start
-				if !moment(res.locals.end).isValid!
-					delete assign.end
-				assignment = new Assignment assign
-				err, assignment <- assignment.save
-				/* istanbul ignore if should only occur if db crashes */
-				if err?
-					winston.error err
-					next new Error "INTERNAL"
-				else
-					res.status 302
-					res.redirect "/c/#{req.params.course}/assignments/" + assignment._id
+			async.parallel [
+				(para)->
+					if !req.body.title? or !req.body.text? or !req.body.tries? or req.body.title is "" or req.body.text is "" # double check require fields exists
+						res.status 400 .render "course/assignments/create" { body: req.body, success:"no", action:"edit", csrf: req.csrfToken! }
+				(para)->
+					if req.body.title? and req.body.text? and req.body.tries? and req.body.title isnt "" and req.body.text isnt ""
+						res.locals.start = new Date req.body.opendate+" "+req.body.opentime
+						res.locals.end = new Date req.body.closedate+" "+req.body.closetime
+						assign = {
+							title: req.body.title
+							text: req.body.text
+							start: res.locals.start
+							end: res.locals.end
+							tries: req.body.tries
+							allowLate: if req.body.late is "yes" then true else false
+							totalPoints: req.body.total
+							# unchangeable
+							author: ObjectId res.locals.uid
+							course: res.locals.course._id
+						}
+						if !moment(res.locals.start).isValid!
+							delete assign.start
+						if !moment(res.locals.end).isValid!
+							delete assign.end
+						assignment = new Assignment assign
+						err, assignment <- assignment.save
+						/* istanbul ignore if should only occur if db crashes */
+						if err?
+							winston.error err
+							next new Error "INTERNAL"
+						else
+							res.status 302 .redirect "/c/#{req.params.course}/assignments/" + assignment._id
+			]
 		| "grade" # handle assignment grading
 			req.body.points? = parseInt req.body.points
-			if req.body.points === NaN || !req.body.aid? # double check require fields exist
+			if req.body.points === NaN or !req.body.aid? # double check require fields exist
 				res.status 400 .render "course/assignments/attempt", { success:"no", action:"graded", csrf: req.csrfToken! }
 				# res.status 400 .render "course/assignments/create" { assignments: [req.body], -success, action:"edit", csrf: req.csrfToken! }
 			else

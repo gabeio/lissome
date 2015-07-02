@@ -150,30 +150,28 @@ router
 	.post (req, res, next)->
 		switch req.query.action
 		| "newpost"
-			if !req.body.thread? or req.body.thread is "" or !req.body.text? or req.body.text is ""
-				res.status 400 .render "course/conference/view" { body: req.body, success:"no", noun:"Post", verb:"created", csrf: req.csrfToken! }
-			else
-				async.parallel [
-					(done)->
+			async.parallel [
+				(para)->
+					if !req.body.thread? or req.body.thread is "" or !req.body.text? or req.body.text is ""
+						res.status 400 .render "course/conference/view" { body: req.body, success:"no", noun:"Post", verb:"created", csrf: req.csrfToken! }
+				(para)->
+					if req.body.thread? and req.body.thread isnt "" and req.body.text? and req.body.text isnt "" and res.locals.thread?
 						res.status 302 .redirect "/c/#{req.params.course}/conference/#{req.params.thread}"
-					(done)->
-						if res.locals.thread?
-							# console.log "created post!"
-							# console.log res.locals.thread
-							post = {
-								course: res.locals.course._id
-								author: ObjectId res.locals.uid
-								thread: ObjectId req.body.thread
-								text: req.body.text
-								type: "conference"
-							}
-							post = new Post post
-							err, post <- post.save
-							/* istanbul ignore if should only really occur if db crashes */
-							if err?
-								winston.error "conf",err
-								# next new Error "Mongo Error"
-				]
+				(para)->
+					if req.body.thread? and req.body.thread isnt "" and req.body.text? and req.body.text isnt "" and res.locals.thread?
+						post = {
+							course: res.locals.course._id
+							author: ObjectId res.locals.uid
+							thread: ObjectId req.body.thread
+							text: req.body.text
+							type: "conference"
+						}
+						post = new Post post
+						err, post <- post.save
+						/* istanbul ignore if should only really occur if db crashes */
+						if err?
+							winston.error "(conference) (new post)",err
+			]
 		| "newthread"
 			if !req.body.title? or req.body.title is "" or !req.body.text? or req.body.text is ""
 				res.status 400 .render "course/conference/create" { body: req.body, success:"no", noun:"Thread", verb:"created", csrf: req.csrfToken! }
@@ -190,6 +188,7 @@ router
 					winston.error "thread",err
 					next new Error "Mongo Error"
 				else
+					res.status 302 .redirect "/c/#{req.params.course}/conference/#{thread._id}"
 					post = {
 						course: res.locals.course._id
 						type: "conference"
@@ -203,8 +202,6 @@ router
 					if err?
 						winston.error "post",err
 						next new Error "Mongo Error"
-					else
-						res.status 302 .redirect "/c/#{req.params.course}/conference/#{thread._id}"
 		| "report"
 			...
 		| _

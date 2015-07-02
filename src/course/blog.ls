@@ -86,6 +86,8 @@ router
 				->
 					if !req.body.text? or req.body.text is "" or !req.body.title? or req.body.title is ""
 						res.status 400 .render "course/blog/create", { "blog":true, "on":"newblog", success:"no", action:"created", body: req.body, csrf: req.csrfToken! }
+					else
+						res.status 302 .redirect "/c/#{res.locals.course.id}/blog/"
 				->
 					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 						post = new Post {
@@ -102,9 +104,9 @@ router
 						/* istanbul ignore if */
 						if err?
 							winston.error "blog post save", err
-						else
+						# else
 							# res.render "course/blog/create", { "blog":true, "on":"newblog", success:"yes", action:"created", csrf: req.csrfToken! }
-							res.redirect "/c/#{res.locals.course.id}/blog/#{post.title}?success=yes&verb=created"
+							# res.redirect "/c/#{res.locals.course.id}/blog/#{post.title}?success=yes&verb=created"
 			]
 		else
 			next new Error "bad blog post"
