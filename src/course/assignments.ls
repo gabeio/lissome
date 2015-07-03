@@ -23,28 +23,43 @@ router
 		app.locals.authorize req, res, next
 	.all (req, res, next)->
 		# assign & attempt have to be mongo id"s
-		if req.params.assign? and req.params.assign.length isnt 24
-			winston.info "Bad Assignment"
-			next new Error "Bad Assignment"
-		else if req.params.attempt? and req.params.attempt.length isnt 24
-			winston.info "Bad Attempt"
-			next new Error "Bad Attempt"
+		err <- async.parallel [
+			(para)->
+				if req.params.assign? and req.params.assign.length isnt 24
+					winston.info "Bad Assignment"
+					para "Bad Assignment"
+				else
+					para null
+			(para)->
+				if req.params.attempt? and req.params.attempt.length isnt 24
+					winston.info "Bad Attempt"
+					para "Bad Attempt"
+				else
+					para null
+			(para)->
+				if (!req.params.assign? or req.params.assign.length is 24) and (!req.params.attempt? or req.params.attempt.length is 24)
+					res.locals.course = {
+						"id": req.params.course
+						"school": app.locals.school
+					}
+					/* istanbul ignore else there should be no way to hit that. */
+					if res.locals.auth >= 3
+						para!
+					else if res.locals.auth is 2
+						res.locals.course.faculty = ObjectId res.locals.uid
+						para!
+					else if res.locals.auth is 1
+						res.locals.course.students = ObjectId res.locals.uid
+						para!
+					else
+						para "UNAUTHORIZED"
+				else
+					para null
+		]
+		if err
+			next new Error err
 		else
-			res.locals.course = {
-				"id": req.params.course
-				"school": app.locals.school
-			}
-			/* istanbul ignore else there should be no way to hit that. */
-			if res.locals.auth >= 3
-				next!
-			else if res.locals.auth is 2
-				res.locals.course.faculty = ObjectId res.locals.uid
-				next!
-			else if res.locals.auth is 1
-				res.locals.course.students = ObjectId res.locals.uid
-				next!
-			else
-				next new Error "UNAUTHORIZED"
+			next!
 	.all (req, res, next)->
 		err, result <- Course.findOne res.locals.course
 		/* istanbul ignore if should only occur if db crashes */
@@ -59,9 +74,9 @@ router
 				next!
 	.all (req, res, next)->
 		# get assign_id
-		<- async.parallel [
-			(done)->
-				# default view
+		err <- async.parallel [
+			(para)->
+				# (default view)
 				# no assignment given
 				# no attempt given
 				if !req.params.assign? && !req.params.attempt?
@@ -75,18 +90,19 @@ router
 						}
 					err, result <- Assignment.find res.locals.assignments
 					.populate "author"
+					.sort {timestamp:-1}
 					.exec
 					/* istanbul ignore if should only occur if db crashes */
 					if err
 						winston.error "assign findOne conf", err
-						next new Error "INTERNAL"
+						para "INTERNAL"
 					else
 						res.locals.assignments = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
-						done!
+						para!
 				else
-					done!
-			(done)->
-				# assignment view
+					para!
+			(para)->
+				# (assignment view)
 				# assignment given
 				# no attempt given
 				if req.params.assign? && !req.params.attempt?
@@ -100,16 +116,16 @@ router
 					/* istanbul ignore if should only occur if db crashes */
 					if err
 						winston.error "assign findOne conf", err
-						next new Error "INTERNAL"
+						para "INTERNAL"
 					else
 						if result?
 							res.locals.assignment = result.toObject!
+							para!
 						else
-							res.locals.error = "NOT FOUND"
-						done!
+							para "NOT FOUND"
 				else
-					done!
-			(done)->
+					para!
+			(para)->
 				# attempt given
 				if req.params.attempt?
 					# findOne attempt
@@ -127,13 +143,13 @@ router
 					/* istanbul ignore if should only occur if db crashes */
 					if err
 						winston.error "assign findOne conf", err
-						next new Error "INTERNAL"
+						para "INTERNAL"
 					else
 						if result?
 							res.locals.attempts = result
-							done!
+							para!
 						else
-							next new Error "NOT FOUND"
+							para "NOT FOUND"
 				else if req.params.assign?
 					# find attempts
 					res.locals.attempts = {
@@ -145,24 +161,25 @@ router
 					err, result <- Attempt.find res.locals.attempts
 					.populate "assignment"
 					.populate "author"
-					.sort!
+					.sort {timestamp:-1}
 					.exec
 					/* istanbul ignore if should only occur if db crashes */
 					if err
-						winston.error "assign findOne conf", err
-						next new Error "INTERNAL"
+						winston.error "(conference) (params:assign) findOne", err
+						para "INTERNAL"
 					else
 						/* istanbul ignore else should never occur */
 						if result?
-							res.locals.attempts = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
-							done!
+							res.locals.attempts = result
+							# res.locals.attempts = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
+							para!
 						else
-							next new Error "NOT FOUND"
+							para "NOT FOUND"
 				else
-					done!
+					para!
 		]
-		if res.locals.error?
-			next new Error res.locals.error
+		if err
+			next new Error err
 		else
 			next!
 	.get (req, res, next)->
@@ -175,10 +192,10 @@ router
 				if !req.query.action? && req.params.assign?
 					if req.params.attempt?
 						# show attempt
-						res.render "course/assignments/attempt", { csrf: req.csrfToken! }
+						res.render "course/assignments/attempt", { success: req.query.success, action: req.query.verb, csrf: req.csrfToken! }
 					else
 						# show assignment details & attempt field
-						res.render "course/assignments/view", { csrf: req.csrfToken! }
+						res.render "course/assignments/view", { success: req.query.success, action: req.query.verb, csrf: req.csrfToken! }
 			(done)->
 				if req.query.action?
 					next! # don't assume action, continue trying
@@ -190,38 +207,16 @@ router
 			if !req.body.aid? or !req.body.text?
 				res.status 400 .render "course/assignments/view" { body: req.body, success:"error", error:"Attempt Text Can <b>not</b> be blank.", csrf: req.csrfToken! }
 			else
-				<- async.parallel [
-					(done)->
-						err, result <- Attempt.find {
-							course: ObjectId res.locals.course._id
-							author: ObjectId res.locals.uid
-							assignment: ObjectId req.body.aid
-						}
-						.count!
-						.exec
-						/* istanbul ignore if should only occur if db crashes */
-						if err
-							winston.error "attempt find conf",err
-							next new Error "INTERNAL"
-						else
-							res.locals.tries = result
-							done err
-					(done)->
-						err, result <- Assignment.findOne {
-							"course": ObjectId res.locals.course._id
-							"_id": ObjectId req.body.aid
-						}
-						.populate "author"
-						.exec
-						/* istanbul ignore if should only occur if db crashes */
-						if err
-							winston.error "assign find conf",err
-							next new Error "INTERNAL"
-						else
-							res.locals.assignment = result
-							done err
-				]
-				err <- async.waterfall [
+				# find all tries related to user & assignment
+				err, result <- Attempt.find {
+					course: ObjectId res.locals.course._id
+					author: ObjectId res.locals.uid
+					assignment: ObjectId req.body.aid
+				}
+				.count!
+				.exec
+				res.locals.tries = result
+				err <- async.parallel [
 					(cont)->
 						# date now gt start
 						if (new Date Date.now!) > res.locals.assignment.start
@@ -240,33 +235,26 @@ router
 							cont null
 						else
 							cont "You have no more attempts."
-					(cont)->
-						res.locals.body = {
-							assignment: ObjectId req.body.aid
-							course: ObjectId res.locals.course._id
-							text: req.body.text
-							author: ObjectId res.locals.uid
-						}
-						if res.locals.assignment.end? and (new Date Date.now!) > Date.parse(res.locals.assignment.end)
-							res.locals.body.late = true
-						res.locals.attempt = new Attempt res.locals.body
-						err, attempt <- res.locals.attempt.save
-						/* istanbul ignore if should only occur if db crashes */
-						if err?
-							winston.error err
-							cont "Mongo Error"
-						else
-							res.redirect "/c/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
-							cont null
 				]
-				/* istanbul ignore else should only occur if db crashes */
-				if err? and err isnt "redirect" and err isnt "Mongo Error"
-					res.status 400
-					res.render "course/assignments/view" { body:req.body, success:"error", error:err, csrf: req.csrfToken! }
-				else if err is "Mongo Error"
-					next new Error "Mongo Error"
-				# else
-				# 	should never get here everthing should be handled above
+				if err
+					res.status 400 .render "course/assignments/view" { body:req.body, success:"error", error:err, csrf: req.csrfToken! }
+				else
+					res.locals.body = {
+						assignment: ObjectId req.body.aid
+						course: ObjectId res.locals.course._id
+						text: req.body.text
+						author: ObjectId res.locals.uid
+					}
+					if res.locals.assignment.end? and (new Date Date.now!) > Date.parse(res.locals.assignment.end)
+						res.locals.body.late = true
+					res.locals.attempt = new Attempt res.locals.body
+					err, attempt <- res.locals.attempt.save
+					/* istanbul ignore if should only occur if db crashes */
+					if err
+						winston.error err
+						next new Error "Mongo Error"
+					else
+						res.redirect "/c/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
 		| _
 			next! # not an attempt
 	.all (req, res, next)->
@@ -334,7 +322,7 @@ router
 					if req.body.title? and req.body.text? and req.body.tries? and req.body.title isnt "" and req.body.text isnt ""
 						res.locals.start = new Date req.body.opendate+" "+req.body.opentime
 						res.locals.end = new Date req.body.closedate+" "+req.body.closetime
-						assign = {
+						res.locals.assign = {
 							title: req.body.title
 							text: req.body.text
 							start: res.locals.start
@@ -346,11 +334,21 @@ router
 							author: ObjectId res.locals.uid
 							course: res.locals.course._id
 						}
-						if !moment(res.locals.start).isValid!
-							delete assign.start
-						if !moment(res.locals.end).isValid!
-							delete assign.end
-						assignment = new Assignment assign
+						<- async.parallel [
+							(para)->
+								if !moment(res.locals.start).isValid!
+									delete res.locals.assign.start
+									para!
+								else
+									para!
+							(para)->
+								if !moment(res.locals.end).isValid!
+									delete res.locals.assign.end
+									para!
+								else
+									para!
+						]
+						assignment = new Assignment res.locals.assign
 						err, assignment <- assignment.save
 						/* istanbul ignore if should only occur if db crashes */
 						if err?
@@ -367,7 +365,8 @@ router
 			else
 				err, attempt <- Attempt.findOneAndUpdate {
 					"course": ObjectId res.locals.course._id
-					"_id": ObjectId req.body.aid
+					"_id": ObjectId req.params.attempt
+					# "_id": ObjectId req.body.aid
 				}, {
 					"points": req.body.points
 				}
@@ -376,7 +375,8 @@ router
 					winston.error err
 					next new Error "INTERNAL"
 				else
-					res.render "course/assignments/attempt", { success:"yes", action:"graded", csrf: req.csrfToken! }
+					res.status 302 .redirect "/c/#{req.params.course}/assignments/#{req.params.assign}/#{req.params.attempt}?success=yes&verb=graded"
+					# res.render "course/assignments/attempt", { success:"yes", action:"graded", csrf: req.csrfToken! }
 		| _
 			next! # don't assume action
 	.delete (req, res, next)->
