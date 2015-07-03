@@ -230,7 +230,8 @@ router
 							res.locals.assignment = result
 							done err
 				]
-				err <- async.waterfall [
+				# check if allowed to attempt yet/still
+				err <- async.parallel [
 					(cont)->
 						# date now gt start
 						if (new Date Date.now!) > res.locals.assignment.start
@@ -249,33 +250,27 @@ router
 							cont null
 						else
 							cont "You have no more attempts."
-					(cont)->
-						res.locals.body = {
-							assignment: ObjectId req.body.aid
-							course: ObjectId res.locals.course._id
-							text: req.body.text
-							author: ObjectId res.locals.uid
-						}
-						if res.locals.assignment.end? and (new Date Date.now!) > Date.parse(res.locals.assignment.end)
-							res.locals.body.late = true
-						res.locals.attempt = new Attempt res.locals.body
-						err, attempt <- res.locals.attempt.save
-						/* istanbul ignore if should only occur if db crashes */
-						if err
-							winston.error err
-							cont "Mongo Error"
-						else
-							res.redirect "/c/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
-							cont null
 				]
-				/* istanbul ignore else should only occur if db crashes */
-				if err and err isnt "redirect" and err isnt "Mongo Error"
+				if err
 					res.status 400
 					res.render "course/assignments/view" { body:req.body, success:"error", error:err, csrf: req.csrfToken! }
-				else if err is "Mongo Error"
-					next new Error "Mongo Error"
-				# else
-				# 	should never get here everthing should be handled above
+				else
+					res.locals.body = {
+						assignment: ObjectId req.body.aid
+						course: ObjectId res.locals.course._id
+						text: req.body.text
+						author: ObjectId res.locals.uid
+					}
+					if res.locals.assignment.end? and (new Date Date.now!) > Date.parse(res.locals.assignment.end)
+						res.locals.body.late = true
+					res.locals.attempt = new Attempt res.locals.body
+					err, attempt <- res.locals.attempt.save
+					/* istanbul ignore if should only occur if db crashes */
+					if err
+						winston.error err
+						next new Error "Mongo Error"
+					else
+						res.redirect "/c/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
 		| _
 			next! # not an attempt
 	.all (req, res, next)->
