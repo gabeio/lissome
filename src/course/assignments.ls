@@ -23,28 +23,33 @@ router
 		app.locals.authorize req, res, next
 	.all (req, res, next)->
 		# assign & attempt have to be mongo id"s
-		if req.params.assign? and req.params.assign.length isnt 24
-			winston.info "Bad Assignment"
-			next new Error "Bad Assignment"
-		else if req.params.attempt? and req.params.attempt.length isnt 24
-			winston.info "Bad Attempt"
-			next new Error "Bad Attempt"
-		else
-			res.locals.course = {
-				"id": req.params.course
-				"school": app.locals.school
-			}
-			/* istanbul ignore else there should be no way to hit that. */
-			if res.locals.auth >= 3
-				next!
-			else if res.locals.auth is 2
-				res.locals.course.faculty = ObjectId res.locals.uid
-				next!
-			else if res.locals.auth is 1
-				res.locals.course.students = ObjectId res.locals.uid
-				next!
-			else
-				next new Error "UNAUTHORIZED"
+		async.parallel [
+			(para)->
+				if req.params.assign? and req.params.assign.length isnt 24
+					winston.info "Bad Assignment"
+					next new Error "Bad Assignment"
+			(para)->
+				if req.params.attempt? and req.params.attempt.length isnt 24
+					winston.info "Bad Attempt"
+					next new Error "Bad Attempt"
+			(para)->
+				if (!req.params.assign? or req.params.assign.length is 24) and (!req.params.attempt? or req.params.attempt.length is 24)
+					res.locals.course = {
+						"id": req.params.course
+						"school": app.locals.school
+					}
+					/* istanbul ignore else there should be no way to hit that. */
+					if res.locals.auth >= 3
+						next!
+					else if res.locals.auth is 2
+						res.locals.course.faculty = ObjectId res.locals.uid
+						next!
+					else if res.locals.auth is 1
+						res.locals.course.students = ObjectId res.locals.uid
+						next!
+					else
+						next new Error "UNAUTHORIZED"
+		]
 	.all (req, res, next)->
 		err, result <- Course.findOne res.locals.course
 		/* istanbul ignore if should only occur if db crashes */
@@ -59,7 +64,7 @@ router
 				next!
 	.all (req, res, next)->
 		# get assign_id
-		<- async.parallel [
+		err <- async.parallel [
 			(done)->
 				# default view
 				# no assignment given
@@ -75,11 +80,12 @@ router
 						}
 					err, result <- Assignment.find res.locals.assignments
 					.populate "author"
+					.sort {timestamp:-1}
 					.exec
 					/* istanbul ignore if should only occur if db crashes */
 					if err
 						winston.error "assign findOne conf", err
-						next new Error "INTERNAL"
+						done "INTERNAL"
 					else
 						res.locals.assignments = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
 						done!
@@ -100,13 +106,13 @@ router
 					/* istanbul ignore if should only occur if db crashes */
 					if err
 						winston.error "assign findOne conf", err
-						next new Error "INTERNAL"
+						done "INTERNAL"
 					else
 						if result?
 							res.locals.assignment = result.toObject!
+							done!
 						else
-							res.locals.error = "NOT FOUND"
-						done!
+							done "NOT FOUND"
 				else
 					done!
 			(done)->
@@ -127,13 +133,13 @@ router
 					/* istanbul ignore if should only occur if db crashes */
 					if err
 						winston.error "assign findOne conf", err
-						next new Error "INTERNAL"
+						done "INTERNAL"
 					else
 						if result?
 							res.locals.attempts = result
 							done!
 						else
-							next new Error "NOT FOUND"
+							done "NOT FOUND"
 				else if req.params.assign?
 					# find attempts
 					res.locals.attempts = {
@@ -145,24 +151,27 @@ router
 					err, result <- Attempt.find res.locals.attempts
 					.populate "assignment"
 					.populate "author"
-					.sort!
+					.sort {timestamp:-1}
 					.exec
 					/* istanbul ignore if should only occur if db crashes */
 					if err
 						winston.error "assign findOne conf", err
-						next new Error "INTERNAL"
+						done "INTERNAL"
 					else
 						/* istanbul ignore else should never occur */
 						if result?
-							res.locals.attempts = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
+							res.locals.attempts = result
+							# res.locals.attempts = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
 							done!
 						else
-							next new Error "NOT FOUND"
+							done "NOT FOUND"
 				else
 					done!
 		]
-		if res.locals.error?
-			next new Error res.locals.error
+		if err
+		# if res.locals.error?
+			# next new Error res.locals.error
+			next new Error err
 		else
 			next!
 	.get (req, res, next)->
@@ -252,7 +261,7 @@ router
 						res.locals.attempt = new Attempt res.locals.body
 						err, attempt <- res.locals.attempt.save
 						/* istanbul ignore if should only occur if db crashes */
-						if err?
+						if err
 							winston.error err
 							cont "Mongo Error"
 						else
@@ -260,7 +269,7 @@ router
 							cont null
 				]
 				/* istanbul ignore else should only occur if db crashes */
-				if err? and err isnt "redirect" and err isnt "Mongo Error"
+				if err and err isnt "redirect" and err isnt "Mongo Error"
 					res.status 400
 					res.render "course/assignments/view" { body:req.body, success:"error", error:err, csrf: req.csrfToken! }
 				else if err is "Mongo Error"
