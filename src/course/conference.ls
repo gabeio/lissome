@@ -55,82 +55,100 @@ router
 				next!
 	.all (req, res, next)->
 		# thread/post db middleware async for attempted max speed
-		<- async.parallel [
-			(done)->
+		err <- async.parallel [
+			(para)->
 				if !req.params.thread?
 					err, result <- Thread.find {
 						"course": ObjectId res.locals.course._id
-					} .populate "author" .sort!.exec
+					}
+					.populate "author"
+					.sort {timestamp: -1}
+					.exec
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error "course:findOne:blog:auth1", err
-						next new Error "INTERNAL"
+						para "INTERNAL"
 					else
 						res.locals.threads = result
-						done!
+						para!
 				else
-					done!
-			(done)->
+					para!
+			(para)->
 				if req.params.thread? && !req.params.post?
-					<- async.parallel [
+					err <- async.parallel [
 						(done)->
 							err, result <- Thread.findOne {
 								"course": ObjectId res.locals.course._id
 								"_id": ObjectId req.params.thread
-							} .populate "author" .exec
+							}
+							.populate "author"
+							.exec
 							/* istanbul ignore if should only really occur if db crashes */
 							if err?
 								winston.error "conf find thread", err
-								next new Error "INTERNAL"
+								done "INTERNAL"
 							else
 								if result?
 									res.locals.thread = result
 									done!
 								else
-									next new Error "NOT FOUND"
+									done "NOT FOUND"
 						(done)->
 							err, result <- Post.find {
 								"type": "conference"
 								"course": ObjectId res.locals.course._id
 								"thread": ObjectId req.params.thread
-							} .populate "thread" .populate "author" .sort!.exec
+							}
+							.populate "thread"
+							.populate "author"
+							.sort!
+							.exec
 							/* istanbul ignore if should only really occur if db crashes */
 							if err?
 								winston.error "conf find thread", err
-								next new Error "INTERNAL"
+								done "INTERNAL"
 							else
 								/* istanbul ignore else honestly don't know how to hit the else */
 								if result?
 									res.locals.posts = result
 									done!
 								else
-									next new Error "NOT FOUND"
+									done "NOT FOUND"
 					]
-					done!
+					if err
+						para err
+					else
+						para!
 				else
-					done!
-			(done)->
+					para!
+			(para)->
 				if req.params.post?
 					err, result <- Post.findOne {
 						"type":"conference"
 						"course": ObjectId res.locals.course._id
 						"_id": ObjectId req.params.post
-					} .populate "thread" .populate "author" .exec
+					} 
+					.populate "thread"
+					.populate "author"
+					.exec
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
 						winston.error "course:findOne:blog:auth1", err
-						next new Error "INTERNAL"
+						para "INTERNAL"
 					else
 						if !result?
-							next new Error "NOT FOUND"
+							para "NOT FOUND"
 						else
 							res.locals.thread = result.thread
 							res.locals.post = result
-							done!
+							para!
 				else
-					done!
+					para!
 		]
-		next!
+		if err
+			next new Error err
+		else
+			next!
 	.get (req, res, next)->
 		switch req.query.action
 		| "newthread"
