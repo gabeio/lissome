@@ -1,6 +1,6 @@
 {
   "name": "lissome",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "private": true,
   "bugs": "https://github.com/gabeio/lissome/issues",
   "engines": {
@@ -31,7 +31,7 @@
     "helmet": "~0.9.1",
     "hiredis": "~0.4.0",
     "livescript": "~1.4.0",
-    "lodash": "~3.9.3",
+    "lodash": "~3.10.0",
     "markdown-it": "~4.3.0",
     "method-override": "~2.3.3",
     "moment": "~2.10.3",

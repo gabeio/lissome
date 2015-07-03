@@ -51,6 +51,7 @@
 		</div>
 		<div class="row">
 			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=delete&hmo=DELETE" enctype="multipart/form-data">
+				<input type="hidden" name="_csrf" value="{{csrf}}" />
 				<div class="panel panel-default">
 					<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />
 					<div class="panel-heading clearfix">

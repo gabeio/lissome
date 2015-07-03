@@ -85,7 +85,7 @@ describe "Blog", (...)->
 					"title":"title"
 					"text":"student"
 				}
-				.expect 200
+				.expect 302
 				.end (err, res)->
 					done err
 		it "should return create post page", (done)->
@@ -115,7 +115,7 @@ describe "Blog", (...)->
 							"title":"title"
 							"text":"student"
 						}
-						.expect 200
+						.expect 302
 						.end (err, res)->
 							done err
 				(cont)->
@@ -173,7 +173,7 @@ describe "Blog", (...)->
 					"title":"title"
 					"text":"student"
 				}
-				.expect 200
+				.expect 302
 				.end (err, res)->
 					done err
 		it "should return create post page", (done)->
@@ -203,7 +203,7 @@ describe "Blog", (...)->
 							"title":"title"
 							"text":"student"
 						}
-						.expect 200
+						.expect 302
 						.end (err, res)->
 							done err
 				(cont)->

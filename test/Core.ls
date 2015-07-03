@@ -316,6 +316,7 @@ describe "Core" ->
 					"username": "Student"
 					"password": "password"
 				}
+				.expect 302
 				.end (err, res)->
 					done err
 		before (done)->
@@ -325,6 +326,7 @@ describe "Core" ->
 					"username": "Faculty"
 					"password": "password"
 				}
+				.expect 302
 				.end (err, res)->
 					done err
 		before (done)->
@@ -334,6 +336,7 @@ describe "Core" ->
 					"username": "Admin"
 					"password": "password"
 				}
+				.expect 302
 				.end (err, res)->
 					done err
 		describe "(User: Admin)", (...)->

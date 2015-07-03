@@ -390,6 +390,7 @@ describe "Assignments Module" ->
 					admin
 						.post "/c/cps1234/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
 						.send {
+							"points": "100"
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(4)/
@@ -412,12 +413,11 @@ describe "Assignments Module" ->
 					admin
 						.post "/c/cps1234/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
 						.send {
-							"aid":attempt.0._id
+							"aid": attempt.0._id
 							"points": "10"
 						}
 						.end (err, res)->
-							expect res.status .to.match /^(2|3)/
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/.{24}\/?/i
+							expect res.status .to.equal 200
 							cont err
 			]
 			done err
@@ -571,6 +571,29 @@ describe "Assignments Module" ->
 							cont err
 			]
 			done err
+		it "should not grade if no aid given", (done)->
+			err <- async.waterfall [
+				(cont)->
+					faculty
+						.get "/test/getaid/cps1234?title=faculty"
+						.end (err, res)->
+							cont err, res.body
+				(assign,cont)->
+					faculty
+						.get "/test/getattempt/cps1234?title=faculty&text=facultyAttempt"
+						.end (err, res)->
+							cont err, assign, res.body
+				(assign,attempt,cont)->
+					faculty
+						.post "/c/cps1234/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
+						.send {
+							"points": "100"
+						}
+						.end (err, res)->
+							expect res.status .to.match /^(4)/
+							cont err
+			]
+			done err
 		it "should grade an assignment", (done)->
 			err <- async.waterfall [
 				(cont)->
@@ -591,8 +614,7 @@ describe "Assignments Module" ->
 							"points": "10"
 						}
 						.end (err, res)->
-							expect res.status .to.match /^(2|3)/
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/.{24}\/?/i
+							expect res.status .to.equal 200
 							cont err
 			]
 			done err

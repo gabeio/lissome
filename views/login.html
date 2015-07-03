@@ -7,6 +7,7 @@
 {% block body %}
 	<div class="container-fluid">
 		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="/login">
+			<input type="hidden" name="_csrf" value="{{csrf}}" />
 			<div class="form-group">
 				<!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-1 col-lg-offset-1"> -->
 				<h2>{% if school %}{{ school }} - {% endif %}Login</h2>
@@ -32,5 +33,5 @@
 			</div>
 		</form>
 	</div>
-	<script src="/assets/custom/smrtboard.js"></script>
+	<!-- <script src="/assets/custom/lissome.js"></script> -->
 {% endblock %}

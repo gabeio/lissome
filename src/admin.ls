@@ -38,30 +38,30 @@ router
 	.get (req, res, next)->
 		switch req.query.action
 		| "create"
-			res.render "admin/create", {type:res.locals.type}
+			res.render "admin/create", { type:res.locals.type, csrf: req.csrfToken! }
 		| "edit"
-			res.render "admin/edit", {type:res.locals.type}
+			res.render "admin/edit", { type:res.locals.type, csrf: req.csrfToken! }
 		| "delete"
-			res.render "admin/delete", {type:res.locals.type}
+			res.render "admin/delete", { type:res.locals.type, csrf: req.csrfToken! }
 		| "search"
-			res.render "admin/search"
+			res.render "admin/search", { csrf: req.csrfToken! }
 		| "addstudent"
-			res.render "admin/addstudent"
+			res.render "admin/addstudent", { csrf: req.csrfToken! }
 		| "addfaculty"
-			res.render "admin/addfaculty"
+			res.render "admin/addfaculty", { csrf: req.csrfToken! }
 		| "rmstudent"
-			res.render "admin/rmstudent"
+			res.render "admin/rmstudent", { csrf: req.csrfToken! }
 		| "rmfaculty"
-			res.render "admin/rmfaculty"
+			res.render "admin/rmfaculty", { csrf: req.csrfToken! }
 		| _
-			res.render "admin/default"
+			res.render "admin/default", { csrf: req.csrfToken! }
 	.post (req, res, next)->
 		if req.query.action is "create"
 			if res.locals.type is "user"
 				err <- async.waterfall [
 					(cont)->
 						# checking new user's level is within client levels
-						if req.body.type > 3 or req.body.type < 1
+						if req.body.level > 3 or req.body.level < 1
 							cont "Invalid User Auth Level"
 						else
 							cont null
@@ -94,7 +94,7 @@ router
 							(para)->
 								err, result <- User.find {
 									"id":req.body.id
-									"type":req.body.type
+									"type":req.body.level
 									"school":app.locals.school
 								}
 								if result? and result.length > 0
@@ -104,7 +104,17 @@ router
 							(para)->
 								err, result <- User.find {
 									"username":req.body.username
-									"type":req.body.type
+									"type":req.body.level
+									"school":app.locals.school
+								}
+								if result? and result.length > 0
+									para "User Exists"
+								else
+									para null
+							(para)->
+								err, result <- User.find {
+									"email": req.body.email
+									"type":req.body.level
 									"school":app.locals.school
 								}
 								if result? and result.length > 0
@@ -123,19 +133,20 @@ router
 							email: req.body.email
 							hash: hash
 							school: app.locals.school
-							type: req.body.type
+							type: req.body.level
 							creator: ObjectId res.locals.uid
 						}
-						if req.body.middleName? then user.middleName = req.body.middleName
+						user.middleName? = req.body.middleName
 						err, user <- user.save
 						cont err
 				]
-				if err?
+				if err
+					winston.error err
 					res.status 400
 					res.send err
 				else
 					res.status 200
-					res.render "admin/create", { noun:"User", verb:"created", success:"true", type:"user" }
+					res.render "admin/create", { noun:"User", verb:"created", success:"true", type:"user", csrf: req.csrfToken! }
 					# res.send "OK"
 			else if res.locals.type is "course"
 				err <- async.waterfall [
@@ -170,7 +181,7 @@ router
 					res.send err
 				else
 					res.status 200
-					res.render "admin/create", { noun:"Course", verb:"created", success:"true", type:"course" }
+					res.render "admin/create", { noun:"Course", verb:"created", success:"true", type:"course", csrf: req.csrfToken! }
 					# res.send "OK"
 			else
 				next!
@@ -208,10 +219,7 @@ router
 					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,"_id"
-					res.render "admin/list" {
-						"objs": result
-						"type:": res.locals.type
-					}
+					res.render "admin/list" { objs: result, type: res.locals.type }
 			else if res.locals.type is "student"
 				err, result <- async.parallel [
 					(para)->
@@ -245,10 +253,7 @@ router
 					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,"_id"
-					res.render "admin/list" {
-						"objs": result
-						"type:": res.locals.type
-					}
+					res.render "admin/list" { objs: result, type: res.locals.type }
 			else if res.locals.type is "faculty"
 				err, result <- async.parallel [
 					(para)->
@@ -282,10 +287,7 @@ router
 					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,"_id"
-					res.render "admin/list" {
-						"objs": result
-						"type:": res.locals.type
-					}
+					res.render "admin/list" { objs: result, type: res.locals.type }
 			else if res.locals.type is "admin"
 				err, result <- async.parallel [
 					(para)->
@@ -319,10 +321,7 @@ router
 					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,"_id"
-					res.render "admin/create" {
-						"objs": result
-						"type": res.locals.type
-					}
+					res.render "admin/create" { objs: result, type: res.locals.type }
 			else if res.locals.type is "course"
 				err, result <- async.parallel [
 					(para)->
@@ -347,12 +346,9 @@ router
 					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,"_id"
-					res.render "admin/list" {
-						"objs": result
-						"type:": res.locals.type
-					}
+					res.render "admin/list" { objs: result, type: res.locals.type }
 			else
-				res.render "admin/search"
+				res.render "admin/search", { csrf: req.csrfToken! }
 		else
 			next!
 	.post (req, res, next)->
@@ -361,7 +357,6 @@ router
 			if !req.params.object?
 				res.status 400
 				res.send "No Course Given"
-				res.end!
 			else
 				err, result <- async.parallel [
 					(para)->
@@ -406,15 +401,12 @@ router
 					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,"_id"
-					res.render "admin/addstudent", {
-						"objs": result
-					}
+					res.render "admin/addstudent", { objs: result, csrf: req.csrfToken! }
 		else if req.query.action is "addfaculty"
 			# *SEARCH* for faculty to add
 			if !req.params.object?
 				res.status 400
 				res.send "No Course Given"
-				res.end!
 			else
 				err, result <- async.parallel [
 					(para)->
@@ -460,9 +452,7 @@ router
 					result = _.uniq _.flatten(result), ->
 						it.toObject
 					,"_id"
-					res.render "admin/addstudent", {
-						"objs": result
-					}
+					res.render "admin/addstudent", { objs: result, csrf: req.csrfToken! }
 		else if req.query.action is "rmstudent"
 			# *SEARCH* for student to rm
 			...
@@ -478,7 +468,7 @@ router
 					# (cont)->
 					# add checks
 					(cont)->
-						if req.body.type > 3 or req.body.type < 1
+						if req.body.level > 3 or req.body.level < 1
 							cont "Invalid User Auth Level"
 						else
 							cont null
@@ -498,7 +488,7 @@ router
 						err, result <- User.findOne {
 							"id": req.body.id
 							"username": req.body.username
-							"type": req.body.type
+							"type": req.body.level
 							"school": app.locals.school
 						}
 						if err
@@ -513,8 +503,8 @@ router
 							user.username = req.body.newusername
 						if req.body.password?
 							user.hash = hash
-						if req.body.type?
-							user.type = req.body.type
+						if req.body.level?
+							user.type = req.body.level
 						if req.body.firstName?
 							user.firstName = req.body.middleName
 						if req.body.middleName?
@@ -772,17 +762,24 @@ router
 				err <- async.waterfall [
 					(cont)->
 						err, result <- User.findOneAndRemove {
+							"type": req.body.level
 							"username": req.params.object
 							"school": app.locals.school
 						}
 						if err
-							winston.error err
 							cont err
+						else if !result? or result.length < 1
+							cont "Could Not Find Course To Delete"
 						else
 							cont null
 				]
-				res.status 200
-				res.send "ok"
+				if err
+					winston.error err
+					res.status 400
+					res.send err
+				else
+					res.status 200
+					res.send "ok"
 			else if res.locals.type is "course"
 				err <- async.waterfall [
 					(cont)->
@@ -791,13 +788,20 @@ router
 							"school": app.locals.school
 						}
 						if err
-							winston.error err
 							cont err
+						else if !result? or result.length < 1
+							cont "Could Not Find Course To Delete"
 						else
 							cont null
 				]
-				res.status 200
-				res.send "ok"
+				if err
+					console.log err
+					winston.error err
+					res.status 400
+					res.send err
+				else
+					res.status 200
+					res.send "ok"
 			else
 				next!
 		else

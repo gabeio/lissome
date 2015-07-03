@@ -134,49 +134,47 @@ router
 	.get (req, res, next)->
 		switch req.query.action
 		| "newthread"
-			res.render "course/conference/create"
+			res.render "course/conference/create", { csrf: req.csrfToken! }
 		| "editthread"
-			res.render "course/conference/editthread"
+			res.render "course/conference/editthread", { csrf: req.csrfToken! }
 		| "editpost"
-			res.render "course/conference/editpost"
+			res.render "course/conference/editpost", { csrf: req.csrfToken! }
 		| "deletethread"
-			res.render "course/conference/delthread"
+			res.render "course/conference/delthread", { csrf: req.csrfToken! }
 		| "deletepost"
-			res.render "course/conference/delpost"
+			res.render "course/conference/delpost", { csrf: req.csrfToken! }
 		| "report"
 			...
 		| _
-			res.render "course/conference/view"
+			res.render "course/conference/view", { csrf: req.csrfToken! }
 	.post (req, res, next)->
 		switch req.query.action
 		| "newpost"
-			if !req.body.thread? or req.body.thread is "" or !req.body.text? or req.body.text is ""
-				res.status 400 .render "course/conference/view" { body: req.body, success:"no", noun:"Post", verb:"created" }
-			else
-				async.parallel [
-					(done)->
+			async.parallel [
+				(para)->
+					if !req.body.thread? or req.body.thread is "" or !req.body.text? or req.body.text is ""
+						res.status 400 .render "course/conference/view" { body: req.body, success:"no", noun:"Post", verb:"created", csrf: req.csrfToken! }
+				(para)->
+					if req.body.thread? and req.body.thread isnt "" and req.body.text? and req.body.text isnt "" and res.locals.thread?
 						res.status 302 .redirect "/c/#{req.params.course}/conference/#{req.params.thread}"
-					(done)->
-						if res.locals.thread?
-							# console.log "created post!"
-							# console.log res.locals.thread
-							post = {
-								course: res.locals.course._id
-								author: ObjectId res.locals.uid
-								thread: ObjectId req.body.thread
-								text: req.body.text
-								type: "conference"
-							}
-							post = new Post post
-							err, post <- post.save
-							/* istanbul ignore if should only really occur if db crashes */
-							if err?
-								winston.error "conf",err
-								# next new Error "Mongo Error"
-				]
+				(para)->
+					if req.body.thread? and req.body.thread isnt "" and req.body.text? and req.body.text isnt "" and res.locals.thread?
+						post = {
+							course: res.locals.course._id
+							author: ObjectId res.locals.uid
+							thread: ObjectId req.body.thread
+							text: req.body.text
+							type: "conference"
+						}
+						post = new Post post
+						err, post <- post.save
+						/* istanbul ignore if should only really occur if db crashes */
+						if err?
+							winston.error "(conference) (new post)",err
+			]
 		| "newthread"
 			if !req.body.title? or req.body.title is "" or !req.body.text? or req.body.text is ""
-				res.status 400 .render "course/conference/create" { body: req.body, success:"no", noun:"Thread", verb:"created" }
+				res.status 400 .render "course/conference/create" { body: req.body, success:"no", noun:"Thread", verb:"created", csrf: req.csrfToken! }
 			else
 				thread = {
 					title: req.body.title
@@ -190,6 +188,7 @@ router
 					winston.error "thread",err
 					next new Error "Mongo Error"
 				else
+					res.status 302 .redirect "/c/#{req.params.course}/conference/#{thread._id}"
 					post = {
 						course: res.locals.course._id
 						type: "conference"
@@ -203,8 +202,6 @@ router
 					if err?
 						winston.error "post",err
 						next new Error "Mongo Error"
-					else
-						res.status 302 .redirect "/c/#{req.params.course}/conference/#{thread._id}"
 		| "report"
 			...
 		| _
@@ -213,7 +210,7 @@ router
 		switch req.query.action
 		| "editpost"
 			if !req.body.thread? or !req.body.post? or !req.body.text? or req.body.text is ""
-				res.status 400 .render "course/conference/editpost" { body: req.body, success:"no", noun:"Post", verb:"edited" }
+				res.status 400 .render "course/conference/editpost" { body: req.body, success:"no", noun:"Post", verb:"edited", csrf: req.csrfToken! }
 			else
 				err, post <- Post.findOneAndUpdate {
 					_id: req.body.post
@@ -230,7 +227,7 @@ router
 					res.status 302 .redirect "/c/#{req.params.course}/conference/#{req.params.thread}"
 		| "editthread"
 			if !req.body.thread? or !req.body.title? or req.body.title is ""
-				res.status 400 .render "course/conference/editthread" { body: req.body, success:"no", noun:"Thread", verb:"edited" }
+				res.status 400 .render "course/conference/editthread" { body: req.body, success:"no", noun:"Thread", verb:"edited", csrf: req.csrfToken! }
 			else
 				err, post <- Thread.findOneAndUpdate {
 					_id: req.body.thread
@@ -250,7 +247,7 @@ router
 		switch req.query.action
 		| "deletepost"
 			if !req.body.thread? or !req.body.post?
-				res.status 400 .render "course/conference/delpost" { body: req.body, success:"no", noun:"Post", verb:"deleted" }
+				res.status 400 .render "course/conference/delpost" { body: req.body, success:"no", noun:"Post", verb:"deleted", csrf: req.csrfToken! }
 			else
 				res.locals.thePost =  {
 					_id: ObjectId req.body.post
@@ -263,12 +260,12 @@ router
 				/* istanbul ignore if should only really occur if db crashes */
 				if err?
 					winston.error err
-					res.status 400 .render "course/conference/delpost" { body: req.body, success:"no", noun:"Post", verb:"deleted" }
+					res.status 400 .render "course/conference/delpost" { body: req.body, success:"no", noun:"Post", verb:"deleted", csrf: req.csrfToken! }
 				else
 					res.status 302 .redirect "/c/#{req.params.course}/conference/#{req.params.thread}"
 		| "deletethread"
 			if !req.body.thread?
-				res.status 400 .render "course/conference/delthread" { body: req.body, success:"no", noun:"Thread", verb:"deleted" }
+				res.status 400 .render "course/conference/delthread" { body: req.body, success:"no", noun:"Thread", verb:"deleted", csrf: req.csrfToken! }
 			else
 				res.locals.theThread = {
 					_id: ObjectId req.body.thread
@@ -282,7 +279,7 @@ router
 				if err?
 					# error might be that they are not author
 					winston.error err
-					res.status 400 .render "course/conference/delthread" { body: req.body, success:"no", noun:"Thread", verb:"deleted" }
+					res.status 400 .render "course/conference/delthread" { body: req.body, success:"no", noun:"Thread", verb:"deleted", csrf: req.csrfToken! }
 				else
 					if thread?
 						err, post <- Post.remove {
@@ -291,11 +288,11 @@ router
 						/* istanbul ignore if should only really occur if db crashes */
 						if err?
 							winston.error err
-							res.status 400 .render "conference/delthread" { body: req.body, success:"no", noun:"Posts", verb:"deleted" }
+							res.status 400 .render "course/conference/delthread" { body: req.body, success:"no", noun:"Posts", verb:"deleted", csrf: req.csrfToken! }
 						else
 							res.status 302 .redirect "/c/#{req.params.course}/conference"
 					else
-						res.status 400 .render "conference/delthread" { body: req.body, success:"no", noun:"Posts", verb:"deleted" }
+						res.status 400 .render "course/conference/delthread" { body: req.body, success:"no", noun:"Posts", verb:"deleted", csrf: req.csrfToken! }
 		| _
 			next new Error "Action Error"
 
