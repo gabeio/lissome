@@ -393,7 +393,7 @@ describe "Assignments Module" ->
 							"points": "100"
 						}
 						.end (err, res)->
-							expect res.status .to.match /^(4)/
+							expect res.header.location .to.not.match /^\/c\/cps1234\/assignments\/.{24}\/.{24}\/?\?success\=yes\&verb\=graded/i
 							cont err
 			]
 			done err
@@ -416,8 +416,9 @@ describe "Assignments Module" ->
 							"aid": attempt.0._id
 							"points": "10"
 						}
+						.expect 302
 						.end (err, res)->
-							expect res.status .to.equal 200
+							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/.{24}\/?\?success\=yes\&verb\=graded/i
 							cont err
 			]
 			done err
@@ -590,7 +591,7 @@ describe "Assignments Module" ->
 							"points": "100"
 						}
 						.end (err, res)->
-							expect res.status .to.match /^(4)/
+							expect res.header.location .to.not.match /^\/c\/cps1234\/assignments\/.{24}\/.{24}\/?\?success\=yes\&verb\=graded/i
 							cont err
 			]
 			done err
@@ -613,8 +614,9 @@ describe "Assignments Module" ->
 							"aid": attempt.0._id
 							"points": "10"
 						}
+						.expect 302
 						.end (err, res)->
-							expect res.status .to.equal 200
+							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/.{24}\/?\?success\=yes\&verb\=graded/i
 							cont err
 			]
 			done err
@@ -1036,8 +1038,8 @@ describe "Assignments Module" ->
 							"aid": attempt.0._id
 							"points": "10"
 						}
+						.expect 302
 						.end (err, res)->
-							expect res.status .to.match /^(3)/
 							expect res.header.location .to.match /^\//i
 							cont err
 			]
