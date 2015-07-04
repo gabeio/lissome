@@ -15,7 +15,7 @@ Course = mongoose.models.Course
 Post = mongoose.models.Post
 router = express.Router!
 router
-	..route "/:course/blog/:unique?" # query action(new|edit|delete|deleteall)
+	..route "/blog/:unique?" # query action(new|edit|delete|deleteall)
 	.all (req, res, next)->
 		if req.query.action in ["new","edit","delete","deleteall"]
 			next!
@@ -163,7 +163,7 @@ router
 		else
 			next new Error "bad blog delete"
 
-	..route "/:course/blog/:unique?" # query action(search)
+	..route "/:unique?" # query action(search)
 	.all (req, res, next)->
 		res.locals.needs = 1
 		app.locals.authorize req, res, next
