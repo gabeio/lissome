@@ -11,67 +11,11 @@ require! {
 ObjectId = mongoose.Types.ObjectId
 _ = lodash
 User = mongoose.models.User
-Course = mongoose.models.Course
 Assignment = mongoose.models.Assignment
 Attempt = mongoose.models.Attempt
 router = express.Router!
 router
-	..route "/assignments/:assign?/:attempt?" # query :: action(new|edit|delete|grade)
-	# .all (req, res, next)->
-	# 	# to be in course auth needs to be min = 1
-	# 	res.locals.needs = 1
-	# 	app.locals.authorize req, res, next
-	# .all (req, res, next)->
-	# 	# assign & attempt have to be mongo id"s
-	# 	err <- async.parallel [
-	# 		(para)->
-	# 			if req.params.assign? and req.params.assign.length isnt 24
-	# 				winston.info "Bad Assignment"
-	# 				para "Bad Assignment"
-	# 			else
-	# 				para null
-	# 		(para)->
-	# 			if req.params.attempt? and req.params.attempt.length isnt 24
-	# 				winston.info "Bad Attempt"
-	# 				para "Bad Attempt"
-	# 			else
-	# 				para null
-	# 		(para)->
-	# 			if (!req.params.assign? or req.params.assign.length is 24) and (!req.params.attempt? or req.params.attempt.length is 24)
-	# 				res.locals.course = {
-	# 					"id": req.params.course
-	# 					"school": app.locals.school
-	# 				}
-	# 				/* istanbul ignore else there should be no way to hit that. */
-	# 				if res.locals.auth >= 3
-	# 					para!
-	# 				else if res.locals.auth is 2
-	# 					res.locals.course.faculty = ObjectId res.locals.uid
-	# 					para!
-	# 				else if res.locals.auth is 1
-	# 					res.locals.course.students = ObjectId res.locals.uid
-	# 					para!
-	# 				else
-	# 					para "UNAUTHORIZED"
-	# 			else
-	# 				para null
-	# 	]
-	# 	if err
-	# 		next new Error err
-	# 	else
-	# 		next!
-	# .all (req, res, next)->
-	# 	err, result <- Course.findOne res.locals.course
-	# 	/* istanbul ignore if should only occur if db crashes */
-	# 	if err
-	# 		winston.error "course findOne conf", err
-	# 		next new Error "INTERNAL"
-	# 	else
-	# 		if !result? or result.length is 0
-	# 			next new Error "NOT FOUND"
-	# 		else
-	# 			res.locals.course = result
-	# 			next!
+	..route "/:assign?/:attempt?" # query :: action(new|edit|delete|grade)
 	.all (req, res, next)->
 		# get assign_id
 		err <- async.parallel [
@@ -97,7 +41,8 @@ router
 						winston.error "assign findOne conf", err
 						para "INTERNAL"
 					else
-						res.locals.assignments = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
+						# res.locals.assignments = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
+						res.locals.assignments = if result.length isnt 0 then result else []
 						para!
 				else
 					para!
@@ -254,7 +199,7 @@ router
 						winston.error err
 						next new Error "Mongo Error"
 					else
-						res.redirect "/c/#{req.params.course}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
+						res.redirect "/c/#{res.locals.course._id}/assignments/#{req.params.assign}/#{attempt._id.toString!}"
 		| _
 			next! # not an attempt
 	.all (req, res, next)->
@@ -308,7 +253,7 @@ router
 					winston.error err
 					next new Error "Mongo Error"
 				else
-					res.redirect "/c/#{req.params.course}/assignments/#{assign._id.toString!}"
+					res.redirect "/c/#{res.locals.course._id}/assignments/#{assign._id.toString!}"
 		| _
 			next! # don't assume action
 	.post (req, res, next)->
@@ -355,7 +300,7 @@ router
 							winston.error err
 							next new Error "INTERNAL"
 						else
-							res.status 302 .redirect "/c/#{req.params.course}/assignments/" + assignment._id
+							res.status 302 .redirect "/c/#{res.locals.course._id}/assignments/" + assignment._id
 			]
 		| "grade" # handle assignment grading
 			req.body.points? = parseInt req.body.points
@@ -375,7 +320,7 @@ router
 					winston.error err
 					next new Error "INTERNAL"
 				else
-					res.status 302 .redirect "/c/#{req.params.course}/assignments/#{req.params.assign}/#{req.params.attempt}?success=yes&verb=graded"
+					res.status 302 .redirect "/c/#{res.locals.course._id}/assignments/#{req.params.assign}/#{req.params.attempt}?success=yes&verb=graded"
 					# res.render "course/assignments/attempt", { success:"yes", action:"graded", csrf: req.csrfToken! }
 		| _
 			next! # don't assume action
@@ -402,7 +347,7 @@ router
 					next new Error "INTERNAL"
 				else
 					res.status 302
-					res.redirect "/c/#{req.params.course}/assignments?success=yes&verb=deleted"
+					res.redirect "/c/#{res.locals.course._id}/assignments?success=yes&verb=deleted"
 		| _
 			next! # don't assume action
 

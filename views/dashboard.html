@@ -28,7 +28,7 @@
 				<h3>{% if auth <= 2 %}Your {% endif %}Courses</h3>
 				<ul class="list-group">
 				{% for course in courses %}
-					<a class="list-group-item" href="/c/{{ course.id }}">{{ course.title }}</a>
+					<a class="list-group-item" href="/c/{{ course._id|toString }}">{{ course.title }}</a>
 				{% endfor %}
 				</ul>
 			</div>

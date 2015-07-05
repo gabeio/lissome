@@ -10,7 +10,7 @@ Post = mongoose.models.Post
 router = express.Router!
 router
 	/* istanbul ignore next until is actually created */
-	..route "/:course/settings"
+	..route "/"
 	.all (req, res, next)->
 		res.locals.needs = 2 # maybe 3
 		app.locals.authorize req, res, next
