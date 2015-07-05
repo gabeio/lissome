@@ -106,7 +106,7 @@ router
 					err, result <- Attempt.find res.locals.attempts
 					.populate "assignment"
 					.populate "author"
-					.sort {timestamp:-1}
+					.sort { timestamp: -1 }
 					.exec
 					/* istanbul ignore if should only occur if db crashes */
 					if err

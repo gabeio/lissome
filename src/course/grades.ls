@@ -18,7 +18,7 @@ router
 		}
 		.populate "assignment"
 		.populate "author"
-		.sort!
+		.sort { timestamp: -1 }
 		.exec
 		/* istanbul ignore if should only occur if db crashes */
 		if err?
@@ -42,11 +42,10 @@ router
 			(water)->
 				res.locals.average.ave = res.locals.average.points / res.locals.average.total
 				res.locals.average.ave *= 100
-				if res.locals.average.ave === NaN
-					res.locals.average.ave = 100
-				next!
+				if res.locals.average.ave === NaN then res.locals.average.ave = 100
 				water null
 		]
+		next!
 	.get (req, res, next)->
 		res.render "course/grades"
 
