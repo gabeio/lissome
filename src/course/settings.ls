@@ -1,7 +1,7 @@
 require! {
 	"express"
-	/*"mongoose"*/
-	/*"winston"*/
+	#"mongoose"
+	#"winston"
 	"../app"
 }
 /*ObjectId = mongoose.Types.ObjectId*/
