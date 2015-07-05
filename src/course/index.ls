@@ -1,11 +1,7 @@
 require! {
 	"express"
-	"mongoose"
-	"winston"
 	"../app"
 }
-ObjectId = mongoose.Types.ObjectId
-Post = mongoose.models.Post
 router = express.Router!
 router
 	..route "/?:index(index|dash|dashboard)?"

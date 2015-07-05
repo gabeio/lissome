@@ -1,12 +1,11 @@
 require! {
 	"express"
-	"mongoose"
-	"winston"
+	/*"mongoose"*/
+	/*"winston"*/
 	"../app"
 }
-ObjectId = mongoose.Types.ObjectId
-Course = mongoose.models.Course
-Post = mongoose.models.Post
+/*ObjectId = mongoose.Types.ObjectId*/
+/*Course = mongoose.models.Course*/
 router = express.Router!
 router
 	/* istanbul ignore next until is actually created */

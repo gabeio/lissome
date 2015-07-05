@@ -6,7 +6,6 @@ require! {
 	"../app"
 }
 ObjectId = mongoose.Types.ObjectId
-Assignment = mongoose.models.Assignment
 Attempt = mongoose.models.Attempt
 router = express.Router!
 router

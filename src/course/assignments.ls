@@ -10,7 +10,6 @@ require! {
 }
 ObjectId = mongoose.Types.ObjectId
 _ = lodash
-User = mongoose.models.User
 Assignment = mongoose.models.Assignment
 Attempt = mongoose.models.Attempt
 router = express.Router!
