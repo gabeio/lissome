@@ -54,13 +54,6 @@
 				{% endif %}{# auth #}
 			</div>
 		</div>
-		{# <div class="row">
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				<div class="pull-left">
-					<h4>{{ assignment.title }}</h4>
-				</div>
-			</div>
-		</div> #}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<form class="panel panel-default" action="/c/{{ course._id|toString }}/assignments/{{ assignment._id|toString }}?action=attempt" method="POST" enctype="multipart/form-data">

@@ -34,7 +34,7 @@ router
 						}
 					err, result <- Assignment.find res.locals.assignments
 					.populate "author"
-					.sort {timestamp:-1}
+					.sort { timestamp: -1 }
 					.exec
 					/* istanbul ignore if should only occur if db crashes */
 					if err
