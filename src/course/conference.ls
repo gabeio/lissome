@@ -14,7 +14,7 @@ Thread = mongoose.models.Thread
 Post = mongoose.models.Post
 router = express.Router!
 router
-	..route "/:course/conference/:thread?/:post?" # query :: action(new|edit|delete)
+	..route "/conference/:thread?/:post?" # query :: action(new|edit|delete)
 	.all (req, res, next)->
 		# auth level check
 		res.locals.needs = 1

@@ -9,7 +9,7 @@ Course = mongoose.models.Course
 Post = mongoose.models.Post
 router = express.Router!
 router
-	..route "/:course/:index(index|dash|dashboard)?"
+	..route "/:index(index|dash|dashboard)?"
 	.all (req, res, next)->
 		res.locals.needs = 1
 		app.locals.authorize req, res, next

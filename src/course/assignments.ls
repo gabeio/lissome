@@ -16,62 +16,62 @@ Assignment = mongoose.models.Assignment
 Attempt = mongoose.models.Attempt
 router = express.Router!
 router
-	..route "/:course/assignments/:assign?/:attempt?" # query :: action(new|edit|delete|grade)
-	.all (req, res, next)->
-		# to be in course auth needs to be min = 1
-		res.locals.needs = 1
-		app.locals.authorize req, res, next
-	.all (req, res, next)->
-		# assign & attempt have to be mongo id"s
-		err <- async.parallel [
-			(para)->
-				if req.params.assign? and req.params.assign.length isnt 24
-					winston.info "Bad Assignment"
-					para "Bad Assignment"
-				else
-					para null
-			(para)->
-				if req.params.attempt? and req.params.attempt.length isnt 24
-					winston.info "Bad Attempt"
-					para "Bad Attempt"
-				else
-					para null
-			(para)->
-				if (!req.params.assign? or req.params.assign.length is 24) and (!req.params.attempt? or req.params.attempt.length is 24)
-					res.locals.course = {
-						"id": req.params.course
-						"school": app.locals.school
-					}
-					/* istanbul ignore else there should be no way to hit that. */
-					if res.locals.auth >= 3
-						para!
-					else if res.locals.auth is 2
-						res.locals.course.faculty = ObjectId res.locals.uid
-						para!
-					else if res.locals.auth is 1
-						res.locals.course.students = ObjectId res.locals.uid
-						para!
-					else
-						para "UNAUTHORIZED"
-				else
-					para null
-		]
-		if err
-			next new Error err
-		else
-			next!
-	.all (req, res, next)->
-		err, result <- Course.findOne res.locals.course
-		/* istanbul ignore if should only occur if db crashes */
-		if err
-			winston.error "course findOne conf", err
-			next new Error "INTERNAL"
-		else
-			if !result? or result.length is 0
-				next new Error "NOT FOUND"
-			else
-				res.locals.course = result
-				next!
+	..route "/assignments/:assign?/:attempt?" # query :: action(new|edit|delete|grade)
+	# .all (req, res, next)->
+	# 	# to be in course auth needs to be min = 1
+	# 	res.locals.needs = 1
+	# 	app.locals.authorize req, res, next
+	# .all (req, res, next)->
+	# 	# assign & attempt have to be mongo id"s
+	# 	err <- async.parallel [
+	# 		(para)->
+	# 			if req.params.assign? and req.params.assign.length isnt 24
+	# 				winston.info "Bad Assignment"
+	# 				para "Bad Assignment"
+	# 			else
+	# 				para null
+	# 		(para)->
+	# 			if req.params.attempt? and req.params.attempt.length isnt 24
+	# 				winston.info "Bad Attempt"
+	# 				para "Bad Attempt"
+	# 			else
+	# 				para null
+	# 		(para)->
+	# 			if (!req.params.assign? or req.params.assign.length is 24) and (!req.params.attempt? or req.params.attempt.length is 24)
+	# 				res.locals.course = {
+	# 					"id": req.params.course
+	# 					"school": app.locals.school
+	# 				}
+	# 				/* istanbul ignore else there should be no way to hit that. */
+	# 				if res.locals.auth >= 3
+	# 					para!
+	# 				else if res.locals.auth is 2
+	# 					res.locals.course.faculty = ObjectId res.locals.uid
+	# 					para!
+	# 				else if res.locals.auth is 1
+	# 					res.locals.course.students = ObjectId res.locals.uid
+	# 					para!
+	# 				else
+	# 					para "UNAUTHORIZED"
+	# 			else
+	# 				para null
+	# 	]
+	# 	if err
+	# 		next new Error err
+	# 	else
+	# 		next!
+	# .all (req, res, next)->
+	# 	err, result <- Course.findOne res.locals.course
+	# 	/* istanbul ignore if should only occur if db crashes */
+	# 	if err
+	# 		winston.error "course findOne conf", err
+	# 		next new Error "INTERNAL"
+	# 	else
+	# 		if !result? or result.length is 0
+	# 			next new Error "NOT FOUND"
+	# 		else
+	# 			res.locals.course = result
+	# 			next!
 	.all (req, res, next)->
 		# get assign_id
 		err <- async.parallel [
