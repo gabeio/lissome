@@ -9,10 +9,7 @@ require! {
 	"./app"
 }
 ObjectId = mongoose.Types.ObjectId
-User = mongoose.models.User
 Course = mongoose.models.Course
-Assignment = mongoose.models.Assignment
-Attempt = mongoose.models.Attempt
 router = express.Router!
 router
 	..use (req, res, next)->
