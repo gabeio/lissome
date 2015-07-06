@@ -22,12 +22,12 @@ repository:
 dependencies:
 	"async": "~1.3.0"
 	"bcrypt": "~0.8.3"
-	"body-parser": "~1.13.1"
-	"compression": "~1.5.0"
+	"body-parser": "~1.13.2"
+	"compression": "~1.5.1"
 	"connect-redis": "~2.3.0"
 	"cors": "~2.7.1"
 	"csurf": "~1.8.3"
-	"express": "~4.13.0"
+	"express": "~4.13.1"
 	"express-partial-response": "~0.3.4"
 	"express-session": "~1.11.3"
 	"helmet": "~0.9.1"
@@ -46,7 +46,7 @@ dependencies:
 	"swig": "~1.4.2"
 	"uuid": "~2.0.1"
 	"winston": "~1.0.1"
-	"yargs": "~3.14.0"
+	"yargs": "~3.15.0"
 
 devDependencies:
 	"chai": "~3.0.0"
