@@ -25,7 +25,7 @@
     "connect-redis": "~2.3.0",
     "cors": "~2.7.1",
     "csurf": "~1.8.3",
-    "express": "~5.0.0",
+    "express": "~5.0.0-alpha.2",
     "express-partial-response": "~0.3.4",
     "express-session": "~1.11.3",
     "helmet": "~0.9.1",
