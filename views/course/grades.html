@@ -30,7 +30,7 @@
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				{% for assignattempt in assignmentattempts %}
 				<h4>{{ assignattempt[0].assignment.title }}</h4>
-					{% for attempt in assignattempt %}
+				{% for attempt in assignattempt %}
 				<div class="panel panel-default">
 					<div class="panel-heading clearfix">
 						<h3 class="panel-title pull-left">{{ attempt.assignment.title }}</h3>
@@ -41,7 +41,8 @@
 					<div class="panel-footer"><span title="{{ attempt.author.username }}">{{ attempt.author.firstName }} {{ attempt.author.lastName }}</span>
 					<span class="pull-right" title="{{ attempt.timestamp|timezone }}">{{ attempt.timestamp|fromNow }}</span></div>
 				</div>
-					{% endfor %}
+				{% endfor %}
+				{% if !loop.last %}<hr />{% endif %}
 				{% endfor %}
 			</div>
 		</div>

@@ -51,7 +51,6 @@ router
 			if !res.locals.assignmentattempts[attempt.assignment._id]?
 				res.locals.assignmentattempts[attempt.assignment._id] = []
 			res.locals.assignmentattempts[attempt.assignment._id].push(attempt)
-		console.log res.locals.assignmentattempts
 		next!
 	.get (req, res, next)->
 		res.render "course/grades"
