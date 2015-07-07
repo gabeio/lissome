@@ -60,8 +60,8 @@ module.exports = (mongoose)->
 				allowLate: { type: Boolean, default: false }
 			}
 		}
-		open: { type: Date }
-		close: { type: Date }
+		# open: { type: Date }
+		# close: { type: Date }
 	}
 	Course.index { timestamp: -1, id: 1 }
 	# Course internal Schemas
