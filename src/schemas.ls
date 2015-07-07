@@ -58,6 +58,7 @@ module.exports = (mongoose)->
 			"assignments":{
 				tries: { type: Number, default: 1 }
 				allowLate: { type: Boolean, default: false }
+				totalPoints: { type: Number }
 			}
 		}
 		# open: { type: Date }
