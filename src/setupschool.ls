@@ -7,7 +7,7 @@ schemas = require("./schemas")(mongoose)
 School = mongoose.model "School" schemas.School
 User = mongoose.model "User" schemas.User
 Course = mongoose.model "Course" schemas.Course
-
+Semester = mongoose.model "Semester" schemas.Semester
 
 db = mongoose.connection
 mongouser = if process.env.mongouser or process.env.MONGOUSER then ( process.env.mongouser || process.env.MONGOUSER )
@@ -18,7 +18,7 @@ db.on "error", console.error.bind console, "connection error:"
 
 var school, student, astudent, faculty,\
 	gfaculty, admin, course1, course2, course3,\
-	hashPassword
+	hashPassword, semester1
 async.series [
 	(done)->
 		err, something <- db.once "open"
@@ -190,6 +190,32 @@ async.series [
 				console.log admin
 				done!
 	(done)->
+		# Fall 2015 semester
+		err,result <- Semester.find { "title":"Fall 2015", "school":(process.env.school||process.env.SCHOOL) }
+		if err
+			console.error err
+			done err
+		else
+			if result? and result.length > 0
+				semester1 := result.0
+				console.log "Semester Exists"
+				done!
+			else
+				semester1 := new Semester {
+					title: "Fall 2015"
+					school: (process.env.school||process.env.SCHOOL)
+					open: "Jan 1 2000"
+					close: "Jan 1 3000"
+				}
+				err,semester <- semester1.save
+				if err
+					console.error
+					done err
+				else
+					semester1 := semester
+					console.log semester
+					done!
+	(done)->
 		# cps1234*02
 		err,result <- Course.find { "id":"cps1234", "school":(process.env.school||process.env.SCHOOL) }
 		if err
@@ -204,12 +230,6 @@ async.series [
 				course1 := new Course {
 					id: "cps1234"
 					title: "Intro to Java"
-					# conference: [] # Thread
-					# blog: [] # Post
-					# exams: [] # Req
-					# assignments: [] # Req
-					# dm: {} # tid:{sid:[posts]}
-					# grades: {} # sid:[Grades]
 					faculty: [ # faculty's username(s)
 						faculty._id
 					]
@@ -217,13 +237,16 @@ async.series [
 						student._id
 					]
 					school: (process.env.school||process.env.SCHOOL)
+					semester: semester1._id
 				}
 				err,course <- course1.save
-				course1 := course
 				if err
 					console.error err
-				console.log course
-				done!
+					done err
+				else
+					course1 := course
+					console.log course
+					done!
 	(done)->
 		# ge1000
 		err,result <- Course.find { "id":"ge1000", "school":(process.env.school||process.env.SCHOOL) }
@@ -239,12 +262,6 @@ async.series [
 				course2 := new Course {
 					id: "ge1000"
 					title: "Transition to Kean"
-					# conference: [] # Thread
-					# blog: [] # Post
-					# exams: [] # Req
-					# assignments: [] # Req
-					# dm: {} # tid:{sid:[posts]}
-					# grades: {} # sid:[Grades]
 					faculty: [ # faculty's username(s)
 						gfaculty._id
 					]
@@ -252,13 +269,16 @@ async.series [
 						student._id
 					]
 					school: (process.env.school||process.env.SCHOOL)
+					semester: semester1._id
 				}
 				err,course <- course2.save
-				course2 := course
 				if err
 					console.error err
-				console.log course
-				done!
+					done err
+				else
+					course2 := course
+					console.log course
+					done!
 	(done)->
 		# cps4601
 		err,result <- Course.find { "id":"cps4601", "school":(process.env.school||process.env.SCHOOL) }
@@ -274,12 +294,6 @@ async.series [
 				course3 := new Course {
 					id: "cps4601"
 					title: "Human Computer Interaction"
-					# conference: [] # Thread
-					# blog: [] # Post
-					# exams: [] # Req
-					# assignments: [] # Req
-					# dm: {} # tid:{sid:[posts]}
-					# grades: {} # sid:[Grades]
 					faculty: [ # faculty's username(s)
 						gfaculty._id
 					]
@@ -287,14 +301,17 @@ async.series [
 						astudent._id
 					]
 					school: (process.env.school||process.env.SCHOOL)
+					semester: semester1._id
 				}
 				err,course <- course3.save
-				course3 := course
 				if err
 					console.error err
-				console.log course
-				done!
+					done err
+				else
+					course3 := course
+					console.log course
+					done!
 	(done)->
-		db.close!
+		<- db.close
 		done!
 ]
