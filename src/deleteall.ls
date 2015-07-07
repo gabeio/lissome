@@ -6,10 +6,12 @@ require! {
 schemas = require("./schemas")(mongoose)
 School = mongoose.model "School" schemas.School
 User = mongoose.model "User" schemas.User
+Semester = mongoose.model "Semester" schemas.Semester
 Course = mongoose.model "Course" schemas.Course
-Post = mongoose.model "Post" schemas.Post
 Assignment = mongoose.model "Assignment" schemas.Assignment
 Attempt = mongoose.model "Attempt" schemas.Attempt
+Thread = mongoose.model "Thread" schemas.Thread
+Post = mongoose.model "Post" schemas.Post
 
 db = mongoose.connection
 mongouser = if process.env.mongouser or process.env.MONGOUSER then ( process.env.mongouser || process.env.MONGOUSER )
@@ -18,54 +20,70 @@ db.open (process.env.mongo||process.env.MONGOURL||"mongodb://localhost/smrtboard
 # db.on "disconnect", -> db.connect!
 db.on "error", console.error.bind console, "connection error:"
 
-async.series [
+async.parallel [
 	(done)->
 		err,result <- School.remove {}
 		if err?
-			console.log err
+			console.error err
 			done err
 		else
-			console.log "supposedly deleted #{result} School(s)"
+			console.log "deleted #{result} School(s)"
 			done!
 	(done)->
 		err,result <- User.remove {}
 		if err?
-			console.log err
+			console.error err
 			done err
 		else
-			console.log "supposedly deleted #{result} User(s)"
+			console.log "deleted #{result} User(s)"
+			done!
+	(done)->
+		err,result <- Semester.remove {}
+		if err?
+			console.error err
+			done err
+		else
+			console.log "deleted #{result} Course(s)"
 			done!
 	(done)->
 		err,result <- Course.remove {}
 		if err?
-			console.log err
+			console.error err
 			done err
 		else
-			console.log "supposedly deleted #{result} Course(s)"
-			done!
-	(done)->
-		err,result <- Post.remove {}
-		if err?
-			console.log err
-			done err
-		else
-			console.log "supposedly deleted #{result} Post(s)"
+			console.log "deleted #{result} Course(s)"
 			done!
 	(done)->
 		err,result <- Assignment.remove {}
 		if err?
-			console.log err
+			console.error err
 			done err
 		else
-			console.log "supposedly deleted #{result} Assignment(s)"
+			console.log "deleted #{result} Assignment(s)"
 			done!
 	(done)->
 		err,result <- Attempt.remove {}
 		if err?
-			console.log err
+			console.error err
 			done err
 		else
-			console.log "supposedly deleted #{result} Attempt(s)"
+			console.log "deleted #{result} Attempt(s)"
+			done!
+	(done)->
+		err,result <- Thread.remove {}
+		if err?
+			console.error err
+			done err
+		else
+			console.log "deleted #{result} Post(s)"
+			done!
+	(done)->
+		err,result <- Post.remove {}
+		if err?
+			console.error err
+			done err
+		else
+			console.log "deleted #{result} Post(s)"
 			done!
 	(done)->
 		db.close!
