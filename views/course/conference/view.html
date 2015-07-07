@@ -43,7 +43,7 @@
 				</div>
 				{% if posts %}
 					{% if thread.author._id.toString() == uid.toString() %}
-				<div class="pull-right btn-group" role="group" style="padding-top: 8px;">
+				<div class="pull-right btn-group panel-title-group" role="group">
 					<a href="/c/{{ course._id|toString }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 					<div class="btn-group" role="group">
 						<button class="btn btn-default dropdown-toggle" type="button" id="blogPostMenu" data-toggle="dropdown" aria-expanded="true">
@@ -60,7 +60,7 @@
 					</div>
 				</div>
 					{% elif auth >= 2 %}
-				<div class="pull-right btn-group" role="group" style="padding-top: 8px;">
+				<div class="pull-right btn-group panel-title-group" role="group">
 					<a href="/c/{{ course._id|toString }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 					<div class="btn-group" role="group">
 						<button class="btn btn-default dropdown-toggle" type="button" id="blogPostMenu" data-toggle="dropdown" aria-expanded="true">
@@ -74,12 +74,12 @@
 					</div>
 				</div>
 					{% else %}
-				<div class="pull-right" style="padding-top: 8px;">
+				<div class="pull-right panel-title-button">
 					<a href="/c/{{ course._id|toString }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 				</div>
 					{% endif %}
 				{% else %}
-				<div class="pull-right" style="padding-top: 8px;">
+				<div class="pull-right panel-title-button">
 					<a href="/c/{{ course._id|toString }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 				</div>
 				{% endif %}
@@ -99,7 +99,7 @@
 				<ul class="list-group clearfix">
 				{% for thread in threads %}
 					{% if thread.author._id.toString() === uid %}
-					<a class="list-group-item clearfix" style="padding-top: 10px;" href="/c/{{ course._id|toString }}/conference/{{ thread._id|toString }}">
+					<a class="list-group-item clearfix" href="/c/{{ course._id|toString }}/conference/{{ thread._id|toString }}">
 						<span class="pull-left">{{ thread.title }}</span>
 						<span class="pull-right">
 							<span>you</span>
@@ -129,7 +129,7 @@
 							<span title="{{ post.timestamp|timezone }}">{{ post.timestamp|fromNow }}</span>
 							{% if post.author._id.toString() == uid.toString() %}
 							<span class="dropdown">
-								<a style="color: #777; hover:color: red;" class="dropdown-toggle" id="blogPostMenu" data-toggle="dropdown" aria-expanded="false">
+								<a class="dropdown-toggle" id="blogPostMenu" data-toggle="dropdown" aria-expanded="false">
 									<span class="glyphicon glyphicon-cog"></span>
 								</a>
 								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
@@ -143,7 +143,7 @@
 							</span>
 							{% elif auth >= 2 %}
 							<span class="dropdown">
-								<a style="color: #777; hover:color: red;" class="dropdown-toggle" id="blogPostMenu" data-toggle="dropdown" aria-expanded="false">
+								<a class="dropdown-toggle" id="blogPostMenu" data-toggle="dropdown" aria-expanded="false">
 									<span class="glyphicon glyphicon-cog"></span>
 								</a>
 								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
@@ -154,7 +154,7 @@
 							</span>
 							{% else %}
 							<span class="dropdown">
-								<a style="color: #777; hover:color: red;" class="dropdown-toggle" id="blogPostMenu" data-toggle="dropdown" aria-expanded="false">
+								<a class="dropdown-toggle" id="blogPostMenu" data-toggle="dropdown" aria-expanded="false">
 									<span class="caret"></span>
 								</a>
 								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">

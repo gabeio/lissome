@@ -42,7 +42,7 @@
 					<h3>{{ course.title }} - Conference</h3>
 				</div>
 				{% if posts %}{% if thread.author.toString() === uid %}
-				<div class="pull-right btn-group" role="group" style="padding-top: 8px;">
+				<div class="pull-right btn-group panel-title-group" role="group">
 					<a href="/c/{{ course._id|toString }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 					<div class="btn-group" role="group">
 						<button class="btn btn-default dropdown-toggle" type="button" id="blogPostMenu" data-toggle="dropdown" aria-expanded="true">
@@ -59,12 +59,12 @@
 					</div>
 				</div>
 				{% else %}
-				<div class="pull-right" style="padding-top: 8px;">
+				<div class="pull-right panel-title-button">
 					<a href="/c/{{ course._id|toString }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 				</div>
 				{% endif %}
 				{% else %}
-				<div class="pull-right" style="padding-top: 8px;">
+				<div class="pull-right panel-title-button">
 					<a href="/c/{{ course._id|toString }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 				</div>
 				{% endif %}

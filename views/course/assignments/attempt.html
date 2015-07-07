@@ -49,7 +49,7 @@
 					<h3>{{ course.title }} - Assignments</h3>
 				</div>
 				{% if 2 <= auth %}
-				<div class="pull-right" style="padding-top: 8px;">
+				<div class="pull-right panel-title-button">
 					<a href="/c/{{ course._id|toString }}/assignments?action=new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
 				</div>
 				{% endif %}{# auth #}

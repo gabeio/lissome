@@ -67,7 +67,7 @@
 				<ul class="list-group clearfix">
 				{% for thread in threads %}
 					{% if thread.author._id|toString === uid %}
-					<a class="list-group-item clearfix" style="padding-top: 10px;" href="/c/{{ course._id|toString }}/conference/{{ thread._id|toString }}">
+					<a class="list-group-item clearfix" href="/c/{{ course._id|toString }}/conference/{{ thread._id|toString }}">
 						<span class="pull-left">{{ thread.title }}</span>
 						<span class="pull-right">
 							<span>you</span>

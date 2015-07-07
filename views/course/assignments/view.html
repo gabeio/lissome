@@ -48,7 +48,7 @@
 					<h3>{{ course.title }} - Assignments</h3>
 				</div>
 				{% if 2 <= auth %}
-				<div class="pull-right" style="padding-top: 8px;">
+				<div class="pull-right panel-title-button">
 					<a href="/c/{{ course._id|toString }}/assignments?action=new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
 				</div>
 				{% endif %}{# auth #}
@@ -61,7 +61,7 @@
 					{# embed assignment_id in form (incase there are multiple assignments don't modify/attempt the wrong one.) #}
 					<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />
 					<div class="panel-heading clearfix">
-						<h3 class="panel-title pull-left"{% if 2 <= auth %} style="padding-top: 10px;"{% endif %}>{{ assignment.title }}</h3>
+						<h3 class="panel-title pull-left panel-title-dropdown{% if 2 <= auth %} panel-title-dropdown{% endif %}">{{ assignment.title }}</h3>
 						<div class="pull-right">
 						{% if 2 <= auth %}
 							<div class="dropdown">
