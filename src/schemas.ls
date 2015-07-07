@@ -31,12 +31,12 @@ module.exports = (mongoose)->
 		author: { type: Schema.Types.ObjectId, ref: "User"}
 		timestamp: { type: Date, default: Date.now }
 		# REQUIRED
-		title: { type: String } # ie: Spring of 2015
+		title: { type: String, +unique, +trim } # ie: Spring of 2015
 		school: { type: String, +required, ref: "School" }
 		open: { type: Date, +required } # default open time of all courses within
 		close: { type: Date, +required } # default close time of all courses within
 	}
-	Semester.index { _id: 1, open: -1 }
+	Semester.index { title: 1, open: -1 }
 	Course = new Schema {
 		# AUTOCREATED
 		# _id
@@ -132,6 +132,7 @@ module.exports = (mongoose)->
 		School: School
 		User: User
 		Course: Course
+		Semester: Semester
 		Assignment: Assignment
 		Attempt: Attempt
 		Thread: Thread
