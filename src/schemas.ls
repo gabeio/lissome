@@ -21,13 +21,22 @@ module.exports = (mongoose)->
 		creator: { type: Schema.Types.ObjectId, ref: "User" } # if admins wish to save creator
 		email: { type: String, +unique, +required }
 		# OPTIONAL
-		# courses: [
-		# 	{ type: String, ref: "Course" } # course id list
-		# ]
-		id: { type: Number, +unique }, # school issued id
-		middleName: String # middle name
+		id: { type: Number, +unique } # school issued id
+		middleName: { type: String } # middle name
 	}
 	User.index { username: 1 }
+	Semester = new Schema {
+		# AUTOCREATED
+		# _id
+		author: { type: Schema.Types.ObjectId, ref: "User"}
+		timestamp: { type: Date, default: Date.now }
+		# REQUIRED
+		title: { type: String } # ie: Spring of 2015
+		school: { type: String, +required, ref: "School" }
+		open: { type: Date, +required } # default open time of all courses within
+		close: { type: Date, +required } # default close time of all courses within
+	}
+	Semester.index { _id: 1, open: -1 }
 	Course = new Schema {
 		# AUTOCREATED
 		# _id
@@ -35,7 +44,7 @@ module.exports = (mongoose)->
 		timestamp: { type: Date, default: Date.now }
 		# REQUIRED
 		id: { type: String, +required, +unique } # cps1231*02 # unique identifier given by school
-		title: { type: String } # Intro to Java
+		title: { type: String, +required } # Intro to Java
 		school: { type: String, +required, ref: "School" }
 		# OPTIONAL
 		faculty: [ # faculty usernames
@@ -44,6 +53,13 @@ module.exports = (mongoose)->
 		students: [ # student usernames
 			{ type: Schema.Types.ObjectId, ref: "User" }
 		]
+		semester: { type: Schema.Types.ObjectId, ref: "Semester" } # which semester is this course within
+		settings: {
+			"assignments":{
+				tries: 1
+				allowLate: false
+			}
+		}
 		open: { type: Date }
 		close: { type: Date }
 	}
@@ -55,13 +71,13 @@ module.exports = (mongoose)->
 		timestamp: { type: Date, default: Date.now } # created
 		# REQUIRED
 		course: { type: Schema.Types.ObjectId, +required, ref: "Course" }
-		title: String
+		title: { type: String, +required }
 		start: { type: Date,  default: Date.now } # when Date.now > start students can attempt
-		end: { type: Date } # when Date.now > end students can"t attempt anylonger
 		tries: { type: Number, default: 1 } # tries per student
 		allowLate: { type: Boolean, default: false } # allow late submissions or not
-		totalPoints: Number
 		# OPTIONAL
+		end: { type: Date } # when Date.now > end students can't attempt anylonger
+		totalPoints: { type: Number }
 		text: String # Require's text
 		files: Buffer # Require's file(s)?
 	}
