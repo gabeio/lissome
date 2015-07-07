@@ -15,29 +15,30 @@ db.open (process.env.mongo||process.env.MONGOURL||"mongodb://localhost/smrtboard
 db.on "disconnect", -> db.connect!
 db.on "error", console.error.bind console, "connection error:"
 
-err, something <- db.once "open"
-hashPassword = bcrypt.hashSync "password", 10
-
 err,result <- School.remove { "name": process.env.school }
 if err?
 	console.log err
-console.log result
-console.log "supposedly deleted "+process.env.school
+else
+	console.log result
+	console.log "supposedly deleted "+process.env.school
 
 err,result <- User.remove { "school": process.env.school }
 if err?
 	console.log err
-console.log result
-console.log "supposedly deleted all Users from "+process.env.school
+else
+	console.log result
+	console.log "supposedly deleted all Users from "+process.env.school
 
 err,result <- Course.remove { "school": process.env.school }
 if err?
 	console.log err
-console.log result
-console.log "supposedly deleted all Course from "+process.env.school
+else
+	console.log result
+	console.log "supposedly deleted all Course from "+process.env.school
 
 err,result <- Post.remove { "school": process.env.school }
 if err?
 	console.log err
-console.log result
-console.log "supposedly deleted all Post from "+process.env.school
+else
+	console.log result
+	console.log "supposedly deleted all Post from "+process.env.school
