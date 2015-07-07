@@ -56,8 +56,8 @@ module.exports = (mongoose)->
 		semester: { type: Schema.Types.ObjectId, ref: "Semester" } # which semester is this course within
 		settings: {
 			"assignments":{
-				tries: 1
-				allowLate: false
+				tries: { type: Number, default: 1 }
+				allowLate: { type: Boolean, default: false }
 			}
 		}
 		open: { type: Date }
