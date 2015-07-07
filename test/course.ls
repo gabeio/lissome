@@ -3,20 +3,31 @@ require! {
 	"chai" # assert lib
 	"del" # delete
 	"lodash"
+	"mongoose"
 	"supertest" # request lib
 }
 app = require "../lib/app"
+ObjectId = mongoose.Types.ObjectId
 _ = lodash
+Course = mongoose.models.Course
 req = supertest
 expect = chai.expect
 assert = chai.assert
 should = chai.should!
-var outside, student, faculty, admin
+var outside, student, faculty, admin, courseId
 outside = req.agent app
 student = req.agent app
 faculty = req.agent app
 admin = req.agent app
 describe "Course" ->
+	before (done)->
+		err, course <- Course.findOne {
+			"school":app.locals.school
+			"id":"cps1234"
+		}
+		.exec
+		courseId := course._id.toString!
+		done err
 	before (done)->
 		student
 			.post "/login"
@@ -48,21 +59,21 @@ describe "Course" ->
 		describe "(User: Admin)", (...)->
 			it "should allow access to any classes", (done)->
 				admin
-					.get "/c/cps1234"
+					.get "/c/#{courseId}"
 					.end (err, res)->
 						expect res.status .to.equal 200
 						done err
 		describe "(User: Faculty)", (...)->
 			it "should allow access to their classes", (done)->
 				faculty
-					.get "/c/cps1234"
+					.get "/c/#{courseId}"
 					.end (err, res)->
 						expect res.status .to.equal 200
 						done err
 		describe "(User: Student)", (...)->
 			it "should allow access to their classes", (done)->
 				student
-					.get "/c/cps1234"
+					.get "/c/#{courseId}"
 					.end (err, res)->
 						expect res.status .to.equal 200
 						done err
@@ -75,7 +86,7 @@ describe "Course" ->
 		describe "(User: Outside)", (...)->
 			it "should not allow any access to classes", (done)->
 				outside
-					.get "/c/cps1234"
+					.get "/c/#{courseId}"
 					.end (err, res)->
 						expect res.status .to.not.equal 200
 						done err

@@ -8,14 +8,12 @@ require! {
 	"winston"
 	"../app"
 }
-_ = lodash
 ObjectId = mongoose.Types.ObjectId
-User = mongoose.models.User
-Course = mongoose.models.Course
+_ = lodash
 Post = mongoose.models.Post
 router = express.Router!
 router
-	..route "/:course/blog/:unique?" # query action(new|edit|delete|deleteall)
+	..route "/:unique?" # query action(new|edit|delete|deleteall)
 	.all (req, res, next)->
 		if req.query.action in ["new","edit","delete","deleteall"]
 			next!
@@ -24,38 +22,10 @@ router
 	.all (req, res, next)->
 		res.locals.needs = 2
 		app.locals.authorize req, res, next
-	.all (req, res, next)->
-		res.locals.course = {
-			"id": req.params.course
-			"school": app.locals.school
-		}
-		/* istanbul ignore else there should be no way to hit that. */
-		if res.locals.auth >= 3
-			next!
-		else if res.locals.auth is 2
-			res.locals.course.faculty = ObjectId res.locals.uid
-			next!
-		else if res.locals.auth is 1
-			res.locals.course.students = ObjectId res.locals.uid
-			next!
-		else
-			next new Error "UNAUTHORIZED"
-	.all (req, res, next)->
-		err, result <- Course.findOne res.locals.course
-		/* istanbul ignore if should only occur if database crashes */
-		if err
-			winston.error "course findOne conf", err
-			next new Error "INTERNAL"
-		else
-			if !result? or result.length is 0
-				next new Error "NOT FOUND"
-			else
-				res.locals.course = result
-				next!
 	.get (req, res, next)->
 		if req.query.action in ["edit","delete"]
 			if !req.params.unique?
-				res.redirect "/c/#{res.locals.course.id}/blog"
+				res.redirect "/c/#{res.locals.course._id}/blog"
 			else
 				err, result <- Post.find {
 					"course": ObjectId res.locals.course._id
@@ -63,7 +33,7 @@ router
 					"title": req.params.unique
 				} .populate "author" .exec
 				if result.length is 0
-					res.redirect "/c/#{res.locals.course.id}/blog"
+					res.redirect "/c/#{res.locals.course._id}/blog"
 				else
 					/* istanbul ignore next else because it's hard to test for */
 					res.locals.posts = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
@@ -87,7 +57,7 @@ router
 					if !req.body.text? or req.body.text is "" or !req.body.title? or req.body.title is ""
 						res.status 400 .render "course/blog/create", { "blog":true, "on":"newblog", success:"no", action:"created", body: req.body, csrf: req.csrfToken! }
 					else
-						res.status 302 .redirect "/c/#{res.locals.course.id}/blog/"
+						res.status 302 .redirect "/c/#{res.locals.course._id}/blog/"
 				->
 					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 						post = new Post {
@@ -104,9 +74,6 @@ router
 						/* istanbul ignore if */
 						if err?
 							winston.error "blog post save", err
-						# else
-							# res.render "course/blog/create", { "blog":true, "on":"newblog", success:"yes", action:"created", csrf: req.csrfToken! }
-							# res.redirect "/c/#{res.locals.course.id}/blog/#{post.title}?success=yes&verb=created"
 			]
 		else
 			next new Error "bad blog post"
@@ -115,7 +82,7 @@ router
 			async.parallel [
 				->
 					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
-						res.redirect "/c/#{res.locals.course.id}/blog/#{req.params.unique}?action=edit&success=yes"
+						res.redirect "/c/#{res.locals.course._id}/blog/#{req.params.unique}?action=edit&success=yes"
 					else
 						res.status 400 .render "course/blog/create", { blog:true, on:"editblog", success:"no", action:"updated", body: req.body, csrf: req.csrfToken! }
 				->
@@ -138,7 +105,7 @@ router
 		if req.query.action in ["delete","deleteall"]
 			async.parallel [
 				->
-					res.redirect "/c/#{res.locals.course.id}/blog?action=delete&success=yes"
+					res.redirect "/c/#{res.locals.course._id}/blog?action=delete&success=yes"
 				->
 					if req.query.action is "delete"
 						err, post <- Post.findOneAndRemove {
@@ -163,40 +130,8 @@ router
 		else
 			next new Error "bad blog delete"
 
-	..route "/:course/blog/:unique?" # query action(search)
-	.all (req, res, next)->
-		res.locals.needs = 1
-		app.locals.authorize req, res, next
-	.all (req, res, next)->
-		res.locals.course = {
-			"id": req.params.course
-			"school": app.locals.school
-		}
-		/* istanbul ignore else there should be no way to hit that. */
-		if res.locals.auth >= 3
-			next!
-		else if res.locals.auth is 2
-			res.locals.course.faculty = ObjectId res.locals.uid
-			next!
-		else if res.locals.auth is 1
-			res.locals.course.students = ObjectId res.locals.uid
-			next!
-		else
-			next new Error "UNAUTHORIZED"
-	.all (req, res, next)->
-		err, result <- Course.findOne res.locals.course
-		/* istanbul ignore if should only occur if database crashes */
-		if err
-			winston.error "course findOne conf", err
-			next new Error "INTERNAL"
-		else
-			if !result? or result.length is 0
-				next new Error "NOT FOUND"
-			else
-				res.locals.course = result
-				next!
+	..route "/:unique?" # query action(search)
 	.get (req, res, next)->
-		# res.locals.blog = []
 		if req.query.search? or req.params.unique?
 			res.locals.search = if req.params.unique? then req.params.unique else req.query.search
 			err, posts <- async.parallel [
