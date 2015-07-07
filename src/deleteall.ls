@@ -20,7 +20,7 @@ db.open (process.env.mongo||process.env.MONGOURL||"mongodb://localhost/smrtboard
 # db.on "disconnect", -> db.connect!
 db.on "error", console.error.bind console, "connection error:"
 
-async.parallel [
+<- async.parallel [
 	(done)->
 		err,result <- School.remove {}
 		if err?
@@ -85,7 +85,5 @@ async.parallel [
 		else
 			console.log "deleted #{result} Post(s)"
 			done!
-	(done)->
-		db.close!
-		done!
 ]
+db.close!
