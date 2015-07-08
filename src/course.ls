@@ -71,6 +71,7 @@ router
 			.populate "semester"
 			.populate "students"
 			.populate "faculty"
+			.lean!
 			.exec
 			/* istanbul ignore if should only occur if db crashes */
 			if err
