@@ -79,7 +79,7 @@ router
 					# double check password & repeat are the same
 					(cont)->
 						# assure password is not smaller than small limit
-						if req.body.password.length < res.locals.smallpassword
+						if req.body.password.length < app.locals.smallpassword
 							cont "Password Too Small"
 						else
 							cont null
@@ -196,18 +196,24 @@ router
 							"id":req.body.id
 							"school":app.locals.school
 						}
+						.lean!
+						.exec
 						para err, result
 					(para)->
 						err, result <- User.find {
 							"username":req.body.username
 							"school":app.locals.school
 						}
+						.lean!
+						.exec
 						para err, result
 					(para)->
 						err, result <- User.find {
 							"email":req.body.email
 							"school":app.locals.school
 						}
+						.lean!
+						.exec
 						para err, result
 				]
 				if err
@@ -216,9 +222,7 @@ router
 					res.send err
 				else
 					res.status 200
-					result = _.uniq _.flatten(result), ->
-						it.toObject
-					,"_id"
+					result = _.uniq _.flatten(result),"_id"
 					res.render "admin/list" { objs: result, type: res.locals.type }
 			else if res.locals.type is "student"
 				err, result <- async.parallel [
@@ -228,6 +232,8 @@ router
 							"type": 1
 							"school": app.locals.school
 						}
+						.lean!
+						.exec
 						para err, result
 					(para)->
 						err, result <- User.find {
@@ -235,6 +241,8 @@ router
 							"type": 1
 							"school": app.locals.school
 						}
+						.lean!
+						.exec
 						para err, result
 					(para)->
 						err, result <- User.find {
@@ -242,6 +250,8 @@ router
 							"type": 1
 							"school": app.locals.school
 						}
+						.lean!
+						.exec
 						para err, result
 				]
 				if err
@@ -250,9 +260,7 @@ router
 					res.send err
 				else
 					res.status 200
-					result = _.uniq _.flatten(result), ->
-						it.toObject
-					,"_id"
+					result = _.uniq _.flatten(result),"_id"
 					res.render "admin/list" { objs: result, type: res.locals.type }
 			else if res.locals.type is "faculty"
 				err, result <- async.parallel [
@@ -262,6 +270,8 @@ router
 							"type": 2
 							"school": app.locals.school
 						}
+						.lean!
+						.exec
 						para err, result
 					(para)->
 						err, result <- User.find {
@@ -269,6 +279,8 @@ router
 							"type": 2
 							"school": app.locals.school
 						}
+						.lean!
+						.exec
 						para err, result
 					(para)->
 						err, result <- User.find {
@@ -276,6 +288,8 @@ router
 							"type": 2
 							"school": app.locals.school
 						}
+						.lean!
+						.exec
 						para err, result
 				]
 				if err
@@ -284,9 +298,7 @@ router
 					res.send err
 				else
 					res.status 200
-					result = _.uniq _.flatten(result), ->
-						it.toObject
-					,"_id"
+					result = _.uniq _.flatten(result),"_id"
 					res.render "admin/list" { objs: result, type: res.locals.type }
 			else if res.locals.type is "admin"
 				err, result <- async.parallel [
@@ -296,6 +308,8 @@ router
 							"type": 3
 							"school": app.locals.school
 						}
+						.lean!
+						.exec
 						para err, result
 					(para)->
 						err, result <- User.find {
@@ -303,6 +317,8 @@ router
 							"type": 3
 							"school": app.locals.school
 						}
+						.lean!
+						.exec
 						para err, result
 					(para)->
 						err, result <- User.find {
@@ -310,6 +326,8 @@ router
 							"type": 3
 							"school": app.locals.school
 						}
+						.lean!
+						.exec
 						para err, result
 				]
 				if err
@@ -318,9 +336,7 @@ router
 					res.send err
 				else
 					res.status 200
-					result = _.uniq _.flatten(result), ->
-						it.toObject
-					,"_id"
+					result = _.uniq _.flatten(result),"_id"
 					res.render "admin/create" { objs: result, type: res.locals.type }
 			else if res.locals.type is "course"
 				err, result <- async.parallel [
@@ -329,12 +345,16 @@ router
 							"id": req.body.id
 							"school": app.locals.school
 						}
+						.lean!
+						.exec
 						para err, result
 					(para)->
 						err, result <- Course.find {
 							"title": req.body.title
 							"school": app.locals.school
 						}
+						.lean!
+						.exec
 						para err, result
 				]
 				if err
@@ -343,9 +363,7 @@ router
 					res.send err
 				else
 					res.status 200
-					result = _.uniq _.flatten(result), ->
-						it.toObject
-					,"_id"
+					result = _.uniq _.flatten(result),"_id"
 					res.render "admin/list" { objs: result, type: res.locals.type }
 			else
 				res.render "admin/search", { csrf: req.csrfToken! }
@@ -366,6 +384,8 @@ router
 								"type": 1
 								"school": app.locals.school
 							}
+							.lean!
+							.exec
 							para err, result
 					(para)->
 						if req.body.id?
@@ -374,6 +394,8 @@ router
 								"type": 1
 								"school": app.locals.school
 							}
+							.lean!
+							.exec
 							para err, result
 					(para)->
 						if req.body._id?
@@ -382,6 +404,8 @@ router
 								"type": 1
 								"school": app.locals.school
 							}
+							.lean!
+							.exec
 							para err, result
 					(para)->
 						if req.body.username?
@@ -390,6 +414,8 @@ router
 								"type": 1
 								"school": app.locals.school
 							}
+							.lean!
+							.exec
 							para err, result
 				]
 				if err?
@@ -398,9 +424,7 @@ router
 					res.send err
 				else
 					res.status 200
-					result = _.uniq _.flatten(result), ->
-						it.toObject
-					,"_id"
+					result = _.uniq _.flatten(result),"_id"
 					res.render "admin/addstudent", { objs: result, csrf: req.csrfToken! }
 		else if req.query.action is "addfaculty"
 			# *SEARCH* for faculty to add
@@ -416,6 +440,8 @@ router
 								"type": 2
 								"school": app.locals.school
 							}
+							.lean!
+							.exec
 							para err, result
 
 					(para)->
@@ -425,6 +451,8 @@ router
 								"type": 2
 								"school": app.locals.school
 							}
+							.lean!
+							.exec
 							para err, result
 					(para)->
 						if req.body._id?
@@ -433,6 +461,8 @@ router
 								"type": 2
 								"school": app.locals.school
 							}
+							.lean!
+							.exec
 							para err, result
 					(para)->
 						if req.body.username?
@@ -441,6 +471,8 @@ router
 								"type": 2
 								"school": app.locals.school
 							}
+							.lean!
+							.exec
 							para err, result
 				]
 				if err?
@@ -449,9 +481,7 @@ router
 					res.send err
 				else
 					res.status 200
-					result = _.uniq _.flatten(result), ->
-						it.toObject
-					,"_id"
+					result = _.uniq _.flatten(result),"_id"
 					res.render "admin/addstudent", { objs: result, csrf: req.csrfToken! }
 		else if req.query.action is "rmstudent"
 			# *SEARCH* for student to rm
@@ -473,7 +503,7 @@ router
 						else
 							cont null
 					(cont)->
-						if req.body.password.length < res.locals.smallpassword
+						if req.body.password.length < app.locals.smallpassword
 							cont "Password Too Small"
 						else
 							cont null

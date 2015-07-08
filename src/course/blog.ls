@@ -149,7 +149,10 @@ router
 									$gte: date0
 									$lt: date1
 								}
-							} .populate "author" .exec
+							}
+							.populate "author"
+							.lean!
+							.exec
 							done err, posts
 						else
 							done! # it's not a date range
@@ -161,7 +164,10 @@ router
 						"course": ObjectId res.locals.course._id
 						"type": "blog"
 						"text": new RegExp res.locals.search, "i"
-					} .populate("author").exec
+					}
+					.populate "author"
+					.lean!
+					.exec
 					done err, posts
 				(done)->
 					# search titles
@@ -169,7 +175,10 @@ router
 						"course": ObjectId res.locals.course._id
 						"type": "blog"
 						"title": new RegExp encodeURIComponent(res.locals.search), "i"
-					} .populate("author").exec
+					}
+					.populate "author"
+					.lean!
+					.exec
 					done err, posts
 				(done)->
 					# search tags
@@ -177,7 +186,10 @@ router
 						"course": ObjectId res.locals.course._id
 						"type": "blog"
 						"tags": res.locals.search
-					} .populate("author").exec
+					}
+					.populate "author"
+					.lean!
+					.exec
 					done err, posts
 				(done)->
 					# search authorName
@@ -185,12 +197,14 @@ router
 						"course": ObjectId res.locals.course._id
 						"type": "blog"
 						"authorName": new RegExp res.locals.search, "i"
-					} .populate("author").exec
+					}
+					.populate "author"
+					.lean!
+					.exec
 					done err, posts
 			]
 			posts = _.flatten _.without(posts,undefined), true
-			posts = if posts.length > 0 then _.uniq _.sortBy(posts, "timestamp").reverse!,(input)->
-				return input.timestamp.toString!
+			posts = if posts.length > 0 then _.uniq _.sortBy(posts, "timestamp").reverse!
 			res.render "course/blog/default", { success: req.query.success, action: req.query.verb, blog: posts, csrf: req.csrfToken! }
 		else
 			err, posts <- Post.find {

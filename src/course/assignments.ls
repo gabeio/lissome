@@ -40,7 +40,6 @@ router
 						winston.error "assign findOne conf", err
 						para "INTERNAL"
 					else
-						# res.locals.assignments = if result.length isnt 0 then _.sortBy result, "timestamp" .reverse! else []
 						res.locals.assignments = if result.length isnt 0 then result else []
 						para!
 				else

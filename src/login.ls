@@ -38,7 +38,7 @@ router
 					req.session.uid = user._id
 					req.session.firstName = user.firstName
 					/* istanbul ignore next */
-					# req.session.middleName = if user.middleName? then user.middleName
+					req.session.middleName? = user.middleName
 					req.session.lastName = user.lastName
 					res.redirect "/"
 				else
