@@ -18,7 +18,7 @@ module.exports = (app,redishost,redisport,redisauth,redisdb)->
 		if err
 			winston.info "redis:db", err
 		else
-			winston.info "using #{redisdb}"
+			winston.info "redis:using db \##{redisdb}"
 	rediscli.on "ready", ->
 		winston.info "redis:ready"
 	rediscli.on "error", ->
