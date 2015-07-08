@@ -17,9 +17,12 @@ module.exports = (app,redishost,redisport,redisauth,redisdb)->
 		/* istanbul ignore if */
 		if err
 			winston.info "redis:db", err
-		winston.info "using #{redisdb}"
+		else
+			winston.info "using #{redisdb}"
 	rediscli.on "ready", ->
 		winston.info "redis:ready"
+	rediscli.on "error", ->
+		winston.error it
 	/* istanbul ignore next */
 	rediscli.on "disconnect", ->
 		winston.warn "redis:disconnected\ntrying to reconnect"
