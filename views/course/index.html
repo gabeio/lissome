@@ -24,6 +24,7 @@
 					<a class="list-group-item" href="/c/{{ course._id|toString }}/assignments">Assignments</a>
 					<a class="list-group-item" href="/c/{{ course._id|toString }}/grades">Grades</a>
 					<a class="list-group-item" href="/c/{{ course._id|toString }}/roster">Roster</a>
+					{% if auth > 1 %}<a class="list-group-item" href="/c/{{ course._id|toString }}/settings">Settings</a>{% endif %}
 				</ul>
 			</div>
 		</div>
