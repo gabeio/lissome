@@ -353,7 +353,7 @@ describe "Core" ->
 					.get "/"
 					.end (err, res)->
 						expect res.status .to.equal 200
-						expect res.text .to.have.string "Your Courses"
+						expect res.text .to.have.string "Courses"
 						done err
 		describe "(User: Student)", (...)->
 			it "should display your courses", (done)->
