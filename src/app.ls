@@ -154,8 +154,8 @@ app
 	.set "view engine" "html"
 	# .set "views" __dirname + "/NOTviews" # /views by default
 	# static assets (html,js,css)
-	.use "/static" serveStatic "./public/static" # static
-	.use "/assets" serveStatic "./public/assets"
+	.use "/static" serveStatic "./public/static" # error pages
+	.use "/assets" serveStatic "./public/assets" # js, css
 	# Cross Origin Resourse Sharing
 	.use cors!
 	# compress large files
@@ -170,9 +170,9 @@ app
 					res.locals.uid = req.session.uid.toString!
 					res.locals.firstName = req.session.firstName
 					res.locals.lastName = req.session.lastName
+					res.locals.middleName? = req.session.middleName
 					res.locals.username = req.session.username
-					res.locals.auth = req.session.auth # save auth level for template
-					res.locals.smallpassword = app.locals.smallpassword
+					res.locals.auth = req.session.auth # save auth level for templates
 			!->
 				next!
 		]
@@ -184,8 +184,8 @@ switch app.get("env")
 	# production run
 	winston.info "Production Mode"
 	app.use csurf {
-		secretLength: 32
-		saltLength: 10
+		secretLength: 64
+		saltLength: 20
 	}
 | _
 	# development/other run
