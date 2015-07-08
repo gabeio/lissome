@@ -14,7 +14,7 @@ module.exports = (app)->
 				!->
 					if err?
 						if err.code is "EBADCSRFTOKEN"
-							res.status 403 .send "Bad Request" #.render "error" {err:"Bad Request"}
+							res.status 403 .render "error" {err:"Bad Request"}
 						else
 							# console.log err.message
 							switch err.message
