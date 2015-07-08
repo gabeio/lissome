@@ -9,7 +9,7 @@ module.exports = (app,redishost,redisport,redisauth,redisdb)->
 			auth_pass: redisauth
 		}
 	else
-		rediscli = redis.createClient redisport, redishost, {}
+		rediscli = new ioredis redisport, redishost, {}
 	rediscli.on "connect", ->
 		winston.info "redis:connected"
 		app.locals.redis = rediscli
