@@ -79,7 +79,7 @@ router
 					# double check password & repeat are the same
 					(cont)->
 						# assure password is not smaller than small limit
-						if req.body.password.length < res.locals.smallpassword
+						if req.body.password.length < app.locals.smallpassword
 							cont "Password Too Small"
 						else
 							cont null
@@ -473,7 +473,7 @@ router
 						else
 							cont null
 					(cont)->
-						if req.body.password.length < res.locals.smallpassword
+						if req.body.password.length < app.locals.smallpassword
 							cont "Password Too Small"
 						else
 							cont null
