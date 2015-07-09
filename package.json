@@ -29,7 +29,7 @@
     "express": "^4.13.1",
     "express-partial-response": "^0.3.4",
     "express-session": "^1.11.3",
-    "helmet": "^0.9.1",
+    "helmet": "^0.10.0",
     "hiredis": "^0.4.0",
     "ioredis": "^1.5.12",
     "livescript": "^1.4.0",
