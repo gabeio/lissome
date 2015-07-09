@@ -13,10 +13,10 @@ Semester = mongoose.models.Semester
 Course = mongoose.models.Course
 router = express.Router!
 router
-	..use (req, res, next)->
+	..route "/:course/:anything(*)?"
+	.all (req, res, next)->
 		res.locals.needs = 1
 		app.locals.authorize req, res, next
-	..route "/:course/:anything(*)?"
 	.all (req, res, next)->
 		res.locals.course = {
 			"_id": req.params.course
