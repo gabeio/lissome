@@ -1,42 +1,34 @@
 require! {
 	"express"
-	#"mongoose"
+	"mongoose"
 	#"winston"
 	"../app"
 }
-/*ObjectId = mongoose.Types.ObjectId*/
-/*Course = mongoose.models.Course*/
+ObjectId = mongoose.Types.ObjectId
+Course = mongoose.models.Course
 router = express.Router!
 router
-	/* istanbul ignore next until is actually created */
 	..route "/"
 	.all (req, res, next)->
-		res.locals.needs = 2 # maybe 3
+		res.locals.needs = 2
 		app.locals.authorize req, res, next
-	.all (req, res, next)->
-		res.locals.on = "course"
-		...
 	.get (req, res, next)->
-		res.send "this will allow showing of course settings"
-		/*
-		err,result <- Course.find { "id":req.params.course, "school":app.locals.school }
-		if err?
-			winston.error err
-		if !result[0]?
-			next new Error "NOT FOUND"
-		else
-			res.send result
-		*/
+		res.render "course/settings", { success: req.query.success, noun: "Defaults", verb: "updated", csrf: req.csrfToken! }
 	.post (req, res, next)->
-		next new Error "NOT IMPL"
-		/*
-		err,result <- Course.update { "id":req.params.course, "school":app.locals.school }, {}
+		res.locals.course.settings = {
+			assignments:{
+				tries: req.body.tries
+				allowLate: if req.body.late is "yes" then true else false
+				totalPoints: req.body.total
+				anonymousGrading: if req.body.anonymous is "yes" then true else false
+			}
+		}
+		res.locals.course.settings.set("assignments","changed")
+		err, result <- res.locals.course.save!
 		if err?
 			winston.error err
-		if !result[0]?
-			next new Error "NOT FOUND"
+			next new Error "MONGO"
 		else
-			res.send result
-		*/
+			res.redirect "?success=yes"
 
 module.exports = router
