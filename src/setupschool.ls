@@ -16,7 +16,7 @@ db.open (process.env.mongo||process.env.MONGOURL||"mongodb://localhost/smrtboard
 # db.on "disconnect", -> db.connect!
 db.on "error", console.error.bind console, "connection error:"
 
-var school, student, astudent, faculty,\
+var school, student, astudent, zstudent, faculty,\
 	gfaculty, admin, course1, course2, course3, course4,\
 	hashPassword, semester1, semester2
 async.series [
@@ -68,7 +68,6 @@ async.series [
 					hash: hashPassword
 					school: (process.env.school||process.env.SCHOOL)
 					type: 1
-					courses:["cps1234*02", "ge1000*04"]
 				}
 				err, student <- student.save
 				if err
@@ -99,7 +98,36 @@ async.series [
 					hash: hashPassword
 					school: (process.env.school||process.env.SCHOOL)
 					type: 1
-					courses:["cps1234*02", "ge1000*04"]
+				}
+				err, astudent <- astudent.save
+				if err
+					console.error err
+					done err
+				else
+					astudent := astudent
+					console.log astudent
+					done!
+	(done)->
+		# zstudent
+		err,result <- User.find { "username":"zstudent", "type":1, "school":(process.env.school||process.env.SCHOOL) }
+		if err
+			console.error err
+			done err
+		else
+			if result? and result.length > 0
+				astudent := result.0
+				console.log "zstudent exists"
+				done!
+			else
+				astudent := new User {
+					id: 2
+					username: "zstudent"
+					firstName: "Lochan"
+					lastName: "Axel"
+					email: "zstudent@kean.edu"
+					hash: hashPassword
+					school: (process.env.school||process.env.SCHOOL)
+					type: 1
 				}
 				err, astudent <- astudent.save
 				if err
@@ -130,7 +158,6 @@ async.series [
 					hash: hashPassword
 					school: (process.env.school||process.env.SCHOOL)
 					type: 2
-					courses:["cps1234*02"]
 				}
 				err, faculty <- faculty.save
 				if err
@@ -161,7 +188,6 @@ async.series [
 					hash: hashPassword
 					school: (process.env.school||process.env.SCHOOL)
 					type: 2
-					courses:["ge1000*04"]
 				}
 				err, faculty <- gfaculty.save
 				if err
@@ -273,7 +299,7 @@ async.series [
 					]
 					students: [ # student's username(s)
 						student._id
-						astudent._id
+						zstudent._id
 					]
 					school: (process.env.school||process.env.SCHOOL)
 					semester: semester1._id
