@@ -69,8 +69,14 @@ router
 		else
 			err, result <- Course.findOne res.locals.course
 			.populate "semester"
-			.populate "students"
-			.populate "faculty"
+			.populate {
+				path: "students"
+				sort: { "lastName": 1 }
+			}
+			.populate {
+				path: "faculty"
+				sort: { "lastName": 1 }
+			}
 			.exec
 			/* istanbul ignore if should only occur if db crashes */
 			if err

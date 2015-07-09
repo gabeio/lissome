@@ -273,6 +273,7 @@ async.series [
 					]
 					students: [ # student's username(s)
 						student._id
+						astudent._id
 					]
 					school: (process.env.school||process.env.SCHOOL)
 					semester: semester1._id
