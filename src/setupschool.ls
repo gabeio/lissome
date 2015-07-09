@@ -60,7 +60,7 @@ async.series [
 				done!
 			else
 				student := new User {
-					id: 1
+					id: 11
 					username: "student"
 					firstName: "Kyler"
 					lastName: "Jakeman"
@@ -90,7 +90,7 @@ async.series [
 				done!
 			else
 				astudent := new User {
-					id: 2
+					id: 12
 					username: "astudent"
 					firstName: "Sly"
 					lastName: "Traiylor"
@@ -119,8 +119,8 @@ async.series [
 				console.log "zstudent exists"
 				done!
 			else
-				astudent := new User {
-					id: 2
+				zstudent := new User {
+					id: 13
 					username: "zstudent"
 					firstName: "Lochan"
 					lastName: "Axel"
@@ -129,13 +129,13 @@ async.series [
 					school: (process.env.school||process.env.SCHOOL)
 					type: 1
 				}
-				err, astudent <- astudent.save
+				err, zstudent <- zstudent.save
 				if err
 					console.error err
 					done err
 				else
-					astudent := astudent
-					console.log astudent
+					zstudent := zstudent
+					console.log zstudent
 					done!
 	(done)->
 		# faculty
@@ -150,7 +150,7 @@ async.series [
 				done!
 			else
 				faculty := new User {
-					id: 3
+					id: 24
 					username: "faculty"
 					firstName: "Ralph"
 					lastName: "Frost"
@@ -180,7 +180,7 @@ async.series [
 				done!
 			else
 				gfaculty := new User {
-					id: 4
+					id: 25
 					username: "gfaculty"
 					firstName: "Shaw"
 					lastName: "Hanson"
@@ -210,7 +210,7 @@ async.series [
 				done!
 			else
 				admin := new User {
-					id: 5
+					id: 35
 					username: "admin"
 					firstName: "Carver"
 					lastName: "Pearce"
