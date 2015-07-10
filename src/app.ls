@@ -174,7 +174,10 @@ app
 					res.locals.username = req.session.username
 					res.locals.auth = req.session.auth # save auth level for templates
 			!->
-				next!
+				if req.session?
+					next!
+				else
+					next new Error "Sessions are offline."
 		]
 
 # Production Switch
