@@ -4,7 +4,6 @@ require! {
 	"lodash"
 	"moment"
 	"mongoose"
-	"util"
 	"winston"
 	"../app"
 }
