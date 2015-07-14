@@ -164,8 +164,8 @@ app
 # Custom Middleware
 app
 	.use (req, res, next)->
-		async.parallel [
-			!->
+		err <- async.parallel [
+			(para)->
 				if req.session? and req.session.auth?
 					res.locals.uid = req.session.uid.toString!
 					res.locals.firstName = req.session.firstName
@@ -173,12 +173,16 @@ app
 					res.locals.middleName? = req.session.middleName
 					res.locals.username = req.session.username
 					res.locals.auth = req.session.auth # save auth level for templates
-			!->
-				if req.session?
-					next!
+					para!
 				else
+					para!
+			(para)->
+				if !req.session?
 					next new Error "Sessions are offline."
+				else
+					para!
 		]
+		next err
 
 # Production Switch
 /* istanbul ignore next switch */
