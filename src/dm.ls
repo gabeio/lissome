@@ -11,7 +11,7 @@ _ = lodash
 User = mongoose.models.User
 router = express.Router!
 router
-	..route "/dm/:id?"
+	..route "/:id?"
 	.all (req, res, next)->
 		res.locals.needs = 1
 		app.locals.authorize req, res, next
