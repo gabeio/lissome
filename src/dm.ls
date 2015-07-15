@@ -1,6 +1,21 @@
-module.exports = (app)->
-	app
-		..route "/:course/dm/:thread?"
-		.all app.locals.authorize
-		.get (req, res, next)->
-			res.send "direct messaging:index > "+JSON.stringify req.params
+require! {
+	"express"
+	"async"
+	"lodash"
+	"mongoose"
+	"winston"
+	"./app"
+}
+ObjectId = mongoose.Types.ObjectId
+_ = lodash
+User = mongoose.models.User
+router = express.Router!
+router
+	..route "/:id?"
+	.all (req, res, next)->
+		res.locals.needs = 1
+		app.locals.authorize req, res, next
+	.get (req, res, next)->
+		res.render "dm"
+
+module.exports = router

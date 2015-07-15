@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block head %}
+	<title>Messages - {{ school }}</title>
+{% endblock %}
+
+{% block body %}
+	<div class="container-fluid">
+		{% include 'navbar.html' %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<div class="pull-left">
+					<h3>Messages</h3>
+				</div>
+				<div class="pull-right">
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="/assets/custom/faye.js"></script>
+{% endblock %}
