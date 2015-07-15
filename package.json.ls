@@ -51,13 +51,9 @@ dependencies:
 
 devDependencies:
 	"chai": "^3.0.0"
-	"coveralls": "^2.11.2"
 	"del": "^1.2.0"
 	"gulp": "^3.9.0"
-	"gulp-coveralls": "^0.1.4"
 	"gulp-livescript": "^2.4.0"
-	"gulp-mocha": "^2.1.2"
 	"istanbul": "^0.3.17"
 	"mocha": "^2.2.5"
-	"nodemon": "^1.3.7"
 	"supertest": "^0.15.0"
