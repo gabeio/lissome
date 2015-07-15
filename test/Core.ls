@@ -305,7 +305,7 @@ describe "Core" ->
 					"password": "bad"
 				}
 				.end (err, res)->
-					expect res.text .to.have.string "username not found"
+					expect res.text .to.have.string "user not found"
 					expect res.headers.location .to.be.an "undefined"
 					done err
 	describe "Dashboard", (...)->
