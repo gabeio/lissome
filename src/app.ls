@@ -6,7 +6,7 @@ require! {
 	"connect-redis"
 	"cors"
 	"csurf"
-	"express" # router
+	"express"
 	"express-partial-response"
 	"express-session" # session
 	"helmet"
@@ -218,6 +218,7 @@ require("./mongoose")(app)
 app.use "/login", require("./login")
 app.use "/logout", require("./logout")
 app.use "/admin", require("./admin")
+app.use "/dm", require("./dm")
 app.use "/:course(c|C|course)", require("./course")
 app.use "/:index(index|dash|dashboard)?", require("./dashboard")
 require("./error")(app)
