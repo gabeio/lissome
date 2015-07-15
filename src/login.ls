@@ -47,7 +47,7 @@ router
 					/* istanbul ignore next */
 					req.session.middleName? = user.middleName
 					req.session.lastName = user.lastName
-					if user.totp? or user.hotp?
+					if user.otp?
 						res.redirect "/otp"
 					else
 						res.redirect "/"
