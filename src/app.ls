@@ -166,13 +166,18 @@ app
 	.use (req, res, next)->
 		err <- async.parallel [
 			(para)->
-				if req.session? and req.session.auth?
+				if req.session? and req.session.uid?
 					res.locals.uid = req.session.uid.toString!
 					res.locals.firstName = req.session.firstName
 					res.locals.lastName = req.session.lastName
 					res.locals.middleName? = req.session.middleName
 					res.locals.username = req.session.username
-					res.locals.auth = req.session.auth # save auth level for templates
+					para!
+				else
+					para!
+			(para)->
+				if req.session? and req.session.auth?
+					res.locals.auth = req.session.auth
 					para!
 				else
 					para!
@@ -217,6 +222,7 @@ app
 require("./mongoose")(app)
 app.use "/login", require("./login")
 app.use "/logout", require("./logout")
+app.use "/otp", require("./otp")
 app.use "/admin", require("./admin")
 app.use "/:course(c|C|course)", require("./course")
 app.use "/:index(index|dash|dashboard)?", require("./dashboard")
