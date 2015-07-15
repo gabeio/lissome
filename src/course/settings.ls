@@ -14,7 +14,7 @@ router
 		app.locals.authorize req, res, next
 	.get (req, res, next)->
 		res.render "course/settings", { success: req.query.success, noun: "Defaults", verb: "updated", csrf: req.csrfToken! }
-	.post (req, res, next)->
+	.put (req, res, next)->
 		res.locals.course.settings = {
 			assignments:{
 				tries: req.body.tries
