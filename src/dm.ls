@@ -4,7 +4,7 @@ require! {
 	"lodash"
 	"mongoose"
 	"winston"
-	"../app"
+	"./app"
 }
 ObjectId = mongoose.Types.ObjectId
 _ = lodash
