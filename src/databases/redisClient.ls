@@ -16,7 +16,7 @@ module.exports = (app,redishost,redisport,redisauth,redisdb)->
 		err <- rediscli.select redisdb
 		/* istanbul ignore if */
 		if err
-			winston.info "redis:db", err
+			winston.error "redis:db", err
 		else
 			winston.info "redis:using db \##{redisdb}"
 	rediscli.on "ready", ->
