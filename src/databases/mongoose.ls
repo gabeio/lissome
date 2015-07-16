@@ -2,7 +2,6 @@ module.exports = (app)->
 	require! {
 		"mongoose"
 		"winston"
-		"util"
 	}
 	# mongoose = app.locals.mongoose
 	schemas = require("./schemas")(mongoose) # get mongoose schemas
@@ -19,7 +18,7 @@ module.exports = (app)->
 	/* istanbul ignore next fucntion because it only will run if school is not already defined. */
 	School.find { name: app.locals.school }, (err, school)->
 		if err?
-			winston.error "school:find "+util.inspect err
+			winston.error "mongoose.ls:school:find " + err
 		else
 			if !school? and school.length is 0 # if none
 				winston.info "creating new school "+app.locals.school
