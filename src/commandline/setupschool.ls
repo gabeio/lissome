@@ -3,7 +3,7 @@ require! {
 	"bcrypt"
 	"mongoose"
 }
-schemas = require("./schemas")(mongoose)
+schemas = require("../databases/schemas")(mongoose)
 School = mongoose.model "School" schemas.School
 User = mongoose.model "User" schemas.User
 Course = mongoose.model "Course" schemas.Course

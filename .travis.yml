@@ -23,7 +23,7 @@ services:
 before_script:
     - gulp build
     - mongo lissome --eval 'db.addUser("travis", "test");'
-    - node lib/setupschool.js
+    - node lib/commandline/setupschool.js
 before_install:
     - npm install coveralls
 script:
