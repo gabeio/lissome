@@ -36,10 +36,10 @@ router
 					winston.error err
 				if result is true
 					# do NOT take anything from req.body
-					if !user.hotp? and !user.totp? # if no otp
+					if !user.otp? # if no otp
 						req.session.auth = user.type # give them their auth
 					else # otherwise
-						req.session.otp = if user.totp? then "totp" else "hotp" # force totp/hotp page
+						req.session.otp = true
 					req.session.username = user.username
 					req.session.userid = user.id
 					req.session.uid = user._id
