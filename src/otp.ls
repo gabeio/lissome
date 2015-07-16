@@ -26,7 +26,7 @@ router
 			}
 			/* istanbul ignore if */
 			if err
-				winston.err "user:find", err
+				winston.error "user:find", err
 			if !user? or user.length is 0
 				res.render "login", { error: "user not found", csrf: req.csrfToken! }
 			else
@@ -45,7 +45,7 @@ router
 					else
 						res.render "login", { error:"bad login credentials", csrf: req.csrfToken! }
 				else
-					winston.err "otp.ls: (else statement) should not have gotten here"
+					winston.error "otp.ls: (else statement) should not have gotten here"
 					next new Error "UNKNOWN"
 		else
 			res.render "login", { error: "bad login credentials", csrf: req.csrfToken!  }
