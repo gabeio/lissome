@@ -88,7 +88,7 @@ swig.setFilter "timezone", (input)->
 # MONGOOSE
 /* istanbul ignore next */
 mongo = require("./databases/mongoClient")(app,mongoose,\
-	(process.env.mongo||process.env.MONGO||argv.mongo||"mongodb://localhost/smrtboard"))
+	(process.env.mongo||process.env.MONGO||argv.mongo||"mongodb://localhost/lissome"))
 
 # REDIS
 /* istanbul ignore next */
