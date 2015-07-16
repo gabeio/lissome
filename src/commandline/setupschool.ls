@@ -17,8 +17,9 @@ db.open (process.env.mongo||process.env.MONGOURL||"mongodb://localhost/lissome")
 db.on "error", console.error.bind console, "connection error:"
 
 var school, student, astudent, zstudent, faculty,\
-	gfaculty, admin, course1, course2, course3, course4,\
-	hashPassword, semester1, semester2
+	gfaculty, zfaculty, admin, zadmin, course1, course2,\
+	course3, course4, hashPassword, semester1, semester2
+
 async.series [
 	(done)->
 		err, something <- db.once "open"
@@ -190,6 +191,40 @@ async.series [
 					type: 2
 				}
 				err, faculty <- gfaculty.save
+				if err
+					console.error err
+					done err
+				else
+					gfaculty := faculty
+					console.log faculty
+					done!
+	(done)->
+		# zfaculty
+		err,result <- User.find { "username":"zfaculty", "type":2, "school":(process.env.school||process.env.SCHOOL) }
+		if err
+			console.error err
+			done err
+		else
+			if result? and result.length > 0
+				zfaculty := result.0
+				console.log "zfaculty exists"
+				done!
+			else
+				zfaculty := new User {
+					id: 26
+					username: "zfaculty"
+					firstName: "Hotp"
+					lastName: "Usar"
+					email: "zfaculty@kean.edu"
+					hash: hashPassword
+					school: (process.env.school||process.env.SCHOOL)
+					type: 2
+					otp: {
+						secret: "4JZPEQXTGFNCR76H"
+						count: 1
+					}
+				}
+				err, faculty <- zfaculty.save
 				if err
 					console.error err
 					done err
