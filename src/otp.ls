@@ -12,10 +12,10 @@ router = express.Router!
 router
 	..route "/"
 	.all (req, res, next)->
-		if !res.session.opt? # redirects if logged in/not half logged in
-			res.redirect "/"
-		else
+		if req.session.otp? # redirects if logged in/not half logged in
 			next!
+		else
+			res.redirect "/"
 	.get (req, res, next)->
 		res.render "otp", { csrf: req.csrfToken! }
 	.post (req, res, next)->
@@ -30,24 +30,40 @@ router
 			if !user? or user.length is 0
 				res.render "login", { error: "user not found", csrf: req.csrfToken! }
 			else
-				if user.otp? && !user.opt.count? # user has otp but no count it's totp
-					if passcode.totp.verify({ secret: thirty-two.decode(user.otp.secret), token: req.body.token }) is 0
+				if user.otp? && !user.otp.count? # user has otp but no count it's totp
+					res.locals.verify = passcode.totp.verify {
+						secret: thirty-two.decode user.otp.secret
+						token: req.body.token
+					}
+					if res.locals.verify? and res.locals.verify.delta is 0
+						delete req.session.otp
 						req.session.auth = user.type
 						res.redirect "/"
 					else
-						res.render "login", { error:"bad login credentials", csrf: req.csrfToken! }
+						err <- req.session.destroy
+						if err? then winston.error err
+						res.redirect "/"
 				else if user.otp? && user.otp.count? # user has otp and count it's hotp
-					if passcode.hotp.verify({ secret: thirty-two.decode(user.otp.secret), token: req.body.token, counter: user.otp.count }) is 0
+					res.locals.verify = passcode.hotp.verify {
+						secret: thirty-two.decode user.otp.secret
+						token: req.body.token
+						counter: user.otp.count
+					}
+					if res.locals.verify? and res.locals.verify.delta is 0
 						user.otp.count += 1
+						user.otp.set("count","changed")
 						err, user <- user.save
+						delete req.session.otp
 						req.session.auth = user.type
 						res.redirect "/"
 					else
-						res.render "login", { error:"bad login credentials", csrf: req.csrfToken! }
+						err <- req.session.destroy
+						if err? then winston.error err
+						res.redirect "/"
 				else
 					winston.error "otp.ls: (else statement) should not have gotten here"
 					next new Error "UNKNOWN"
 		else
-			res.render "login", { error: "bad login credentials", csrf: req.csrfToken!  }
+			res.render "otp", { error: "missing field", csrf: req.csrfToken!  }
 
 module.exports = router
