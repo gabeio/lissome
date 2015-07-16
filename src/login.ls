@@ -26,14 +26,14 @@ router
 			}
 			/* istanbul ignore if */
 			if err
-				winston.err "user:find", err
+				winston.error "user:find", err
 			if !user? or user.length is 0
 				res.render "login", { error: "user not found", csrf: req.csrfToken! }
 			else
 				err,result <- bcrypt.compare req.body.password, user.hash
 				/* istanbul ignore if */
 				if err
-					winston.err err
+					winston.error err
 				if result is true
 					# do NOT take anything from req.body
 					if !user.hotp? and !user.totp? # if no otp
