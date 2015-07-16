@@ -23,6 +23,9 @@ module.exports = (mongoose)->
 		# OPTIONAL
 		id: { type: Number, +unique } # school issued id
 		middleName: { type: String } # middle name
+		otp: {
+			secret: String # (t/h)otp secret
+		}
 	}
 	User.index { username: 1 }
 	Semester = new Schema {
