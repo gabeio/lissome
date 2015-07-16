@@ -75,15 +75,15 @@ swig.setFilter "markdown", (input)->
 swig.setFilter "toString", (input)->
 	input.toString!
 swig.setFilter "fromNow", (input)->
-	moment(input).fromNow()
+	moment input .fromNow!
 /* istanbul ignore next function while unused */
 swig.setFilter "format", (input, format)->
-	moment(input).format(format)
+	moment input .format format
 /* istanbul ignore next function while unused */
 swig.setFilter "calendar", (input)->
-	moment(input).calendar()
+	moment input .calendar!
 swig.setFilter "timezone", (input)->
-	moment.tz(input, "America/New_York").clone().tz(app.locals.timezone).toString!
+	moment.tz input, "America/New_York" .clone!.tz app.locals.timezone .toString!
 
 # MONGOOSE
 /* istanbul ignore next */
@@ -191,7 +191,7 @@ app
 
 # Production Switch
 /* istanbul ignore next switch */
-switch app.get("env")
+switch app.get "env"
 | "production"
 	# production run
 	winston.info "Production Mode"
@@ -206,7 +206,7 @@ switch app.get("env")
 	# disable template cache
 	app.set "view cache" false
 	swig.setDefaults { -cache }
-	app.use (req,res,next)->
+	app.use (req, res, next)->
 		req.csrfToken = ->
 			return ""
 		next!

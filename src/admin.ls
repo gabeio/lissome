@@ -70,7 +70,7 @@ router
 						if req.body.randpassword in [true,"true"]
 							newpass = []
 							for x from 1 to 7
-								index = Math.floor alphanum.length * Math.random()
+								index = Math.floor alphanum.length * Math.random!
 								newpass.push alphanum[index]
 							req.body.password = newpass.join ''
 							cont null
