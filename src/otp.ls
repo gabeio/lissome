@@ -30,13 +30,13 @@ router
 			if !user? or user.length is 0
 				res.render "login", { error: "user not found", csrf: req.csrfToken! }
 			else
-				if user.totp?
+				if user.otp? && !user.opt.count? # user has otp but no count it's totp
 					if passcode.totp.verify({ secret: user.totp, token: thirty-two.decode(req.body.token) }) is 0
 						req.session.auth = user.type
 						res.redirect "/"
 					else
 						res.render "login", { error:"bad login credentials", csrf: req.csrfToken! }
-				else if user.hotp?
+				else if user.otp? && user.otp.count? # user has otp and count it's hotp
 					if passcode.hotp.verify({ secret: user.hotp, token: thirty-two.decode(req.body.token), counter: user.hotpCount }) is 0
 						user.hotpCount += 1
 						err, user <- user.save
@@ -45,7 +45,7 @@ router
 					else
 						res.render "login", { error:"bad login credentials", csrf: req.csrfToken! }
 				else
-					winston.err "should not have gotten here"
+					winston.err "otp.ls: (else statement) should not have gotten here"
 					next new Error "UNKNOWN"
 		else
 			res.render "login", { error: "bad login credentials", csrf: req.csrfToken!  }

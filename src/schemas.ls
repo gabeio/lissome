@@ -25,6 +25,7 @@ module.exports = (mongoose)->
 		middleName: { type: String } # middle name
 		otp: {
 			secret: String # (t/h)otp secret
+			count: Number # hotp count
 		}
 	}
 	User.index { username: 1 }
