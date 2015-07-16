@@ -87,12 +87,12 @@ swig.setFilter "timezone", (input)->
 
 # MONGOOSE
 /* istanbul ignore next */
-mongo = require("./mongoClient")(app,mongoose,\
+mongo = require("./databases/mongoClient")(app,mongoose,\
 	(process.env.mongo||process.env.MONGO||argv.mongo||"mongodb://localhost/smrtboard"))
 
 # REDIS
 /* istanbul ignore next */
-redis = require("./redisClient")(app,\
+redis = require("./databases/redisClient")(app,\
 	(process.env.redishost||process.env.REDISHOST||argv.redishost||"localhost"),\
 	(process.env.redisport||process.env.REDISPORT||argv.redisport||6379),\
 	(process.env.redisauth||process.env.REDISAUTH||argv.redisauth||void),\
@@ -219,7 +219,7 @@ app
 			next new Error "UNAUTHORIZED" # other unauth
 
 # Routers
-require("./mongoose")(app)
+require("./databases/mongoose")(app)
 app.use "/login", require("./login")
 app.use "/logout", require("./logout")
 app.use "/otp", require("./otp")
