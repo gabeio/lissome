@@ -6,7 +6,11 @@ require! {
 livescript = if gulp-livescript? then gulp-livescript
 
 paths =
-	scripts: ['./*.json.ls', './src/*.ls', './src/course/*.ls', './src/frontend/*.ls']
+	scripts: ['./*.json.ls',
+		'./src/*.ls',
+		'./src/databases/*.ls',
+		'./src/course/*.ls',
+		'./src/frontend/*.ls']
 	tests: ['./test/*.ls','./src/*.ls']
 
 gulp.task 'default' ['build'] (done)->
@@ -28,6 +32,10 @@ gulp.task 'build' ['clean'] ->
 		.pipe livescript bare:true
 		.on 'error' -> throw it
 		.pipe gulp.dest './lib/'
+		..src './src/databases/*.ls'
+		.pipe livescript bare:true
+		.on 'error' -> throw it
+		.pipe gulp.dest './lib/databases/'
 		..src './src/course/*.ls'
 		.pipe livescript bare:true
 		.on 'error' -> throw it
