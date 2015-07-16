@@ -44,6 +44,10 @@ gulp.task 'build' ['clean'] ->
 		.pipe livescript bare:true
 		.on 'error' -> throw it
 		.pipe gulp.dest './public/assets/custom/'
+		..src './src/commandline/*.ls'
+		.pipe livescript bare:true
+		.on 'error' -> throw it
+		.pipe gulp.dest './lib/commandline/'
 		..src './*.json.ls'
 		.pipe livescript!
 		.on 'error' -> throw it
