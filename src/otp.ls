@@ -38,11 +38,10 @@ router
 					if res.locals.verify? and res.locals.verify.delta is 0
 						delete req.session.otp
 						req.session.auth = user.type
-						res.redirect "/"
 					else
 						err <- req.session.destroy
 						if err? then winston.error err
-						res.redirect "/"
+					res.redirect "/"
 				else if user.otp? && user.otp.count? # user has otp and count it's hotp
 					res.locals.verify = passcode.hotp.verify {
 						secret: user.otp.secret
@@ -56,11 +55,10 @@ router
 						err, user <- user.save
 						delete req.session.otp
 						req.session.auth = user.type
-						res.redirect "/"
 					else
 						err <- req.session.destroy
 						if err? then winston.error err
-						res.redirect "/"
+					res.redirect "/"
 				else
 					winston.error "otp.ls: (else statement) should not have gotten here"
 					next new Error "UNKNOWN"
