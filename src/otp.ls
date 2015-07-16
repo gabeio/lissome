@@ -3,7 +3,6 @@ require! {
 	"bcrypt"
 	"mongoose"
 	"passcode"
-	"thirty-two"
 	"winston"
 	"./app"
 }
@@ -32,8 +31,9 @@ router
 			else
 				if user.otp? && !user.otp.count? # user has otp but no count it's totp
 					res.locals.verify = passcode.totp.verify {
-						secret: thirty-two.decode user.otp.secret
+						secret: user.otp.secret
 						token: req.body.token
+						encoding: "base32"
 					}
 					if res.locals.verify? and res.locals.verify.delta is 0
 						delete req.session.otp
@@ -45,9 +45,10 @@ router
 						res.redirect "/"
 				else if user.otp? && user.otp.count? # user has otp and count it's hotp
 					res.locals.verify = passcode.hotp.verify {
-						secret: thirty-two.decode user.otp.secret
+						secret: user.otp.secret
 						token: req.body.token
 						counter: user.otp.count
+						encoding: "base32"
 					}
 					if res.locals.verify? and res.locals.verify.delta is 0
 						user.otp.count += 1
