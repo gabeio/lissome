@@ -228,6 +228,39 @@ async.series [
 					console.log admin
 					done!
 	(done)->
+		# admin
+		err,result <- User.find { "username":"zadmin", "type":3, "school":(process.env.school||process.env.SCHOOL) }
+		if err
+			console.error err
+			done err
+		else
+			if result? and result.length > 0
+				admin := result.0
+				console.log "admin exists"
+				done!
+			else
+				admin := new User {
+					id: 36
+					username: "zadmin"
+					firstName: "Totp"
+					lastName: "Usar"
+					email: "zadmin@kean.edu"
+					hash: hashPassword
+					school: (process.env.school||process.env.SCHOOL)
+					type: 3
+					otp: {
+						secret: "4JZPEQXTGFNCR76H"
+					}
+				}
+				err, admin <- admin.save
+				if err
+					console.error err
+					done err
+				else
+					admin := admin
+					console.log admin
+					done!
+	(done)->
 		# Fall 2015 semester
 		err,result <- Semester.find { "title":"Fall 2015", "school":(process.env.school||process.env.SCHOOL) }
 		if err
@@ -346,7 +379,7 @@ async.series [
 					done!
 	(done)->
 		# ge1000
-		err,result <- Course.find { "id":"ge1000", "semester":semester2._id, "school":(process.env.school||process.env.SCHOOL) }
+		err,result <- Course.find { "id":"ge1000*01", "semester":semester2._id, "school":(process.env.school||process.env.SCHOOL) }
 		if err
 			console.error err
 			done err
