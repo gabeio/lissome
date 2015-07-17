@@ -53,6 +53,7 @@ router
 						user.otp.count += 1
 						user.otp.set("count","changed")
 						err, user <- user.save
+						if err? then winston.error err
 						delete req.session.otp
 						req.session.auth = user.type
 					else
