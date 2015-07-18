@@ -11,7 +11,7 @@ Lissome
 ## process.env
 - cookie = the session cookie signature assure this is safe or people can edit their sessions
 - school = the school's full name or short name ie: OCC Ocean County College is a little big
-- mongo|MONGOURL = the uri to mongodb (mongodb://[Username]:[Password]@HostName/DataBaseName)
+- mongo|MONGO = the uri to mongodb (mongodb://[Username]:[Password]@HostName/DataBaseName)
 - redishost|REDISHOST = the redis host
 - redisport|REDISPORT = the port redis is running on
 - redisauth|REDISAUTH = the auth for redis
