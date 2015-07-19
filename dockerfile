@@ -12,5 +12,5 @@ RUN npm install
 RUN npm install -g gulp livescript
 # build
 RUN make
-# must run
-ENTRYPOINT ["/entrypoint.sh"]
+# default script
+CMD ["/entrypoint.sh"]
