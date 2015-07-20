@@ -12,6 +12,21 @@ _ = lodash
 Assignment = mongoose.models.Assignment
 Attempt = mongoose.models.Attempt
 router = express.Router!
+attemptable = app.locals.multer.fields [
+	{ name:"text", maxCount:1 }
+]
+editableassignment = app.locals.multer.fields [
+	{ name:"title", maxCount:1 }
+	{ name:"text", maxCount:1 }
+	{ name:"tries", maxCount:1 }
+	{ name:"opendate", maxCount:1 }
+	{ name:"opentime", maxCount:1 }
+	{ name:"closedate", maxCount:1 }
+	{ name:"closetime", maxCount:1 }
+	{ name:"late", maxCount:1 }
+	{ name:"total", maxCount:1 }
+	{ name:"points", maxCount:1 }
+]
 router
 	..route "/:assign?/:attempt?" # query :: action(new|edit|delete|grade)
 	.all (req, res, next)->
@@ -142,18 +157,18 @@ router
 				if req.query.action?
 					next! # don't assume action, continue trying
 		]
-	.post (req, res, next)->
+	.post attemptable (req, res, next)->
 		# handle new attempt
 		switch req.query.action
 		| "attempt"
-			if !req.body.aid? or !req.body.text?
+			if !req.body.text?
 				res.status 400 .render "course/assignments/view" { body: req.body, success:"error", error:"Attempt Text Can <b>not</b> be blank.", csrf: req.csrfToken! }
 			else
 				# find all tries related to user & assignment
 				err, result <- Attempt.find {
 					course: ObjectId res.locals.course._id
 					author: ObjectId res.locals.uid
-					assignment: ObjectId req.body.aid
+					assignment: ObjectId req.params.assign
 				}
 				.count!
 				.exec
@@ -182,7 +197,7 @@ router
 					res.status 400 .render "course/assignments/view" { body:req.body, success:"error", error:err, csrf: req.csrfToken! }
 				else
 					res.locals.body = {
-						assignment: ObjectId req.body.aid
+						assignment: ObjectId req.params.assign
 						course: ObjectId res.locals.course._id
 						text: req.body.text
 						author: ObjectId res.locals.uid
@@ -214,11 +229,11 @@ router
 			res.render "course/assignments/del", { csrf: req.csrfToken! }
 		| _
 			next! # don't assume action
-	.put (req, res, next)->
+	.put editableassignment, (req, res, next)->
 		# handle edit assignment
 		switch req.query.action
 		| "edit"
-			if !req.body.aid? || !req.body.title? || !req.body.text? || !req.body.tries? || req.body.title is "" || req.body.text is "" # double check require fields exist
+			if !req.body.title? || !req.body.text? || !req.body.tries? || req.body.title is "" || req.body.text is "" # double check require fields exist
 				res.status 400 .render "course/assignments/edit" { body: req.body, success:"no", action:"edit", csrf: req.csrfToken! }
 			else
 				res.locals.start = new Date(req.body.opendate+" "+req.body.opentime)
@@ -241,7 +256,7 @@ router
 				else if !moment(res.locals.end).isValid!
 					delete assign.end
 				err, assign <- Assignment.findOneAndUpdate {
-					"_id": ObjectId req.body.aid
+					"_id": ObjectId req.params.assign
 					"course": ObjectId res.locals.course._id
 					# don't check for author as me might not be...
 				}, assign
@@ -253,7 +268,7 @@ router
 					res.redirect "/c/#{res.locals.course._id}/assignments/#{assign._id.toString!}"
 		| _
 			next! # don't assume action
-	.post (req, res, next)->
+	.post editableassignment, (req, res, next)->
 		switch req.query.action
 		| "new" # handle new assignment
 			async.parallel [
@@ -301,14 +316,13 @@ router
 			]
 		| "grade" # handle assignment grading
 			req.body.points? = parseInt req.body.points
-			if req.body.points === NaN or !req.body.aid? # double check require fields exist
+			if req.body.points === NaN # double check require fields exist
 				res.status 400 .render "course/assignments/attempt", { success:"no", action:"graded", csrf: req.csrfToken! }
 				# res.status 400 .render "course/assignments/create" { assignments: [req.body], -success, action:"edit", csrf: req.csrfToken! }
 			else
 				err, attempt <- Attempt.findOneAndUpdate {
 					"course": ObjectId res.locals.course._id
 					"_id": ObjectId req.params.attempt
-					# "_id": ObjectId req.body.aid
 				}, {
 					"points": req.body.points
 				}
@@ -326,7 +340,7 @@ router
 		switch req.query.action
 		| "delete"
 			err, attempts <- Attempt.remove {
-				"assignment": ObjectId req.body.aid
+				"assignment": ObjectId req.params.assign
 				"course": ObjectId res.locals.course._id
 			}
 			/* istanbul ignore if should only occur if db crashes */
@@ -335,7 +349,7 @@ router
 				next new Error "INTERNAL"
 			else
 				err, assignments <- Assignment.remove {
-					"_id": ObjectId req.body.aid
+					"_id": ObjectId req.params.assign
 					"course": ObjectId res.locals.course._id
 				}
 				/* istanbul ignore if should only occur if db crashes */
