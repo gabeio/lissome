@@ -120,10 +120,10 @@ app
 	.use bodyParser.raw! # idk
 	# multipart body parser
 	.use multer { # requires: enctype="multipart/form-data"
-		dest: "./uploads/"
+		dest: "uploads/"
 		limits:
-			# fileSize: 10000000mb
-			files: 0
+			fileSize: 100mb # currently set to the max cloudflare free allows
+			files: 0 # currently disallow file uploads
 		-includeEmptyFields
 		-inMemory
 	}
