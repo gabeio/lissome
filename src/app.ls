@@ -32,7 +32,7 @@ app = module.exports = express!
 # app locals
 app
 	..locals.smallpassword = parseInt (process.env.small||process.env.smallpassword||process.env.minpassword||6)
-	..locals.multer { # requires: enctype="multipart/form-data"
+	..locals.multer = multer { # requires: enctype="multipart/form-data"
 		dest: "uploads/"
 		limits:
 			files: 0 # currently disallow file uploads
