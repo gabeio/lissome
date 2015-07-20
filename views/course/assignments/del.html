@@ -43,14 +43,14 @@
 		</div>
 		{% endif %}{# success? #}
 		<div class="row">
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1 clearfix" method="POST" action="?action=deleteall&hmo=DELETE" enctype="multipart/form-data">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1 clearfix" method="POST" action="?action=deleteall&hmo=DELETE" >
 				<div class="pull-left">
 					<h3>{{ course.title }} - Assignments</h3>
 				</div>
 			</div>
 		</div>
 		<div class="row">
-			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=delete&hmo=DELETE" enctype="multipart/form-data">
+			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=delete&hmo=DELETE">
 				<input type="hidden" name="_csrf" value="{{csrf}}" />
 				<div class="panel panel-default">
 					<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />

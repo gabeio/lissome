@@ -41,7 +41,6 @@ dependencies:
 	"moment": "^2.10.3"
 	"moment-timezone": "^0.4.0"
 	"mongoose": "^4.0.7"
-	"multer": "^0.1.8"
 	"response-time": "^2.3.1"
 	"serve-static": "^1.10.0"
 	"swig": "^1.4.2"
