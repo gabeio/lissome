@@ -178,9 +178,7 @@ app
 	.use cors!
 	# compress large files
 	.use compression!
-
-# Custom Middleware
-app
+	# CUSTOM MIDDLEWARE
 	.use (req, res, next)->
 		err <- async.parallel [
 			(para)->
