@@ -32,6 +32,14 @@ app = module.exports = express!
 # app locals
 app
 	..locals.smallpassword = parseInt (process.env.small||process.env.smallpassword||process.env.minpassword||6)
+	..locals.multer { # requires: enctype="multipart/form-data"
+		dest: "uploads/"
+		limits:
+			fileSize: 100mb # currently set to the max cloudflare free allows
+			files: 0 # currently disallow file uploads
+		+includeEmptyFields
+		-inMemory
+	}
 
 /* istanbul ignore next this is just for assurance the env vars are defined */
 do ->
@@ -137,15 +145,6 @@ app
 	.use bodyParser.json!
 	.use bodyParser.text! # idk
 	.use bodyParser.raw! # idk
-	# multipart body parser
-	.use multer { # requires: enctype="multipart/form-data"
-		dest: "uploads/"
-		limits:
-			fileSize: 100mb # currently set to the max cloudflare free allows
-			files: 0 # currently disallow file uploads
-		-includeEmptyFields
-		-inMemory
-	}
 	# method override needs to come before csurf
 	.use method-override "hmo" # Http-Method-Override
 	# sessions
