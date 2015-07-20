@@ -6,6 +6,7 @@ require! {
 	"winston"
 	"../app"
 }
+multer = app.locals.multer.fields []
 ObjectId = mongoose.Types.ObjectId
 _ = lodash
 User = mongoose.models.User
@@ -96,7 +97,7 @@ router
 						"type":"conference"
 						"course": ObjectId res.locals.course._id
 						"_id": ObjectId req.params.post
-					} 
+					}
 					.populate "thread"
 					.populate "author"
 					.exec
@@ -134,7 +135,7 @@ router
 			...
 		| _
 			res.render "course/conference/view", { csrf: req.csrfToken! }
-	.post (req, res, next)->
+	.post multer (req, res, next)->
 		switch req.query.action
 		| "newpost"
 			async.parallel [
@@ -193,7 +194,7 @@ router
 			...
 		| _
 			next new Error "Action Error"
-	.put (req, res, next)->
+	.put multer (req, res, next)->
 		switch req.query.action
 		| "editpost"
 			if !req.body.thread? or !req.body.post? or !req.body.text? or req.body.text is ""
@@ -230,7 +231,7 @@ router
 					res.status 302 .redirect "/c/#{res.locals.course._id}/conference/#{req.params.thread}"
 		| _
 			next new Error "Action Error"
-	.delete (req, res, next)->
+	.delete multer (req, res, next)->
 		switch req.query.action
 		| "deletepost"
 			if !req.body.thread? or !req.body.post?

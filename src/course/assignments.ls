@@ -7,26 +7,12 @@ require! {
 	"winston"
 	"../app"
 }
+multer = app.locals.multer.fields []
 ObjectId = mongoose.Types.ObjectId
 _ = lodash
 Assignment = mongoose.models.Assignment
 Attempt = mongoose.models.Attempt
 router = express.Router!
-attemptable = app.locals.multer.fields [
-	{ name:"text", maxCount:1 }
-]
-editableassignment = app.locals.multer.fields [
-	{ name:"title", maxCount:1 }
-	{ name:"text", maxCount:1 }
-	{ name:"tries", maxCount:1 }
-	{ name:"opendate", maxCount:1 }
-	{ name:"opentime", maxCount:1 }
-	{ name:"closedate", maxCount:1 }
-	{ name:"closetime", maxCount:1 }
-	{ name:"late", maxCount:1 }
-	{ name:"total", maxCount:1 }
-	{ name:"points", maxCount:1 }
-]
 router
 	..route "/:assign?/:attempt?" # query :: action(new|edit|delete|grade)
 	.all (req, res, next)->
@@ -157,7 +143,7 @@ router
 				if req.query.action?
 					next! # don't assume action, continue trying
 		]
-	.post attemptable (req, res, next)->
+	.post multer (req, res, next)->
 		# handle new attempt
 		switch req.query.action
 		| "attempt"
@@ -229,7 +215,7 @@ router
 			res.render "course/assignments/del", { csrf: req.csrfToken! }
 		| _
 			next! # don't assume action
-	.put editableassignment, (req, res, next)->
+	.put multer (req, res, next)->
 		# handle edit assignment
 		switch req.query.action
 		| "edit"
@@ -268,7 +254,7 @@ router
 					res.redirect "/c/#{res.locals.course._id}/assignments/#{assign._id.toString!}"
 		| _
 			next! # don't assume action
-	.post editableassignment, (req, res, next)->
+	.post multer (req, res, next)->
 		switch req.query.action
 		| "new" # handle new assignment
 			async.parallel [
@@ -335,7 +321,7 @@ router
 					# res.render "course/assignments/attempt", { success:"yes", action:"graded", csrf: req.csrfToken! }
 		| _
 			next! # don't assume action
-	.delete (req, res, next)->
+	.delete multer (req, res, next)->
 		# handle delete assignment (faculty+)
 		switch req.query.action
 		| "delete"

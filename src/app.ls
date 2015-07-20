@@ -35,8 +35,8 @@ app
 	..locals.multer { # requires: enctype="multipart/form-data"
 		dest: "uploads/"
 		limits:
-			fileSize: 100mb # currently set to the max cloudflare free allows
 			files: 0 # currently disallow file uploads
+			# fileSize: 100mb # currently set to the max cloudflare free allows
 		+includeEmptyFields
 		-inMemory
 	}
