@@ -20,7 +20,7 @@ module.exports = (app)->
 	winston.warn "TESTING MODE\nIF YOU SEE THIS MESSAGE THERE IS SOMETHING WRONG!!!"
 	app
 		..route "/test/:action/:more?"
-		.all parser (req, res, next)->
+		.all parser, (req, res, next)->
 			switch req.params.action
 			| "getauth"
 				res.status 200 .send req.session.auth

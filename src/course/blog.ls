@@ -49,7 +49,7 @@ router
 			res.render "course/blog/edit", { on:"editblog", success:req.query.success, action:"updated", csrf: req.csrfToken! }
 		| "delete"
 			res.render "course/blog/del", { on:"deleteblog", success:req.query.success, action:"deleted", csrf: req.csrfToken! }
-	.post parser (req, res, next)->
+	.post parser, (req, res, next)->
 		/* istanbul ignore else */
 		if req.query.action is "new"
 			async.parallel [
@@ -77,7 +77,7 @@ router
 			]
 		else
 			next new Error "bad blog post"
-	.put parser (req, res, next)->
+	.put parser, (req, res, next)->
 		if req.query.action is "edit"
 			async.parallel [
 				->
@@ -101,7 +101,7 @@ router
 			]
 		else
 			next new Error "bad blog put"
-	.delete parser (req, res, next)->
+	.delete parser, (req, res, next)->
 		if req.query.action in ["delete","deleteall"]
 			async.parallel [
 				->

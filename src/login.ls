@@ -15,7 +15,7 @@ router
 			res.redirect "/"
 		else
 			res.render "login", { csrf: req.csrfToken! }
-	.post parser (req, res, next)->
+	.post parser, (req, res, next)->
 		if req.body.username? and req.body.username isnt "" and req.body.password? and req.body.password isnt ""
 			err, user <- User.findOne {
 				"username":req.body.username.toLowerCase!

@@ -56,7 +56,7 @@ router
 			res.render "admin/rmfaculty", { csrf: req.csrfToken! }
 		| _
 			res.render "admin/default", { csrf: req.csrfToken! }
-	.post parser (req, res, next)->
+	.post parser, (req, res, next)->
 		if req.query.action is "create"
 			if res.locals.type is "user"
 				err <- async.waterfall [
@@ -188,7 +188,7 @@ router
 				next!
 		else
 			next!
-	.post parser (req, res, next)->
+	.post parser, (req, res, next)->
 		if req.query.action is "search"
 			if res.locals.type is "user"
 				err, result <- async.parallel [
@@ -370,7 +370,7 @@ router
 				res.render "admin/search", { csrf: req.csrfToken! }
 		else
 			next!
-	.post parser (req, res, next)->
+	.post parser, (req, res, next)->
 		if req.query.action is "addstudent"
 			# *SEARCH* for student to add to course
 			if !req.params.object?
@@ -492,7 +492,7 @@ router
 			...
 		else
 			next!
-	.put parser (req, res, next)->
+	.put parser, (req, res, next)->
 		if req.query.action is "edit"
 			if res.locals.type is "user"
 				err <- async.waterfall [
@@ -787,7 +787,7 @@ router
 				next!
 		else
 			next!
-	.delete parser (req, res, next)->
+	.delete parser, (req, res, next)->
 		if req.query.action is "delete"
 			if res.locals.type is "user"
 				err <- async.waterfall [

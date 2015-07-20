@@ -143,7 +143,7 @@ router
 				if req.query.action?
 					next! # don't assume action, continue trying
 		]
-	.post parser (req, res, next)->
+	.post parser, (req, res, next)->
 		# handle new attempt
 		switch req.query.action
 		| "attempt"
@@ -215,7 +215,7 @@ router
 			res.render "course/assignments/del", { csrf: req.csrfToken! }
 		| _
 			next! # don't assume action
-	.put parser (req, res, next)->
+	.put parser, (req, res, next)->
 		# handle edit assignment
 		switch req.query.action
 		| "edit"
@@ -254,7 +254,7 @@ router
 					res.redirect "/c/#{res.locals.course._id}/assignments/#{assign._id.toString!}"
 		| _
 			next! # don't assume action
-	.post parser (req, res, next)->
+	.post parser, (req, res, next)->
 		switch req.query.action
 		| "new" # handle new assignment
 			async.parallel [
@@ -321,7 +321,7 @@ router
 					# res.render "course/assignments/attempt", { success:"yes", action:"graded", csrf: req.csrfToken! }
 		| _
 			next! # don't assume action
-	.delete parser (req, res, next)->
+	.delete parser, (req, res, next)->
 		# handle delete assignment (faculty+)
 		switch req.query.action
 		| "delete"
