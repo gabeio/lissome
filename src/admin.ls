@@ -536,7 +536,7 @@ router
 						if req.body.level?
 							user.type = req.body.level
 						if req.body.firstName?
-							user.firstName = req.body.middleName
+							user.firstName = req.body.firstName
 						if req.body.middleName?
 							user.middleName = req.body.middleName
 						if req.body.lastName?
