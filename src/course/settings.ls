@@ -4,7 +4,7 @@ require! {
 	#"winston"
 	"../app"
 }
-multer = app.locals.multer.fields []
+parser = app.locals.multer.fields []
 ObjectId = mongoose.Types.ObjectId
 Course = mongoose.models.Course
 router = express.Router!
@@ -15,7 +15,7 @@ router
 		app.locals.authorize req, res, next
 	.get (req, res, next)->
 		res.render "course/settings", { success: req.query.success, noun: "Defaults", verb: "updated", csrf: req.csrfToken! }
-	.put multer (req, res, next)->
+	.put parser (req, res, next)->
 		res.locals.course.settings = {
 			assignments:{
 				tries: req.body.tries

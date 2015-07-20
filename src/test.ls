@@ -8,7 +8,7 @@ module.exports = (app)->
 		"mongoose"
 		"winston"
 	}
-	multer = app.locals.multer.fields []
+	parser = app.locals.multer.fields []
 	ObjectId = mongoose.Types.ObjectId
 	User = mongoose.models.User
 	Course = mongoose.models.Course
@@ -20,7 +20,7 @@ module.exports = (app)->
 	winston.warn "TESTING MODE\nIF YOU SEE THIS MESSAGE THERE IS SOMETHING WRONG!!!"
 	app
 		..route "/test/:action/:more?"
-		.all multer (req, res, next)->
+		.all parser (req, res, next)->
 			switch req.params.action
 			| "getauth"
 				res.status 200 .send req.session.auth
