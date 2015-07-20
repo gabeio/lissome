@@ -15,7 +15,6 @@ require! {
 	"moment"
 	"moment-timezone"
 	"mongoose"
-	"multer"
 	"response-time"
 	"serve-static" # nginx static
 	"swig" # templates
@@ -112,21 +111,13 @@ app
 	}
 	.use helmet.frameguard "deny"
 	# body parser
+		# this should be moved/attached at each route that might need it not globally.
 	.use bodyParser.urlencoded {
 		+extended
 	}
 	.use bodyParser.json!
-	.use bodyParser.text! # idk
-	.use bodyParser.raw! # idk
-	# multipart body parser
-	.use multer { # requires: enctype="multipart/form-data"
-		dest: "./uploads/"
-		limits:
-			# fileSize: 10000000mb
-			files: 0
-		-includeEmptyFields
-		-inMemory
-	}
+	.use bodyParser.text!
+	.use bodyParser.raw!
 	# method override needs to come before csurf
 	.use method-override "hmo" # Http-Method-Override
 	# sessions
@@ -160,9 +151,7 @@ app
 	.use cors!
 	# compress large files
 	.use compression!
-
-# Custom Middleware
-app
+	# CUSTOM MIDDLEWARE
 	.use (req, res, next)->
 		err <- async.parallel [
 			(para)->
