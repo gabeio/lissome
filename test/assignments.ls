@@ -375,8 +375,8 @@ describe "Assignments Module" ->
 							cont err
 			]
 			done err
-		# it "should not grade if no aid given", (done)->
-		# 	err <- async.waterfall [
+		it "should grade an assignment", (done)->
+			err <- async.waterfall [
 				(cont)->
 					admin
 						.get "/test/getaid/cps1234?title=admin"
