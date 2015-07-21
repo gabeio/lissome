@@ -37,10 +37,10 @@ router
 					winston.error err
 				if result is true
 					# do NOT take anything from req.body
-					if !user.otp? # if no otp
-						req.session.auth = user.type # give them their auth
-					else # otherwise
+					if user.otp? and user.otp.secret? # if otp and secret
 						req.session.otp = true
+					else # otherwise
+						req.session.auth = user.type # give them their auth
 					req.session.username = user.username
 					req.session.userid = user.id
 					req.session.uid = user._id
@@ -48,7 +48,7 @@ router
 					/* istanbul ignore next */
 					req.session.middleName? = user.middleName
 					req.session.lastName = user.lastName
-					if user.otp?
+					if user.otp? and user.otp.secret?
 						res.redirect "/otp"
 					else
 						res.redirect "/"
