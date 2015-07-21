@@ -56,7 +56,7 @@
 		</div>
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				<form class="panel panel-default" action="/c/{{ course._id|toString }}/assignments/{{ assignment._id|toString }}?action=attempt" method="POST" enctype="multipart/form-data">
+				<form class="panel panel-default" action="/c/{{ course._id|toString }}/assignments/{{ assignment._id|toString }}?action=attempt" method="POST">
 					<input type="hidden" name="_csrf" value="{{csrf}}" />
 					{# embed assignment_id in form (incase there are multiple assignments don't modify/attempt the wrong one.) #}
 					<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />

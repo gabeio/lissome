@@ -5,6 +5,7 @@ require! {
 	"winston"
 	"./app"
 }
+parser = app.locals.multer.fields []
 User = mongoose.models.User
 router = express.Router!
 router
@@ -14,7 +15,7 @@ router
 			res.redirect "/"
 		else
 			res.render "login", { csrf: req.csrfToken! }
-	.post (req, res, next)->
+	.post parser, (req, res, next)->
 		if req.body.username? and req.body.username isnt "" and req.body.password? and req.body.password isnt ""
 			err, user <- User.findOne {
 				"username":req.body.username.toLowerCase!

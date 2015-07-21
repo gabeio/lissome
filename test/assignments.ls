@@ -154,7 +154,6 @@ describe "Assignments Module" ->
 					admin
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": aid.0.title
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -182,7 +181,6 @@ describe "Assignments Module" ->
 					admin
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": aid.0.title
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -210,7 +208,6 @@ describe "Assignments Module" ->
 					admin
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": aid.0.title
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -237,7 +234,6 @@ describe "Assignments Module" ->
 					admin
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": aid.0.title
 							"opendate": ""
 							"opentime": ""
@@ -265,7 +261,6 @@ describe "Assignments Module" ->
 					admin
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": aid.0.title
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -293,7 +288,6 @@ describe "Assignments Module" ->
 					admin
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": aid.0.title
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -321,7 +315,6 @@ describe "Assignments Module" ->
 					admin
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": ""
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -374,35 +367,11 @@ describe "Assignments Module" ->
 					admin
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?action=attempt"
 						.send {
-							"aid":aid.0._id
 							"text":"adminAttempt"
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(2|3)/
 							expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/.{24}\/?/i
-							cont err
-			]
-			done err
-		it "should not grade if no aid given", (done)->
-			err <- async.waterfall [
-				(cont)->
-					admin
-						.get "/test/getaid/cps1234?title=admin"
-						.end (err, res)->
-							cont err, res.body
-				(assign,cont)->
-					admin
-						.get "/test/getattempt/cps1234?title=admin&text=adminAttempt"
-						.end (err, res)->
-							cont err, assign, res.body
-				(assign,attempt,cont)->
-					admin
-						.post "/c/#{courseId}/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
-						.send {
-							"points": "100"
-						}
-						.end (err, res)->
-							expect res.header.location .to.not.match /^\/c\/.{24}\/assignments\/.{24}\/.{24}\/?\?success\=yes\&verb\=graded/i
 							cont err
 			]
 			done err
@@ -422,7 +391,6 @@ describe "Assignments Module" ->
 					admin
 						.post "/c/#{courseId}/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
 						.send {
-							"aid": attempt.0._id
 							"points": "10"
 						}
 						.expect 302
@@ -572,35 +540,11 @@ describe "Assignments Module" ->
 					faculty
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?action=attempt"
 						.send {
-							"aid": aid.0._id
 							"text":"facultyAttempt"
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(2|3)/
 							expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/.{24}\/?/i
-							cont err
-			]
-			done err
-		it "should not grade if no aid given", (done)->
-			err <- async.waterfall [
-				(cont)->
-					faculty
-						.get "/test/getaid/cps1234?title=faculty"
-						.end (err, res)->
-							cont err, res.body
-				(assign,cont)->
-					faculty
-						.get "/test/getattempt/cps1234?title=faculty&text=facultyAttempt"
-						.end (err, res)->
-							cont err, assign, res.body
-				(assign,attempt,cont)->
-					faculty
-						.post "/c/#{courseId}/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
-						.send {
-							"points": "100"
-						}
-						.end (err, res)->
-							expect res.header.location .to.not.match /^\/c\/.{24}\/assignments\/.{24}\/.{24}\/?\?success\=yes\&verb\=graded/i
 							cont err
 			]
 			done err
@@ -620,7 +564,6 @@ describe "Assignments Module" ->
 					faculty
 						.post "/c/#{courseId}/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
 						.send {
-							"aid": attempt.0._id
 							"points": "10"
 						}
 						.expect 302
@@ -655,7 +598,6 @@ describe "Assignments Module" ->
 					faculty
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
 						.send {
-							"aid": aid.0._id
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
@@ -735,7 +677,6 @@ describe "Assignments Module" ->
 					admin
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
 						.send {
-							"aid": aid.0._id
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
@@ -813,7 +754,6 @@ describe "Assignments Module" ->
 					faculty
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": aid.0.title
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -841,7 +781,6 @@ describe "Assignments Module" ->
 					faculty
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?action=attempt"
 						.send {
-							"aid": aid.0._id
 							"text":"facultyAttempt"
 						}
 						.expect 404
@@ -876,7 +815,6 @@ describe "Assignments Module" ->
 					faculty
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
 						.send {
-							"aid":aid.0._id
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4)/
@@ -945,7 +883,6 @@ describe "Assignments Module" ->
 					student
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": "edited by a student"
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -973,7 +910,6 @@ describe "Assignments Module" ->
 					student
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
 						.send {
-							"aid":aid.0._id
 						}
 						.end (err, res)->
 							# expect res.status .to.not.equal 302
@@ -1013,7 +949,6 @@ describe "Assignments Module" ->
 					student
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?action=attempt"
 						.send {
-							"aid":aid.0._id
 							"text":"studentAttempt"
 						}
 						.end (err, res)->
@@ -1044,7 +979,6 @@ describe "Assignments Module" ->
 					student
 						.post "/c/#{courseId}/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
 						.send {
-							"aid": attempt.0._id
 							"points": "10"
 						}
 						.expect 302
@@ -1123,7 +1057,6 @@ describe "Assignments Module" ->
 					student
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": "edited by an outside student"
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -1151,7 +1084,6 @@ describe "Assignments Module" ->
 					student
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
 						.send {
-							"aid":aid.0._id
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4)/i
@@ -1193,7 +1125,6 @@ describe "Assignments Module" ->
 					student
 						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?action=attempt"
 						.send {
-							"aid":aid.0._id
 							"text":"something right here"
 						}
 						.end (err, res)->
@@ -1511,7 +1442,6 @@ describe "Assignments Module" ->
 			student
 				.post "/c/#{courseId}/assignments/#{otherFunc.Early}?action=attempt"
 				.send {
-					"aid":otherFunc.Early
 					"text":"something"
 				}
 				.end (err, res)->
@@ -1522,7 +1452,6 @@ describe "Assignments Module" ->
 			student
 				.post "/c/#{courseId}/assignments/#{otherFunc.Late}?action=attempt"
 				.send {
-					"aid":otherFunc.Late
 					"text":"something"
 				}
 				.end (err, res)->
@@ -1533,7 +1462,6 @@ describe "Assignments Module" ->
 			student
 				.post "/c/#{courseId}/assignments/#{otherFunc.allowLate}?action=attempt"
 				.send {
-					"aid":otherFunc.allowLate
 					"text":"something"
 				}
 				.end (err, res)->
@@ -1543,7 +1471,6 @@ describe "Assignments Module" ->
 			student
 				.post "/c/#{courseId}/assignments/#{otherFunc.None}?action=attempt"
 				.send {
-					"aid":otherFunc.None
 					"text":"something"
 				}
 				.end (err, res)->

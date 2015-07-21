@@ -58,7 +58,7 @@
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				{% if 2 <= auth %}
-				<form class="panel panel-default" action="?action=grade" method="POST" enctype="multipart/form-data">
+				<form class="panel panel-default" action="?action=grade" method="POST">
 					<input type="hidden" name="_csrf" value="{{csrf}}" />
 					<input type="hidden" name="aid" value="{{ attempts._id|toString }}" />
 				{% else %}

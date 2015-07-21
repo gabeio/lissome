@@ -32,6 +32,14 @@ app = module.exports = express!
 # app locals
 app
 	..locals.smallpassword = parseInt (process.env.small||process.env.smallpassword||process.env.minpassword||6)
+	..locals.multer = multer { # requires: enctype="multipart/form-data"
+		dest: "uploads/"
+		limits:
+			files: 0 # currently disallow file uploads
+			# fileSize: 100mb # currently set to the max cloudflare free allows
+		+includeEmptyFields
+		-inMemory
+	}
 
 /* istanbul ignore next this is just for assurance the env vars are defined */
 do ->
@@ -105,10 +113,29 @@ app
 	.use response-time!
 	.use helmet!
 	.use helmet.contentSecurityPolicy {
-		default-src: ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com"]
-		script-src:  ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com"]
-		style-src:   ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com", "fonts.googleapis.com"]
-		font-src:    ["'self'", "assets.lissome.co", "maxcdn.bootstrapcdn.com", "cdnjs.cloudflare.com", "fonts.googleapis.com", "fonts.gstatic.com"]
+		default-src: ["'self'",
+			"assets.lissome.co",
+			"maxcdn.bootstrapcdn.com",
+			"cdnjs.cloudflare.com"
+		]
+		script-src:  ["'self'",
+			"assets.lissome.co",
+			"maxcdn.bootstrapcdn.com",
+			"cdnjs.cloudflare.com"
+		]
+		style-src:   ["'self'",
+			"assets.lissome.co",
+			"maxcdn.bootstrapcdn.com",
+			"cdnjs.cloudflare.com",
+			"fonts.googleapis.com"
+		]
+		font-src:    ["'self'",
+			"assets.lissome.co",
+			"maxcdn.bootstrapcdn.com",
+			"cdnjs.cloudflare.com",
+			"fonts.googleapis.com",
+			"fonts.gstatic.com"
+		]
 	}
 	.use helmet.frameguard "deny"
 	# body parser
@@ -118,15 +145,6 @@ app
 	.use bodyParser.json!
 	.use bodyParser.text! # idk
 	.use bodyParser.raw! # idk
-	# multipart body parser
-	.use multer { # requires: enctype="multipart/form-data"
-		dest: "./uploads/"
-		limits:
-			# fileSize: 10000000mb
-			files: 0
-		-includeEmptyFields
-		-inMemory
-	}
 	# method override needs to come before csurf
 	.use method-override "hmo" # Http-Method-Override
 	# sessions
@@ -160,9 +178,7 @@ app
 	.use cors!
 	# compress large files
 	.use compression!
-
-# Custom Middleware
-app
+	# CUSTOM MIDDLEWARE
 	.use (req, res, next)->
 		err <- async.parallel [
 			(para)->
