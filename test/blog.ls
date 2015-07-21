@@ -93,8 +93,8 @@ describe "Blog", (...)->
 			admin
 				.post "/c/#{courseId}/blog?action=new"
 				.send {
-					"title":"title"
-					"text":"student"
+					"title":"admin created title"
+					"text":"admin created text"
 				}
 				.expect 302
 				.end (err, res)->
@@ -143,11 +143,11 @@ describe "Blog", (...)->
 				.post "/c/#{courseId}/blog/title?action=edit&hmo=PUT"
 				.send {
 					"pid":blogpid.0
-					"title":"anything"
-					"text":"anything"
+					"title":"admin-created-title"
+					"text":"admin-created-text"
 				}
 				.end (err, res)->
-					expect res.header.location .to.equal "/c/#{courseId}/blog/title?action=edit&success=yes"
+					expect res.header.location .to.equal "/c/#{courseId}/blog/admin-created-title?success=yes"
 					expect res.status .to.equal 302
 					done err
 		it "should delete a post", (done)->
@@ -231,11 +231,11 @@ describe "Blog", (...)->
 				.post "/c/#{courseId}/blog/title?action=edit&hmo=PUT"
 				.send {
 					"pid":blogpid.0
-					"title":"anything"
-					"text":"faculty edit"
+					"title":"faculty-created-title"
+					"text":"faculty-created-text"
 				}
 				.end (err, res)->
-					expect res.header.location .to.equal "/c/#{courseId}/blog/title?action=edit&success=yes"
+					expect res.header.location .to.equal "/c/#{courseId}/blog/faculty-created-title?success=yes"
 					expect res.status .to.equal 302
 					done err
 		it "should delete a post", (done)->
@@ -266,11 +266,12 @@ describe "Blog", (...)->
 			student
 				.post "/c/#{courseId}/blog?action=new"
 				.send {
-					"title":"title"
-					"text":"student"
+					"title":"student-created-title"
+					"text":"student-created-text"
 				}
 				.expect 302
 				.end (err, res)->
+					expect res.header.location .to.not.equal "/c/#{courseId}/blog/student-created-title?success=yes"
 					done err
 		it "should not return create post page", (done)->
 			student
