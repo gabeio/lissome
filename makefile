@@ -4,7 +4,7 @@ build:
 test:
 	gulp build
 	gulp build-tests
-	./node_modules/.bin/mocha
+	./node_modules/.bin/mocha --slow 2
 
 coverage:
 	gulp build
