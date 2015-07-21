@@ -12,7 +12,7 @@ engines:
 scripts:
 	start: "node ./lib/app.js"
 	test: "gulp build && gulp build-tests && mocha --slow 2"
-	test-ci: "gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha --slow 2 --report lcovonly -- -R spec"
+	test-ci: "gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -s 2 -R spec"
 	coverage: "gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha"
 	continuous: "nodemon -w ./ -e html,css,js -x node ./lib/app.js"
 
