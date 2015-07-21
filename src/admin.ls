@@ -7,6 +7,7 @@ require! {
 	"winston"
 	"./app"
 }
+parser = app.locals.multer.fields []
 lower = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
 upper = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
 num = ["0","1","2","3","4","5","6","7","8","9"]
@@ -55,7 +56,7 @@ router
 			res.render "admin/rmfaculty", { csrf: req.csrfToken! }
 		| _
 			res.render "admin/default", { csrf: req.csrfToken! }
-	.post (req, res, next)->
+	.post parser, (req, res, next)->
 		if req.query.action is "create"
 			if res.locals.type is "user"
 				err <- async.waterfall [
@@ -187,7 +188,7 @@ router
 				next!
 		else
 			next!
-	.post (req, res, next)->
+	.post parser, (req, res, next)->
 		if req.query.action is "search"
 			if res.locals.type is "user"
 				err, result <- async.parallel [
@@ -369,7 +370,7 @@ router
 				res.render "admin/search", { csrf: req.csrfToken! }
 		else
 			next!
-	.post (req, res, next)->
+	.post parser, (req, res, next)->
 		if req.query.action is "addstudent"
 			# *SEARCH* for student to add to course
 			if !req.params.object?
@@ -491,7 +492,7 @@ router
 			...
 		else
 			next!
-	.put (req, res, next)->
+	.put parser, (req, res, next)->
 		if req.query.action is "edit"
 			if res.locals.type is "user"
 				err <- async.waterfall [
@@ -536,7 +537,7 @@ router
 						if req.body.level?
 							user.type = req.body.level
 						if req.body.firstName?
-							user.firstName = req.body.middleName
+							user.firstName = req.body.firstName
 						if req.body.middleName?
 							user.middleName = req.body.middleName
 						if req.body.lastName?
@@ -786,7 +787,7 @@ router
 				next!
 		else
 			next!
-	.delete (req, res, next)->
+	.delete parser, (req, res, next)->
 		if req.query.action is "delete"
 			if res.locals.type is "user"
 				err <- async.waterfall [
