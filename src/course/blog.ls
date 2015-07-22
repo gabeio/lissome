@@ -57,7 +57,7 @@ router
 					if !req.body.text? or req.body.text is "" or !req.body.title? or req.body.title is ""
 						res.status 400 .render "course/blog/create", { "blog":true, "on":"newblog", success:"no", action:"created", body: req.body, csrf: req.csrfToken! }
 					else
-						res.status 302 .redirect "/c/#{res.locals.course._id}/blog/"
+						res.status 302 .redirect "/c/#{res.locals.course._id}/blog/#{req.body.title}?success=yes"
 				->
 					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 						post = new Post {
@@ -81,10 +81,10 @@ router
 		if req.query.action is "edit"
 			async.parallel [
 				->
-					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
-						res.redirect "/c/#{res.locals.course._id}/blog/#{req.params.unique}?action=edit&success=yes"
-					else
+					if !req.body.text? or req.body.text is "" or !req.body.title? or req.body.title is ""
 						res.status 400 .render "course/blog/create", { blog:true, on:"editblog", success:"no", action:"updated", body: req.body, csrf: req.csrfToken! }
+					else
+						res.status 302 .redirect "/c/#{res.locals.course._id}/blog/#{req.body.title}?success=yes"
 				->
 					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 						err, post <- Post.findOneAndUpdate {
@@ -132,7 +132,7 @@ router
 
 	..route "/:unique?" # query action(search)
 	.get (req, res, next)->
-		if req.query.search? or req.params.unique?
+		if req.query.search? and req.query.search isnt "" or req.params.unique? and req.params.search isnt ""
 			res.locals.search = if req.params.unique? then req.params.unique else req.query.search
 			err, posts <- async.parallel [
 				(done)->
@@ -203,15 +203,22 @@ router
 					.exec
 					done err, posts
 			]
-			posts = _.flatten _.without(posts,undefined), true
-			posts = if posts.length > 0 then _.uniq _.sortBy(posts, "timestamp").reverse!
-			res.render "course/blog/default", { success: req.query.success, action: req.query.verb, blog: posts, csrf: req.csrfToken! }
+			require! "util"
+			posts = _(posts)
+			.without undefined # posts, undefined
+			.flatten true
+			.uniq "_id", ->
+				it.toString!
+			.sortBy "timestamp" .reverse!
+			res.render "course/blog/default", { success: req.query.success, action: req.query.verb, blog: posts.value! }
 		else
 			err, posts <- Post.find {
 				"course": ObjectId res.locals.course._id
 				"type":"blog"
-			} .populate("author").exec
+			}
+			.populate "author"
+			.exec
 			res.locals.blog = _.sortBy posts, "timestamp" .reverse!
-			res.render "course/blog/default", { success: req.query.success, action: req.query.verb, csrf: req.csrfToken! }
+			res.render "course/blog/default", { success: req.query.success, action: req.query.verb }
 
 module.exports = router
