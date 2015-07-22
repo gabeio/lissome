@@ -132,7 +132,7 @@ router
 
 	..route "/:unique?" # query action(search)
 	.get (req, res, next)->
-		if req.query.search? or req.params.unique?
+		if req.query.search? and req.query.search isnt "" or req.params.unique? and req.params.search isnt ""
 			res.locals.search = if req.params.unique? then req.params.unique else req.query.search
 			err, posts <- async.parallel [
 				(done)->
@@ -203,9 +203,14 @@ router
 					.exec
 					done err, posts
 			]
-			posts = _.flatten _.without(posts,undefined), true
-			posts = if posts.length > 0 then _.uniq _.sortBy(posts, "timestamp").reverse!
-			res.render "course/blog/default", { success: req.query.success, action: req.query.verb, blog: posts, csrf: req.csrfToken! }
+			require! "util"
+			posts = _(posts)
+			.without undefined # posts, undefined
+			.flatten true
+			.uniq "_id", ->
+				it.toString!
+			.sortBy "timestamp" .reverse!
+			res.render "course/blog/default", { success: req.query.success, action: req.query.verb, blog: posts.value! }
 		else
 			err, posts <- Post.find {
 				"course": ObjectId res.locals.course._id
@@ -214,6 +219,6 @@ router
 			.populate "author"
 			.exec
 			res.locals.blog = _.sortBy posts, "timestamp" .reverse!
-			res.render "course/blog/default", { success: req.query.success, action: req.query.verb, csrf: req.csrfToken! }
+			res.render "course/blog/default", { success: req.query.success, action: req.query.verb }
 
 module.exports = router
