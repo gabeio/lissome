@@ -286,6 +286,92 @@ describe "Core" ->
 							.end (err, res)->
 								expect res.header.location .to.equal "/"
 								done err
+		it "should fail for a bad hotp", (done)->
+			faculty
+				.post "/login"
+				.send {
+					"username": "zfaculty"
+					"password": "password"
+				}
+				.expect 302
+				.end (err, res)->
+					expect res.headers.location .to.equal "/otp"
+					admin
+						.post "/otp"
+						.send {
+							"token":"000000"
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/"
+							admin
+								.get "/"
+								.expect 302
+								.end (err, res)->
+									expect res.headers.location .to.equal "/login"
+									done err
+		it "should fail for a bad totp", (done)->
+			admin
+				.post "/login"
+				.send {
+					"username": "zadmin"
+					"password": "password"
+				}
+				.expect 302
+				.end (err, res)->
+					expect res.headers.location .to.equal "/otp"
+					admin
+						.post "/otp"
+						.send {
+							"token":"000000"
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/"
+							admin
+								.get "/"
+								.expect 302
+								.end (err, res)->
+									expect res.headers.location .to.equal "/login"
+									done err
+		it "should not take a blank hotp", (done)->
+			faculty
+				.post "/login"
+				.send {
+					"username": "zfaculty"
+					"password": "password"
+				}
+				.expect 302
+				.end (err, res)->
+					expect res.headers.location .to.equal "/otp"
+					admin
+						.post "/otp"
+						.send {
+							"otp":""
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/otp"
+							done err
+		it "should not take a blank totp", (done)->
+			admin
+				.post "/login"
+				.send {
+					"username": "zadmin"
+					"password": "password"
+				}
+				.expect 302
+				.end (err, res)->
+					expect res.headers.location .to.equal "/otp"
+					admin
+						.post "/otp"
+						.send {
+							"otp":""
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/otp"
+							done err
 		it "should fail for a blank user", (done)->
 			student
 				.post "/login"
