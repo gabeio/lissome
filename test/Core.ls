@@ -303,13 +303,8 @@ describe "Core" ->
 						}
 						.expect 302
 						.end (err, res)->
-							expect res.headers.location .to.equal "/"
-							admin
-								.get "/"
-								.expect 302
-								.end (err, res)->
-									expect res.headers.location .to.equal "/login"
-									done err
+							expect res.headers.location .to.equal "/login"
+							done err
 		it "should fail for a bad totp", (done)->
 			admin
 				.post "/login"
@@ -327,13 +322,8 @@ describe "Core" ->
 						}
 						.expect 302
 						.end (err, res)->
-							expect res.headers.location .to.equal "/"
-							admin
-								.get "/"
-								.expect 302
-								.end (err, res)->
-									expect res.headers.location .to.equal "/login"
-									done err
+							expect res.headers.location .to.equal "/login"
+							done err
 		it "should not take a blank hotp", (done)->
 			faculty
 				.post "/login"
