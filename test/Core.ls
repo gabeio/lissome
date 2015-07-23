@@ -349,9 +349,9 @@ describe "Core" ->
 						.send {
 							"otp":""
 						}
-						.expect 302
+						.expect 400
 						.end (err, res)->
-							expect res.headers.location .to.equal "/otp"
+							expect res.headers.location .to.be.an "undefined"
 							done err
 		it "should not take a blank totp", (done)->
 			admin
@@ -368,9 +368,9 @@ describe "Core" ->
 						.send {
 							"otp":""
 						}
-						.expect 302
+						.expect 400
 						.end (err, res)->
-							expect res.headers.location .to.equal "/otp"
+							expect res.headers.location .to.be.an "undefined"
 							done err
 		it "should fail for a blank user", (done)->
 			student
