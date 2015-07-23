@@ -40,6 +40,10 @@ gulp.task 'build' ['clean'] ->
 		.pipe livescript bare:true
 		.on 'error' -> throw it
 		.pipe gulp.dest './lib/course/'
+		..src './src/preferences/*.ls'
+		.pipe livescript bare:true
+		.on 'error' -> throw it
+		.pipe gulp.dest './lib/preferences/'
 		..src './src/frontend/*.ls'
 		.pipe livescript bare:true
 		.on 'error' -> throw it

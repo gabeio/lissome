@@ -10,7 +10,7 @@ ObjectId = mongoose.Types.ObjectId
 User = mongoose.models.User
 router = express.Router!
 router
-	..route "/"
+	..route "/:anything(*)?"
 	.all (req, res, next)->
 		res.locals.needs = 1
 		app.locals.authorize req, res, next
@@ -24,8 +24,8 @@ router
 			winston.error "preferences.ls:user.findOne", err
 		else
 			res.locals.user = result
-			next!
-	.get (req, res, next)->
-		res.render "preferences"
+			next "route"
+	..use "/otp", require("./preferences/otp")
+	..use "/", require("./preferences/index")
 
 module.exports = router
