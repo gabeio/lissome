@@ -8,8 +8,6 @@ node_js:
 sudo: false
 notifications:
     email: false
-    slack:
-        secure: "ZCc16+LCCEqDS18BJZPoUcKowGzp5hg6m02MAOy/3LzBlzl/FPEuky2CqgSBUpJ6fQJZf/kl/E4r01tY4EqgdZZ876KrIOHe32yZ5VNUaTbRO1f4pKLRN8rPMrGjgs7GAHcWSFBYA90iscZERjsPyf1Rsx5V4up3w05hXX7L7Bg="
     flowdock:
         secure: "OcgwG0RJdhPNMoD2IlTG9PShIw/6QWYzkYw+RWsFLyEpFV5XbbW+sVqo2+DGRDieFIuULQ1PDjmeRRB0uME3fH3IZRA2dwoPHZiaiFckX3Lfk03hkL86Yb/Fb1L5UIhKufXT+MzryPISjzSIqez+XTJj9VkiiRWgkWHNIA/Qydc="
 cache:
