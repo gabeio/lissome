@@ -42,7 +42,7 @@ router
 					else
 						err <- req.session.destroy
 						if err? then winston.error err
-						res.redirect "/"
+						res.redirect "/login"
 				else if user.otp? && user.otp.secret? && user.otp.count? # user has otp and count it's hotp
 					res.locals.verify = passcode.hotp.verify {
 						secret: user.otp.secret
@@ -61,7 +61,7 @@ router
 					else
 						err <- req.session.destroy
 						if err? then winston.error err
-						res.redirect "/"
+						res.redirect "/login"
 				else
 					winston.error "otp.ls: (else statement) probably old session; destroying session..."
 					err <- req.session.destroy
