@@ -1,6 +1,5 @@
 require! {
 	"express"
-	"bcrypt"
 	"mongoose"
 	"passcode"
 	"winston"
