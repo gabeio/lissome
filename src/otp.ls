@@ -67,6 +67,6 @@ router
 					err <- req.session.destroy
 					res.redirect "/"
 		else
-			res.render "otp", { error: "missing field", csrf: req.csrfToken!  }
+			res.status 400 .render "otp", { error: "missing field", csrf: req.csrfToken!  }
 
 module.exports = router
