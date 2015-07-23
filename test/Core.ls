@@ -296,7 +296,7 @@ describe "Core" ->
 				.expect 302
 				.end (err, res)->
 					expect res.headers.location .to.equal "/otp"
-					admin
+					faculty
 						.post "/otp"
 						.send {
 							"token":"000000"
@@ -344,7 +344,7 @@ describe "Core" ->
 				.expect 302
 				.end (err, res)->
 					expect res.headers.location .to.equal "/otp"
-					admin
+					faculty
 						.post "/otp"
 						.send {
 							"otp":""
