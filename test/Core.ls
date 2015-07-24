@@ -287,25 +287,6 @@ describe "Core" ->
 							.end (err, res)->
 								expect res.header.location .to.equal "/"
 								done err
-		it "should suceed for a good hotp", (done)->
-			faculty
-				.post "/login"
-				.send {
-					"username": "zfaculty"
-					"password": "password"
-				}
-				.expect 302
-				.end (err, res)->
-					expect res.headers.location .to.equal "/otp"
-					faculty
-						.post "/otp"
-						.send {
-							"token": passcode.hotp { secret: "4JZPEQXTGFNCR76H", counter: 1, encoding: "base32" }
-						}
-						.expect 302
-						.end (err, res)->
-							expect res.headers.location .to.equal "/"
-							done err
 		it "should succeed for a good totp", (done)->
 			admin
 				.post "/login"
@@ -324,25 +305,6 @@ describe "Core" ->
 						.expect 302
 						.end (err, res)->
 							expect res.headers.location .to.equal "/"
-							done err
-		it "should fail for a bad hotp", (done)->
-			faculty
-				.post "/login"
-				.send {
-					"username": "zfaculty"
-					"password": "password"
-				}
-				.expect 302
-				.end (err, res)->
-					expect res.headers.location .to.equal "/otp"
-					faculty
-						.post "/otp"
-						.send {
-							"token":"000000"
-						}
-						.expect 302
-						.end (err, res)->
-							expect res.headers.location .to.equal "/login"
 							done err
 		it "should fail for a bad totp", (done)->
 			admin
