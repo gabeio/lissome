@@ -25,6 +25,7 @@ router
 			/* istanbul ignore if */
 			if err
 				winston.error "user:find", err
+				next new Error "MONGO"
 			if !user? or user.length is 0
 				res.render "login", { error: "user not found", csrf: req.csrfToken! }
 			else
