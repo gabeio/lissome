@@ -10,8 +10,8 @@ paths =
 		'./src/*.ls',
 		'./src/databases/*.ls',
 		'./src/course/*.ls',
+		'./src/preferences/*.ls'
 		'./src/frontend/*.ls']
-	tests: ['./test/*.ls','./src/*.ls']
 
 gulp.task 'default' ['build'] (done)->
 	done!
