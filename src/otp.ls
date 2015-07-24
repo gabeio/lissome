@@ -29,32 +29,13 @@ router
 			if !user? or user.length is 0
 				res.render "login", { error: "user not found", csrf: req.csrfToken! }
 			else
-				if user.otp? && user.otp.secret? && !user.otp.count? # user has otp but no count it's totp
+				if user.otp? && user.otp.secret?
 					res.locals.verify = passcode.totp.verify {
 						secret: user.otp.secret
 						token: req.body.token
 						encoding: "base32"
 					}
 					if res.locals.verify? and res.locals.verify.delta?
-						delete req.session.otp
-						req.session.auth = user.type
-						res.redirect "/"
-					else
-						err <- req.session.destroy
-						if err? then winston.error err
-						res.redirect "/login"
-				else if user.otp? && user.otp.secret? && user.otp.count? # user has otp and count it's hotp
-					res.locals.verify = passcode.hotp.verify {
-						secret: user.otp.secret
-						token: req.body.token
-						counter: user.otp.count
-						encoding: "base32"
-					}
-					if res.locals.verify? and res.locals.verify.delta?
-						user.otp.count += 1
-						user.otp.set("count","changed")
-						err, user <- user.save
-						if err then winston.error err
 						delete req.session.otp
 						req.session.auth = user.type
 						res.redirect "/"
