@@ -221,7 +221,6 @@ async.series [
 					type: 2
 					otp: {
 						secret: "4JZPEQXTGFNCR76H"
-						count: 1
 					}
 				}
 				err, faculty <- zfaculty.save
