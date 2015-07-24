@@ -325,25 +325,6 @@ describe "Core" ->
 						.end (err, res)->
 							expect res.headers.location .to.equal "/login"
 							done err
-		it "should not take a blank hotp", (done)->
-			faculty
-				.post "/login"
-				.send {
-					"username": "zfaculty"
-					"password": "password"
-				}
-				.expect 302
-				.end (err, res)->
-					expect res.headers.location .to.equal "/otp"
-					faculty
-						.post "/otp"
-						.send {
-							"otp":""
-						}
-						.expect 400
-						.end (err, res)->
-							expect res.headers.location .to.be.an "undefined"
-							done err
 		it "should not take a blank totp", (done)->
 			admin
 				.post "/login"
