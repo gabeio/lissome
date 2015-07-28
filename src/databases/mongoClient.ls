@@ -1,4 +1,4 @@
-module.exports = (app,mongoose,mongohost)->
+module.exports = (app,mongoose,mongouri)->
 	require! {
 		"winston"
 	}
@@ -10,7 +10,7 @@ module.exports = (app,mongoose,mongohost)->
 		}
 	}
 	/* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
-	mongo.open mongohost
+	mongo.open mongouri
 	/* istanbul ignore next */
 	mongo.on "disconnect", ->
 		winston.warn "mongo:disconnected\ntrying to reconnect"
