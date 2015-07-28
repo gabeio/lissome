@@ -10,9 +10,7 @@ Course = mongoose.model "Course" schemas.Course
 Semester = mongoose.model "Semester" schemas.Semester
 
 db = mongoose.connection
-mongouser = if process.env.mongouser or process.env.MONGOUSER then ( process.env.mongouser || process.env.MONGOUSER )
-mongopass = if process.env.mongopass or process.env.MONGOPASS then ( process.env.mongopass || process.env.MONGOPASS )
-db.open (process.env.mongo||process.env.MONGO||"mongodb://localhost/lissome"), { "user": mongouser, "pass": mongopass }
+db.open (process.env.mongo||process.env.MONGO||"mongodb://127.0.0.1/lissome")
 # db.on "disconnect", -> db.connect!
 db.on "error", console.error.bind console, "connection error:"
 
