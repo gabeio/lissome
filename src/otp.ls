@@ -29,7 +29,7 @@ router
 			if !user? or user.length is 0
 				res.render "login", { error: "user not found", csrf: req.csrfToken! }
 			else
-				if user.otp? && user.otp.secret?
+				if user.otp? and user.otp.secret? and user.otp.secret.length isnt 0
 					res.locals.verify = passcode.totp.verify {
 						secret: user.otp.secret
 						token: req.body.token

@@ -37,9 +37,8 @@ router
 					winston.error err
 				if result is true
 					# do NOT take anything from req.body
-					if user.otp? and user.otp.secret? # if otp and secret
+					if user.otp? and user.otp.secret? and user.otp.secret.length isnt 0 # if otp and secret
 						req.session.otp = user.otp.secret
-						req.session.otp? = user.otp.count
 					else # otherwise
 						req.session.auth = user.type # give them their auth
 					req.session.username = user.username

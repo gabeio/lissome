@@ -24,8 +24,7 @@ module.exports = (mongoose)->
 		id: { type: Number, +unique } # school issued id
 		middleName: { type: String } # middle name
 		otp: {
-			secret: String # (t/h)otp secret
-			count: Number # hotp count
+			secret: { type: String, default: "" } # (t/h)otp secret
 		}
 	}
 	User.index { username: 1 }
