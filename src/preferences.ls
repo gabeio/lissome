@@ -16,12 +16,13 @@ router
 		app.locals.authorize req, res, next
 	.all (req, res, next)->
 		err, result <- User.findOne {
-			_id:req.session._id
-			uid:req.session.uid
+			_id:req.session.uid
+			username:req.session.username
 		}
 		.exec
 		if err
 			winston.error "preferences.ls:user.findOne", err
+			next new Error "MONGO"
 		else
 			res.locals.user = result
 			next "route"
