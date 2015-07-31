@@ -22,7 +22,6 @@ repository:
 
 dependencies:
 	"async": "^1.3.0"
-	"bcrypt": "^0.8.3"
 	"body-parser": "^1.13.2"
 	"compression": "^1.5.1"
 	"connect-redis": "^2.4.0"
@@ -44,6 +43,7 @@ dependencies:
 	"multer": "^1.0.0"
 	"passcode": "^1.0.2"
 	"response-time": "^2.3.1"
+	"scrypt": "^4.0.7"
 	"serve-static": "^1.10.0"
 	"swig": "^1.4.2"
 	"thirty-two": "^0.0.2"
