@@ -1,6 +1,5 @@
 require! {
 	"async"
-	"bcrypt"
 	"mongoose"
 }
 schemas = require("../databases/schemas")(mongoose)

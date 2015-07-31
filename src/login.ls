@@ -1,10 +1,11 @@
 require! {
 	"express"
-	"bcrypt"
+	"scrypt"
 	"mongoose"
 	"winston"
 	"./app"
 }
+var asdf
 parser = app.locals.multer.fields []
 User = mongoose.models.User
 router = express.Router!
@@ -20,7 +21,9 @@ router
 	.get (req, res, next)->
 		res.render "login", { csrf: req.csrfToken! }
 	.post parser, (req, res, next)->
-		if req.body.username? and req.body.username isnt "" and req.body.password? and req.body.password isnt ""
+		if !req.body.username? or req.body.username is "" or !req.body.password? or req.body.password is ""
+			res.render "login", { error: "bad login credentials", csrf: req.csrfToken!  }
+		else
 			err, user <- User.findOne {
 				"username": req.body.username.toLowerCase!
 				"school": app.locals.school
@@ -28,33 +31,39 @@ router
 			/* istanbul ignore if */
 			if err
 				winston.error "user:find", err
-			if !user? or user.length is 0
-				res.render "login", { error: "user not found", csrf: req.csrfToken! }
+				next new Error err
 			else
-				err,result <- bcrypt.compare req.body.password, user.hash
-				/* istanbul ignore if */
-				if err
-					winston.error err
-				if result is true
-					# do NOT take anything from req.body
-					if user.otp? and user.otp.secret? and user.otp.secret.length isnt 0 # if otp and secret
-						req.session.otp = user.otp.secret
-					else # otherwise
-						req.session.auth = user.type # give them their auth
-					req.session.username = user.username
-					req.session.userid = user.id
-					req.session.uid = user._id
-					req.session.firstName = user.firstName
-					/* istanbul ignore next */
-					req.session.middleName? = user.middleName
-					req.session.lastName = user.lastName
-					if user.otp? and user.otp.secret?
-						res.redirect "/otp"
-					else
-						res.redirect "/"
+				if !user? or user.length is 0
+					res.render "login", { error: "user not found", csrf: req.csrfToken! }
 				else
-					res.render "login", { error:"bad login credentials", csrf: req.csrfToken! }
-		else
-			res.render "login", { error: "bad login credentials", csrf: req.csrfToken!  }
+					scrypt.verify.config.hashEncoding = "base64"
+					error,result <- scrypt.verify user.hash, new Buffer(req.body.password)
+					/* istanbul ignore if */
+					if error? and error.scrypt_err_message is "password is incorrect"
+						res.render "login", { error:"bad login credentials", csrf: req.csrfToken! }
+					else if error?
+						# bad password
+						winston.error error
+						next new Error error
+					else
+						if result isnt true
+							res.render "login", { error:"bad login credentials", csrf: req.csrfToken! }
+						else
+							# do NOT take anything from req.body
+							if user.otp? and user.otp.secret? and user.otp.secret.length isnt 0 # if otp and secret
+								req.session.otp = user.otp.secret
+							else # otherwise
+								req.session.auth = user.type # give them their auth
+							req.session.username = user.username
+							req.session.userid = user.id
+							req.session.uid = user._id
+							req.session.firstName = user.firstName
+							/* istanbul ignore next */
+							req.session.middleName? = user.middleName
+							req.session.lastName = user.lastName
+							if user.otp? and user.otp.secret? and user.otp.secret.length isnt 0
+								res.redirect "/otp"
+							else
+								res.redirect "/"
 
 module.exports = router

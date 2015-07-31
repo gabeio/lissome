@@ -6,12 +6,15 @@ require! {
 livescript = if gulp-livescript? then gulp-livescript
 
 paths =
-	scripts: ['./*.json.ls',
-		'./src/*.ls',
-		'./src/databases/*.ls',
-		'./src/course/*.ls',
+	scripts: [
+		'./src/*.ls'
+		'./src/databases/*.ls'
+		'./src/course/*.ls'
 		'./src/preferences/*.ls'
-		'./src/frontend/*.ls']
+		'./src/frontend/*.ls'
+		'./src/commandline/*.ls'
+		'./*.json.ls'
+	]
 
 gulp.task 'default' ['build'] (done)->
 	done!
@@ -26,35 +29,41 @@ gulp.task 'build-gulp' ->
 		.on 'error' -> throw it
 		.pipe gulp.dest './'
 
-gulp.task 'build' ['clean'] ->
+gulp.task 'build' ->
 	gulp
 		..src './src/*.ls'
 		.pipe livescript bare:true
-		.on 'error' -> throw it
+		.on 'error' -> console.error it
 		.pipe gulp.dest './lib/'
+
 		..src './src/databases/*.ls'
 		.pipe livescript bare:true
-		.on 'error' -> throw it
+		.on 'error' -> console.error it
 		.pipe gulp.dest './lib/databases/'
+
 		..src './src/course/*.ls'
 		.pipe livescript bare:true
-		.on 'error' -> throw it
+		.on 'error' -> console.error it
 		.pipe gulp.dest './lib/course/'
+
 		..src './src/preferences/*.ls'
 		.pipe livescript bare:true
-		.on 'error' -> throw it
+		.on 'error' -> console.error it
 		.pipe gulp.dest './lib/preferences/'
+
 		..src './src/frontend/*.ls'
 		.pipe livescript bare:true
-		.on 'error' -> throw it
+		.on 'error' -> console.error it
 		.pipe gulp.dest './public/assets/custom/'
+
 		..src './src/commandline/*.ls'
 		.pipe livescript bare:true
-		.on 'error' -> throw it
+		.on 'error' -> console.error it
 		.pipe gulp.dest './lib/commandline/'
+
 		..src './*.json.ls'
 		.pipe livescript!
-		.on 'error' -> throw it
+		.on 'error' -> console.error it
 		.pipe gulp.dest './'
 
 gulp.task 'clean-tests' (done)->
