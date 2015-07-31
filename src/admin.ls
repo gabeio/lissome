@@ -1,7 +1,7 @@
 require! {
 	"express"
 	"async"
-	"bcrypt"
+	"scrypt"
 	"lodash"
 	"mongoose"
 	"winston"
@@ -87,7 +87,9 @@ router
 					# add more checks here
 					(cont)->
 						# hash password
-						err, result <- bcrypt.hash "password", 10
+						scrypt.hash.config.outputEncoding = "base64"
+						err, result <- scrypt.hash new Buffer(req.body.password), { N:1, r:1, p:1 }
+						console.error err if err
 						cont err, result
 					(hash, cont)->
 						# check id & username existance

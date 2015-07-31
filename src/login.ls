@@ -1,10 +1,11 @@
 require! {
 	"express"
-	"bcrypt"
+	"scrypt"
 	"mongoose"
 	"winston"
 	"./app"
 }
+var asdf
 parser = app.locals.multer.fields []
 User = mongoose.models.User
 router = express.Router!
@@ -28,32 +29,36 @@ router
 			/* istanbul ignore if */
 			if err
 				winston.error "user:find", err
+				next new Error err
 			if !user? or user.length is 0
 				res.render "login", { error: "user not found", csrf: req.csrfToken! }
 			else
-				err,result <- bcrypt.compare req.body.password, user.hash
+				scrypt.verify.config.hashEncoding = "base64"
+				error,result <- scrypt.verify user.hash, new Buffer(req.body.password)
 				/* istanbul ignore if */
-				if err
-					winston.error err
-				if result is true
-					# do NOT take anything from req.body
-					if user.otp? and user.otp.secret? and user.otp.secret.length isnt 0 # if otp and secret
-						req.session.otp = user.otp.secret
-					else # otherwise
-						req.session.auth = user.type # give them their auth
-					req.session.username = user.username
-					req.session.userid = user.id
-					req.session.uid = user._id
-					req.session.firstName = user.firstName
-					/* istanbul ignore next */
-					req.session.middleName? = user.middleName
-					req.session.lastName = user.lastName
-					if user.otp? and user.otp.secret?
-						res.redirect "/otp"
-					else
-						res.redirect "/"
+				if error
+					winston.error error
+					next new Error error
 				else
-					res.render "login", { error:"bad login credentials", csrf: req.csrfToken! }
+					if result is true
+						# do NOT take anything from req.body
+						if user.otp? and user.otp.secret? and user.otp.secret.length isnt 0 # if otp and secret
+							req.session.otp = user.otp.secret
+						else # otherwise
+							req.session.auth = user.type # give them their auth
+						req.session.username = user.username
+						req.session.userid = user.id
+						req.session.uid = user._id
+						req.session.firstName = user.firstName
+						/* istanbul ignore next */
+						req.session.middleName? = user.middleName
+						req.session.lastName = user.lastName
+						if user.otp? and user.otp.secret? and user.otp.secret.length isnt 0
+							res.redirect "/otp"
+						else
+							res.redirect "/"
+					else
+						res.render "login", { error:"bad login credentials", csrf: req.csrfToken! }
 		else
 			res.render "login", { error: "bad login credentials", csrf: req.csrfToken!  }
 
