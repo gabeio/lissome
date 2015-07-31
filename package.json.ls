@@ -51,7 +51,7 @@ dependencies:
 	"yargs": "~3.16.1"
 
 devDependencies:
-	"chai": "~3.0.0"
+	"chai": "~3.2.0"
 	"del": "~1.2.0"
 	"gulp": "~3.9.0"
 	"gulp-livescript": "~2.4.0"
