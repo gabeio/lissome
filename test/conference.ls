@@ -177,7 +177,7 @@ describe "Conference" ->
 							admin
 								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 								.send {
-									thread: tid.0._id.toString()
+									thread: tid.0._id.toString!
 									title: "adminThread"
 								}
 								.end (err, res)->
@@ -201,7 +201,7 @@ describe "Conference" ->
 					admin
 						.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 						.send {
-							thread: tid.0._id.toString()
+							thread: tid.0._id.toString!
 							title: "facultyThread"
 						}
 						.end (err, res)->
@@ -363,7 +363,7 @@ describe "Conference" ->
 							admin
 								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
 								.send {
-									thread: tid.0._id.toString()
+									thread: tid.0._id.toString!
 								}
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
@@ -394,7 +394,7 @@ describe "Conference" ->
 							admin
 								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
 								.send {
-									thread: tid.0._id.toString()
+									thread: tid.0._id.toString!
 								}
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
@@ -515,7 +515,7 @@ describe "Conference" ->
 							faculty
 								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 								.send {
-									thread: tid.0._id.toString()
+									thread: tid.0._id.toString!
 									title: "facultyThread"
 								}
 								.end (err, res)->
@@ -539,7 +539,7 @@ describe "Conference" ->
 					faculty
 						.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 						.send {
-							thread: tid.0._id.toString()
+							thread: tid.0._id.toString!
 							title: "facultyThread"
 						}
 						.end (err, res)->
@@ -703,7 +703,7 @@ describe "Conference" ->
 							faculty
 								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
 								.send {
-									thread: tid.0._id.toString()
+									thread: tid.0._id.toString!
 								}
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
@@ -734,7 +734,7 @@ describe "Conference" ->
 							faculty
 								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
 								.send {
-									thread: tid.0._id.toString()
+									thread: tid.0._id.toString!
 								}
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
@@ -838,7 +838,7 @@ describe "Conference" ->
 							faculty
 								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 								.send {
-									thread: tid.0._id.toString()
+									thread: tid.0._id.toString!
 									title: "facultyThread"
 								}
 								.end (err, res)->
@@ -870,7 +870,7 @@ describe "Conference" ->
 							faculty
 								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
 								.send {
-									thread: tid.0._id.toString()
+									thread: tid.0._id.toString!
 								}
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/
@@ -1031,7 +1031,7 @@ describe "Conference" ->
 							student
 								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 								.send {
-									thread: tid.0._id.toString()
+									thread: tid.0._id.toString!
 									title: "studentThread"
 								}
 								.end (err, res)->
@@ -1122,7 +1122,7 @@ describe "Conference" ->
 							student
 								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
 								.send {
-									thread: tid.0._id.toString()
+									thread: tid.0._id.toString!
 								}
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
@@ -1165,7 +1165,7 @@ describe "Conference" ->
 					student
 						.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 						.send {
-							thread: tid.0._id.toString()
+							thread: tid.0._id.toString!
 							title: "facultyThread"
 						}
 						.expect 302
@@ -1213,7 +1213,7 @@ describe "Conference" ->
 					student
 						.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
 						.send {
-							thread: tid.0._id.toString()
+							thread: tid.0._id.toString!
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
@@ -1352,7 +1352,7 @@ describe "Conference" ->
 							student
 								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 								.send {
-									thread: tid.0._id.toString()
+									thread: tid.0._id.toString!
 									title: "studentThread"
 								}
 								.end (err, res)->
@@ -1384,7 +1384,7 @@ describe "Conference" ->
 							student
 								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
 								.send {
-									thread: tid.0._id.toString()
+									thread: tid.0._id.toString!
 								}
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/

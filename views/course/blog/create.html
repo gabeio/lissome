@@ -33,7 +33,7 @@
 		</div>
 		{% endif %}
 		<div class="row">
-			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=new" enctype="multipart/form-data">
+			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=new">
 				<input type="hidden" name="_csrf" value="{{csrf}}" />
 				<div class="form-group">
 					<label for="formTitle">Title</label>
@@ -53,5 +53,4 @@
 			</form>
 		</div>
 	</div>
-	<script src="/assets/custom/smrtboard.js"></script>
 {% endblock %}

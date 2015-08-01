@@ -4,6 +4,7 @@ require! {
 	"del" # delete
 	"lodash"
 	"supertest"
+	"passcode"
 }
 _ = lodash
 req = supertest
@@ -286,6 +287,63 @@ describe "Core" ->
 							.end (err, res)->
 								expect res.header.location .to.equal "/"
 								done err
+		it "should succeed for a good totp", (done)->
+			admin
+				.post "/login"
+				.send {
+					"username": "zadmin"
+					"password": "password"
+				}
+				.expect 302
+				.end (err, res)->
+					expect res.headers.location .to.equal "/otp"
+					admin
+						.post "/otp"
+						.send {
+							"token": passcode.totp { secret: "4JZPEQXTGFNCR76H", encoding: "base32" }
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/"
+							done err
+		it "should fail for a bad totp", (done)->
+			admin
+				.post "/login"
+				.send {
+					"username": "zadmin"
+					"password": "password"
+				}
+				.expect 302
+				.end (err, res)->
+					expect res.headers.location .to.equal "/otp"
+					admin
+						.post "/otp"
+						.send {
+							"token":"000000"
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/login"
+							done err
+		it "should not take a blank totp", (done)->
+			admin
+				.post "/login"
+				.send {
+					"username": "zadmin"
+					"password": "password"
+				}
+				.expect 302
+				.end (err, res)->
+					expect res.headers.location .to.equal "/otp"
+					admin
+						.post "/otp"
+						.send {
+							"otp":""
+						}
+						.expect 400
+						.end (err, res)->
+							expect res.headers.location .to.be.an "undefined"
+							done err
 		it "should fail for a blank user", (done)->
 			student
 				.post "/login"
@@ -305,7 +363,7 @@ describe "Core" ->
 					"password": "bad"
 				}
 				.end (err, res)->
-					expect res.text .to.have.string "username not found"
+					expect res.text .to.have.string "user not found"
 					expect res.headers.location .to.be.an "undefined"
 					done err
 	describe "Dashboard", (...)->
@@ -353,7 +411,7 @@ describe "Core" ->
 					.get "/"
 					.end (err, res)->
 						expect res.status .to.equal 200
-						expect res.text .to.have.string "Your Courses"
+						expect res.text .to.have.string "Courses"
 						done err
 		describe "(User: Student)", (...)->
 			it "should display your courses", (done)->

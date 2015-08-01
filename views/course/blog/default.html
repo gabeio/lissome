@@ -37,7 +37,6 @@
 					<h3>{{ course.title }} - Blog</h3>
 				</div>
 				<form action="?action=search" class="form-inline pull-right panel-title-button">
-					<input type="hidden" name="_csrf" value="{{csrf}}" />
 					<div class="input-group">
 						<div class="input-group">
 							<input type="text" class="form-control" id="search" name="search" placeholder="Search" class="form-control" tabindex="1" />
@@ -83,5 +82,4 @@
 			</div>
 		</div>
 	</div>
-	<script src="/assets/custom/smrtboard.js"></script>
 {% endblock %}

@@ -6,7 +6,9 @@ require! {
 	"winston"
 	"./app"
 }
+ObjectId = mongoose.Types.ObjectId
 _ = lodash
+Semester = mongoose.models.Semester
 Course = mongoose.models.Course
 router = express.Router!
 router
@@ -17,50 +19,63 @@ router
 	.get (req, res, next)->
 		<- async.parallel [
 			(done)->
-				if res.locals.auth >= 3
-					err, courses <- Course.find {
-						"school":app.locals.school
+				if res.locals.auth > 0
+					err, semesters <- Semester.find {
+						"open":{ "$lt": new Date Date.now! }
+						"close":{ "$gt": new Date Date.now! }
 					}
-					/* istanbul ignore if */
-					if err
-						winston.error "course:find", err
-						next new Error "INTERNAL"
-					else
-						res.locals.courses = courses
-						done!
+					.lean!
+					.exec
+					res.locals.semesters = _.map _.toArray(_.pluck semesters, "_id" ), (doc)->
+						doc.toString!
+					done err
+				else
+					done!
+			(done)->
+				if res.locals.auth >= 3
+					res.locals.query = {
+						"school": app.locals.school
+					}
+					done!
 				else
 					done!
 			(done)->
 				if res.locals.auth is 2
-					err, courses <- Course.find {
-						"school":app.locals.school
-						"faculty":mongoose.Types.ObjectId(res.locals.uid)
+					res.locals.query = {
+						"school": app.locals.school
+						"faculty": ObjectId res.locals.uid
 					}
-					/* istanbul ignore if */
-					if err
-						winston.error "course:find", err
-						next new Error "INTERNAL"
-					else
-						res.locals.courses = courses
-						done!
+					done!
 				else
 					done!
 			(done)->
 				if res.locals.auth is 1
-					err, courses <- Course.find {
-						"school":app.locals.school
-						"students":mongoose.Types.ObjectId(res.locals.uid)
+					res.locals.query = {
+						"school": app.locals.school
+						"students": ObjectId res.locals.uid
 					}
-					/* istanbul ignore if */
-					if err
-						winston.error "course:find", err
-						next new Error "INTERNAL"
-					else
-						res.locals.courses = courses
-						done!
+					done!
 				else
 					done!
 		]
-		res.render "dashboard"
+		err, courses <- Course.find res.locals.query
+		.populate "semester"
+		.lean!
+		.exec
+		/* istanbul ignore if */
+		if err
+			winston.error "dashboard.ls:Course:find", err
+			para "MONGO"
+		else
+			res.locals.courses = courses
+			thisSemester = (doc)->
+				if doc.semester._id.toString! in res.locals.semesters
+					doc
+			if res.locals.auth <= 2
+				res.locals.courses = _.filter courses, thisSemester
+				res.locals.otherCourses = _.reject courses, thisSemester
+			else
+				res.locals.courses = courses
+			res.render "dashboard"
 
 module.exports = router

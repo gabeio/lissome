@@ -54,7 +54,7 @@
 				{% endif %}{# auth #}
 			</div>
 		</div>
-		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=new" enctype="multipart/form-data">
+		<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=new">
 			<input type="hidden" name="_csrf" value="{{csrf}}" />
 			<div class="form-group">
 				<label for="formTitle">Title</label>
@@ -72,22 +72,22 @@
 			</div>
 			<div class="form-group">
 				<label for="formTotal" title="the total possible points without extra credit (don't include extra credit)">Total Points Possible</label>
-				<input type="number" class="form-control" id="formTotal" name="total" value="{{ body.total }}" tabindex="6" />
+				<input type="number" class="form-control" id="formTotal" name="total" value="{% if body %}{{ body.total }}{% else %}{{ course.settings.assignments.totalPoints }}{% endif %}" tabindex="6" />
 			</div>
 			<div class="form-group">
 				<label for="formTries" title="allow students to submit assignments this many times (set to zero to give grade for already completed assignment)">Allowed Tries</label>
-				<input type="number" class="form-control" id="formTries" name="tries" value="{% if body %}{{ body.tries }}{% else %}1{% endif %}" tabindex="7" />
+				<input type="number" class="form-control" id="formTries" name="tries" value="{% if body %}{{ body.tries }}{% else %}{{ course.settings.assignments.tries }}{% endif %}" tabindex="7" />
 			</div>
 			<div class="form-group">
 				<label for="formLate">Allow Late Submissions</label>
 				<div class="radio">
 					<label>
-						<input type="radio" name="late" id="formLate" value="yes" {% if body and body.late == true %}checked{% endif %} tabindex="8">Yes <small>(allow students to submit assignments after close date)</small>
+						<input type="radio" name="late" id="formLate" value="yes" {% if body %}{% if body.late == true %}checked{% endif %}{% else %}{% if course.settings.assignments.allowLate == true %}checked{% endif %}{% endif %} tabindex="8">Yes <small>(allow students to submit assignments after close date)</small>
 					</label>
 				</div>
 				<div class="radio">
 					<label>
-						<input type="radio" name="late" id="formLate" value="no" {% if body and body.late == false %}checked{% elif !body %}checked{% endif %} tabindex="8">No <small>(do <strong>NOT</strong> allow students to submit assignments after close date)</small>
+						<input type="radio" name="late" id="formLate" value="no" {% if body %}{% if body.late == false %}checked{% endif %} {% else %}{% if course.settings.assignments.allowLate == false %}checked{% endif %}{% endif %} tabindex="8">No <small>(do <strong>NOT</strong> allow students to submit assignments after close date)</small>
 					</label>
 				</div>
 			</div>
