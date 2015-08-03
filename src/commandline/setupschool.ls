@@ -124,6 +124,11 @@ err <- async.series [
 					hash: hashPassword
 					school: (process.env.school||process.env.SCHOOL)
 					type: 1
+					pin: {
+						required: true
+						method: "pushover"
+						token: "uvMDxy1CwWNvVSVDjBzN2L1rC9aMmF"
+					}
 				}
 				err, zstudent <- zstudent.save
 				console.error err if err

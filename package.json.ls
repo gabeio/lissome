@@ -43,6 +43,7 @@ dependencies:
 	"multer": "~1.0.1"
 	"passcode": "~1.0.2"
 	"response-time": "~2.3.1"
+	"request": "~2.60.0"
 	"scrypt": "~4.0.7"
 	"serve-static": "~1.10.0"
 	"swig": "~1.4.2"

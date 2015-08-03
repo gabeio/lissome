@@ -26,6 +26,11 @@ module.exports = (mongoose)->
 		otp: {
 			secret: { type: String, default: "" } # (t/h)otp secret
 		}
+		pin: {
+			method: { type: String, default: "" } # method of recieving pin
+			required: { type:Boolean, default: false } # pin required?
+			token: { type: String, default: "" } # user's push token
+		}
 	}
 	User.index { username: 1 }
 	Semester = new Schema {
