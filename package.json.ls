@@ -27,7 +27,7 @@ dependencies:
 	"connect-redis": "~2.4.1"
 	"cors": "~2.7.1"
 	"csurf": "~1.8.3"
-	"express": "~4.13.2"
+	"express": "~4.13.3"
 	"express-partial-response": "~0.3.4"
 	"express-session": "~1.11.3"
 	"helmet": "~0.10.0"
@@ -48,7 +48,7 @@ dependencies:
 	"swig": "~1.4.2"
 	"thirty-two": "~0.0.2"
 	"winston": "~1.0.1"
-	"yargs": "~3.16.1"
+	"yargs": "~3.17.1"
 
 devDependencies:
 	"chai": "~3.2.0"
