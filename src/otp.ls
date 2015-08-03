@@ -19,7 +19,7 @@ router
 	.post (req, res, next)->
 		if req.body.token? and req.body.token isnt ""
 			err, user <- User.findOne {
-				"username": res.locals.username.toLowerCase!
+				"_id": res.locals.uid.toLowerCase!
 				"school": app.locals.school
 			}
 			/* istanbul ignore if */
@@ -27,7 +27,11 @@ router
 				winston.error "user:find", err
 				next new Error "MONGO"
 			if !user? or user.length is 0
-				res.render "login", { error: "user not found", csrf: req.csrfToken! }
+				# user not found
+				err <- session.destroy
+				winston.error err if err
+				res.redirect "/"
+				# res.render "login", { error: "user not found", csrf: req.csrfToken! }
 			else
 				if user.otp? and user.otp.secret? and user.otp.secret.length isnt 0
 					res.locals.verify = passcode.totp.verify {
@@ -45,7 +49,8 @@ router
 						res.redirect "/login"
 				else
 					winston.error "otp.ls: (else statement) probably old session; destroying session..."
-					err <- req.session.destroy
+					err <- session.destroy
+					winston.error err if err
 					res.redirect "/"
 		else
 			res.status 400 .render "otp", { error: "missing field", csrf: req.csrfToken!  }
