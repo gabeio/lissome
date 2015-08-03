@@ -38,11 +38,10 @@ router
 				else
 					scrypt.verify.config.hashEncoding = "base64"
 					error,result <- scrypt.verify user.hash, new Buffer(req.body.password)
-					/* istanbul ignore if */
 					if error? and error.scrypt_err_message is "password is incorrect"
 						res.render "login", { error:"bad login credentials", csrf: req.csrfToken! }
 					else if error?
-						# bad password
+						# unknown scrypt error
 						winston.error error
 						next new Error error
 					else
