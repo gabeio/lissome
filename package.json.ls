@@ -48,7 +48,7 @@ dependencies:
 	"swig": "~1.4.2"
 	"thirty-two": "~0.0.2"
 	"winston": "~1.0.1"
-	"yargs": "~3.16.1"
+	"yargs": "~3.17.1"
 
 devDependencies:
 	"chai": "~3.2.0"
