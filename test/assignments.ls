@@ -10,17 +10,26 @@ require! {
 app = require "../lib/app"
 ObjectId = mongoose.Types.ObjectId
 _ = lodash
+Course = mongoose.models.Course
 req = supertest
 expect = chai.expect
 assert = chai.assert
 should = chai.should!
-var agent, student, faculty, admin, attemptid
+var agent, student, faculty, admin, courseId, attemptid
 assignid = []
 outside = req.agent app
 student = req.agent app
 faculty = req.agent app
 admin = req.agent app
 describe "Assignments Module" ->
+	before (done)->
+		err, course <- Course.findOne {
+			"school":app.locals.school
+			"id":"cps1234"
+		}
+		.exec
+		courseId := course._id.toString!
+		done err
 	before (done)->
 		student
 			.post "/login"
@@ -59,19 +68,19 @@ describe "Assignments Module" ->
 	describe "(User: Admin)", (...)->
 		it "should return the assignment default view", (done)->
 			admin
-				.get "/c/cps1234/assignments"
+				.get "/c/#{courseId}/assignments"
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
 		it "should return the create assignment view", (done)->
 			admin
-				.get "/c/cps1234/assignments?action=new"
+				.get "/c/#{courseId}/assignments?action=new"
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
 		it "should create an assignment", (done)->
 			admin
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"admin"
 					"opendate":"1/1/2000"
@@ -85,11 +94,11 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
-					expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+					expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 					done err
 		it "should not create an assignment without a title", (done)->
 			admin
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":""
 					"opendate":"1/1/2000"
@@ -113,7 +122,7 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					admin
-						.get "/c/cps1234/assignments/#{aid.0._id.toString()}"
+						.get "/c/#{courseId}/assignments/#{aid.0._id.toString()}"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
@@ -128,7 +137,7 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					admin
-						.get "/c/cps1234/assignments/#{aid.0._id}?action=edit"
+						.get "/c/#{courseId}/assignments/#{aid.0._id}?action=edit"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
@@ -143,9 +152,8 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid, cont)->
 					admin
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": aid.0.title
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -158,7 +166,7 @@ describe "Assignments Module" ->
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+							expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 							cont err
 			]
 			done err
@@ -171,9 +179,8 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid, cont)->
 					admin
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": aid.0.title
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -186,7 +193,7 @@ describe "Assignments Module" ->
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+							expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 							cont err
 			]
 			done err
@@ -199,9 +206,8 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid, cont)->
 					admin
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": aid.0.title
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -213,7 +219,7 @@ describe "Assignments Module" ->
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+							expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 							cont err
 			]
 			done err
@@ -226,9 +232,8 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid, cont)->
 					admin
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": aid.0.title
 							"opendate": ""
 							"opentime": ""
@@ -241,7 +246,7 @@ describe "Assignments Module" ->
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+							expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 							cont err
 			]
 			done err
@@ -254,9 +259,8 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid, cont)->
 					admin
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": aid.0.title
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -269,7 +273,7 @@ describe "Assignments Module" ->
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+							expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 							cont err
 			]
 			done err
@@ -282,9 +286,8 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid, cont)->
 					admin
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": aid.0.title
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -297,7 +300,7 @@ describe "Assignments Module" ->
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+							expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 							cont err
 			]
 			done err
@@ -310,9 +313,8 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid, cont)->
 					admin
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": ""
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -337,7 +339,7 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid, cont)->
 					admin
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
 							"title": aid.0.title
 							"opendate": "12/31/1999"
@@ -363,36 +365,13 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					admin
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?action=attempt"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?action=attempt"
 						.send {
-							"aid":aid.0._id
 							"text":"adminAttempt"
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(2|3)/
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/.{24}\/?/i
-							cont err
-			]
-			done err
-		it "should not grade if no aid given", (done)->
-			err <- async.waterfall [
-				(cont)->
-					admin
-						.get "/test/getaid/cps1234?title=admin"
-						.end (err, res)->
-							cont err, res.body
-				(assign,cont)->
-					admin
-						.get "/test/getattempt/cps1234?title=admin&text=adminAttempt"
-						.end (err, res)->
-							cont err, assign, res.body
-				(assign,attempt,cont)->
-					admin
-						.post "/c/cps1234/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
-						.send {
-						}
-						.end (err, res)->
-							expect res.status .to.match /^(4)/
+							expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/.{24}\/?/i
 							cont err
 			]
 			done err
@@ -410,14 +389,13 @@ describe "Assignments Module" ->
 							cont err, assign, res.body
 				(assign,attempt,cont)->
 					admin
-						.post "/c/cps1234/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
+						.post "/c/#{courseId}/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
 						.send {
-							"aid":attempt.0._id
 							"points": "10"
 						}
+						.expect 302
 						.end (err, res)->
-							expect res.status .to.match /^(2|3)/
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/.{24}\/?/i
+							expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/.{24}\/?\?success\=yes\&verb\=graded/i
 							cont err
 			]
 			done err
@@ -430,7 +408,7 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					admin
-						.get "/c/cps1234/assignments/#{aid.0._id}?action=delete"
+						.get "/c/#{courseId}/assignments/#{aid.0._id}?action=delete"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
@@ -445,19 +423,19 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					admin
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
 						.send {
 							"aid":aid.0._id
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/?/i
+							expect res.header.location .to.match /^\/c\/.{24}\/assignments\/?/i
 							cont err
 			]
 			done err
 		it "should see the grades view", (done)->
 			admin
-				.get "/c/cps1234/grades"
+				.get "/c/#{courseId}/grades"
 				.end (err, res)->
 					expect res.status .to.match /200/
 					done err
@@ -465,19 +443,19 @@ describe "Assignments Module" ->
 	describe "(User: Faculty)", (...)->
 		it "should return the assignment default view", (done)->
 			faculty
-				.get "/c/cps1234/assignments"
+				.get "/c/#{courseId}/assignments"
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
 		it "should return the create assignment view", (done)->
 			faculty
-				.get "/c/cps1234/assignments?action=new"
+				.get "/c/#{courseId}/assignments?action=new"
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
 		it "should create an assignment", (done)->
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"faculty"
 					"opendate":"2/1/2000"
@@ -491,7 +469,7 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
-					expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+					expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 					done err
 		it "should return an assignment", (done)->
 			err <- async.waterfall [
@@ -502,7 +480,7 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					faculty
-						.get "/c/cps1234/assignments/#{aid.0._id.toString()}"
+						.get "/c/#{courseId}/assignments/#{aid.0._id.toString()}"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
@@ -517,7 +495,7 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					faculty
-						.get "/c/cps1234/assignments/#{aid.0._id}?action=edit"
+						.get "/c/#{courseId}/assignments/#{aid.0._id}?action=edit"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
@@ -532,7 +510,7 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid, cont)->
 					faculty
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
 							"aid": aid.0._id
 							"title": aid.0.title
@@ -547,7 +525,7 @@ describe "Assignments Module" ->
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+							expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 							cont err
 			]
 			done err
@@ -560,14 +538,13 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					faculty
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?action=attempt"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?action=attempt"
 						.send {
-							"aid": aid.0._id
 							"text":"facultyAttempt"
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(2|3)/
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/.{24}\/?/i
+							expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/.{24}\/?/i
 							cont err
 			]
 			done err
@@ -585,14 +562,13 @@ describe "Assignments Module" ->
 							cont err, assign, res.body
 				(assign,attempt,cont)->
 					faculty
-						.post "/c/cps1234/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
+						.post "/c/#{courseId}/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
 						.send {
-							"aid": attempt.0._id
 							"points": "10"
 						}
+						.expect 302
 						.end (err, res)->
-							expect res.status .to.match /^(2|3)/
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/.{24}\/?/i
+							expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/.{24}\/?\?success\=yes\&verb\=graded/i
 							cont err
 			]
 			done err
@@ -605,7 +581,7 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					faculty
-						.get "/c/cps1234/assignments/#{aid.0._id}?action=delete"
+						.get "/c/#{courseId}/assignments/#{aid.0._id}?action=delete"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
@@ -620,19 +596,18 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					faculty
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
 						.send {
-							"aid": aid.0._id
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/?/i
+							expect res.header.location .to.match /^\/c\/.{24}\/assignments\/?/i
 							cont err
 			]
 			done err
 		it "should see the grades view", (done)->
 			faculty
-				.get "/c/cps1234/grades"
+				.get "/c/#{courseId}/grades"
 				.end (err, res)->
 					expect res.status .to.match /200/
 					done err
@@ -640,7 +615,7 @@ describe "Assignments Module" ->
 	describe "(User: Non-Faculty)", (done)->
 		before (done)->
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"outsideFaculty"
 					"opendate":"2/1/2000"
@@ -654,7 +629,7 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
-					expect res.header.location .to.match /^\/c\/cps1234\/assignments\/?/i
+					expect res.header.location .to.match /^\/c\/.{24}\/assignments\/?/i
 					done err
 		before (done)->
 			faculty
@@ -700,9 +675,8 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					admin
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
 						.send {
-							"aid": aid.0._id
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
@@ -711,19 +685,19 @@ describe "Assignments Module" ->
 			done err
 		it "should not return the assignment default view", (done)->
 			faculty
-				.get "/c/cps1234/assignments"
+				.get "/c/#{courseId}/assignments"
 				.end (err, res)->
 					expect res.status .to.not.equal 200
 					done err
 		it "should not return the create assignment view", (done)->
 			faculty
-				.get "/c/cps1234/assignments?action=new"
+				.get "/c/#{courseId}/assignments?action=new"
 				.end (err, res)->
 					expect res.status .to.not.equal 200
 					done err
 		it "should not create an assignment", (done)->
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"created by outsideFaculty"
 					"opendate":"12/31/1999"
@@ -737,7 +711,7 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					expect res.status .to.match /^(3|4)/
-					expect res.header.location .to.not.equal /\/cps1234\/assignments\/.{24}\/?/i
+					expect res.header.location .to.not.equal /^\/c\/cps1234\/assignments\/.{24}\/?/i
 					done err
 		it "should not return an assignment", (done)->
 			err <- async.waterfall [
@@ -748,7 +722,7 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					faculty
-						.get "/c/cps1234/assignments/#{aid.0._id.toString()}"
+						.get "/c/#{courseId}/assignments/#{aid.0._id.toString()}"
 						.end (err, res)->
 							expect res.status .to.not.equal 200
 							cont err
@@ -763,7 +737,7 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					faculty
-						.get "/c/cps1234/assignments/#{aid.0._id}?action=edit"
+						.get "/c/#{courseId}/assignments/#{aid.0._id}?action=edit"
 						.end (err, res)->
 							expect res.status .to.not.equal 200
 							cont err
@@ -778,9 +752,8 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid, cont)->
 					faculty
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": aid.0.title
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -793,7 +766,7 @@ describe "Assignments Module" ->
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4)/
-							expect res.header.location .to.not.equal /\/cps1234\/assignments\/.{24}\/?/i
+							expect res.header.location .to.not.equal /^\/c\/cps1234\/assignments\/.{24}\/?/i
 							cont err
 			]
 			done err
@@ -806,14 +779,13 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					faculty
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?action=attempt"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?action=attempt"
 						.send {
-							"aid": aid.0._id
 							"text":"facultyAttempt"
 						}
 						.expect 404
 						.end (err, res)->
-							expect res.header.location .to.not.match /^\/c\/cps1234\/assignments\/.{24}\/.{24}\/?/i
+							expect res.header.location .to.not.match /^\/c\/.{24}\/assignments\/.{24}\/.{24}\/?/i
 							cont err
 			]
 			done err
@@ -826,7 +798,7 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					faculty
-						.get "/c/cps1234/assignments/#{aid.0._id}?action=delete"
+						.get "/c/#{courseId}/assignments/#{aid.0._id}?action=delete"
 						.end (err, res)->
 							expect res.status .to.not.equal 200
 							cont err
@@ -841,19 +813,18 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					faculty
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
 						.send {
-							"aid":aid.0._id
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4)/
-							expect res.header.location .to.not.match /\/cps1234\/assignments\/?/
+							expect res.header.location .to.not.match /^\/c\/cps1234\/assignments\/?/
 							cont err
 			]
 			done err
 		it "should not see the grades view", (done)->
 			faculty
-				.get "/c/cps1234/grades"
+				.get "/c/#{courseId}/grades"
 				.end (err, res)->
 					expect res.status .to.not.match /200/
 					done err
@@ -861,7 +832,7 @@ describe "Assignments Module" ->
 	describe "(User: Student)", (...)->
 		before (done)->
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"student"
 					"opendate":"2/1/2000"
@@ -875,17 +846,17 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					expect res.status .to.equal 302
-					expect res.header.location .to.match /^\/c\/cps1234\/assignments\/?/i
+					expect res.header.location .to.match /^\/c\/.{24}\/assignments\/?/i
 					done err
 		it "should return the assignment default view", (done)->
 			student
-				.get "/c/cps1234/assignments"
+				.get "/c/#{courseId}/assignments"
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
 		it "should not create an assignment", (done)->
 			student
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"student created this"
 					"opendate":"12/31/1999"
@@ -899,7 +870,7 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					# expect res.status .to.equal 302
-					expect res.header.location .to.not.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+					expect res.header.location .to.not.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 					done err
 		it "should not edit an assignment", (done)->
 			err <- async.waterfall [
@@ -910,9 +881,8 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid, cont)->
 					student
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": "edited by a student"
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -925,7 +895,7 @@ describe "Assignments Module" ->
 						}
 						.end (err, res)->
 							# expect res.status .to.equal 302
-							expect res.header.location .to.not.match /\/cps1234\/assignments\/.{24}\/?/i # #{aid.0._id.toString()}"
+							expect res.header.location .to.not.match /^\/c\/cps1234\/assignments\/.{24}\/?/i # #{aid.0._id.toString()}"
 							cont err
 			]
 			done err
@@ -938,19 +908,18 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					student
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
 						.send {
-							"aid":aid.0._id
 						}
 						.end (err, res)->
 							# expect res.status .to.not.equal 302
-							expect res.header.location .to.not.match /\/cps1234\/assignments\/.{24}\/?/i
+							expect res.header.location .to.not.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
 							cont err
 			]
 			done err
 		it "should view a list of assignments", (done)->
 			student
-				.get "/c/cps1234/assignments"
+				.get "/c/#{courseId}/assignments"
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
@@ -963,7 +932,7 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					student
-						.get "/c/cps1234/assignments/#{aid.0._id.toString()}"
+						.get "/c/#{courseId}/assignments/#{aid.0._id.toString()}"
 						.end (err, res)->
 							expect res.status .to.equal 200
 							cont err
@@ -978,14 +947,13 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid, cont)->
 					student
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?action=attempt"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?action=attempt"
 						.send {
-							"aid":aid.0._id
 							"text":"studentAttempt"
 						}
 						.end (err, res)->
 							expect res.status .to.not.match /^(4|5)/i
-							expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/.{24}\/?/i
+							expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/.{24}\/?/i
 							attemptid := res.header.location
 							cont err
 			]
@@ -1009,20 +977,19 @@ describe "Assignments Module" ->
 							cont err, assign, res.body
 				(assign,attempt,cont)->
 					student
-						.post "/c/cps1234/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
+						.post "/c/#{courseId}/assignments/#{assign.0._id.toString()}/#{attempt.0._id.toString()}?action=grade"
 						.send {
-							"aid": attempt.0._id
 							"points": "10"
 						}
+						.expect 302
 						.end (err, res)->
-							expect res.status .to.match /^(3)/
 							expect res.header.location .to.match /^\//i
 							cont err
 			]
 			done err
 		it "should see the grades view", (done)->
 			student
-				.get "/c/cps1234/grades"
+				.get "/c/#{courseId}/grades"
 				.end (err, res)->
 					expect res.status .to.match /200/
 					done err
@@ -1030,7 +997,7 @@ describe "Assignments Module" ->
 	describe "(User: Non-Student)", (...)->
 		before (done)->
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"aUniqueTitle"
 					"opendate":"2/1/2000"
@@ -1044,7 +1011,7 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					expect res.status .to.match /^(3|4)/
-					expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/
+					expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/?/
 					done err
 		before (done)->
 			student
@@ -1063,7 +1030,7 @@ describe "Assignments Module" ->
 					done err
 		it "should not allow an outside student to create an assignment", (done)->
 			student
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"aUniqueTitle"
 					"opendate":"12/31/1999"
@@ -1077,7 +1044,7 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					expect res.status .to.match /^(3|4)/i
-					expect res.header.location .to.not.match /\/cps1234\/assignments\/.{24}\/?/i
+					expect res.header.location .to.not.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
 					done err
 		it "should not allow an outside student to edit an assignment", (done)->
 			err <- async.waterfall [
@@ -1088,9 +1055,8 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid, cont)->
 					student
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=PUT&action=edit"
 						.send {
-							"aid": aid.0._id
 							"title": "edited by an outside student"
 							"opendate": "12/31/1999"
 							"opentime": "1:00 AM"
@@ -1103,7 +1069,7 @@ describe "Assignments Module" ->
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4)/i
-							expect res.header.location .to.not.match /\/cps1234\/assignments\/.{24}\/?/i
+							expect res.header.location .to.not.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
 							cont err
 			]
 			done err
@@ -1116,22 +1082,21 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					student
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?hmo=DELETE&action=delete"
 						.send {
-							"aid":aid.0._id
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4)/i
-							expect res.header.location .to.not.match /\/cps1234\/assignments\/?/i
+							expect res.header.location .to.not.match /^\/c\/cps1234\/assignments\/?/i
 							cont err
 			]
 			done err
 		it "should not allow an outside student to view a list of assignments", (done)->
 			student
-				.get "/c/cps1234/assignments"
+				.get "/c/#{courseId}/assignments"
 				.end (err, res)->
 					expect res.status .to.match /^(3|4)/i
-					expect res.header.location .to.not.match /\/cps1234\/assignments\/?/i
+					expect res.header.location .to.not.match /^\/c\/cps1234\/assignments\/?/i
 					done err
 		it "should not allow an outside student to view an assignment", (done)->
 			err <- async.waterfall [
@@ -1142,10 +1107,10 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid,cont)->
 					student
-						.get "/c/cps1234/assignments/#{aid.0._id.toString()}"
+						.get "/c/#{courseId}/assignments/#{aid.0._id.toString()}"
 						.end (err, res)->
 							expect res.status .to.match /^(3|4)/i
-							expect res.header.location .to.not.match /\/cps1234\/assignments\/?.{24}?\/?/i
+							expect res.header.location .to.not.match /^\/c\/cps1234\/assignments\/?.{24}?\/?/i
 							cont err
 			]
 			done err
@@ -1158,19 +1123,18 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid, cont)->
 					student
-						.post "/c/cps1234/assignments/#{aid.0._id.toString()}?action=attempt"
+						.post "/c/#{courseId}/assignments/#{aid.0._id.toString()}?action=attempt"
 						.send {
-							"aid":aid.0._id
 							"text":"something right here"
 						}
 						.end (err, res)->
-							expect res.headers.location .to.not.match /\/cps1234\/assignments\/.{24}?\/?.{24}?\/?/i
+							expect res.headers.location .to.not.match /^\/c\/cps1234\/assignments\/.{24}?\/?.{24}?\/?/i
 							cont err
 			]
 			done err
 		it "should not allow an outside student to see the grades view", (done)->
 			student
-				.get "/c/cps1234/grades"
+				.get "/c/#{courseId}/grades"
 				.end (err, res)->
 					expect res.status .to.not.match /200/
 					done err
@@ -1178,7 +1142,7 @@ describe "Assignments Module" ->
 	describe "Crash Checks", (...)->
 		it "should not crash when creating/editing an assignment without opendate", (done)->
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"title"
 					"opentime":"1:00 AM"
@@ -1191,11 +1155,11 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+					expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 					done err
 		it "should not crash when creating/editing an assignment without opentime", (done)->
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"title"
 					"opendate":"12/31/1999"
@@ -1208,11 +1172,11 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+					expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 					done err
 		it "should not crash when creating/editing an assignment without opendate & opentime", (done)->
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"title"
 					"closedate":"1/1/2000"
@@ -1224,11 +1188,11 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+					expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 					done err
 		it "should not crash when creating/editing an assignment without closedate", (done)->
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"title"
 					"opendate":"12/31/1999"
@@ -1241,11 +1205,11 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+					expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 					done err
 		it "should not crash when creating/editing an assignment without closetime", (done)->
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"title"
 					"opendate":"12/31/1999"
@@ -1258,11 +1222,11 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+					expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 					done err
 		it "should not crash when creating/editing an assignment without closedate & closetime", (done)->
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"title"
 					"opendate":"12/31/1999"
@@ -1274,11 +1238,11 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+					expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 					done err
 		it "should not crash when creating/editing an assignment without points", (done)->
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"title"
 					"opendate":"12/31/1999"
@@ -1291,11 +1255,11 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+					expect res.header.location .to.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 					done err
 		it "should not allow creating/editing an assignment without a title", (done)->
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"opendate":"12/31/1999"
 					"opentime":"1:00 AM"
@@ -1307,11 +1271,11 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					# expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.not.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+					expect res.header.location .to.not.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 					done err
 		it "should not allow creating/editing an assignment without a body", (done)->
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"title"
 					"opendate":"12/31/1999"
@@ -1323,11 +1287,11 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					# expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.not.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+					expect res.header.location .to.not.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 					done err
 		it "should not allow creating/editing an assignment without tries", (done)->
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"title"
 					"opendate":"12/31/1999"
@@ -1339,7 +1303,7 @@ describe "Assignments Module" ->
 				}
 				.end (err, res)->
 					# expect res.status .to.not.match /^(4|5)/i
-					expect res.header.location .to.not.match /^\/c\/cps1234\/assignments\/.{24}\/?/i
+					expect res.header.location .to.not.match /^\/c\/.{24}\/assignments\/.{24}\/?/i
 					done err
 
 	describe "Other Functions", (...)->
@@ -1366,7 +1330,7 @@ describe "Assignments Module" ->
 		before (done)->
 			# for now < date
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"Early"
 					"opendate":"1/1/3000"
@@ -1384,7 +1348,7 @@ describe "Assignments Module" ->
 		before (done)->
 			# for now > close
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"Late"
 					"opendate":"1/1/1000"
@@ -1402,7 +1366,7 @@ describe "Assignments Module" ->
 		before (done)->
 			# for now > close & allowLate = true
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"allowLate"
 					"opendate":"1/1/1000"
@@ -1420,7 +1384,7 @@ describe "Assignments Module" ->
 		before (done)->
 			# for attempts > allowed
 			faculty
-				.post "/c/cps1234/assignments?action=new"
+				.post "/c/#{courseId}/assignments?action=new"
 				.send {
 					"title":"None"
 					"opendate":"1/1/2000"
@@ -1476,9 +1440,8 @@ describe "Assignments Module" ->
 					done err
 		it "should not allow early submissions", (done)->
 			student
-				.post "/c/cps1234/assignments/#{otherFunc.Early}?action=attempt"
+				.post "/c/#{courseId}/assignments/#{otherFunc.Early}?action=attempt"
 				.send {
-					"aid":otherFunc.Early
 					"text":"something"
 				}
 				.end (err, res)->
@@ -1487,9 +1450,8 @@ describe "Assignments Module" ->
 					done err
 		it "should not allow late submissions if not allowed", (done)->
 			student
-				.post "/c/cps1234/assignments/#{otherFunc.Late}?action=attempt"
+				.post "/c/#{courseId}/assignments/#{otherFunc.Late}?action=attempt"
 				.send {
-					"aid":otherFunc.Late
 					"text":"something"
 				}
 				.end (err, res)->
@@ -1498,9 +1460,8 @@ describe "Assignments Module" ->
 					done err
 		it "should allow late submissions if allowed", (done)->
 			student
-				.post "/c/cps1234/assignments/#{otherFunc.allowLate}?action=attempt"
+				.post "/c/#{courseId}/assignments/#{otherFunc.allowLate}?action=attempt"
 				.send {
-					"aid":otherFunc.allowLate
 					"text":"something"
 				}
 				.end (err, res)->
@@ -1508,9 +1469,8 @@ describe "Assignments Module" ->
 					done err
 		it "should not allow more attempts than given", (done)->
 			student
-				.post "/c/cps1234/assignments/#{otherFunc.None}?action=attempt"
+				.post "/c/#{courseId}/assignments/#{otherFunc.None}?action=attempt"
 				.send {
-					"aid":otherFunc.None
 					"text":"something"
 				}
 				.end (err, res)->
@@ -1521,19 +1481,19 @@ describe "Assignments Module" ->
 	describe "Other", (...)->
 		it "should give an error for bad assignment length", (done)->
 			student
-				.get "/c/cps1234/assignments/1234"
+				.get "/c/#{courseId}/assignments/1234"
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
 					done err
 		it "should give an error for bad attempt length", (done)->
 			admin
-				.get "/c/cps1234/assignments/123456789012345678901234/1234"
+				.get "/c/#{courseId}/assignments/123456789012345678901234/1234"
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
 					done err
 		it "should give an error for a bad assignment", (done)->
 			admin
-				.get "/c/cps1234/assignments/123456789012345678901234"
+				.get "/c/#{courseId}/assignments/123456789012345678901234"
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
 					done err
@@ -1541,7 +1501,7 @@ describe "Assignments Module" ->
 			err <- async.waterfall [
 				(cont)->
 					admin
-						.post "/c/cps1234/assignments?action=new"
+						.post "/c/#{courseId}/assignments?action=new"
 						.send {
 							"title":"goodAssign"
 							"opendate":"1/1/2000"
@@ -1562,7 +1522,7 @@ describe "Assignments Module" ->
 							cont err, res.body
 				(aid, cont)->
 					admin
-						.get "/c/cps1234/assignments/#{aid.0._id}/123456789012345678901234"
+						.get "/c/#{courseId}/assignments/#{aid.0._id}/123456789012345678901234"
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
 							cont err
@@ -1570,21 +1530,21 @@ describe "Assignments Module" ->
 			done err
 		it "should give an error for attempting to post with different action", (done)->
 			admin
-				.post "/c/cps1234/assignments?action=anything"
+				.post "/c/#{courseId}/assignments?action=anything"
 				.send {}
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
 					done err
 		it "should give an error for attempting to put with different action", (done)->
 			admin
-				.put "/c/cps1234/assignments?hmo=put&action=anything"
+				.put "/c/#{courseId}/assignments?hmo=put&action=anything"
 				.send {}
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
 					done err
 		it "should give an error for attempting to delete with different action", (done)->
 			admin
-				.delete "/c/cps1234/assignments?action=anything"
+				.delete "/c/#{courseId}/assignments?action=anything"
 				.send {}
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/

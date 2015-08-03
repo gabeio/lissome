@@ -11,7 +11,7 @@
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<ol class="breadcrumb">
 					<li><a href="/">Dash</a></li>
-					<li><a href="/c/{{ course.id }}">{{ course.title }}</a></li>
+					<li><a href="/c/{{ course._id|toString }}">{{ course.title }}</a></li>
 					<li class="active">{% if auth == 1 %}Your {% endif %}Grades</li>
 				</ol>
 			</div>
@@ -21,21 +21,28 @@
 				<div class="pull-left">
 					<h3>{{ course.title }} - {% if auth == 1%}Your {% endif %}Grades</h3>
 				</div>
+				<div class="pull-right">
+					<h3><small{% if average.ave == 0 and average.points == 0 and average.total == 0 %} title="{{ average.points }} / {{ average.total }}"{% endif %}>Current Average: {{ average.ave }}%</small></h3>
+				</div>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				{% for attempt in attempts %}
+				{% for assignattempt in assignmentattempts %}
+				<h4>{{ assignattempt[0].assignment.title }}</h4>
+				{% for attempt in assignattempt %}
 				<div class="panel panel-default">
 					<div class="panel-heading clearfix">
 						<h3 class="panel-title pull-left">{{ attempt.assignment.title }}</h3>
-						<div class="pull-right">{% if attempt.late == true %}<span class="label label-danger">Late</span>{% endif %} <span class="label label-success" title="{{ attempt.points }}/{{ attempt.assignment.totalPoints }}">{% if attempt.points %}{{ ( attempt.points / attempt.assignment.totalPoints ) * 100 }}%{% else %}ungraded{% endif %}</span></div>
+						<div class="pull-right">{% if attempt.late == true %}<span class="label label-danger">Late</span>{% endif %} <span class="label label-success"{% if attempt.points %} title="{{ attempt.points }}/{{ attempt.assignment.totalPoints }}"{% endif %}>{% if attempt.points %}{{ ( attempt.points / attempt.assignment.totalPoints ) * 100 }}%{% else %}ungraded{% endif %}</span></div>
 					</div>
 					<div class="panel-body">{{ attempt.text|markdown|safe }}
 					</div>
 					<div class="panel-footer"><span title="{{ attempt.author.username }}">{{ attempt.author.firstName }} {{ attempt.author.lastName }}</span>
 					<span class="pull-right" title="{{ attempt.timestamp|timezone }}">{{ attempt.timestamp|fromNow }}</span></div>
 				</div>
+				{% endfor %}
+				{% if !loop.last %}<hr />{% endif %}
 				{% endfor %}
 			</div>
 		</div>

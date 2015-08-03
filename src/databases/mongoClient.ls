@@ -1,4 +1,4 @@
-module.exports = (app,mongoose,mongohost)->
+module.exports = (app,mongoose,mongouri)->
 	require! {
 		"winston"
 	}
@@ -6,11 +6,11 @@ module.exports = (app,mongoose,mongohost)->
 	mongo.options = {
 		server:{
 			keepAlive: 1
-			poolSize: 6
+			poolSize: 7
 		}
 	}
 	/* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
-	mongo.open mongohost
+	mongo.open mongouri
 	/* istanbul ignore next */
 	mongo.on "disconnect", ->
 		winston.warn "mongo:disconnected\ntrying to reconnect"
@@ -21,7 +21,8 @@ module.exports = (app,mongoose,mongohost)->
 		/* istanbul ignore if */
 		if err
 			winston.info "mongo:err: " + err
-		winston.info "mongo:open"
+		else
+			winston.info "mongo:open"
 	# if app.locals.testing is true
 	app.locals.mongo = mongo # save connection object in app level variables
 	return mongo

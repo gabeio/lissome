@@ -1,0 +1,83 @@
+{% extends '../base.html' %}
+
+{% block head %}
+	<title>Settings - {{ course.title }} - {{ school }}</title>
+{% endblock %}
+
+{% block body %}
+	<div class="container-fluid">
+		{% include '../navbar.html' %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<ol class="breadcrumb">
+					<li><a href="/">Dash</a></li>
+					<li><a href="/c/{{ course._id|toString }}">{{ course.title }}</a></li>
+					<li class="active">Settings</li>
+				</ol>
+			</div>
+		</div>
+		{% if success %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				{% if success == 'yes' or success == 'true' %}
+				<div class="alert alert-success" role="alert">
+					{{ noun }} <strong>{{ verb }}</strong> successfully.
+				</div>
+				{% elif success == 'no' or success == 'false' %}
+				<div class="alert alert-danger" role="alert">
+					{{ noun }} <strong>not</strong> {{ verb }} successfully. Missing required field.
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		{% endif %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<h3>{{ course.title }} - Settings</h3>
+			</div>
+		</div>
+		<div class="row">
+			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" action="?hmo=put" method="POST">
+				<h4>Assignment Defaults</h4>
+				<input type="hidden" name="_csrf" value="{{csrf}}" />
+				<div class="form-group">
+					<label for="formTotal" title="will be the automatically fill assignment creation field">Course Default Total Points Possible</label>
+					<input type="number" class="form-control" id="formTotal" name="total" value="{{ course.settings.assignments.totalPoints }}" tabindex="1" />
+				</div>
+				<div class="form-group">
+					<label for="formTries" title="allow students to submit assignments this many times (set to zero to give grade for already completed assignment)">Allowed Tries</label>
+					<input type="number" class="form-control" id="formTries" name="tries" value="{{ course.settings.assignments.tries }}" tabindex="2" />
+				</div>
+				<div class="form-group">
+					<label for="formLate">Allow Late Submissions</label>
+					<div class="radio">
+						<label>
+							<input type="radio" name="late" id="formLate" value="yes" {% if course.settings.assignments.allowLate == true %}checked{% endif %} tabindex="3">Yes <small>(allow students to submit assignments after close date)</small>
+						</label>
+					</div>
+					<div class="radio">
+						<label>
+							<input type="radio" name="late" id="formLate" value="no" {% if course.settings.assignments.allowLate == false %}checked{% endif %} tabindex="3">No <small>(do <strong>NOT</strong> allow students to submit assignments after close date)</small>
+						</label>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="formLate">Anonymous Grading (coming soon)</label>
+					<div class="radio">
+						<label>
+							<input type="radio" name="anonymous" id="formAnonymous" value="yes" {% if course.settings.assignments.anonymousGrading == true %}checked{% endif %} tabindex="3">Yes <small>(hide student names until all student's attempts are graded)</small>
+						</label>
+					</div>
+					<div class="radio">
+						<label>
+							<input type="radio" name="anonymous" id="formAnonymous" value="no" {% if course.settings.assignments.anonymousGrading == false %}checked{% endif %} tabindex="3">No
+						</label>
+					</div>
+				</div>
+				<div class="form-group">
+					<button type="submit" class="btn btn-default" tabindex="10">Submit</button>
+				</div>
+			</form>
+		</div>
+	</div>
+{% endblock %}

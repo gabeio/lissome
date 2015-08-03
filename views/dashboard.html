@@ -25,13 +25,25 @@
 		{% endif %}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				<h3>{% if auth <= 2 %}Your {% endif %}Courses</h3>
+				<h3>{% if auth == 1 %}Your {% elif auth == 2 %}Current {% endif %}Courses</h3>
 				<ul class="list-group">
 				{% for course in courses %}
-					<a class="list-group-item" href="/c/{{ course.id }}">{{ course.title }}</a>
+					<a class="list-group-item" href="/c/{{ course._id|toString }}">{{ course.title }}</a>
 				{% endfor %}
 				</ul>
 			</div>
 		</div>
+		{% if auth == 2 and otherCourses.length > 0 %}
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+				<h3>Other Semester's Courses</h3>
+				<ul class="list-group">
+				{% for course in otherCourses %}
+					<a class="list-group-item" href="/c/{{ course._id|toString }}">{{ course.title }}</a>
+				{% endfor %}
+				</ul>
+			</div>
+		</div>
+		{% endif %}
 	</div>
 {%- endblock -%}
