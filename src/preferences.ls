@@ -27,6 +27,7 @@ router
 			res.locals.user = result
 			next "route"
 	..use "/otp", require("./preferences/otp")
+	..use "/password", require("./preferences/password")
 	..use "/", require("./preferences/index")
 
 module.exports = router
