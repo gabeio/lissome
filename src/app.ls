@@ -43,6 +43,9 @@ app
 	..locals.pushover = {
 		token: (process.env.pushover||process.env.PUSHOVER||argv.pushover)
 	}
+	..locals.pushbullet = {
+		token: (process.env.pushbullet||process.env.PUSHBULLET||argv.pushbullet)
+	}
 
 /* istanbul ignore next this is just for assurance the env vars are defined */
 do ->

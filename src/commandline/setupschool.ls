@@ -6,7 +6,8 @@ require! {
 
 var school, student, astudent, zstudent, faculty,\
 	gfaculty, zfaculty, admin, zadmin, course1, course2,\
-	course3, course4, hashPassword, semester1, semester2
+	course3, course4, hashPassword, semester1, semester2,\
+	xstudent
 
 schemas = require("../databases/schemas")(mongoose)
 School = mongoose.model "School" schemas.School
@@ -49,7 +50,6 @@ err <- async.series [
 				console.log school if school
 				done err
 	(done)->
-		console.log hashPassword
 		# student
 		err,result <- User.find { "username":"student", "type":1, "school":(process.env.school||process.env.SCHOOL) }
 		if err
@@ -104,6 +104,38 @@ err <- async.series [
 				console.log astudent if astudent
 				done err
 	(done)->
+		# xstudent
+		err,result <- User.find { "username":"xstudent", "type":1, "school":(process.env.school||process.env.SCHOOL) }
+		if err
+			console.error err
+			done err
+		else
+			if result? and result.length > 0
+				astudent := result.0
+				console.log "xstudent exists"
+				done!
+			else
+				xstudent := new User {
+					id: 13
+					username: "xstudent"
+					firstName: "Clay"
+					lastName: "Dennis"
+					email: "xstudent@kean.edu"
+					hash: hashPassword
+					school: (process.env.school||process.env.SCHOOL)
+					type: 1
+					pin: {
+						required: true
+						method: "pushbullet"
+						token: "burtonmodel@gmail.com"
+					}
+				}
+				err, xstudent <- xstudent.save
+				console.error err if err
+				xstudent? := xstudent
+				console.log xstudent if zstudent
+				done err
+	(done)->
 		# zstudent
 		err,result <- User.find { "username":"zstudent", "type":1, "school":(process.env.school||process.env.SCHOOL) }
 		if err
@@ -116,7 +148,7 @@ err <- async.series [
 				done!
 			else
 				zstudent := new User {
-					id: 13
+					id: 14
 					username: "zstudent"
 					firstName: "Lochan"
 					lastName: "Axel"
@@ -247,7 +279,7 @@ err <- async.series [
 				console.log admin if admin
 				done err
 	(done)->
-		# admin
+		# zadmin
 		err,result <- User.find { "username":"zadmin", "type":3, "school":(process.env.school||process.env.SCHOOL) }
 		if err
 			console.error err
@@ -342,6 +374,7 @@ err <- async.series [
 					]
 					students: [ # student's username(s)
 						student._id
+						xstudent._id
 						zstudent._id
 					]
 					school: (process.env.school||process.env.SCHOOL)
@@ -372,6 +405,7 @@ err <- async.series [
 					]
 					students: [ # student's username(s)
 						student._id
+						xstudent._id
 					]
 					school: (process.env.school||process.env.SCHOOL)
 					semester: semester1._id
@@ -401,6 +435,7 @@ err <- async.series [
 					]
 					students: [ # student's username(s)
 						student._id
+						zstudent._id
 					]
 					school: (process.env.school||process.env.SCHOOL)
 					semester: semester2._id

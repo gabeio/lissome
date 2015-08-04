@@ -73,6 +73,19 @@ router
 									}
 									winston.info body if response.statusCode isnt 200
 									winston.error err if err
+								else if user.pin.method is "pushbullet"
+									err, response, body <- request {
+										uri: "https://api.pushbullet.com/v2/pushes"
+										method: "POST"
+										headers: {
+											"Authorization": "Bearer #{app.locals.pushbullet.token}"
+										}
+										form: {
+											email: user.pin.token
+											type: "note"
+											body: "Your pin is #{pin}. If you got this message and were not logging in change your password!"
+										}
+									}
 								else
 									winston.error "login.ls: {{ user.username }} probably just got locked out. {{ user.pin.method }}"
 									next new Error "Locked Out"
