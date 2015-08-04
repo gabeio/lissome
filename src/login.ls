@@ -62,16 +62,16 @@ router
 										pin += byte
 								# 2. push pin to user
 								if user.pin.method is "pushover"
-									body = JSON.stringify {
-										token: app.locals.pushover.token
-										message: "Your pin is #{pin}. If you got this message and were not logging in change your password!"
-										user: user.pin.token
-									}
-									err, response, body<- request {
+									err, response, body <- request {
 										uri: "https://api.pushover.net/1/messages.json"
 										method: "POST"
-										body: body
+										form: {
+											token: app.locals.pushover.token
+											message: "Your pin is #{pin}. If you got this message and were not logging in change your password!"
+											user: user.pin.token
+										}
 									}
+									winston.info body if response.statusCode isnt 200
 									winston.error err if err
 								else
 									winston.error "login.ls: {{ user.username }} probably just got locked out. {{ user.pin.method }}"
