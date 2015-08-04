@@ -28,7 +28,7 @@ router
 				next new Error "MONGO"
 			if !user? or user.length is 0
 				# user not found
-				err <- session.destroy
+				err <- req.session.destroy
 				winston.error err if err
 				res.redirect "/"
 				# res.render "login", { error: "user not found", csrf: req.csrfToken! }
