@@ -1,10 +1,5 @@
-default: npmi build
-
-npmi:
-	npm i -g gulp livescript nodemon
-	npm i
-
 build:
+	npm i
 	gulp build
 
 test:
