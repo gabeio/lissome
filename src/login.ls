@@ -31,7 +31,7 @@ router
 				if !req.body.username? or req.body.username is "" or !req.body.password? or req.body.password is ""
 					done "bad"
 				else
-					done null
+					done!
 			(done)->
 				err, user <- User.findOne {
 					"username": req.body.username.toLowerCase!
@@ -106,6 +106,7 @@ router
 						#else
 							# pretend we sent the pin
 					else
+						# should never get here
 						done "#{user.username} Locked Out"
 					# 3. add pushpin to session
 					req.session.pin = pin
