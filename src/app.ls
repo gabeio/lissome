@@ -40,6 +40,12 @@ app
 		+includeEmptyFields
 		-inMemory
 	}
+	..locals.pushover = {
+		token: (process.env.pushover||process.env.PUSHOVER||argv.pushover)
+	}
+	..locals.pushbullet = {
+		token: (process.env.pushbullet||process.env.PUSHBULLET||argv.pushbullet)
+	}
 
 /* istanbul ignore next this is just for assurance the env vars are defined */
 do ->
@@ -105,6 +111,8 @@ redis = require("./databases/redisClient")(app,\
 	(process.env.redisport||process.env.REDISPORT||argv.redisport||6379),\
 	(process.env.redisauth||process.env.REDISAUTH||argv.redisauth||void),\
 	(process.env.redisdb||process.env.REDISDB||argv.redisdb||0))
+
+app.locals.redis = redis
 
 RedisStore = connect-redis express-session
 
@@ -239,6 +247,7 @@ require("./databases/mongoose")(app)
 app.use "/login", require("./login")
 app.use "/logout", require("./logout")
 app.use "/otp", require("./otp")
+app.use "/pin", require("./pin")
 app.use "/preferences", require("./preferences")
 app.use "/admin", require("./admin")
 app.use "/:course(c|C|course)", require("./course")

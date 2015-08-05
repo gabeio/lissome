@@ -31,7 +31,6 @@ dependencies:
 	"express-partial-response": "~0.3.4"
 	"express-session": "~1.11.3"
 	"helmet": "~0.10.0"
-	"hiredis": "~0.4.0"
 	"ioredis": "~1.7.2"
 	"livescript": "~1.4.0"
 	"lodash": "~3.10.0"
@@ -43,12 +42,16 @@ dependencies:
 	"multer": "~1.0.1"
 	"passcode": "~1.0.2"
 	"response-time": "~2.3.1"
+	"request": "~2.60.0"
 	"scrypt": "~4.0.7"
 	"serve-static": "~1.10.0"
 	"swig": "~1.4.2"
 	"thirty-two": "~0.0.2"
 	"winston": "~1.0.1"
 	"yargs": "~3.17.1"
+
+optionalDependencies:
+	"hiredis": "~0.4.0"
 
 devDependencies:
 	"chai": "~3.2.0"

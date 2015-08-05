@@ -1,7 +1,9 @@
 require! {
 	"express"
-	"scrypt"
 	"mongoose"
+	"crypto"
+	"scrypt"
+	"request"
 	"winston"
 	"./app"
 }
@@ -49,19 +51,66 @@ router
 							res.render "login", { error:"bad login credentials", csrf: req.csrfToken! }
 						else
 							# do NOT take anything from req.body
-							if user.otp? and user.otp.secret? and user.otp.secret.length isnt 0 # if otp and secret
+							if user.otp.secret.length isnt 0 # if otp and secret
 								req.session.otp = user.otp.secret
+							else if user.pin.required is true # if user requires push-pin
+								# 1. generate pushpin
+								pin = ""
+								while pin.length < 8
+									byte = crypto.randomBytes 1 .toString!
+									if parseInt(byte) >= 0
+										pin += byte
+								# 2. push pin to user
+								if user.pin.method is "pushover"
+									if typeof app.locals.pushover.token isnt "undefined"
+										err, response, body <- request {
+											uri: "https://api.pushover.net/1/messages.json"
+											method: "POST"
+											form: {
+												token: app.locals.pushover.token
+												message: "Your pin is #{pin}. If you got this message and were not logging in change your password!"
+												user: user.pin.token
+											}
+										}
+										winston.info body if response.statusCode isnt 200
+										winston.error err if err
+									#else
+										# pretend we sent the pin
+								else if user.pin.method is "pushbullet"
+									if typeof app.locals.pushbullet.token isnt "undefined"
+										err, response, body <- request {
+											uri: "https://api.pushbullet.com/v2/pushes"
+											method: "POST"
+											headers: {
+												"Authorization": "Bearer #{app.locals.pushbullet.token}"
+											}
+											form: {
+												email: user.pin.token
+												type: "note"
+												body: "Your pin is #{pin}. If you got this message and were not logging in change your password!"
+											}
+										}
+										winston.info body if response.statusCode isnt 200
+										winston.error err if err
+									#else
+										# pretend we sent the pin
+								else
+									winston.error "login.ls: {{ user.username }} probably just got locked out. {{ user.pin.method }}"
+									next new Error "Locked Out"
+								# 3. add pushpin to session
+								req.session.pin = pin
 							else # otherwise
 								req.session.auth = user.type # give them their auth
 							req.session.username = user.username
 							req.session.userid = user.id
 							req.session.uid = user._id
 							req.session.firstName = user.firstName
-							/* istanbul ignore next */
 							req.session.middleName? = user.middleName
 							req.session.lastName = user.lastName
-							if user.otp? and user.otp.secret? and user.otp.secret.length isnt 0
+							if user.otp.secret.length isnt 0
 								res.redirect "/otp"
+							else if req.session.pin?
+								res.redirect "/pin"
 							else
 								res.redirect "/"
 
