@@ -8,7 +8,6 @@ require! {
 	"winston"
 	"./app"
 }
-var asdf
 parser = app.locals.multer.fields []
 User = mongoose.models.User
 router = express.Router!
