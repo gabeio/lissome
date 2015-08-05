@@ -16,18 +16,20 @@ router = express.Router!
 router
 	..route "/:thread?/:post?" # query :: action(new|edit|delete)
 	.all (req, res, next)->
-		if req.query.action? then req.query.action = req.query.action.toLowerCase!
 		if req.params.thread? and req.params.thread.length isnt 24
 			next new Error "Bad Thread"
 		else if req.params.post? and req.params.post.length isnt 24
 			next new Error "Bad Post"
 		else
+			if req.query.action? then req.query.action = req.query.action.toLowerCase!
 			next!
 	.all (req, res, next)->
 		# thread/post db middleware async for attempted max speed
 		err <- async.parallel [
 			(para)->
+				# if nothing given
 				if !req.params.thread?
+					# get all threads in the course
 					err, result <- Thread.find {
 						"course": ObjectId res.locals.course._id
 					}
@@ -44,7 +46,9 @@ router
 				else
 					para!
 			(para)->
+				# if thread but no post is given
 				if req.params.thread? && !req.params.post?
+					# get all the posts in that thread
 					err <- async.parallel [
 						(done)->
 							err, result <- Thread.findOne {
@@ -244,6 +248,7 @@ router
 				}
 				if res.locals.auth > 1
 					delete res.locals.thePost.author
+				# delete post
 				err, post <- Post.findOneAndRemove res.locals.thePost
 				/* istanbul ignore if should only really occur if db crashes */
 				if err?
@@ -261,7 +266,7 @@ router
 				}
 				if res.locals.auth > 1
 					delete res.locals.theThread.author
-				# first delete thread
+				# delete thread
 				err, thread <- Thread.findOneAndRemove res.locals.theThread
 				/* istanbul ignore if should only really occur if db crashes */
 				if err?
@@ -269,7 +274,10 @@ router
 					winston.error err
 					res.status 400 .render "course/conference/delthread" { body: req.body, success:"no", noun:"Thread", verb:"deleted", csrf: req.csrfToken! }
 				else
-					if thread?
+					if !thread?
+						res.status 400 .render "course/conference/delthread" { body: req.body, success:"no", noun:"Posts", verb:"deleted", csrf: req.csrfToken! }
+					else
+						# delete posts of thread
 						err, post <- Post.remove {
 							thread: ObjectId thread._id
 						}
@@ -279,8 +287,6 @@ router
 							res.status 400 .render "course/conference/delthread" { body: req.body, success:"no", noun:"Posts", verb:"deleted", csrf: req.csrfToken! }
 						else
 							res.status 302 .redirect "/c/#{res.locals.course._id}/conference"
-					else
-						res.status 400 .render "course/conference/delthread" { body: req.body, success:"no", noun:"Posts", verb:"deleted", csrf: req.csrfToken! }
 		| _
 			next new Error "Action Error"
 
