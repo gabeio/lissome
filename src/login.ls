@@ -16,6 +16,8 @@ router
 	.all (req, res, next)->
 		if req.session.opt? # first check otp so we don't cause redirect loop
 			res.redirect "/otp"
+		else if req.session.pin?
+			res.redirect "/pin"
 		else if res.locals.auth? # then check if user is logged in
 			res.redirect "/"
 		else
