@@ -385,7 +385,6 @@ describe "Core" ->
 						.end (err, res)->
 							next err, res.text
 				(pin,next)->
-					console.log pin
 					admin
 						.post "/pin"
 						.send {
