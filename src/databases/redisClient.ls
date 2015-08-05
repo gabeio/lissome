@@ -21,6 +21,7 @@ module.exports = (app,redishost,redisport,redisauth,redisdb)->
 			winston.info "redis:using db \##{redisdb}"
 	rediscli.on "ready", ->
 		winston.info "redis:ready"
+	/* istanbul ignore next only occurse upon redis error */
 	rediscli.on "error", ->
 		winston.error it
 	/* istanbul ignore next */
