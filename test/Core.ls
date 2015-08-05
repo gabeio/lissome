@@ -426,7 +426,7 @@ describe "Core" ->
 					admin
 						.post "/login"
 						.send {
-							"username": "zstudent"
+							"username": "xstudent"
 							"password": "password"
 						}
 						.expect 302
