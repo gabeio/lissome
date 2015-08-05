@@ -194,8 +194,8 @@ app
 					res.locals.uid = req.session.uid.toString!
 					res.locals.firstName = req.session.firstName
 					res.locals.lastName = req.session.lastName
-					res.locals.middleName? = req.session.middleName
 					res.locals.username = req.session.username
+					res.locals.middleName? = req.session.middleName
 					para!
 				else
 					para!
@@ -206,6 +206,7 @@ app
 				else
 					para!
 			(para)->
+				/* istanbul ignore if which only tests if redis is offline */
 				if !req.session?
 					next new Error "Sessions are offline."
 				else

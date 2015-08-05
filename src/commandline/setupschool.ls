@@ -65,6 +65,7 @@ err <- async.series [
 					id: 11
 					username: "student"
 					firstName: "Kyler"
+					middleName: "I have a middle name"
 					lastName: "Jakeman"
 					email: "student@kean.edu"
 					hash: hashPassword
