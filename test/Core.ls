@@ -366,6 +366,92 @@ describe "Core" ->
 					expect res.text .to.have.string "user not found"
 					expect res.headers.location .to.be.an "undefined"
 					done err
+		it "should succeed for a good pin", (done)->
+			err <- async.waterfall [
+				(next)->
+					admin
+						.post "/login"
+						.send {
+							"username": "zstudent"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/pin"
+							next err
+				(next)->
+					admin
+						.get "/test/getpin"
+						.end (err, res)->
+							next err, res.text
+				(pin,next)->
+					console.log pin
+					admin
+						.post "/pin"
+						.send {
+							"pin": pin
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/"
+							next err
+			]
+			done err
+		it "should not take a blank pin", (done)->
+			err <- async.waterfall [
+				(next)->
+					admin
+						.post "/login"
+						.send {
+							"username": "zstudent"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/pin"
+							next err
+				(next)->
+					admin
+						.post "/pin"
+						.send {
+							"pin": ""
+						}
+						.expect 400
+						.end (err, res)->
+							next err
+			]
+			done err
+		it "should fail for a bad pin", (done)->
+			err <- async.waterfall [
+				(next)->
+					admin
+						.post "/login"
+						.send {
+							"username": "zstudent"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/pin"
+							next err
+				(next)->
+					admin
+						.get "/test/getpin"
+						.end (err, res)->
+							next err, parseInt(res.body)
+				(pin,next)->
+					pin+=10
+					admin
+						.post "/pin"
+						.send {
+							"pin": pin.toString!
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/login"
+							next err
+			]
+			done err
 	describe "Dashboard", (...)->
 		before (done)->
 			student
