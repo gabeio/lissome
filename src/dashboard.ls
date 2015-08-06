@@ -26,6 +26,7 @@ router
 					}
 					.lean!
 					.exec
+					winston.error "dashboard.ls: Semester.find" err if err
 					res.locals.semesters = _.map _.toArray(_.pluck semesters, "_id" ), (doc)->
 						doc.toString!
 					done err
@@ -64,7 +65,7 @@ router
 		.exec
 		/* istanbul ignore if */
 		if err
-			winston.error "dashboard.ls:Course:find", err
+			winston.error "dashboard.ls: Course.find", err
 			para "MONGO"
 		else
 			res.locals.courses = courses

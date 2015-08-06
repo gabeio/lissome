@@ -83,7 +83,7 @@ router
 								}
 							}
 							winston.info body if response.statusCode isnt 200
-							winston.error err if err
+							winston.error "login.ls: request.pushover", err if err
 						#else
 							# pretend we sent the pin
 					else if user.pin.method is "pushbullet"
@@ -101,7 +101,7 @@ router
 								}
 							}
 							winston.info body if response.statusCode isnt 200
-							winston.error err if err
+							winston.error "login.ls: request.pushbullet", err if err
 						#else
 							# pretend we sent the pin
 					else
@@ -142,7 +142,7 @@ router
 			| "fin"
 				break # should have been answered
 			| _
-				winston.error err
+				# winston.error "login.ls: ",err
 				next new Error err
 
 module.exports = router

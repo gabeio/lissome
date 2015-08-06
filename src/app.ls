@@ -50,30 +50,30 @@ app
 /* istanbul ignore next this is just for assurance the env vars are defined */
 do ->
 	if !process.env.cookie? and !process.env.COOKIE? and !yargs.argv.cookie?
-		winston.error "REQUIRES COOKIE SECRET"
+		winston.error "app: REQUIRES COOKIE SECRET"
 		process.exit 1
 	if !process.env.school? and !process.env.SCHOOL? and !yargs.argv.school?
-		winston.error "REQUIRES SCHOOL NAME"
+		winston.error "app: REQUIRES SCHOOL NAME"
 		process.exit 1
 	else
 		app.locals.school = (process.env.school||process.env.SCHOOL||yargs.argv.school)
 	if !process.env.timezone? and !process.env.TIMEZONE? and !yargs.argv.timezone?
-		winston.error "REQUIRES SCHOOL TIMEZONE"
+		winston.error "app: REQUIRES SCHOOL TIMEZONE"
 		process.exit 1
 	else
 		if moment.tz.zone(process.env.timezone or process.env.TIMEZONE or yargs.argv.timezone)
 			app.locals.timezone = process.env.timezone or process.env.TIMEZONE or yargs.argv.timezone
 		else
-			winston.error "Unknown Timezone; crashing..."
+			winston.error "app: Unknown Timezone; crashing..."
 			process.exit 1
 	if !process.env.mongo? and !process.env.MONGO? and !yargs.argv.mongo?
-		winston.warn "mongo env undefined\ntrying localhost anyway..."
+		winston.warn "app: mongo env undefined trying localhost anyway"
 	if !process.env.redishost? and !process.env.REDISHOST? and !yargs.argv.redishost?
-		winston.warn "redishost env undefined\ntrying localhost anyway..."
+		winston.warn "app: redishost env undefined trying localhost anyway"
 	if !process.env.redisport? and !process.env.REDISPORT? and !yargs.argv.redisport?
-		winston.warn "redisport env undefined\ntrying default anyway..."
+		winston.warn "app: redisport env undefined trying default anyway"
 	if !process.env.redisauth? and !process.env.REDISAUTH? and !yargs.argv.redisauth?
-		winston.warn "redisauth env undefined\ntrying null anyway..."
+		winston.warn "app: redisauth env undefined trying null anyway"
 
 # markdown-it options
 md = new markdown-it {
@@ -219,7 +219,7 @@ app
 switch app.get "env"
 | "production"
 	# production run
-	winston.info "Production Mode"
+	winston.info "app: Production Mode"
 	app.use csurf {
 		secretLength: 64
 		saltLength: 20
@@ -227,7 +227,7 @@ switch app.get "env"
 | _
 	# development/other run
 	if !module.parent
-		winston.info "Development Mode"
+		winston.info "app: Development Mode"
 	# disable template cache
 	app.set "view cache" false
 	swig.setDefaults { -cache }
@@ -261,27 +261,26 @@ if !module.parent # assure this file is not being run by a different file
 	# assure one of the settings were given
 	if process.env.port? or process.env.PORT? or yargs.argv.http? or yargs.argv.port?
 		port = process.env.port or process.env.PORT or yargs.argv.http or yargs.argv.port
-		winston.info "Server started on port " + port + " at " + new Date Date.now!
+		winston.info "app: Server started on port " + port + " at " + new Date Date.now!
 		server = app.listen port
 	else
-		winston.error "No port/socket specified please use HTTP or PORT environment variable"
+		winston.error "app: No port/socket specified please use HTTP or PORT environment variable"
 		process.exit 1
 else
 	app.locals.testing = true
 	# silence all logging on testing
 	winston.level = "error"
-	/*winston.add winston.transports.Console, {level:"warn"}*/
 	require("./test")(app)
 /* istanbul ignore next this is only executed when sigterm is sent */
 process.on "SIGTERM", ->
-	winston.info "\nShutting down from SIGTERM"
+	winston.info "app: Shutting down from SIGTERM"
 	server.close!
 	mongoose.disconnect!
 	redis.end!
 	process.exit 0
 /* istanbul ignore next this is only executed when sigint is sent */
 process.on "SIGINT", ->
-	winston.info "\nGracefully shutting down from SIGINT (Ctrl-C)"
+	winston.info "app: Gracefully shutting down from SIGINT (Ctrl-C)"
 	server.close!
 	mongoose.disconnect!
 	redis.end!

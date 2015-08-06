@@ -46,7 +46,7 @@ router
 					.lean!
 					.exec
 					if err
-						winston.error "course.ls:Semester:find", err
+						winston.error "course.ls: Semester.find", err
 						para "MONGO"
 					else
 						res.locals.semesters = _.pluck semesters, "_id"
@@ -79,7 +79,7 @@ router
 			.exec
 			/* istanbul ignore if should only occur if db crashes */
 			if err
-				winston.error "course.ls:Course:findOne", err
+				winston.error "course.ls: Course.findOne", err
 				next new Error "MONGO"
 			else
 				if !result? or result.length is 0

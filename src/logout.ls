@@ -7,7 +7,7 @@ router
 	..route "/"
 	.all (req, res, next)->
 		err <- req.session.destroy
-		if err? then winston.error err
+		winston.error "logout.ls: session.destroy", err if err?
 		res.redirect "/login"
 
 module.exports = router

@@ -89,7 +89,7 @@ router
 					(cont)->
 						# hash password
 						err, result <- scrypt.hash new Buffer(req.body.password), { N:1, r:1, p:1 }
-						console.error err if err
+						winston.error err if err
 						cont err, result
 					(hash, cont)->
 						# check id & username existance
@@ -828,7 +828,6 @@ router
 							cont null
 				]
 				if err
-					console.log err
 					winston.error err
 					res.status 400
 					res.send err

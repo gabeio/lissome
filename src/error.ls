@@ -10,13 +10,12 @@ module.exports = (app)->
 			async.parallel [
 				!->
 					# ALWAYS LOG
-					winston.error err, req.originalUrl
+					winston.error "error.ls: ", err, req.originalUrl
 				!->
 					if err?
 						if err.code is "EBADCSRFTOKEN"
 							res.status 403 .render "error" {err:"Bad Request"}
 						else
-							# console.log err.message
 							switch err.message
 							| "NOT FOUND"
 								res.status 404 .render "error" { err:"Not Found" }

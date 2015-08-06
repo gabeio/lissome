@@ -164,8 +164,6 @@ describe "Conference" ->
 						.end (err, res)->
 							cont err, res.body
 				(tid,cont)->
-					if !tid? or tid.length < 1
-						console.log "no thread"
 					err <- async.parallel [
 						(fin)->
 							admin
@@ -196,8 +194,6 @@ describe "Conference" ->
 						.end (err, res)->
 							cont err, res.body
 				(tid,cont)->
-					if !tid? or tid.length < 1
-						console.log "no thread"
 					admin
 						.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 						.send {
@@ -381,8 +377,6 @@ describe "Conference" ->
 						.end (err, res)->
 							cont err, res.body
 				(tid,cont)->
-					if !tid? or tid.length < 1
-						console.log "no thread"
 					err <- async.parallel [
 						(fin)->
 							admin
@@ -502,8 +496,6 @@ describe "Conference" ->
 						.end (err, res)->
 							cont err, res.body
 				(tid,cont)->
-					if !tid? or tid.length < 1
-						console.log "no thread"
 					err <- async.parallel [
 						(fin)->
 							faculty
@@ -534,8 +526,6 @@ describe "Conference" ->
 						.end (err, res)->
 							cont err, res.body
 				(tid,cont)->
-					if !tid? or tid.length < 1
-						console.log "no thread"
 					faculty
 						.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
 						.send {
@@ -690,8 +680,6 @@ describe "Conference" ->
 						.end (err, res)->
 							cont err, res.body
 				(tid,cont)->
-					if !tid? or tid.length < 1
-						console.log "no thread"
 					err <- async.parallel [
 						(fin)->
 							faculty
@@ -721,8 +709,6 @@ describe "Conference" ->
 						.end (err, res)->
 							cont err, res.body
 				(tid,cont)->
-					if !tid? or tid.length < 1
-						console.log "no thread"
 					err <- async.parallel [
 						(fin)->
 							faculty
