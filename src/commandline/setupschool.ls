@@ -20,7 +20,7 @@ db = mongoose.connection
 db.open (process.env.mongo||process.env.MONGO||"mongodb://127.0.0.1/lissome")
 db.on "error", winston.error.bind winston, "mongo: connection error"
 
-err, something <- db.once "open"
+err <- db.once "open"
 winston.error err if err
 
 err <- async.series [
@@ -48,7 +48,7 @@ err <- async.series [
 				err, school <- school.save
 				winston.error err if err
 				school? := school
-				winston.info school if school
+				winston.info "School created"
 				done err
 	(done)->
 		# student
@@ -76,7 +76,7 @@ err <- async.series [
 				err, student <- student.save
 				winston.error err if err
 				student? := student
-				winston.info student if student
+				winston.info "Student created"
 				done err
 	(done)->
 		# astudent
@@ -103,7 +103,7 @@ err <- async.series [
 				err, astudent <- astudent.save
 				winston.error err if err
 				astudent? := astudent
-				winston.info astudent if astudent
+				winston.info "Student created"
 				done err
 	(done)->
 		# xstudent
@@ -135,7 +135,7 @@ err <- async.series [
 				err, xstudent <- xstudent.save
 				winston.error err if err
 				xstudent? := xstudent
-				winston.info xstudent if zstudent
+				winston.info "Student created"
 				done err
 	(done)->
 		# zstudent
@@ -167,7 +167,7 @@ err <- async.series [
 				err, zstudent <- zstudent.save
 				winston.error err if err
 				zstudent? := zstudent
-				winston.info zstudent if zstudent
+				winston.info "Student created"
 				done err
 	(done)->
 		# faculty
@@ -194,7 +194,7 @@ err <- async.series [
 				err, faculty <- faculty.save
 				winston.error err if err
 				faculty? := faculty
-				winston.info faculty if faculty
+				winston.info "Faculty created"
 				done err
 	(done)->
 		# gfaculty
@@ -221,7 +221,7 @@ err <- async.series [
 				err, faculty <- gfaculty.save
 				winston.error err if err
 				gfaculty? := faculty
-				winston.info faculty if faculty
+				winston.info "Faculty created"
 				done err
 	(done)->
 		# zfaculty
@@ -251,7 +251,7 @@ err <- async.series [
 				err, faculty <- zfaculty.save
 				winston.error err if err
 				gfaculty? := faculty
-				winston.info faculty if faculty
+				winston.info "Faculty created"
 				done err
 	(done)->
 		# admin
@@ -278,7 +278,7 @@ err <- async.series [
 				err, admin <- admin.save
 				winston.error err if err
 				admin? := admin
-				winston.info admin if admin
+				winston.info "Admin created"
 				done err
 	(done)->
 		# zadmin
@@ -308,7 +308,7 @@ err <- async.series [
 				err, admin <- admin.save
 				winston.error err if err
 				admin? := admin
-				winston.info admin if admin
+				winston.info "Admin created"
 				done err
 	(done)->
 		# Fall 2015 semester
@@ -328,10 +328,10 @@ err <- async.series [
 					open: "Jan 1 2000"
 					close: "Jan 1 3000"
 				}
-				err,semester <- semester1.save
+				err,semester1 <- semester1.save
 				winston.error err if err
-				semester1? := semester
-				winston.info semester if semester
+				semester1? := semester1
+				winston.info "Semester created"
 				done err
 	(done)->
 		# Spring 2016 semester
@@ -354,7 +354,7 @@ err <- async.series [
 				err,semester2 <- semester2.save
 				winston.error err if err
 				semester2? := semester2
-				winston.info semester2 if semester2
+				winston.info "Semester created"
 				done err
 	(done)->
 		# cps1234*02
@@ -385,7 +385,7 @@ err <- async.series [
 				err,course1 <- course1.save
 				winston.error err if err
 				course1 := course1
-				winston.info course1 if course1
+				winston.info "Course created"
 				done err
 	(done)->
 		# ge1000
@@ -415,7 +415,7 @@ err <- async.series [
 				err,course2 <- course2.save
 				winston.error err if err
 				course2 := course2
-				winston.info course2 if course2
+				winston.info "Course created"
 				done err
 	(done)->
 		# ge1000
@@ -444,7 +444,7 @@ err <- async.series [
 				}
 				err,course4 <- course4.save
 				course4 := course4
-				winston.info course4 if course4
+				winston.info "Course created"
 				done err
 	(done)->
 		# cps4601
@@ -472,7 +472,7 @@ err <- async.series [
 				}
 				err,course3 <- course3.save
 				course3? := course3
-				winston.info course3 if course3
+				winston.info "Course created"
 				done err
 ]
 

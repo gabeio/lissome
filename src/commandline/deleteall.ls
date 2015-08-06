@@ -3,6 +3,7 @@ require! {
 	"mongoose"
 	"winston"
 }
+
 schemas = require("../databases/schemas")(mongoose)
 School = mongoose.model "School" schemas.School
 User = mongoose.model "User" schemas.User
@@ -16,6 +17,9 @@ Post = mongoose.model "Post" schemas.Post
 db = mongoose.connection
 db.open (process.env.mongo||process.env.MONGO||"mongodb://127.0.0.1/lissome")
 db.on "error", winston.error.bind winston, "connection error"
+
+err <- db.once "open"
+winston.error if err
 
 err <- async.parallel [
 	(done)->
