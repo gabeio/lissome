@@ -12,4 +12,7 @@ coverage:
 	gulp build-tests
 	./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha
 
+clean:
+	rm -rf ./lib/
+
 .PHONY: default test coverage
