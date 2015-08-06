@@ -156,6 +156,13 @@ describe "Core" ->
 							.end (err, res)->
 								expect res.header.location .to.equal "/bounce?to=/"
 								done err
+			it "should tell them to enable cookies", (done)->
+				admin
+					.get "/bounce?to=/"
+					.expect 200
+					.end (err, res)->
+						expect res.text .to.have.string "enable cookies"
+						done err
 		describe "(User: Faculty)", (...)->
 			it "should login with valid credentials", (done)->
 				faculty
