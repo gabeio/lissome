@@ -257,6 +257,7 @@ require("./error")(app)
 
 /* istanbul ignore next */
 if !module.parent # assure this file is not being run by a different file
+	winston.level? = (argv.v||argv.verbose)
 	# assure one of the settings were given
 	if process.env.port? or process.env.PORT? or yargs.argv.http? or yargs.argv.port?
 		port = process.env.port or process.env.PORT or yargs.argv.http or yargs.argv.port
