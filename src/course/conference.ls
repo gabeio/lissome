@@ -49,54 +49,51 @@ router
 				# if thread but no post is given
 				if req.params.thread? && !req.params.post?
 					# get all the posts in that thread
-					err <- async.parallel [
-						(done)->
-							err, result <- Thread.findOne {
-								"course": ObjectId res.locals.course._id
-								"_id": ObjectId req.params.thread
-							}
-							.populate "author"
-							.exec
-							/* istanbul ignore if should only really occur if db crashes */
-							if err?
-								winston.error "conf find thread", err
-								done "INTERNAL"
-							else
-								if result?
-									res.locals.thread = result
-									done!
-								else
-									done "NOT FOUND"
-						(done)->
-							err, result <- Post.find {
-								"type": "conference"
-								"course": ObjectId res.locals.course._id
-								"thread": ObjectId req.params.thread
-							}
-							.populate "thread"
-							.populate "author"
-							.sort!
-							.exec
-							/* istanbul ignore if should only really occur if db crashes */
-							if err?
-								winston.error "conf find thread", err
-								done "INTERNAL"
-							else
-								/* istanbul ignore else honestly don't know how to hit the else */
-								if result?
-									res.locals.posts = result
-									done!
-								else
-									done "NOT FOUND"
-					]
-					if err
+					err, result <- Thread.findOne {
+						"course": ObjectId res.locals.course._id
+						"_id": ObjectId req.params.thread
+					}
+					.populate "author"
+					.exec
+					/* istanbul ignore if should only really occur if db crashes */
+					if err?
 						para err
 					else
-						para!
+						if result?
+							res.locals.thread = result
+							para!
+						else
+							para "NOT FOUND"
+				else
+					para!
+			(para)->
+				# if thread but no post is given
+				if req.params.thread? && !req.params.post?
+					# get all the posts in that thread
+					err, result <- Post.find {
+						"type": "conference"
+						"course": ObjectId res.locals.course._id
+						"thread": ObjectId req.params.thread
+					}
+					.populate "thread"
+					.populate "author"
+					.sort!
+					.exec
+					/* istanbul ignore if should only really occur if db crashes */
+					if err?
+						para err
+					else
+						/* istanbul ignore else honestly don't know how to hit the else */
+						if result?
+							res.locals.posts = result
+							para!
+						else
+							para "NOT FOUND"
 				else
 					para!
 			(para)->
 				if req.params.post?
+					# one post
 					err, result <- Post.findOne {
 						"type":"conference"
 						"course": ObjectId res.locals.course._id
@@ -107,8 +104,7 @@ router
 					.exec
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
-						winston.error "course:findOne:blog:auth1", err
-						para "INTERNAL"
+						para err
 					else
 						if !result?
 							para "NOT FOUND"
@@ -161,8 +157,7 @@ router
 						post = new Post post
 						err, post <- post.save
 						/* istanbul ignore if should only really occur if db crashes */
-						if err?
-							winston.error "(conference) (new post)",err
+						winston.error "(conference) (new post)", err if err
 			]
 		| "newthread"
 			if !req.body.title? or req.body.title is "" or !req.body.text? or req.body.text is ""
@@ -177,7 +172,7 @@ router
 				err, thread <- thread.save
 				/* istanbul ignore if should only really occur if db crashes */
 				if err?
-					winston.error "thread",err
+					winston.error "(conference) (new thread)", err
 					next new Error "Mongo Error"
 				else
 					res.status 302 .redirect "/c/#{res.locals.course._id}/conference/#{thread._id}"
@@ -192,7 +187,7 @@ router
 					err, post <- post.save
 					/* istanbul ignore if should only really occur if db crashes */
 					if err?
-						winston.error "post",err
+						winston.error "(conference) (new thread) (new post)", err
 						next new Error "Mongo Error"
 		| "report"
 			...
@@ -213,7 +208,7 @@ router
 				}
 				/* istanbul ignore if should only really occur if db crashes */
 				if err?
-					winston.error "conf" err
+					winston.error "(conference) (edit post)", err
 					next new Error "INTERNAL"
 				else
 					res.status 302 .redirect "/c/#{res.locals.course._id}/conference/#{req.params.thread}"
@@ -229,7 +224,7 @@ router
 				}
 				/* istanbul ignore if should only really occur if db crashes */
 				if err?
-					winston.error "conf" err
+					winston.error "(conference) (edit thread)", err
 					next new Error "INTERNAL"
 				else
 					res.status 302 .redirect "/c/#{res.locals.course._id}/conference/#{req.params.thread}"
