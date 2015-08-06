@@ -1,14 +1,13 @@
 require! {
 	"express"
 	"async"
-	"lodash"
+	"lodash":"_"
 	"mongoose"
 	"winston"
 	"../app"
 }
 parser = app.locals.multer.fields []
 ObjectId = mongoose.Types.ObjectId
-_ = lodash
 User = mongoose.models.User
 Thread = mongoose.models.Thread
 Post = mongoose.models.Post

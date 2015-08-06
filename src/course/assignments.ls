@@ -1,7 +1,7 @@
 require! {
 	"express"
 	"async"
-	"lodash"
+	"lodash":"_"
 	"moment"
 	"mongoose"
 	"winston"
@@ -9,7 +9,6 @@ require! {
 }
 parser = app.locals.multer.fields []
 ObjectId = mongoose.Types.ObjectId
-_ = lodash
 Assignment = mongoose.models.Assignment
 Attempt = mongoose.models.Attempt
 router = express.Router!

@@ -2,11 +2,10 @@ require! {
 	"async"
 	"chai" # assert lib
 	"del" # delete
-	"lodash"
+	"lodash":"_"
 	"supertest"
 	"passcode"
 }
-_ = lodash
 req = supertest
 expect = chai.expect
 assert = chai.assert

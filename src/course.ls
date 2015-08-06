@@ -1,13 +1,12 @@
 require! {
 	"express"
 	"async"
-	"lodash"
+	"lodash":"_"
 	"mongoose"
 	"winston"
 	"./app"
 }
 ObjectId = mongoose.Types.ObjectId
-_ = lodash
 Semester = mongoose.models.Semester
 Course = mongoose.models.Course
 router = express.Router!

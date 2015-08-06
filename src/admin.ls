@@ -2,7 +2,7 @@ require! {
 	"express"
 	"async"
 	"scrypt"
-	"lodash"
+	"lodash":"_"
 	"mongoose"
 	"winston"
 	"./app"
@@ -14,7 +14,6 @@ upper = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R"
 num = ["0","1","2","3","4","5","6","7","8","9"]
 alphanum = lower ++ upper ++ num
 ObjectId = mongoose.Types.ObjectId
-_ = lodash
 Course = mongoose.models.Course
 User = mongoose.models.User
 router = express.Router!
