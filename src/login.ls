@@ -15,11 +15,11 @@ router
 	..route "/"
 	.all (req, res, next)->
 		if req.session.opt? # first check otp so we don't cause redirect loop
-			res.redirect "/otp"
+			res.redirect "/bounce?to=/otp"
 		else if req.session.pin?
-			res.redirect "/pin"
+			res.redirect "/bounce?to=/pin"
 		else if res.locals.auth? # then check if user is logged in
-			res.redirect "/"
+			res.redirect "/bounce?to=/"
 		else
 			next!
 	.get (req, res, next)->
@@ -126,13 +126,13 @@ router
 				req.session.middleName? = user.middleName
 				req.session.lastName = user.lastName
 				if user.otp.secret.length isnt 0
-					res.redirect "/otp"
+					res.redirect "/bounce?to=/otp"
 					done "fin"
 				else if req.session.pin?
-					res.redirect "/pin"
+					res.redirect "/bounce?to=/pin"
 					done "fin"
 				else
-					res.redirect "/"
+					res.redirect "/bounce?to=/"
 					done "fin"
 		]
 		if err?

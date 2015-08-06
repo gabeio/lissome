@@ -97,6 +97,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
+						expect res.header.location .to.equal "/bounce?to=/"
 						done err
 			it "should not matter how the caps the username", (done)->
 				admin
@@ -107,6 +108,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
+						expect res.header.location .to.equal "/bounce?to=/"
 						done err
 			it "should fail for a good username bad password", (done)->
 				admin
@@ -136,9 +138,7 @@ describe "Core" ->
 						"username":"admin"
 					}
 					.end (err, res)->
-						# expect res.text .to.not.be ""
 						expect res.text .to.have.string "bad login credentials"
-						# expect res.status .to.equal 401
 						done err
 			it "should redirect if already logged in", (done)->
 				admin
@@ -149,11 +149,12 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
+						expect res.header.location .to.equal "/bounce?to=/"
 						admin
 							.get "/login"
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/"
+								expect res.header.location .to.equal "/bounce?to=/"
 								done err
 		describe "(User: Faculty)", (...)->
 			it "should login with valid credentials", (done)->
@@ -165,6 +166,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
+						expect res.header.location .to.equal "/bounce?to=/"
 						done err
 			it "should not matter how the caps the username", (done)->
 				faculty
@@ -175,6 +177,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
+						expect res.header.location .to.equal "/bounce?to=/"
 						done err
 			it "should fail for a good username bad password", (done)->
 				faculty
@@ -219,7 +222,7 @@ describe "Core" ->
 							.get "/login"
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/"
+								expect res.header.location .to.equal "/bounce?to=/"
 								done err
 		describe "(User: Student)", (...)->
 			it "should login with valid credentials", (done)->
@@ -231,6 +234,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
+						expect res.header.location .to.equal "/bounce?to=/"
 						done err
 			it "should not matter how the caps the username", (done)->
 				student
@@ -241,6 +245,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
+						expect res.header.location .to.equal "/bounce?to=/"
 						done err
 			it "should fail for a good username bad password", (done)->
 				student
@@ -285,7 +290,7 @@ describe "Core" ->
 							.get "/login"
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/"
+								expect res.header.location .to.equal "/bounce?to=/"
 								done err
 		it "should succeed for a good totp", (done)->
 			admin
@@ -296,7 +301,7 @@ describe "Core" ->
 				}
 				.expect 302
 				.end (err, res)->
-					expect res.headers.location .to.equal "/otp"
+					expect res.headers.location .to.equal "/bounce?to=/otp"
 					admin
 						.post "/otp"
 						.send {
@@ -315,7 +320,7 @@ describe "Core" ->
 				}
 				.expect 302
 				.end (err, res)->
-					expect res.headers.location .to.equal "/otp"
+					expect res.headers.location .to.equal "/bounce?to=/otp"
 					admin
 						.post "/otp"
 						.send {
@@ -334,7 +339,7 @@ describe "Core" ->
 				}
 				.expect 302
 				.end (err, res)->
-					expect res.headers.location .to.equal "/otp"
+					expect res.headers.location .to.equal "/bounce?to=/otp"
 					admin
 						.post "/otp"
 						.send {
@@ -377,7 +382,7 @@ describe "Core" ->
 						}
 						.expect 302
 						.end (err, res)->
-							expect res.headers.location .to.equal "/pin"
+							expect res.headers.location .to.equal "/bounce?to=/pin"
 							next err
 				(next)->
 					admin
@@ -407,7 +412,7 @@ describe "Core" ->
 						}
 						.expect 302
 						.end (err, res)->
-							expect res.headers.location .to.equal "/pin"
+							expect res.headers.location .to.equal "/bounce?to=/pin"
 							next err
 				(next)->
 					admin
@@ -431,7 +436,7 @@ describe "Core" ->
 						}
 						.expect 302
 						.end (err, res)->
-							expect res.headers.location .to.equal "/pin"
+							expect res.headers.location .to.equal "/bounce?to=/pin"
 							next err
 				(next)->
 					admin
