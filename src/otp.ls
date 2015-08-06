@@ -1,6 +1,7 @@
 require! {
 	"express"
 	"mongoose"
+	"async"
 	"passcode"
 	"winston"
 	"./app"
