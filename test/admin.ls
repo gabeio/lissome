@@ -1593,4 +1593,3 @@ describe "Admin Module", (...)->
 					.end (err, res)->
 						expect res.status .to.not.equal 200
 						done err
-			
