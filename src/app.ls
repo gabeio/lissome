@@ -23,8 +23,9 @@ require! {
 	"yargs" # --var val
 }
 
-# argv parser
-argv = yargs.argv
+# verbosity level
+winston.level? = (yargs.argv.v||yargs.argv.verbose)
+
 # express
 app = module.exports = express!
 
@@ -40,39 +41,39 @@ app
 		-inMemory
 	}
 	..locals.pushover = {
-		token: (process.env.pushover||process.env.PUSHOVER||argv.pushover)
+		token: (process.env.pushover||process.env.PUSHOVER||yargs.argv.pushover)
 	}
 	..locals.pushbullet = {
-		token: (process.env.pushbullet||process.env.PUSHBULLET||argv.pushbullet)
+		token: (process.env.pushbullet||process.env.PUSHBULLET||yargs.argv.pushbullet)
 	}
 
 /* istanbul ignore next this is just for assurance the env vars are defined */
 do ->
-	if !process.env.cookie? and !process.env.COOKIE? and !argv.cookie?
-		console.log "REQUIRES COOKIE SECRET"
+	if !process.env.cookie? and !process.env.COOKIE? and !yargs.argv.cookie?
+		winston.error "REQUIRES COOKIE SECRET"
 		process.exit 1
-	if !process.env.school? and !process.env.SCHOOL? and !argv.school?
-		console.log "REQUIRES SCHOOL NAME"
-		process.exit 1
-	else
-		app.locals.school = (process.env.school||process.env.SCHOOL||argv.school)
-	if !process.env.timezone? and !process.env.TIMEZONE? and !argv.timezone?
-		console.log "REQUIRES SCHOOL TIMEZONE"
+	if !process.env.school? and !process.env.SCHOOL? and !yargs.argv.school?
+		winston.error "REQUIRES SCHOOL NAME"
 		process.exit 1
 	else
-		if moment.tz.zone(process.env.timezone or process.env.TIMEZONE or argv.timezone)
-			app.locals.timezone = process.env.timezone or process.env.TIMEZONE or argv.timezone
+		app.locals.school = (process.env.school||process.env.SCHOOL||yargs.argv.school)
+	if !process.env.timezone? and !process.env.TIMEZONE? and !yargs.argv.timezone?
+		winston.error "REQUIRES SCHOOL TIMEZONE"
+		process.exit 1
+	else
+		if moment.tz.zone(process.env.timezone or process.env.TIMEZONE or yargs.argv.timezone)
+			app.locals.timezone = process.env.timezone or process.env.TIMEZONE or yargs.argv.timezone
 		else
-			console.log "Unknown Timezone; crashing..."
+			winston.error "Unknown Timezone; crashing..."
 			process.exit 1
-	if !process.env.mongo? and !process.env.MONGO? and !argv.mongo?
-		console.log "mongo env undefined\ntrying localhost anyway..."
-	if !process.env.redishost? and !process.env.REDISHOST? and !argv.redishost?
-		console.log "redishost env undefined\ntrying localhost anyway..."
-	if !process.env.redisport? and !process.env.REDISPORT? and !argv.redisport?
-		console.log "redisport env undefined\ntrying default anyway..."
-	if !process.env.redisauth? and !process.env.REDISAUTH? and !argv.redisauth?
-		console.log "redisauth env undefined\ntrying null anyway..."
+	if !process.env.mongo? and !process.env.MONGO? and !yargs.argv.mongo?
+		winston.warn "mongo env undefined\ntrying localhost anyway..."
+	if !process.env.redishost? and !process.env.REDISHOST? and !yargs.argv.redishost?
+		winston.warn "redishost env undefined\ntrying localhost anyway..."
+	if !process.env.redisport? and !process.env.REDISPORT? and !yargs.argv.redisport?
+		winston.warn "redisport env undefined\ntrying default anyway..."
+	if !process.env.redisauth? and !process.env.REDISAUTH? and !yargs.argv.redisauth?
+		winston.warn "redisauth env undefined\ntrying null anyway..."
 
 # markdown-it options
 md = new markdown-it {
@@ -101,15 +102,15 @@ swig.setFilter "timezone", (input)->
 # MONGOOSE
 /* istanbul ignore next */
 mongo = require("./databases/mongoClient")(app,mongoose,\
-	(process.env.mongo||process.env.MONGO||argv.mongo||"mongodb://localhost/lissome"))
+	(process.env.mongo||process.env.MONGO||yargs.argv.mongo||"mongodb://localhost/lissome"))
 
 # REDIS
 /* istanbul ignore next */
 redis = require("./databases/redisClient")(app,\
-	(process.env.redishost||process.env.REDISHOST||argv.redishost||"localhost"),\
-	(process.env.redisport||process.env.REDISPORT||argv.redisport||6379),\
-	(process.env.redisauth||process.env.REDISAUTH||argv.redisauth||void),\
-	(process.env.redisdb||process.env.REDISDB||argv.redisdb||0))
+	(process.env.redishost||process.env.REDISHOST||yargs.argv.redishost||"localhost"),\
+	(process.env.redisport||process.env.REDISPORT||yargs.argv.redisport||6379),\
+	(process.env.redisauth||process.env.REDISAUTH||yargs.argv.redisauth||void),\
+	(process.env.redisdb||process.env.REDISDB||yargs.argv.redisdb||0))
 
 app.locals.redis = redis
 
@@ -156,7 +157,7 @@ app
 	.use method-override "hmo" # Http-Method-Override
 	# sessions
 	.use express-session {
-		secret: (process.env.cookie||process.env.COOKIE||argv.cookie)
+		secret: (process.env.cookie||process.env.COOKIE||yargs.argv.cookie)
 		-resave
 		+rolling
 		+saveUninitialized
@@ -257,7 +258,6 @@ require("./error")(app)
 
 /* istanbul ignore next */
 if !module.parent # assure this file is not being run by a different file
-	winston.level? = (argv.v||argv.verbose)
 	# assure one of the settings were given
 	if process.env.port? or process.env.PORT? or yargs.argv.http? or yargs.argv.port?
 		port = process.env.port or process.env.PORT or yargs.argv.http or yargs.argv.port
@@ -274,14 +274,14 @@ else
 	require("./test")(app)
 /* istanbul ignore next this is only executed when sigterm is sent */
 process.on "SIGTERM", ->
-	console.log "\nShutting down from SIGTERM"
+	winston.info "\nShutting down from SIGTERM"
 	server.close!
 	mongoose.disconnect!
 	redis.end!
 	process.exit 0
 /* istanbul ignore next this is only executed when sigint is sent */
 process.on "SIGINT", ->
-	console.log "\nGracefully shutting down from SIGINT (Ctrl-C)"
+	winston.info "\nGracefully shutting down from SIGINT (Ctrl-C)"
 	server.close!
 	mongoose.disconnect!
 	redis.end!
