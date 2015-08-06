@@ -19,7 +19,6 @@ require! {
 	"response-time"
 	"serve-static" # nginx static
 	"swig" # templates
-	"util"
 	"winston"
 	"yargs" # --var val
 }

@@ -7,7 +7,6 @@ require! {
 }
 User = mongoose.models.User
 router = express.Router!
-require! "util"
 router
 	..route "/"
 	.get (req, res, next)->

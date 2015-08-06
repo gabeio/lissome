@@ -203,7 +203,6 @@ router
 					.exec
 					done err, posts
 			]
-			require! "util"
 			posts = _(posts)
 			.without undefined # posts, undefined
 			.flatten true
