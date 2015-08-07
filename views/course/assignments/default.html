@@ -58,7 +58,7 @@
 				<ul class="list-group">
 				{% for assignment in assignments %}
 					<a class="list-group-item" href="/c/{{ course._id|toString }}/assignment/{{ assignment._id|toString }}"> {{ assignment.title|url_decode }}
-						{% if assignment.end %}<span class="pull-right">
+						{% if assignment.end %}<span class="hidden-xs pull-right">
 							<span title="{{ assignment.end|timezone }}">Closes {{ assignment.end|fromNow }}</span>
 						</span>{% endif %}
 					</a>
