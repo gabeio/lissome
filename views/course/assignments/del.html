@@ -43,15 +43,15 @@
 		</div>
 		{% endif %}{# success? #}
 		<div class="row">
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1 clearfix" method="POST" action="?action=deleteall&hmo=DELETE">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1 clearfix" method="POST" action="/c/{{ course._id|toString }}/assignment/{{ assignment._id|toString }}/deleteall?hmo=DELETE">
 				<div class="pull-left">
 					<h3>{{ course.title }} - Assignments</h3>
 				</div>
 			</div>
 		</div>
 		<div class="row">
-			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="?action=delete&hmo=DELETE">
-				<input type="hidden" name="_csrf" value="{{csrf}}" />
+			<form class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1" method="POST" action="/c/{{ course._id|toString }}/assignment/{{ assignment._id|toString }}/delete?hmo=DELETE">
+				<input type="hidden" name="_csrf" value="{{ csrf }}" />
 				<div class="panel panel-default">
 					<input type="hidden" name="aid" value="{{ assignment._id|toString }}" />
 					<div class="panel-heading clearfix">
@@ -59,7 +59,7 @@
 						<div class="pull-right">
 							<div class="btn-group">
 								<button type="submit" class="btn btn-danger">Delete</button>
-								<a href="/c/{{ course._id|toString }}/assignments/{{ assignment._id|toString }}" class="btn btn-default">No!</a>
+								<a href="/c/{{ course._id|toString }}/assignment/{{ assignment._id|toString }}" class="btn btn-default">No!</a>
 							</div>
 						</div>
 					</div>

@@ -88,6 +88,8 @@ router
 					res.locals.course = result
 					next "route"
 	..use "/:course/assignments", require("./course/assignments")
+	..use "/:course/assignment", require("./course/assignment")
+	..use "/:course/attempt", require("./course/attempt")
 	..use "/:course/blog", require("./course/blog")
 	..use "/:course/conference", require("./course/conference")
 	..use "/:course/grades", require("./course/grades")

@@ -13,8 +13,8 @@
 					<li><a href="/">Dash</a></li>
 					<li><a href="/c/{{ course._id|toString }}">{{ course.title }}</a></li>
 					<li><a href="/c/{{ course._id|toString }}/assignments">Assignments</a></li>
-					<li><a href="/c/{{ course._id|toString }}/assignments/{{ attempts.assignment._id|toString }}">{{ attempts.assignment.title }}</a></li>
-					<li class="active" title="{{attempts.author.username}}">{{ attempts.author.firstName }} {{ attempts.author.lastName }} Attempt</li>
+					<li><a href="/c/{{ course._id|toString }}/assignment/{{ assignment._id|toString }}">{{ assignment.title }}</a></li>
+					<li class="active" title="{{ attempt.author.username }}">{{ attempt.author.firstName }} {{ attempt.author.lastName }} Attempt</li>
 				</ol>
 			</div>
 		</div>
@@ -42,7 +42,7 @@
 				{% endif %}{# success:yes?no #}
 			</div>
 		</div>
-		{% endif %}{# success? #}
+		{% endif %}{# success #}
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<div class="pull-left">
@@ -50,7 +50,7 @@
 				</div>
 				{% if 2 <= auth %}
 				<div class="pull-right panel-title-button">
-					<a href="/c/{{ course._id|toString }}/assignments?action=new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
+					<a href="/c/{{ course._id|toString }}/assignments/new" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Assignment</a>
 				</div>
 				{% endif %}{# auth #}
 			</div>
@@ -58,17 +58,17 @@
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				{% if 2 <= auth %}
-				<form class="panel panel-default" action="?action=grade" method="POST">
+				<form class="panel panel-default" action="/c/{{ course._id|toString }}/attempt/{{ assignment._id|toString }}/grade" method="POST">
 					<input type="hidden" name="_csrf" value="{{csrf}}" />
-					<input type="hidden" name="aid" value="{{ attempts._id|toString }}" />
+					<input type="hidden" name="aid" value="{{ attempt._id|toString }}" />
 				{% else %}
 				<div class="panel panel-default">
 				{% endif %}
 					<div class="panel-heading clearfix">
-						<h3 class="panel-title pull-left">{{ attempts.assignment.title }}</h3>
-						<div class="pull-right">{% if attempts.late == true %}<span class="label label-danger">Late</span>{% endif %} <span class="label label-success" title="{{ attempts.points }}/{{ attempts.assignment.totalPoints }}">{% if attempts.points %}{{ ( attempts.points / attempts.assignment.totalPoints ) * 100 }}%{% else %}ungraded{% endif %}</span></div>
+						<h3 class="panel-title pull-left">{{ assignment.title }}</h3>
+						<div class="pull-right">{% if attempt.late %}<span class="label label-danger">Late</span>{% endif %} <span class="label label-success" title="{{ attempt.points }}/{{ assignment.totalPoints }}">{% if attempt.points %}{{ ( attempt.points / assignment.totalPoints ) * 100 }}%{% else %}ungraded{% endif %}</span></div>
 					</div>
-					<div class="panel-body">{{ attempts.text|markdown|safe }}
+					<div class="panel-body">{{ attempt.text|markdown|safe }}
 					{% if 2 <= auth %}<br />
 						<div class="form-group">
 							<label for="formBody">Points
@@ -80,9 +80,13 @@
 						</div>
 					{% endif %}
 					</div>
-					<div class="panel-footer"><span title="{{ attempts.author.username }}">{{ attempts.author.firstName }} {{ attempts.author.lastName }}</span>
-					<span class="pull-right" title="{{ attempts.timestamp|timezone }}">{{ attempts.timestamp|fromNow }}</span></div>
+					<div class="panel-footer"><span title="{{ attempt.author.username }}">{{ attempt.author.firstName }} {{ attempt.author.lastName }}</span>
+					<span class="pull-right" title="{{ attempt.timestamp|timezone }}">{{ attempt.timestamp|fromNow }}</span></div>
+				{% if 2 <= auth %}
+				</form>
+				{% else %}
 				</div>
+				{% endif %}
 			</div>
 		</div>
 	</div>
