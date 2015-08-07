@@ -35,10 +35,13 @@ router
 			winston.error "post.ls: post.findOne", err
 			next new Error "MONGO"
 		else
-			res.locals.post? = result
-			res.locals.posts? = result
-			res.locals.thread? = result.thread
-			next!
+			if result?
+				res.locals.post? = result
+				res.locals.posts? = result
+				res.locals.thread? = result.thread
+				next!
+			else
+				next new Error "NOT FOUND"
 	.get (req, res, next)->
 		switch req.params.action
 		| "editpost"
