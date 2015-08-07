@@ -92,6 +92,8 @@ router
 	..use "/:course/attempt", require("./course/attempt")
 	..use "/:course/blog", require("./course/blog")
 	..use "/:course/conference", require("./course/conference")
+	..use "/:course/thread", require("./course/thread")
+	..use "/:course/post", require("./course/post")
 	..use "/:course/grades", require("./course/grades")
 	..use "/:course/roster", require("./course/roster")
 	..use "/:course/settings", require("./course/settings")

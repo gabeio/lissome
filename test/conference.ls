@@ -75,7 +75,7 @@ describe "Conference" ->
 							cont err, res.body
 				(tid,cont)->
 					faculty
-						.post "/c/#{courseId}/conference?action=newthread"
+						.post "/c/#{courseId}/conference/newthread"
 						.send {
 							title:"facultyThread"
 							text:"facultyPost"
@@ -87,7 +87,7 @@ describe "Conference" ->
 									cont err, res.body
 				(tid,fin)->
 					faculty
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"facultyPost"
@@ -107,7 +107,7 @@ describe "Conference" ->
 							cont err, res.body
 				(tid,cont)->
 					admin
-						.post "/c/#{courseId}/conference?action=newthread"
+						.post "/c/#{courseId}/conference/newthread"
 						.send {
 							title:"adminThread"
 							text:"adminPost"
@@ -119,7 +119,7 @@ describe "Conference" ->
 									cont err, res.body
 				(tid,fin)->
 					admin
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"adminPost"
@@ -138,13 +138,13 @@ describe "Conference" ->
 			err <- async.parallel [
 				(fin)->
 					admin
-						.get "/c/#{courseId}/conference?action=newthread"
+						.get "/c/#{courseId}/conference/newthread"
 						.end (err, res)->
 							expect res.status .to.not.match /^(4|5)/
 							fin err
 				(fin)->
 					admin
-						.post "/c/#{courseId}/conference?action=newthread"
+						.post "/c/#{courseId}/conference/newthread"
 						.send {
 							title:"adminThread"
 							text:"adminPost"
@@ -166,13 +166,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							admin
-								.get "/c/#{courseId}/conference/#{tid.0._id.toString()}?action=editthread"
+								.get "/c/#{courseId}/thread/#{tid.0._id.toString!}/editthread"
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
 									fin err
 						(fin)->
 							admin
-								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/editthread?hmo=put"
 								.send {
 									thread: tid.0._id.toString!
 									title: "adminThread"
@@ -194,7 +194,7 @@ describe "Conference" ->
 							cont err, res.body
 				(tid,cont)->
 					admin
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/editthread?hmo=put"
 						.send {
 							thread: tid.0._id.toString!
 							title: "facultyThread"
@@ -205,7 +205,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should create a post", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					admin
@@ -214,7 +213,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					admin
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"adminPost"
@@ -225,7 +224,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should edit their post", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					admin
@@ -236,13 +234,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(cont)->
 							admin
-								.get "/c/#{courseId}/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?action=editpost"
+								.get "/c/#{courseId}/post/#{tid.0._id.toString!}/editpost"
 								.end (err, res)->
 									expect res.status .to.not.match /^(4|5)/
 									cont err
 						(cont)->
 							admin
-								.post "/c/#{courseId}/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
+								.post "/c/#{courseId}/post/#{tid.0._id.toString!}/editpost?hmo=put"
 								.send {
 									thread: tid.0.thread._id.toString!
 									post: tid.0._id.toString!
@@ -256,7 +254,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should not edit a post that is not theirs", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					admin
@@ -265,7 +262,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					admin
-						.post "/c/#{courseId}/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
+						.post "/c/#{courseId}/post/#{tid.0._id.toString!}/editpost?hmo=put"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -277,7 +274,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should delete their post", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					admin
@@ -286,7 +282,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					admin
-						.post "/c/#{courseId}/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
+						.post "/c/#{courseId}/post/#{tid.0._id.toString!}/deletepost?hmo=delete"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -297,7 +293,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should delete a post that is not theirs", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					admin
@@ -306,7 +301,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					admin
-						.post "/c/#{courseId}/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
+						.post "/c/#{courseId}/post/#{tid.0._id.toString!}/deletepost?hmo=delete"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -323,7 +318,6 @@ describe "Conference" ->
 					expect res.status .to.match /^(2|3)/
 					done err
 		it "should view a thread", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					admin
@@ -332,7 +326,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					admin
-						.get "/c/#{courseId}/conference/#{tid.0._id.toString()}"
+						.get "/c/#{courseId}/thread/#{tid.0._id.toString!}"
 						.end (err, res)->
 							expect res.status .to.match /^(2|3)/
 							fin err
@@ -350,13 +344,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							admin
-								.get "/c/#{courseId}/conference/#{tid.0._id.toString()}?action=deletethread"
+								.get "/c/#{courseId}/thread/#{tid.0._id.toString!}/deletethread"
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
 									fin err
 						(fin)->
 							admin
-								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/deletethread?hmo=delete"
 								.send {
 									thread: tid.0._id.toString!
 								}
@@ -368,7 +362,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should delete their thread", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					admin
@@ -379,13 +372,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							admin
-								.get "/c/#{courseId}/conference/#{tid.0._id.toString()}?action=deletethread"
+								.get "/c/#{courseId}/thread/#{tid.0._id.toString!}/deletethread"
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
 									fin err
 						(fin)->
 							admin
-								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/deletethread?hmo=delete"
 								.send {
 									thread: tid.0._id.toString!
 								}
@@ -407,7 +400,7 @@ describe "Conference" ->
 							cont err, res.body
 				(tid,cont)->
 					faculty
-						.post "/c/#{courseId}/conference?action=newthread"
+						.post "/c/#{courseId}/conference/newthread"
 						.send {
 							title:"facultyThread"
 							text:"facultyPost"
@@ -419,7 +412,7 @@ describe "Conference" ->
 									cont err, res.body
 				(tid,fin)->
 					faculty
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"facultyPost"
@@ -439,7 +432,7 @@ describe "Conference" ->
 							cont err, res.body
 				(tid,cont)->
 					admin
-						.post "/c/#{courseId}/conference?action=newthread"
+						.post "/c/#{courseId}/conference/newthread"
 						.send {
 							title:"adminThread"
 							text:"adminPost"
@@ -451,7 +444,7 @@ describe "Conference" ->
 									cont err, res.body
 				(tid,fin)->
 					admin
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"adminPost"
@@ -470,13 +463,13 @@ describe "Conference" ->
 			err <- async.parallel [
 				(fin)->
 					faculty
-						.get "/c/#{courseId}/conference?action=newthread"
+						.get "/c/#{courseId}/conference/newthread"
 						.end (err, res)->
 							expect res.status .to.not.match /^(4|5)/
 							fin err
 				(fin)->
 					faculty
-						.post "/c/#{courseId}/conference?action=newthread"
+						.post "/c/#{courseId}/conference/newthread"
 						.send {
 							title:"facultyThread"
 							text:"facultyPost"
@@ -487,7 +480,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should edit their thread", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -498,13 +490,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							faculty
-								.get "/c/#{courseId}/conference/#{tid.0._id.toString()}?action=editthread"
+								.get "/c/#{courseId}/thread/#{tid.0._id.toString!}/editthread"
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
 									fin err
 						(fin)->
 							faculty
-								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/editthread?hmo=put"
 								.send {
 									thread: tid.0._id.toString!
 									title: "facultyThread"
@@ -517,7 +509,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should not edit a thread that is not theirs", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -526,7 +517,7 @@ describe "Conference" ->
 							cont err, res.body
 				(tid,cont)->
 					faculty
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/editthread?hmo=put"
 						.send {
 							thread: tid.0._id.toString!
 							title: "facultyThread"
@@ -537,7 +528,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should create a post", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -546,7 +536,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"facultyPost"
@@ -557,7 +547,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should edit their post", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -568,13 +557,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(cont)->
 							faculty
-								.get "/c/#{courseId}/conference/#{tid.0.thread._id.toString!}/#{tid.0._id.toString!}?action=editpost"
+								.get "/c/#{courseId}/post/#{tid.0._id.toString!}/editpost"
 								.end (err, res)->
 									expect res.status .to.not.match /^(4|5)/
 									cont err
 						(cont)->
 							faculty
-								.post "/c/#{courseId}/conference/#{tid.0.thread._id.toString!}/#{tid.0._id.toString!}?hmo=put&action=editpost"
+								.post "/c/#{courseId}/post/#{tid.0._id.toString!}/editpost?hmo=put"
 								.send {
 									thread: tid.0.thread._id.toString!
 									post: tid.0._id.toString!
@@ -588,7 +577,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should not edit a post that is not theirs", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -597,7 +585,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.post "/c/#{courseId}/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
+						.post "/c/#{courseId}/post/#{tid.0._id.toString!}/editpost?hmo=put"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -609,7 +597,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should delete their post", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -618,7 +605,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.post "/c/#{courseId}/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
+						.post "/c/#{courseId}/post/#{tid.0._id.toString!}/deletepost?hmo=delete"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -629,7 +616,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should delete a post that is not theirs", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -638,7 +624,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.post "/c/#{courseId}/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
+						.post "/c/#{courseId}/post/#{tid.0._id.toString!}/deletepost?hmo=delete"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -655,7 +641,6 @@ describe "Conference" ->
 					expect res.status .to.match /^(2|3)/
 					done err
 		it "should view a thread", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -664,14 +649,13 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.get "/c/#{courseId}/conference/#{tid.0._id.toString()}"
+						.get "/c/#{courseId}/thread/#{tid.0._id.toString!}"
 						.end (err, res)->
 							expect res.status .to.match /^(2|3)/
 							fin err
 			]
 			done err
 		it "should delete a thread that is not theirs", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -682,13 +666,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							faculty
-								.get "/c/#{courseId}/conference/#{tid.0._id.toString()}?action=deletethread"
+								.get "/c/#{courseId}/thread/#{tid.0._id.toString!}/deletethread"
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
 									fin err
 						(fin)->
 							faculty
-								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/deletethread?hmo=delete"
 								.send {
 									thread: tid.0._id.toString!
 								}
@@ -700,7 +684,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should delete their thread", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -711,13 +694,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							faculty
-								.get "/c/#{courseId}/conference/#{tid.0._id.toString()}?action=deletethread"
+								.get "/c/#{courseId}/thread/#{tid.0._id.toString!}/deletethread"
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
 									fin err
 						(fin)->
 							faculty
-								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/deletethread?hmo=delete"
 								.send {
 									thread: tid.0._id.toString!
 								}
@@ -730,11 +713,10 @@ describe "Conference" ->
 			done err
 	describe "(User: Non-Faculty)", (...)->
 		before (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
-						.post "/c/#{courseId}/conference?action=newthread"
+						.post "/c/#{courseId}/conference/newthread"
 						.send {
 							title:"facultyThread"
 							text:"facultyPost"
@@ -746,7 +728,7 @@ describe "Conference" ->
 									cont err, res.body
 				(tid,fin)->
 					faculty
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"facultyPost"
@@ -793,17 +775,16 @@ describe "Conference" ->
 					done err
 		it "should not create a thread", (done)->
 			faculty
-				.post "/c/#{courseId}/conference?action=newthread"
+				.post "/c/#{courseId}/conference/newthread"
 				.send {
 					title:"anything"
 					text:"anything"
 				}
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
-					expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+					expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 					done err
 		it "should not edit a thread", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -814,28 +795,27 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							faculty
-								.get "/c/#{courseId}/conference/#{tid.0._id.toString()}?action=editthread"
+								.get "/c/#{courseId}/thread/#{tid.0._id.toString!}/editthread"
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/
-									expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+									expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 									fin err
 						(fin)->
 							faculty
-								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/editthread?hmo=put"
 								.send {
 									thread: tid.0._id.toString!
 									title: "facultyThread"
 								}
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/
-									expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+									expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 									fin err
 					]
 					cont err
 			]
 			done err
 		it "should not delete a thread", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -846,27 +826,26 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							faculty
-								.get "/c/#{courseId}/conference/#{tid.0._id.toString()}?action=deletethread"
+								.get "/c/#{courseId}/thread/#{tid.0._id.toString!}/deletethread"
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/
-									expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+									expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 									fin err
 						(fin)->
 							faculty
-								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/deletethread?hmo=delete"
 								.send {
 									thread: tid.0._id.toString!
 								}
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/
-									expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+									expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 									fin err
 					]
 					cont err
 			]
 			done err
 		it "should not create a post", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -875,19 +854,18 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"facultyPost"
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 							fin err
 			]
 			done err
 		it "should not edit a post", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -896,7 +874,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.post "/c/#{courseId}/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
+						.post "/c/#{courseId}/post/#{tid.0._id.toString!}/editpost?hmo=put"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -904,12 +882,11 @@ describe "Conference" ->
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 							fin err
 			]
 			done err
 		it "should not delete a post", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -918,14 +895,14 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.post "/c/#{courseId}/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
+						.post "/c/#{courseId}/post/#{tid.0._id.toString!}/deletepost?hmo=delete"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 							fin err
 			]
 			done err
@@ -934,10 +911,9 @@ describe "Conference" ->
 				.get "/c/#{courseId}/conference"
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
-					expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+					expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 					done err
 		it "should not view a thread", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -946,20 +922,19 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					faculty
-						.get "/c/#{courseId}/conference/#{tid.0._id.toString()}"
+						.get "/c/#{courseId}/thread/#{tid.0._id.toString!}"
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 							fin err
 			]
 			done err
 	describe "(User: Student)", (...)->
 		before (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
-						.post "/c/#{courseId}/conference?action=newthread"
+						.post "/c/#{courseId}/conference/newthread"
 						.send {
 							title:"facultyThread"
 							text:"facultyPost"
@@ -971,7 +946,7 @@ describe "Conference" ->
 									cont err, res.body
 				(tid,fin)->
 					faculty
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"facultyPost"
@@ -988,7 +963,7 @@ describe "Conference" ->
 					done err
 		it "should create a thread", (done)->
 			student
-				.post "/c/#{courseId}/conference?action=newthread"
+				.post "/c/#{courseId}/conference/newthread"
 				.send {
 					title:"studentThread"
 					text:"studentPost"
@@ -997,7 +972,6 @@ describe "Conference" ->
 					expect res.status .to.not.match /^(4|5)/
 					done err
 		it "should edit their thread", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1008,13 +982,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							student
-								.get "/c/#{courseId}/conference/#{tid.0._id.toString()}?action=editthread"
+								.get "/c/#{courseId}/thread/#{tid.0._id.toString!}/editthread"
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
 									fin err
 						(fin)->
 							student
-								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/editthread?hmo=put"
 								.send {
 									thread: tid.0._id.toString!
 									title: "studentThread"
@@ -1027,7 +1001,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should create a post", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -1036,7 +1009,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					student
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"facultyPost"
@@ -1047,7 +1020,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should edit their post", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -1056,7 +1028,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					student
-						.post "/c/#{courseId}/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
+						.post "/c/#{courseId}/post/#{tid.0._id.toString!}/editpost?hmo=put"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -1068,7 +1040,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should delete their post", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -1077,7 +1048,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					student
-						.post "/c/#{courseId}/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
+						.post "/c/#{courseId}/post/#{tid.0._id.toString!}/deletepost?hmo=delete"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -1088,7 +1059,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should delete their thread", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1099,13 +1069,13 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							student
-								.get "/c/#{courseId}/conference/#{tid.0._id.toString()}?action=deletethread"
+								.get "/c/#{courseId}/thread/#{tid.0._id.toString!}/deletethread"
 								.end (err, res)->
 									expect res.status .to.match /^(2|3)/
 									fin err
 						(fin)->
 							student
-								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/deletethread?hmo=delete"
 								.send {
 									thread: tid.0._id.toString!
 								}
@@ -1123,7 +1093,6 @@ describe "Conference" ->
 					expect res.status .to.match /^(2|3)/
 					done err
 		it "should view a thread", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -1132,14 +1101,13 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					student
-						.get "/c/#{courseId}/conference/#{tid.0._id.toString()}"
+						.get "/c/#{courseId}/thread/#{tid.0._id.toString!}"
 						.end (err, res)->
 							expect res.status .to.match /^(2|3)/
 							fin err
 			]
 			done err
 		it "should not edit a thread that is not theirs", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1148,19 +1116,18 @@ describe "Conference" ->
 							cont err, res.body
 				(tid,cont)->
 					student
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/editthread?hmo=put"
 						.send {
 							thread: tid.0._id.toString!
 							title: "facultyThread"
 						}
 						.expect 302
 						.end (err, res)->
-							expect res.header.location .to.match /^\/c\/.{24}\/conference\/?.{24}?\/?/
+							expect res.header.location .to.match /^\/c\/.{24}\/thread\/.{24}\/?/
 							cont err
 			]
 			done err
 		it "should not edit a post that is not theirs", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1174,7 +1141,7 @@ describe "Conference" ->
 							cont err, tid, res.body
 				(tid,pid,fin)->
 					student
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString()}/#{pid.0._id.toString()}?hmo=put&action=editpost"
+						.post "/c/#{courseId}/post/#{pid.0._id.toString!}/editpost?hmo=put"
 						.send {
 							thread: tid.0._id.toString!
 							post: pid.0._id.toString!
@@ -1182,12 +1149,11 @@ describe "Conference" ->
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 							fin err
 			]
 			done err
 		it "should not delete a thread that is not theirs", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1196,13 +1162,13 @@ describe "Conference" ->
 							cont err, res.body
 				(tid,cont)->
 					student
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/deletethread?hmo=delete"
 						.send {
 							thread: tid.0._id.toString!
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 							cont err
 				(cont)->
 					student
@@ -1217,7 +1183,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should not delete a post that is not theirs", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1231,24 +1196,23 @@ describe "Conference" ->
 							cont err, tid, res.body
 				(tid,pid,fin)->
 					student
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString()}/#{pid.0._id.toString()}?hmo=delete&action=deletepost"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/#{pid.0._id.toString!}/deletepost?hmo=delete"
 						.send {
 							thread: tid.0._id.toString!
 							post: pid.0._id.toString!
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 							fin err
 			]
 			done err
 	describe "(User: Non-Student)", (...)->
 		before (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					faculty
-						.post "/c/#{courseId}/conference?action=newthread"
+						.post "/c/#{courseId}/conference/newthread"
 						.send {
 							title:"facultyThread"
 							text:"facultyPost"
@@ -1260,7 +1224,7 @@ describe "Conference" ->
 									cont err, res.body
 				(tid,fin)->
 					faculty
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"facultyPost"
@@ -1307,17 +1271,16 @@ describe "Conference" ->
 					done err
 		it "should not create a thread", (done)->
 			student
-				.post "/c/#{courseId}/conference?action=newthread"
+				.post "/c/#{courseId}/conference/newthread"
 				.send {
 					title:"anything"
 					text:"anything"
 				}
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
-					expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+					expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 					done err
 		it "should not edit a thread", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1328,28 +1291,27 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							student
-								.get "/c/#{courseId}/conference/#{tid.0._id.toString()}?action=editthread"
+								.get "/c/#{courseId}/thread/#{tid.0._id.toString!}/editthread"
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/
-									expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+									expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 									fin err
 						(fin)->
 							student
-								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=put&action=editthread"
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/editthread?hmo=put"
 								.send {
 									thread: tid.0._id.toString!
 									title: "studentThread"
 								}
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/
-									expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+									expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 									fin err
 					]
 					cont err
 			]
 			done err
 		it "should not delete a thread", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1360,27 +1322,26 @@ describe "Conference" ->
 					err <- async.parallel [
 						(fin)->
 							student
-								.get "/c/#{courseId}/conference/#{tid.0._id.toString()}?action=deletethread"
+								.get "/c/#{courseId}/thread/#{tid.0._id.toString!}/deletethread"
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/
-									expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+									expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 									fin err
 						(fin)->
 							student
-								.post "/c/#{courseId}/conference/#{tid.0._id.toString()}?hmo=delete&action=deletethread"
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/deletethread?hmo=delete"
 								.send {
 									thread: tid.0._id.toString!
 								}
 								.end (err, res)->
 									expect res.status .to.match /^(3|4|5)/
-									expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+									expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 									fin err
 					]
 					cont err
 			]
 			done err
 		it "should not create a post", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -1389,19 +1350,18 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					student
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text:"studentPost"
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 							fin err
 			]
 			done err
 		it "should not edit a post", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -1410,7 +1370,7 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					student
-						.post "/c/#{courseId}/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=put&action=editpost"
+						.post "/c/#{courseId}/post/#{tid.0._id.toString!}/editpost?hmo=put"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
@@ -1418,12 +1378,11 @@ describe "Conference" ->
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 							fin err
 			]
 			done err
 		it "should not delete a post", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -1432,14 +1391,14 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					student
-						.post "/c/#{courseId}/conference/#{tid.0.thread._id.toString()}/#{tid.0._id.toString()}?hmo=delete&action=deletepost"
+						.post "/c/#{courseId}/post/#{tid.0._id.toString!}/deletepost?hmo=delete"
 						.send {
 							thread: tid.0.thread._id.toString!
 							post: tid.0._id.toString!
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 							fin err
 			]
 			done err
@@ -1448,10 +1407,9 @@ describe "Conference" ->
 				.get "/c/#{courseId}/conference"
 				.end (err, res)->
 					expect res.status .to.match /^(3|4|5)/
-					expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+					expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 					done err
 		it "should not view a thread", (done)->
-			this.timeout = 2000
 			err <- async.waterfall [
 				(fin)->
 					student
@@ -1460,53 +1418,56 @@ describe "Conference" ->
 							fin err, res.body
 				(tid,fin)->
 					student
-						.get "/c/#{courseId}/conference/#{tid.0._id.toString()}"
+						.get "/c/#{courseId}/thread/#{tid.0._id.toString!}"
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 							fin err
 			]
 			done err
 	describe "Other", (...)->
 		it "should redirect outsider", (done)->
 			outside
-				.post "/c/#{courseId}/conference?action=newthread"
+				.post "/c/#{courseId}/conference/newthread"
 				.send {
 					title: "theThread"
 					text: "thePost"
 				}
 				.end (err, res)->
 					expect res.status .to.match /^(3)/
-					expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+					expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 					done err
 		it "should not crash for bad conference length", (done)->
-			# this may fail if that ends up being a real conference _id
-			student
-				.post "/c/#{courseId}/conference/12345678901234567890123?hmo=put&action=editthread"
-				.send {
-					thread: "12345678901234567890123"
-				}
-				.end (err, res)->
-					expect res.status .to.match /^(5)/
-					done err
-		it "should not crash for bad conference length & bad post length", (done)->
-			student
-				.post "/c/#{courseId}/conference/12345678901234567890123/12345678901234567890123?hmo=put&action=editpost"
-				.send {
-					thread: "12345678901234567890123"
-					post: "12345678901234567890123"
-					text: "anyting"
-				}
-				.end (err, res)->
-					expect res.status .to.match /^(5)/
-					done err
+			err <- async.parallel [
+				(para)->
+					# this may fail if that ends up being a real conference _id
+					student
+						.post "/c/#{courseId}/thread/12345678901234567890123/editthread?hmo=put"
+						.send {
+							thread: "12345678901234567890123"
+						}
+						.end (err, res)->
+							expect res.status .to.match /^(5)/
+							para err
+				(para)->
+					# this may fail if that ends up being a real conference _id
+					student
+						.post "/c/#{courseId}/thread/1234567890123456789012345/editthread?hmo=put"
+						.send {
+							thread: "12345678901234567890123"
+						}
+						.end (err, res)->
+							expect res.status .to.match /^(5)/
+							para err
+			]
+			done err
 		it "should not crash for bad post length", (done)->
 			this.timeout = 3000
 			err <- async.waterfall [
 				(fin)->
 					# create thread
 					student
-						.post "/c/#{courseId}/conference?action=newthread"
+						.post "/c/#{courseId}/conference/newthread"
 						.send {
 							title: "theThread"
 							text: "thePost"
@@ -1522,7 +1483,7 @@ describe "Conference" ->
 				(tid,fin)->
 					# try to post to thread
 					student
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString!}/12345678901234567890123?hmo=put&action=editpost"
+						.post "/c/#{courseId}/post/12345678901234567890123/editpost?hmo=put"
 						.send {
 							thread: tid.0._id.toString!
 							post: "12345678901234567890123"
@@ -1536,101 +1497,20 @@ describe "Conference" ->
 		it "should not crash for bad conference id", (done)->
 			# this may fail if that ends up being a real conference _id
 			student
-				.post "/c/#{courseId}/conference/123456789012345678901234?hmo=put&action=editthread"
+				.post "/c/#{courseId}/thread/123456789012345678901234/editthread?hmo=put"
 				.send {
 					thread: "123456789012345678901234"
 				}
 				.end (err, res)->
 					expect res.status .to.match /^404/
 					done err
-		it "should not crash for bad conference id & bad post id", (done)->
-			student
-				.post "/c/#{courseId}/conference/123456789012345678901234/123456789012345678901234?hmo=put&action=editpost"
-				.send {
-					thread: "123456789012345678901234"
-					post: "123456789012345678901234"
-					text: "anyting"
-				}
-				.end (err, res)->
-					expect res.status .to.match /^404/
-					done err
-		it "should not crash for bad post id", (done)->
-			this.timeout = 3000
-			err <- async.waterfall [
-				(fin)->
-					# create thread
-					student
-						.post "/c/#{courseId}/conference?action=newthread"
-						.send {
-							title: "theThread"
-							text: "thePost"
-						}
-						.end (err, res)->
-							fin err
-				(fin)->
-					# get thread _id
-					student
-						.get "/test/gettid/cps1234?title=theThread"
-						.end (err, res)->
-							fin err, res.body
-				(tid,fin)->
-					# try to post to thread
-					student
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString!}/123456789012345678901234?hmo=put&action=editpost"
-						.send {
-							thread: tid.0._id.toString!
-							post: "123456789012345678901234"
-							text: "deletedPost"
-						}
-						.end (err, res)->
-							expect res.status .to.match /^404/
-							fin err
-			]
-			done err
-		it "should not crash for bad post id", (done)->
-			this.timeout = 4000
-			err <- async.waterfall [
-				(fin)->
-					# create thread
-					student
-						.post "/c/#{courseId}/conference?action=newthread"
-						.send {
-							title: "theThread"
-							text: "thePost"
-						}
-						.end (err, res)->
-							fin err
-				(fin)->
-					# get thread _id
-					student
-						.get "/test/getpost/cps1234?text=thePost"
-						.end (err, res)->
-							fin err, res.body
-				(tid,fin)->
-					# delete post
-					student
-						.post "/c/#{courseId}/conference/#{tid.0.thread._id.toString!}/#{tid.0._id.toString!}?hmo=delete&action=deletepost"
-						.send {
-							thread: tid.0.thread._id.toString!
-							post: tid.0._id.toString!
-						}
-						.end (err, res)->
-							fin err, tid
-				(tid,fin)->
-					# try to post to thread
-					student
-						.get "/c/#{courseId}/conference/#{tid.0._id.toString!}"
-						.end (err, res)->
-							fin err
-			]
-			done err
 		it "should not allow creating a post after the thread is deleted", (done)->
 			this.timeout = 4000
 			err <- async.waterfall [
 				(fin)->
 					# create thread
 					student
-						.post "/c/#{courseId}/conference?action=newthread"
+						.post "/c/#{courseId}/conference/newthread"
 						.send {
 							title: "deletedThread"
 							text: "deletedPost"
@@ -1646,7 +1526,7 @@ describe "Conference" ->
 				(tid,fin)->
 					# delete thread
 					student
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString!}?hmo=delete&action=deletethread"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/deletethread?hmo=delete"
 						.send {
 							thread: tid.0._id.toString!
 						}
@@ -1655,39 +1535,15 @@ describe "Conference" ->
 				(tid,fin)->
 					# try to post to thread
 					student
-						.post "/c/#{courseId}/conference/#{tid.0._id.toString!}?action=newpost"
+						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
 						.send {
 							thread: tid.0._id.toString!
 							text: "deletedPost"
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
-							expect res.header.location .to.not.match /^\/c\/.{24}\/conference\/?.{24}?\/?.{24}?\/?/
+							expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 							expect res.text .to.not.have.string "deletedPost"
 							fin err
-			]
-			done err
-		it "should error for no conference id edit/delete", (done)->
-			err <- async.parallel [
-				(para)->
-					student
-						.post "/c/#{courseId}/conference/123456789012345678901234/123456789012345678901234?hmo=put&action=editpost"
-						.send {
-							post: "123456789012345678901234"
-							text: "anyting"
-						}
-						.end (err, res)->
-							expect res.status .to.not.match /^(2|3)/
-							para err
-				(para)->
-					student
-						.post "/c/#{courseId}/conference/123456789012345678901234/123456789012345678901234?hmo=delete&action=deletepost"
-						.send {
-							post: "123456789012345678901234"
-							text: "anyting"
-						}
-						.end (err, res)->
-							expect res.status .to.not.match /^(2|3)/
-							para err
 			]
 			done err
