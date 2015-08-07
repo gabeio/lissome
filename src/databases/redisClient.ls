@@ -6,7 +6,7 @@ module.exports = (app,redishost,redisport,redisauth,redisdb)->
 	/* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
 	if redisauth?
 		rediscli = new ioredis redisport, redishost, {
-			auth_pass: redisauth
+			password: redisauth
 		}
 	else
 		rediscli = new ioredis redisport, redishost, {}

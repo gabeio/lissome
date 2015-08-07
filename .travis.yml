@@ -20,6 +20,7 @@ services:
     - redis-server
 before_script:
     - gulp build
+    - redis-cli config set requirepass test
     - mongo lissome --eval 'db.addUser("travis", "test");'
     - node lib/commandline/setupschool.js
 before_install:
