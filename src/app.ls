@@ -67,13 +67,9 @@ do ->
 			winston.error "app: Unknown Timezone; crashing..."
 			process.exit 1
 	if !process.env.mongo? and !process.env.MONGO? and !yargs.argv.mongo?
-		winston.warn "app: mongo env undefined trying localhost anyway"
-	if !process.env.redishost? and !process.env.REDISHOST? and !yargs.argv.redishost?
-		winston.warn "app: redishost env undefined trying localhost anyway"
-	if !process.env.redisport? and !process.env.REDISPORT? and !yargs.argv.redisport?
-		winston.warn "app: redisport env undefined trying default anyway"
-	if !process.env.redisauth? and !process.env.REDISAUTH? and !yargs.argv.redisauth?
-		winston.warn "app: redisauth env undefined trying null anyway"
+		winston.warn "app: mongo uri env undefined trying localhost anyway"
+	if !process.env.redis? and !process.env.REDIS? and !yargs.argv.redis?
+		winston.warn "app: redis uri env undefined trying localhost anyway"
 
 # markdown-it options
 md = new markdown-it {
@@ -100,12 +96,12 @@ swig.setFilter "timezone", (input)->
 	moment.tz input, "America/New_York" .clone!.tz app.locals.timezone .toString!
 
 # MONGOOSE
-/* istanbul ignore next */
+/* istanbul ignore next ors only has to do with where it gets the connection info */
 mongo = require("./databases/mongoClient")(app,mongoose,\
 	(process.env.mongo||process.env.MONGO||yargs.argv.mongo||"mongodb://localhost/lissome"))
 
 # REDIS
-/* istanbul ignore next */
+/* istanbul ignore next ors only has to do with where it gets the connection info */
 redis = require("./databases/redisClient")(app,\
 	(process.env.redis||process.env.REDIS||yargs.argv.redis||"redis://localhost:6379/0"))
 
