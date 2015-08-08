@@ -107,10 +107,7 @@ mongo = require("./databases/mongoClient")(app,mongoose,\
 # REDIS
 /* istanbul ignore next */
 redis = require("./databases/redisClient")(app,\
-	(process.env.redishost||process.env.REDISHOST||yargs.argv.redishost||"localhost"),\
-	(process.env.redisport||process.env.REDISPORT||yargs.argv.redisport||6379),\
-	(process.env.redisauth||process.env.REDISAUTH||yargs.argv.redisauth||void),\
-	(process.env.redisdb||process.env.REDISDB||yargs.argv.redisdb||0))
+	(process.env.redis||process.env.REDIS||yargs.argv.redis||"redis://localhost:6379/0"))
 
 app.locals.redis = redis
 
@@ -276,12 +273,12 @@ process.on "SIGTERM", ->
 	winston.info "app: Shutting down from SIGTERM"
 	server.close!
 	mongoose.disconnect!
-	redis.end!
+	redis.disconnect!
 	process.exit 0
 /* istanbul ignore next this is only executed when sigint is sent */
 process.on "SIGINT", ->
 	winston.info "app: Gracefully shutting down from SIGINT (Ctrl-C)"
 	server.close!
 	mongoose.disconnect!
-	redis.end!
+	redis.disconnect!
 	process.exit 0
