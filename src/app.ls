@@ -107,10 +107,7 @@ mongo = require("./databases/mongoClient")(app,mongoose,\
 # REDIS
 /* istanbul ignore next */
 redis = require("./databases/redisClient")(app,\
-	(process.env.redishost||process.env.REDISHOST||yargs.argv.redishost||"localhost"),\
-	(process.env.redisport||process.env.REDISPORT||yargs.argv.redisport||6379),\
-	(process.env.redisauth||process.env.REDISAUTH||yargs.argv.redisauth||void),\
-	(process.env.redisdb||process.env.REDISDB||yargs.argv.redisdb||0))
+	(process.env.redis||process.env.REDIS||yargs.argv.redis||"redis://localhost:6379/0"))
 
 app.locals.redis = redis
 

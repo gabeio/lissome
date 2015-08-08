@@ -1,15 +1,9 @@
-module.exports = (app,redishost,redisport,redisauth,redisdb)->
+module.exports = (app,redis)->
 	require! {
 		"ioredis"
 		"winston"
 	}
-	/* istanbul ignore next this is all setup if/else's there is no way to get here after initial run */
-	if redisauth?
-		rediscli = new ioredis redisport, redishost, {
-			password: redisauth
-		}
-	else
-		rediscli = new ioredis redisport, redishost, {}
+	rediscli = new ioredis redis
 	rediscli.on "connect", ->
 		winston.info "redis: connected"
 		app.locals.redis = rediscli
