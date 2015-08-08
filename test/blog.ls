@@ -2,13 +2,12 @@ require! {
 	"async"
 	"chai" # assert lib
 	"del" # delete
-	"lodash"
+	"lodash":"_"
 	"mongoose"
 	"supertest" # request lib
 }
 app = require "../lib/app"
 ObjectId = mongoose.Types.ObjectId
-_ = lodash
 Course = mongoose.models.Course
 req = supertest
 expect = chai.expect

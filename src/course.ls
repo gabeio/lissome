@@ -1,13 +1,12 @@
 require! {
 	"express"
 	"async"
-	"lodash"
+	"lodash":"_"
 	"mongoose"
 	"winston"
 	"./app"
 }
 ObjectId = mongoose.Types.ObjectId
-_ = lodash
 Semester = mongoose.models.Semester
 Course = mongoose.models.Course
 router = express.Router!
@@ -89,8 +88,12 @@ router
 					res.locals.course = result
 					next "route"
 	..use "/:course/assignments", require("./course/assignments")
+	..use "/:course/assignment", require("./course/assignment")
+	..use "/:course/attempt", require("./course/attempt")
 	..use "/:course/blog", require("./course/blog")
 	..use "/:course/conference", require("./course/conference")
+	..use "/:course/thread", require("./course/thread")
+	..use "/:course/post", require("./course/post")
 	..use "/:course/grades", require("./course/grades")
 	..use "/:course/roster", require("./course/roster")
 	..use "/:course/settings", require("./course/settings")
