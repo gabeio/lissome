@@ -7,7 +7,6 @@ module.exports = (app,redis)->
 	rediscli.on "connect", ->
 		winston.info "redis: connected"
 		app.locals.redis = rediscli
-		err <- rediscli.select redisdb
 		/* istanbul ignore if */
 		if err
 			winston.error "redis: db", err
