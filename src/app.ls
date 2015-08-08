@@ -273,12 +273,12 @@ process.on "SIGTERM", ->
 	winston.info "app: Shutting down from SIGTERM"
 	server.close!
 	mongoose.disconnect!
-	redis.end!
+	redis.disconnect!
 	process.exit 0
 /* istanbul ignore next this is only executed when sigint is sent */
 process.on "SIGINT", ->
 	winston.info "app: Gracefully shutting down from SIGINT (Ctrl-C)"
 	server.close!
 	mongoose.disconnect!
-	redis.end!
+	redis.disconnect!
 	process.exit 0
