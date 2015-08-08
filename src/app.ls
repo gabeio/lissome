@@ -14,7 +14,6 @@ require! {
 	"method-override"
 	"moment"
 	"moment-timezone"
-	"mongoose"
 	"multer"
 	"response-time"
 	"serve-static" # nginx static
@@ -97,7 +96,7 @@ swig.setFilter "timezone", (input)->
 
 # MONGOOSE
 /* istanbul ignore next ors only has to do with where it gets the connection info */
-mongo = require("./databases/mongoClient")(app,mongoose,\
+mongo = require("./databases/mongoClient")(app,\
 	(process.env.mongo||process.env.MONGO||yargs.argv.mongo||"mongodb://localhost/lissome"))
 
 # REDIS

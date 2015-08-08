@@ -1,5 +1,6 @@
-module.exports = (app,mongoose,mongouri)->
+module.exports = (app,mongouri)->
 	require! {
+		"mongoose"
 		"winston"
 	}
 	mongo = mongoose.connection # create connection object
