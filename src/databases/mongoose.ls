@@ -5,7 +5,6 @@ module.exports = (app)->
 	}
 	# mongoose = app.locals.mongoose
 	schemas = require("./schemas")(mongoose) # get mongoose schemas
-	var school
 	User = mongoose.model "User" schemas.User
 	Semester = mongoose.model "Semester" schemas.Semester
 	Course = mongoose.model "Course" schemas.Course
