@@ -98,6 +98,7 @@ swig.setFilter "timezone", (input)->
 	moment.tz input, "America/New_York" .clone!.tz app.locals.timezone .toString!
 
 # MONGOOSE
+app.locals.mongoose = mongoose
 require("./databases/mongoose")
 
 # REDIS
