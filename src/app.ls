@@ -103,7 +103,6 @@ require("./databases/mongoose")
 
 # REDIS
 app.locals.redis = redisClient
-
 RedisStore = connect-redis express-session
 
 # App Settings/Middleware

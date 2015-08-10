@@ -13,19 +13,23 @@ should = chai.should!
 var app, outside, student, faculty, admin
 describe "Core" ->
 	before (done)->
+		this.timeout = 0 # allow setup for as long as needed
 		app := require "../lib/app"
-		app.locals.mongo.on "open", ->
-			done!
+		<- async.parallel [
+			(wait)->
+				app.locals.mongoose.connections.0.once "open" ->
+					wait!
+			(wait)->
+				app.locals.redis.once "ready" ->
+					wait!
+		]
+		done!
 	before (done)-> # setup user agents
 		outside := req.agent app
 		student := req.agent app
 		faculty := req.agent app
 		admin := req.agent app
 		done!
-	before (done)->
-		# this is to allow app setup
-		this.timeout 0
-		setTimeout done, 2000
 	describe "Index", (...)->
 		it "should respond to a GET", (done)->
 			outside
