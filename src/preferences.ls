@@ -21,7 +21,7 @@ router
 		}
 		.exec
 		if err
-			winston.error "preferences.ls:user.findOne", err
+			winston.error "preferences.ls: user.findOne", err
 			next new Error "MONGO"
 		else
 			res.locals.user = result

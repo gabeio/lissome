@@ -7,7 +7,6 @@ require! {
 }
 User = mongoose.models.User
 router = express.Router!
-require! "util"
 router
 	..route "/"
 	.get (req, res, next)->
@@ -33,6 +32,7 @@ router
 			scrypt.hash.config.outputEncoding = "base64"
 			err, hash <- scrypt.hash new Buffer(req.body.newpass2), { N:1, r:1, p:1 }
 			res.locals.user.hash = hash
+			res.locals.user.markModified "hash"
 			err,user <- res.locals.user.save
 			if err
 				winston.error "user:find", err

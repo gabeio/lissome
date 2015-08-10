@@ -19,13 +19,15 @@ require! {
 	"response-time"
 	"serve-static" # nginx static
 	"swig" # templates
-	"util"
 	"winston"
 	"yargs" # --var val
+	"./databases/redisClient"
+	"./databases/mongoClient"
 }
 
-# argv parser
-argv = yargs.argv
+# verbosity level
+winston.level? = (yargs.argv.v||yargs.argv.verbose)
+
 # express
 app = module.exports = express!
 
@@ -41,39 +43,35 @@ app
 		-inMemory
 	}
 	..locals.pushover = {
-		token: (process.env.pushover||process.env.PUSHOVER||argv.pushover)
+		token: (process.env.pushover||process.env.PUSHOVER||yargs.argv.pushover)
 	}
 	..locals.pushbullet = {
-		token: (process.env.pushbullet||process.env.PUSHBULLET||argv.pushbullet)
+		token: (process.env.pushbullet||process.env.PUSHBULLET||yargs.argv.pushbullet)
 	}
 
 /* istanbul ignore next this is just for assurance the env vars are defined */
 do ->
-	if !process.env.cookie? and !process.env.COOKIE? and !argv.cookie?
-		console.log "REQUIRES COOKIE SECRET"
+	if !process.env.cookie? and !process.env.COOKIE? and !yargs.argv.cookie?
+		winston.error "app: REQUIRES COOKIE SECRET"
 		process.exit 1
-	if !process.env.school? and !process.env.SCHOOL? and !argv.school?
-		console.log "REQUIRES SCHOOL NAME"
-		process.exit 1
-	else
-		app.locals.school = (process.env.school||process.env.SCHOOL||argv.school)
-	if !process.env.timezone? and !process.env.TIMEZONE? and !argv.timezone?
-		console.log "REQUIRES SCHOOL TIMEZONE"
+	if !process.env.school? and !process.env.SCHOOL? and !yargs.argv.school?
+		winston.error "app: REQUIRES SCHOOL NAME"
 		process.exit 1
 	else
-		if moment.tz.zone(process.env.timezone or process.env.TIMEZONE or argv.timezone)
-			app.locals.timezone = process.env.timezone or process.env.TIMEZONE or argv.timezone
+		app.locals.school = (process.env.school||process.env.SCHOOL||yargs.argv.school)
+	if !process.env.timezone? and !process.env.TIMEZONE? and !yargs.argv.timezone?
+		winston.error "app: REQUIRES SCHOOL TIMEZONE"
+		process.exit 1
+	else
+		if moment.tz.zone(process.env.timezone or process.env.TIMEZONE or yargs.argv.timezone)
+			app.locals.timezone = process.env.timezone or process.env.TIMEZONE or yargs.argv.timezone
 		else
-			console.log "Unknown Timezone; crashing..."
+			winston.error "app: Unknown Timezone; crashing..."
 			process.exit 1
-	if !process.env.mongo? and !process.env.MONGO? and !argv.mongo?
-		console.log "mongo env undefined\ntrying localhost anyway..."
-	if !process.env.redishost? and !process.env.REDISHOST? and !argv.redishost?
-		console.log "redishost env undefined\ntrying localhost anyway..."
-	if !process.env.redisport? and !process.env.REDISPORT? and !argv.redisport?
-		console.log "redisport env undefined\ntrying default anyway..."
-	if !process.env.redisauth? and !process.env.REDISAUTH? and !argv.redisauth?
-		console.log "redisauth env undefined\ntrying null anyway..."
+	if !process.env.mongo? and !process.env.MONGO? and !yargs.argv.mongo?
+		winston.warn "app: mongo uri env undefined trying localhost anyway"
+	if !process.env.redis? and !process.env.REDIS? and !yargs.argv.redis?
+		winston.warn "app: redis uri env undefined trying localhost anyway"
 
 # markdown-it options
 md = new markdown-it {
@@ -100,20 +98,11 @@ swig.setFilter "timezone", (input)->
 	moment.tz input, "America/New_York" .clone!.tz app.locals.timezone .toString!
 
 # MONGOOSE
-/* istanbul ignore next */
-mongo = require("./databases/mongoClient")(app,mongoose,\
-	(process.env.mongo||process.env.MONGO||argv.mongo||"mongodb://localhost/lissome"))
+app.locals.mongoose = mongoose
+require("./databases/mongoose")
 
 # REDIS
-/* istanbul ignore next */
-redis = require("./databases/redisClient")(app,\
-	(process.env.redishost||process.env.REDISHOST||argv.redishost||"localhost"),\
-	(process.env.redisport||process.env.REDISPORT||argv.redisport||6379),\
-	(process.env.redisauth||process.env.REDISAUTH||argv.redisauth||void),\
-	(process.env.redisdb||process.env.REDISDB||argv.redisdb||0))
-
-app.locals.redis = redis
-
+app.locals.redis = redisClient
 RedisStore = connect-redis express-session
 
 # App Settings/Middleware
@@ -157,7 +146,7 @@ app
 	.use method-override "hmo" # Http-Method-Override
 	# sessions
 	.use express-session {
-		secret: (process.env.cookie||process.env.COOKIE||argv.cookie)
+		secret: (process.env.cookie||process.env.COOKIE||yargs.argv.cookie)
 		-resave
 		+rolling
 		+saveUninitialized
@@ -169,7 +158,7 @@ app
 		store: new RedisStore {
 			ttl: 604800
 			prefix: app.locals.school
-			client: redis
+			client: redisClient
 		}
 	}
 	# hide what we are made of
@@ -194,8 +183,8 @@ app
 					res.locals.uid = req.session.uid.toString!
 					res.locals.firstName = req.session.firstName
 					res.locals.lastName = req.session.lastName
-					res.locals.middleName? = req.session.middleName
 					res.locals.username = req.session.username
+					res.locals.middleName? = req.session.middleName
 					para!
 				else
 					para!
@@ -206,6 +195,7 @@ app
 				else
 					para!
 			(para)->
+				/* istanbul ignore if which only tests if redis is offline */
 				if !req.session?
 					next new Error "Sessions are offline."
 				else
@@ -218,7 +208,7 @@ app
 switch app.get "env"
 | "production"
 	# production run
-	winston.info "Production Mode"
+	winston.info "app: Production Mode"
 	app.use csurf {
 		secretLength: 64
 		saltLength: 20
@@ -226,7 +216,7 @@ switch app.get "env"
 | _
 	# development/other run
 	if !module.parent
-		winston.info "Development Mode"
+		winston.info "app: Development Mode"
 	# disable template cache
 	app.set "view cache" false
 	swig.setDefaults { -cache }
@@ -243,11 +233,11 @@ app
 			next new Error "UNAUTHORIZED" # other unauth
 
 # Routers
-require("./databases/mongoose")(app)
 app.use "/login", require("./login")
 app.use "/logout", require("./logout")
 app.use "/otp", require("./otp")
 app.use "/pin", require("./pin")
+app.use "/bounce", require("./bounce")
 app.use "/preferences", require("./preferences")
 app.use "/admin", require("./admin")
 app.use "/:course(c|C|course)", require("./course")
@@ -259,28 +249,27 @@ if !module.parent # assure this file is not being run by a different file
 	# assure one of the settings were given
 	if process.env.port? or process.env.PORT? or yargs.argv.http? or yargs.argv.port?
 		port = process.env.port or process.env.PORT or yargs.argv.http or yargs.argv.port
-		winston.info "Server started on port " + port + " at " + new Date Date.now!
+		winston.info "app: Server started on port " + port + " at " + new Date Date.now!
 		server = app.listen port
 	else
-		winston.error "No port/socket specified please use HTTP or PORT environment variable"
+		winston.error "app: No port/socket specified please use HTTP or PORT environment variable"
 		process.exit 1
 else
 	app.locals.testing = true
 	# silence all logging on testing
 	winston.level = "error"
-	/*winston.add winston.transports.Console, {level:"warn"}*/
 	require("./test")(app)
 /* istanbul ignore next this is only executed when sigterm is sent */
 process.on "SIGTERM", ->
-	console.log "\nShutting down from SIGTERM"
+	winston.info "app: Shutting down from SIGTERM"
 	server.close!
 	mongoose.disconnect!
-	redis.end!
+	redis.disconnect!
 	process.exit 0
 /* istanbul ignore next this is only executed when sigint is sent */
 process.on "SIGINT", ->
-	console.log "\nGracefully shutting down from SIGINT (Ctrl-C)"
+	winston.info "app: Gracefully shutting down from SIGINT (Ctrl-C)"
 	server.close!
 	mongoose.disconnect!
-	redis.end!
+	redis.disconnect!
 	process.exit 0

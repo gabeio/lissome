@@ -2,14 +2,13 @@ require! {
 	"async"
 	"chai" # assert lib
 	"del" # delete
-	"lodash"
+	"lodash":"_"
 	"moment"
 	"mongoose"
 	"supertest" # request lib
 }
 app = require "../lib/app"
 ObjectId = mongoose.Types.ObjectId
-_ = lodash
 req = supertest
 expect = chai.expect
 assert = chai.assert
@@ -19,7 +18,6 @@ student = req.agent app
 faculty = req.agent app
 admin = req.agent app
 ObjectId = mongoose.Types.ObjectId
-_ = lodash
 Course = mongoose.models.Course
 User = mongoose.models.User
 describe "Admin Module", (...)->
@@ -1595,4 +1593,3 @@ describe "Admin Module", (...)->
 					.end (err, res)->
 						expect res.status .to.not.equal 200
 						done err
-			

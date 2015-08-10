@@ -52,8 +52,12 @@ router
 					res.redirect "/login"
 					done null
 		]
-		if err? and err isnt "fin"
-			winston.error "pin.ls", err
-			next new Error "MONGO"
+		if err?
+			switch err
+			| "fin"
+				break
+			| _
+				winston.error "pin.ls: ", err
+				next new Error "MONGO"
 
 module.exports = router

@@ -2,7 +2,7 @@ require! {
 	"express"
 	"async"
 	"scrypt"
-	"lodash"
+	"lodash":"_"
 	"mongoose"
 	"winston"
 	"./app"
@@ -14,7 +14,6 @@ upper = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R"
 num = ["0","1","2","3","4","5","6","7","8","9"]
 alphanum = lower ++ upper ++ num
 ObjectId = mongoose.Types.ObjectId
-_ = lodash
 Course = mongoose.models.Course
 User = mongoose.models.User
 router = express.Router!
@@ -89,7 +88,7 @@ router
 					(cont)->
 						# hash password
 						err, result <- scrypt.hash new Buffer(req.body.password), { N:1, r:1, p:1 }
-						console.error err if err
+						winston.error err if err
 						cont err, result
 					(hash, cont)->
 						# check id & username existance
@@ -828,7 +827,6 @@ router
 							cont null
 				]
 				if err
-					console.log err
 					winston.error err
 					res.status 400
 					res.send err

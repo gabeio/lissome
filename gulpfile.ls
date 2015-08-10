@@ -1,81 +1,82 @@
 require! {
-	'del'
-	'gulp'
-	'gulp-livescript'
+	"del"
+	"gulp"
+	"gulp-livescript"
+	"winston"
 }
 livescript = if gulp-livescript? then gulp-livescript
 
 paths =
 	scripts: [
-		'./src/*.ls'
-		'./src/databases/*.ls'
-		'./src/course/*.ls'
-		'./src/preferences/*.ls'
-		'./src/frontend/*.ls'
-		'./src/commandline/*.ls'
-		'./*.json.ls'
+		"./src/*.ls"
+		"./src/databases/*.ls"
+		"./src/course/*.ls"
+		"./src/preferences/*.ls"
+		"./src/frontend/*.ls"
+		"./src/commandline/*.ls"
+		"./*.json.ls"
 	]
 
-gulp.task 'default' ['build'] (done)->
+gulp.task "default" ["build"] (done)->
 	done!
 
-gulp.task 'clean' (done)->
-	del './lib/*.js'
+gulp.task "clean" (done)->
+	del "./lib/*.js"
 	done!
 
-gulp.task 'build-gulp' ->
-	gulp.src './gulpfile.ls'
+gulp.task "build-gulp" ->
+	gulp.src "./gulpfile.ls"
 		.pipe livescript bare:true
-		.on 'error' -> throw it
-		.pipe gulp.dest './'
+		.on "error" -> winston.error it
+		.pipe gulp.dest "./"
 
-gulp.task 'build' ->
+gulp.task "build" ->
 	gulp
-		..src './src/*.ls'
+		..src "./src/*.ls"
 		.pipe livescript bare:true
-		.on 'error' -> console.error it
-		.pipe gulp.dest './lib/'
+		.on "error" -> winston.error it
+		.pipe gulp.dest "./lib/"
 
-		..src './src/databases/*.ls'
+		..src "./src/databases/*.ls"
 		.pipe livescript bare:true
-		.on 'error' -> console.error it
-		.pipe gulp.dest './lib/databases/'
+		.on "error" -> winston.error it
+		.pipe gulp.dest "./lib/databases/"
 
-		..src './src/course/*.ls'
+		..src "./src/course/*.ls"
 		.pipe livescript bare:true
-		.on 'error' -> console.error it
-		.pipe gulp.dest './lib/course/'
+		.on "error" -> winston.error it
+		.pipe gulp.dest "./lib/course/"
 
-		..src './src/preferences/*.ls'
+		..src "./src/preferences/*.ls"
 		.pipe livescript bare:true
-		.on 'error' -> console.error it
-		.pipe gulp.dest './lib/preferences/'
+		.on "error" -> winston.error it
+		.pipe gulp.dest "./lib/preferences/"
 
-		..src './src/frontend/*.ls'
+		..src "./src/frontend/*.ls"
 		.pipe livescript bare:true
-		.on 'error' -> console.error it
-		.pipe gulp.dest './public/assets/custom/'
+		.on "error" -> winston.error it
+		.pipe gulp.dest "./public/assets/custom/"
 
-		..src './src/commandline/*.ls'
+		..src "./src/commandline/*.ls"
 		.pipe livescript bare:true
-		.on 'error' -> console.error it
-		.pipe gulp.dest './lib/commandline/'
+		.on "error" -> winston.error it
+		.pipe gulp.dest "./lib/commandline/"
 
-		..src './*.json.ls'
+		..src "./*.json.ls"
 		.pipe livescript!
-		.on 'error' -> console.error it
-		.pipe gulp.dest './'
+		.on "error" -> winston.error it
+		.pipe gulp.dest "./"
 
-gulp.task 'clean-tests' (done)->
-	del './test/*.js'
+gulp.task "clean-tests" (done)->
+	del "./test/*.js"
 	done!
 
-gulp.task 'build-tests' ['clean-tests'] ->
-	gulp.src './test/*.ls'
+gulp.task "build-tests" ["clean-tests"] ->
+	gulp.src "./test/*.ls"
 		.pipe livescript bare:true
-		.on 'error' -> throw it
-		.pipe gulp.dest './test/'
+		.on "error" -> winston.error it
+		.pipe gulp.dest "./test/"
 
-gulp.task 'watch-build' ->
+gulp.task "watch-build" ->
 	gulp
-		..watch paths.scripts, ['build']
+		..watch paths.scripts, ["build"]

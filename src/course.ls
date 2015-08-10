@@ -1,14 +1,12 @@
 require! {
 	"express"
 	"async"
-	"lodash"
+	"lodash":"_"
 	"mongoose"
 	"winston"
-	"util"
 	"./app"
 }
 ObjectId = mongoose.Types.ObjectId
-_ = lodash
 Semester = mongoose.models.Semester
 Course = mongoose.models.Course
 router = express.Router!
@@ -47,7 +45,7 @@ router
 					.lean!
 					.exec
 					if err
-						winston.error "course.ls:Semester:find", err
+						winston.error "course.ls: Semester.find", err
 						para "MONGO"
 					else
 						res.locals.semesters = _.pluck semesters, "_id"
@@ -80,7 +78,7 @@ router
 			.exec
 			/* istanbul ignore if should only occur if db crashes */
 			if err
-				winston.error "course.ls:Course:findOne", err
+				winston.error "course.ls: Course.findOne", err
 				next new Error "MONGO"
 			else
 				if !result? or result.length is 0
@@ -90,8 +88,12 @@ router
 					res.locals.course = result
 					next "route"
 	..use "/:course/assignments", require("./course/assignments")
+	..use "/:course/assignment", require("./course/assignment")
+	..use "/:course/attempt", require("./course/attempt")
 	..use "/:course/blog", require("./course/blog")
 	..use "/:course/conference", require("./course/conference")
+	..use "/:course/thread", require("./course/thread")
+	..use "/:course/post", require("./course/post")
 	..use "/:course/grades", require("./course/grades")
 	..use "/:course/roster", require("./course/roster")
 	..use "/:course/settings", require("./course/settings")

@@ -1,88 +1,61 @@
 require! {
 	"async"
 	"mongoose"
+	"winston"
 }
-schemas = require("../databases/schemas")(mongoose)
-School = mongoose.model "School" schemas.School
-User = mongoose.model "User" schemas.User
-Semester = mongoose.model "Semester" schemas.Semester
-Course = mongoose.model "Course" schemas.Course
-Assignment = mongoose.model "Assignment" schemas.Assignment
-Attempt = mongoose.model "Attempt" schemas.Attempt
-Thread = mongoose.model "Thread" schemas.Thread
-Post = mongoose.model "Post" schemas.Post
+
+require("../databases/mongoose")
+School = mongoose.models.School
+User = mongoose.models.User
+Semester = mongoose.models.Semester
+Course = mongoose.models.Course
+Assignment = mongoose.models.Assignment
+Attempt = mongoose.models.Attempt
+Thread = mongoose.models.Thread
+Post = mongoose.models.Post
 
 db = mongoose.connection
-mongouser = if process.env.mongouser or process.env.MONGOUSER then ( process.env.mongouser || process.env.MONGOUSER )
-mongopass = if process.env.mongopass or process.env.MONGOPASS then ( process.env.mongopass || process.env.MONGOPASS )
-db.open (process.env.mongo||process.env.MONGOURL||"mongodb://localhost/lissome"), { "user": mongouser, "pass": mongopass }
-# db.on "disconnect", -> db.connect!
-db.on "error", console.error.bind console, "connection error:"
+db.open (process.env.mongo||process.env.MONGO||"mongodb://127.0.0.1/lissome")
+db.on "error", winston.error.bind winston, "connection error"
 
-<- async.parallel [
+err <- db.once "open"
+winston.error if err
+
+err <- async.parallel [
 	(done)->
 		err,result <- School.remove {}
-		if err?
-			console.error err
-			done err
-		else
-			console.log "deleted #{result} School(s)"
-			done!
+		winston.info "deleted #{result} School(s)" if result?
+		done err
 	(done)->
 		err,result <- User.remove {}
-		if err?
-			console.error err
-			done err
-		else
-			console.log "deleted #{result} User(s)"
-			done!
+		winston.info "deleted #{result} User(s)" if result?
+		done err
 	(done)->
 		err,result <- Semester.remove {}
-		if err?
-			console.error err
-			done err
-		else
-			console.log "deleted #{result} Course(s)"
-			done!
+		winston.info "deleted #{result} Course(s)" if result?
+		done err
 	(done)->
 		err,result <- Course.remove {}
-		if err?
-			console.error err
-			done err
-		else
-			console.log "deleted #{result} Course(s)"
-			done!
+		winston.info "deleted #{result} Course(s)" if result?
+		done err
 	(done)->
 		err,result <- Assignment.remove {}
-		if err?
-			console.error err
-			done err
-		else
-			console.log "deleted #{result} Assignment(s)"
-			done!
+		winston.info "deleted #{result} Assignment(s)" if result?
+		done err
 	(done)->
 		err,result <- Attempt.remove {}
-		if err?
-			console.error err
-			done err
-		else
-			console.log "deleted #{result} Attempt(s)"
-			done!
+		winston.info "deleted #{result} Attempt(s)" if result?
+		done err
 	(done)->
 		err,result <- Thread.remove {}
-		if err?
-			console.error err
-			done err
-		else
-			console.log "deleted #{result} Post(s)"
-			done!
+		winston.info "deleted #{result} Post(s)" if result?
+		done err
 	(done)->
 		err,result <- Post.remove {}
-		if err?
-			console.error err
-			done err
-		else
-			console.log "deleted #{result} Post(s)"
-			done!
+		winston.info "deleted #{result} Post(s)" if result?
+		done err
 ]
-db.close!
+
+winston.error err if err
+err <- db.close
+winston.error err if err

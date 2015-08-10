@@ -2,13 +2,12 @@ require! {
 	"async"
 	"chai" # assert lib
 	"del" # delete
-	"lodash"
+	"lodash":"_"
 	"mongoose"
 	"supertest" # request lib
 }
 app = require "../lib/app"
 ObjectId = mongoose.Types.ObjectId
-_ = lodash
 Course = mongoose.models.Course
 req = supertest
 expect = chai.expect
@@ -602,7 +601,6 @@ describe "Blog", (...)->
 				admin
 					.get "/c/#{courseId}/blog?action=edit"
 					.end (err, res)->
-						# console.log res
 						expect res.header.location .to.equal "/c/#{courseId}/blog"
 						expect res.status .to.equal 302
 						cont err
@@ -617,7 +615,6 @@ describe "Blog", (...)->
 				faculty
 					.get "/c/#{courseId}/blog/que?action=edit"
 					.end (err, res)->
-						# console.log res
 						expect res.header.location .to.equal "/c/#{courseId}/blog"
 						expect res.status .to.equal 302
 						cont err

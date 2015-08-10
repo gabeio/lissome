@@ -42,13 +42,13 @@
 					<h3>{{ course.title }} - Conference</h3>
 				</div>
 				<div class="pull-right">
-					<form action="?hmo=delete&action=deletepost" method="POST">
-						<input type="hidden" name="_csrf" value="{{csrf}}" />
+					<form action="/c/{{ course._id|toString }}/post/{{ post._id|toString }}/deletepost?hmo=delete" method="POST">
+						<input type="hidden" name="_csrf" value="{{ csrf }}" />
 						<input type="hidden" name="thread" value="{{ thread._id|toString }}" />
 						<input type="hidden" name="post" value="{{ post._id|toString }}" />
 						<div class="form-group btn-group">
 							<button type="submit" class="btn btn-danger">Yes, Delete this post.</button>
-							<a href="/c/{{ course._id|toString }}/conference/{{ thread._id|toString }}" class="btn btn-default">No, leave this post alone!</a>
+							<a href="/c/{{ course._id|toString }}/thread/{{ thread._id|toString }}" class="btn btn-default">No, leave this post alone!</a>
 						</div>
 					</form>
 				</div>
