@@ -21,6 +21,8 @@ require! {
 	"swig" # templates
 	"winston"
 	"yargs" # --var val
+	"./databases/redisClient"
+	"./databases/mongoClient"
 }
 
 # verbosity level
@@ -96,16 +98,10 @@ swig.setFilter "timezone", (input)->
 	moment.tz input, "America/New_York" .clone!.tz app.locals.timezone .toString!
 
 # MONGOOSE
-/* istanbul ignore next ors only has to do with where it gets the connection info */
-mongo = require("./databases/mongoClient")(app,\
-	(process.env.mongo||process.env.MONGO||yargs.argv.mongo||"mongodb://localhost/lissome"))
+require("./databases/mongoose")
 
 # REDIS
-/* istanbul ignore next ors only has to do with where it gets the connection info */
-redis = require("./databases/redisClient")(app,\
-	(process.env.redis||process.env.REDIS||yargs.argv.redis||"redis://localhost:6379/0"))
-
-app.locals.redis = redis
+app.locals.redis = redisClient
 
 RedisStore = connect-redis express-session
 
@@ -162,7 +158,7 @@ app
 		store: new RedisStore {
 			ttl: 604800
 			prefix: app.locals.school
-			client: redis
+			client: redisClient
 		}
 	}
 	# hide what we are made of
@@ -237,7 +233,6 @@ app
 			next new Error "UNAUTHORIZED" # other unauth
 
 # Routers
-require("./databases/mongoose")(app)
 app.use "/login", require("./login")
 app.use "/logout", require("./logout")
 app.use "/otp", require("./otp")

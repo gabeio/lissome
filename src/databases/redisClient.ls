@@ -1,19 +1,15 @@
-module.exports = (app,redis)->
-	require! {
-		"ioredis"
-		"winston"
-	}
-	rediscli = new ioredis redis
-	rediscli.on "connect", ->
-		winston.info "redis: connected"
-		app.locals.redis = rediscli
-	rediscli.on "ready", ->
-		winston.info "redis: ready"
-	/* istanbul ignore next only occurs upon redis error */
-	rediscli.on "error", ->
-		winston.error it
-	/* istanbul ignore next only occurs if redis disconnects */
-	rediscli.on "disconnect", ->
-		winston.warn "redis: disconnected trying to reconnect"
-		rediscli.connect!
-	return rediscli
+require! {
+	"ioredis"
+	"winston"
+	"yargs"
+}
+
+/* istanbul ignore if */
+redis = new ioredis (process.env.redis||process.env.REDIS||yargs.argv.redis||"redis://localhost:6379/0")
+redis.on "connect", ->
+	winston.info "redis: connected"
+redis.on "ready", ->
+	winston.info "redis: ready"
+redis.on "error", winston.error.bind winston, "redis: connection error"
+
+module.exports = redis

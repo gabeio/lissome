@@ -10,11 +10,11 @@ var school, student, astudent, zstudent, faculty,\
 	course3, course4, hashPassword, semester1, semester2,\
 	xstudent
 
-schemas = require("../databases/schemas")(mongoose)
-School = mongoose.model "School" schemas.School
-User = mongoose.model "User" schemas.User
-Course = mongoose.model "Course" schemas.Course
-Semester = mongoose.model "Semester" schemas.Semester
+require("../databases/mongoose")
+School = mongoose.models.School
+User = mongoose.models.User
+Course = mongoose.models.Course
+Semester = mongoose.models.Semester
 
 db = mongoose.connection
 db.open (process.env.mongo||process.env.MONGO||"mongodb://127.0.0.1/lissome")

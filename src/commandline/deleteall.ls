@@ -4,15 +4,15 @@ require! {
 	"winston"
 }
 
-schemas = require("../databases/schemas")(mongoose)
-School = mongoose.model "School" schemas.School
-User = mongoose.model "User" schemas.User
-Semester = mongoose.model "Semester" schemas.Semester
-Course = mongoose.model "Course" schemas.Course
-Assignment = mongoose.model "Assignment" schemas.Assignment
-Attempt = mongoose.model "Attempt" schemas.Attempt
-Thread = mongoose.model "Thread" schemas.Thread
-Post = mongoose.model "Post" schemas.Post
+require("../databases/mongoose")
+School = mongoose.models.School
+User = mongoose.models.User
+Semester = mongoose.models.Semester
+Course = mongoose.models.Course
+Assignment = mongoose.models.Assignment
+Attempt = mongoose.models.Attempt
+Thread = mongoose.models.Thread
+Post = mongoose.models.Post
 
 db = mongoose.connection
 db.open (process.env.mongo||process.env.MONGO||"mongodb://127.0.0.1/lissome")
