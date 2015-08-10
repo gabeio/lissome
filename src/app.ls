@@ -14,6 +14,7 @@ require! {
 	"method-override"
 	"moment"
 	"moment-timezone"
+	"mongoose"
 	"multer"
 	"response-time"
 	"serve-static" # nginx static
