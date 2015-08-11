@@ -15,25 +15,41 @@ router = express.Router!
 router
 	..route "/:attempt/:action?" # query :: action(new|edit|delete|grade)
 	.all (req, res, next)->
-		# find attempt
-		res.locals.attempt = {
-			course: ObjectId res.locals.course._id
-			# assignment: ObjectId req.params.assign
-			_id: ObjectId req.params.attempt
-		}
-		if res.locals.auth is 1
-			res.locals.attempt.author = ObjectId res.locals.uid
-		err, result <- Attempt.findOne res.locals.attempt
-		.populate "assignment"
-		.populate "author"
-		.exec
-		/* istanbul ignore if should only occur if db crashes */
+		err <- async.waterfall [
+			(done)->
+				# find attempt
+				res.locals.attempt = {
+					course: ObjectId res.locals.course._id
+					_id: ObjectId req.params.attempt
+				}
+				done null
+			(done)->
+				if res.locals.auth is 1
+					res.locals.attempt.author = ObjectId res.locals.uid
+				done null
+			(done)->
+				err, result <- Attempt.findOne res.locals.attempt
+				.populate "assignment"
+				.populate "author"
+				.exec
+				done err,result
+			(result,done)->
+				if result?
+					res.locals.attempt = result
+				done null, result
+			(result,done)->
+				if result.assignment?
+					res.locals.assignment = result.assignment
+				done null
+		]
 		if err
-			winston.error "attempt.ls: attempt.findOne", err
-			next new Error "MONGO"
+			switch err
+			| "fin"
+				break
+			| _
+				winston.error "attempt.ls: attempt.findOne", err
+				next new Error "MONGO"
 		else
-			res.locals.attempt? = result
-			res.locals.assignment? = result.assignment
 			next!
 	.get (req, res, next)->
 		async.parallel [
@@ -53,8 +69,9 @@ router
 	.post parser, (req, res, next)->
 		switch req.params.action
 		| "grade" # handle assignment grading
-			req.body.points? = parseInt req.body.points
-			if req.body.points === NaN # double check require fields exist
+			if req.body.points?
+				req.body.points = parseInt req.body.points, 10
+			if !req.body.points? or not (req.body.points >= 0) # double check require field exists & is valid
 				res.status 400 .render "course/assignments/attempt", { success: "no", action: "graded", csrf: req.csrfToken! }
 			else
 				err, attempt <- Attempt.findOneAndUpdate {
