@@ -58,7 +58,7 @@
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				{% if 2 <= auth %}
-				<form class="panel panel-default" action="/c/{{ course._id|toString }}/attempt/{{ assignment._id|toString }}/grade" method="POST">
+				<form class="panel panel-default" action="/c/{{ course._id|toString }}/attempt/{{ attempt._id|toString }}/grade" method="POST">
 					<input type="hidden" name="_csrf" value="{{csrf}}" />
 					<input type="hidden" name="aid" value="{{ attempt._id|toString }}" />
 				{% else %}
