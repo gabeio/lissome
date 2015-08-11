@@ -68,7 +68,7 @@ router
 					pin = ""
 					while pin.length < 8
 						byte = crypto.randomBytes 1 .toString!
-						if parseInt(byte) >= 0 # check if it's an "int"
+						if parseInt(byte, 10) >= 0 # check if it's an "int"
 							pin += byte
 					# 2. push pin to user
 					if user.pin.method is "pushover"
