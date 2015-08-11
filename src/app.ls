@@ -175,33 +175,6 @@ app
 	.use cors!
 	# compress large files
 	.use compression!
-	# CUSTOM MIDDLEWARE
-	.use (req, res, next)->
-		err <- async.parallel [
-			(para)->
-				if req.session? and req.session.uid?
-					res.locals.uid = req.session.uid.toString!
-					res.locals.firstName = req.session.firstName
-					res.locals.lastName = req.session.lastName
-					res.locals.username = req.session.username
-					res.locals.middleName? = req.session.middleName
-					para!
-				else
-					para!
-			(para)->
-				if req.session? and req.session.auth?
-					res.locals.auth = req.session.auth
-					para!
-				else
-					para!
-			(para)->
-				/* istanbul ignore if which only tests if redis is offline */
-				if !req.session?
-					next new Error "Sessions are offline."
-				else
-					para!
-		]
-		next err
 
 # Production Switch
 /* istanbul ignore next switch */
@@ -233,6 +206,7 @@ app
 			next new Error "UNAUTHORIZED" # other unauth
 
 # Routers
+app.use require("./middleware")
 app.use "/login", require("./login")
 app.use "/logout", require("./logout")
 app.use "/otp", require("./otp")
