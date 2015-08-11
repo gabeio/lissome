@@ -52,15 +52,14 @@ router
 						done err, user
 				else
 					done null
+			(done)->
+				next!
+				done null
 		]
 		if err?
 			switch err
 			| "LOGOUT"
 				winston.warn "Killing old user session", req.session
 				err <- req.session.destroy
-			| _
-				next new Error err
-		else
-			next!
 
 module.exports = router
