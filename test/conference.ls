@@ -22,44 +22,49 @@ faculty = req.agent app
 admin = req.agent app
 describe "Conference" ->
 	before (done)->
-		err, course <- Course.findOne {
-			"school":app.locals.school
-			"id":"cps1234"
-		}
-		.exec
-		courseId := course._id.toString!
+		err <- async.parallel [
+			(next)->
+				err, course <- Course.findOne {
+					"school":app.locals.school
+					"id":"cps1234"
+				}
+				.exec
+				courseId := course._id.toString!
+				next err
+			(next)->
+				student
+					.post "/login"
+					.send {
+						"username": "student"
+						"password": "password"
+					}
+					.end (err, res)->
+						expect res.status .to.equal 302
+						next err
+			(next)->
+				faculty
+					.post "/login"
+					.send {
+						"username":"faculty"
+						"password":"password"
+					}
+					.end (err, res)->
+						expect res.status .to.equal 302
+						next err
+			(next)->
+				admin
+					.post "/login"
+					.send {
+						"username":"admin"
+						"password":"password"
+					}
+					.end (err, res)->
+						expect res.status .to.equal 302
+						next err
+		]
 		done err
-	before (done)->
-		student
-			.post "/login"
-			.send {
-				"username": "student"
-				"password": "password"
-			}
-			.end (err, res)->
-				expect res.status .to.equal 302
-				done err
-	before (done)->
-		faculty
-			.post "/login"
-			.send {
-				"username":"faculty"
-				"password":"password"
-			}
-			.end (err, res)->
-				expect res.status .to.equal 302
-				done!
-	before (done)->
-		admin
-			.post "/login"
-			.send {
-				"username":"admin"
-				"password":"password"
-			}
-			.end (err, res)->
-				expect res.status .to.equal 302
-				done!
 	after (done)->
+		this.timeout = 0
 		admin
 			.get "/test/deletethreads/cps1234"
 			.end (err, res)->
@@ -67,69 +72,73 @@ describe "Conference" ->
 	describe "(User: Admin)", (...)->
 		before (done)->
 			this.timeout = 0
-			err <- async.waterfall [
-				(cont)->
-					faculty
-						.get "/test/gettid/cps1234?title=facultyThread"
-						.end (err, res)->
-							cont err, res.body
-				(tid,cont)->
-					faculty
-						.post "/c/#{courseId}/conference/newthread"
-						.send {
-							title:"facultyThread"
-							text:"facultyPost"
-						}
-						.end (err, res)->
+			err <- async.parallel [
+				(next)->
+					err <- async.waterfall [
+						(water)->
 							faculty
 								.get "/test/gettid/cps1234?title=facultyThread"
 								.end (err, res)->
-									cont err, res.body
-				(tid,fin)->
-					faculty
-						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
-						.send {
-							thread: tid.0._id.toString!
-							text:"facultyPost"
-						}
-						.end (err, res)->
-							expect res.status .to.not.match /^(4|5)/
-							fin err
-			]
-			done err
-		before (done)->
-			this.timeout = 3000
-			err <- async.waterfall [
-				(cont)->
-					admin
-						.get "/test/gettid/cps1234?title=adminThread"
-						.end (err, res)->
-							cont err, res.body
-				(tid,cont)->
-					admin
-						.post "/c/#{courseId}/conference/newthread"
-						.send {
-							title:"adminThread"
-							text:"adminPost"
-						}
-						.end (err, res)->
+									water err, res.body
+						(tid,water)->
+							faculty
+								.post "/c/#{courseId}/conference/newthread"
+								.send {
+									title:"facultyThread"
+									text:"facultyPost"
+								}
+								.end (err, res)->
+									faculty
+										.get "/test/gettid/cps1234?title=facultyThread"
+										.end (err, res)->
+											water err, res.body
+						(tid,water)->
+							faculty
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
+								.send {
+									thread: tid.0._id.toString!
+									text:"facultyPost"
+								}
+								.end (err, res)->
+									expect res.status .to.not.match /^(4|5)/
+									water err
+					]
+					next err
+				(next)->
+					err <- async.waterfall [
+						(water)->
 							admin
 								.get "/test/gettid/cps1234?title=adminThread"
 								.end (err, res)->
-									cont err, res.body
-				(tid,fin)->
-					admin
-						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
-						.send {
-							thread: tid.0._id.toString!
-							text:"adminPost"
-						}
-						.end (err, res)->
-							expect res.status .to.not.match /^(4|5)/
-							fin err
+									water err, res.body
+						(tid,water)->
+							admin
+								.post "/c/#{courseId}/conference/newthread"
+								.send {
+									title:"adminThread"
+									text:"adminPost"
+								}
+								.end (err, res)->
+									admin
+										.get "/test/gettid/cps1234?title=adminThread"
+										.end (err, res)->
+											water err, res.body
+						(tid,water)->
+							admin
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
+								.send {
+									thread: tid.0._id.toString!
+									text:"adminPost"
+								}
+								.end (err, res)->
+									expect res.status .to.not.match /^(4|5)/
+									water err
+					]
+					next err
 			]
 			done err
 		after (done)->
+			this.timeout = 0
 			admin
 				.get "/test/deletethreads/cps1234"
 				.end (err, res)->
@@ -333,7 +342,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should delete a thread that is not theirs", (done)->
-			this.timeout = 0
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					admin
@@ -362,6 +371,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should delete their thread", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					admin
@@ -392,69 +402,73 @@ describe "Conference" ->
 	describe "(User: Faculty)", (...)->
 		before (done)->
 			this.timeout = 0
-			err <- async.waterfall [
-				(cont)->
-					faculty
-						.get "/test/gettid/cps1234?title=facultyThread"
-						.end (err, res)->
-							cont err, res.body
-				(tid,cont)->
-					faculty
-						.post "/c/#{courseId}/conference/newthread"
-						.send {
-							title:"facultyThread"
-							text:"facultyPost"
-						}
-						.end (err, res)->
+			err <- async.parallel [
+				(next)->
+					err <- async.waterfall [
+						(water)->
 							faculty
 								.get "/test/gettid/cps1234?title=facultyThread"
 								.end (err, res)->
-									cont err, res.body
-				(tid,fin)->
-					faculty
-						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
-						.send {
-							thread: tid.0._id.toString!
-							text:"facultyPost"
-						}
-						.end (err, res)->
-							expect res.status .to.not.match /^(4|5)/
-							fin err
-			]
-			done err
-		before (done)->
-			this.timeout = 3000
-			err <- async.waterfall [
-				(cont)->
-					admin
-						.get "/test/gettid/cps1234?title=adminThread"
-						.end (err, res)->
-							cont err, res.body
-				(tid,cont)->
-					admin
-						.post "/c/#{courseId}/conference/newthread"
-						.send {
-							title:"adminThread"
-							text:"adminPost"
-						}
-						.end (err, res)->
+									water err, res.body
+						(tid,water)->
+							faculty
+								.post "/c/#{courseId}/conference/newthread"
+								.send {
+									title:"facultyThread"
+									text:"facultyPost"
+								}
+								.end (err, res)->
+									faculty
+										.get "/test/gettid/cps1234?title=facultyThread"
+										.end (err, res)->
+											water err, res.body
+						(tid,water)->
+							faculty
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
+								.send {
+									thread: tid.0._id.toString!
+									text:"facultyPost"
+								}
+								.end (err, res)->
+									expect res.status .to.not.match /^(4|5)/
+									water err
+					]
+					next err
+				(next)->
+					err <- async.waterfall [
+						(water)->
 							admin
 								.get "/test/gettid/cps1234?title=adminThread"
 								.end (err, res)->
-									cont err, res.body
-				(tid,fin)->
-					admin
-						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
-						.send {
-							thread: tid.0._id.toString!
-							text:"adminPost"
-						}
-						.end (err, res)->
-							expect res.status .to.not.match /^(4|5)/
-							fin err
+									water err, res.body
+						(tid,water)->
+							admin
+								.post "/c/#{courseId}/conference/newthread"
+								.send {
+									title:"adminThread"
+									text:"adminPost"
+								}
+								.end (err, res)->
+									admin
+										.get "/test/gettid/cps1234?title=adminThread"
+										.end (err, res)->
+											water err, res.body
+						(tid,water)->
+							admin
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
+								.send {
+									thread: tid.0._id.toString!
+									text:"adminPost"
+								}
+								.end (err, res)->
+									expect res.status .to.not.match /^(4|5)/
+									water err
+					]
+					next err
 			]
 			done err
 		after (done)->
+			this.timeout = 0
 			admin
 				.get "/test/deletethreads/cps1234"
 				.end (err, res)->
@@ -480,6 +494,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should edit their thread", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -547,6 +562,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should edit their post", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(fin)->
 					faculty
@@ -656,6 +672,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should delete a thread that is not theirs", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -684,6 +701,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should delete their thread", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -713,66 +731,76 @@ describe "Conference" ->
 			done err
 	describe "(User: Non-Faculty)", (...)->
 		before (done)->
-			err <- async.waterfall [
-				(cont)->
-					faculty
-						.post "/c/#{courseId}/conference/newthread"
-						.send {
-							title:"facultyThread"
-							text:"facultyPost"
-						}
-						.end (err, res)->
+			this.timeout = 0
+			err <- async.parallel [
+				(next)->
+					err <- async.waterfall [
+						(water)->
 							faculty
-								.get "/test/gettid/cps1234?title=facultyThread"
+								.post "/c/#{courseId}/conference/newthread"
+								.send {
+									title:"facultyThread"
+									text:"facultyPost"
+								}
 								.end (err, res)->
-									cont err, res.body
-				(tid,fin)->
+									faculty
+										.get "/test/gettid/cps1234?title=facultyThread"
+										.end (err, res)->
+											water err, res.body
+						(tid,water)->
+							faculty
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
+								.send {
+									thread: tid.0._id.toString!
+									text:"facultyPost"
+								}
+								.end (err, res)->
+									expect res.status .to.not.match /^(4|5)/
+									water err
+					]
+					next err
+				(next)->
 					faculty
-						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
+						.get "/logout"
+						.end (err, res)->
+							next err
+				(next)->
+					faculty
+						.post "/login"
 						.send {
-							thread: tid.0._id.toString!
-							text:"facultyPost"
+							"username": "gfaculty"
+							"password": "password"
 						}
 						.end (err, res)->
-							expect res.status .to.not.match /^(4|5)/
-							fin err
+							expect res.status .to.equal 302
+							next err
 			]
 			done err
-		before (done)->
-			faculty
-				.get "/logout"
-				.end (err, res)->
-					done err
-		before (done)->
-			faculty
-				.post "/login"
-				.send {
-					"username": "gfaculty"
-					"password": "password"
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
 		after (done)->
-			faculty
-				.get "/logout"
-				.end (err, res)->
-					done err
-		after (done)->
-			faculty
-				.post "/login"
-				.send {
-					"username": "faculty"
-					"password": "password"
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
-		after (done)->
-			admin
-				.get "/test/deletethreads/cps1234"
-				.end (err, res)->
-					done err
+			this.timeout = 0
+			err <- async.parallel [
+				(next)->
+					faculty
+						.get "/logout"
+						.end (err, res)->
+							next err
+				(next)->
+					faculty
+						.post "/login"
+						.send {
+							"username": "faculty"
+							"password": "password"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							next err
+				(next)->
+					admin
+						.get "/test/deletethreads/cps1234"
+						.end (err, res)->
+							next err
+			]
+			done err
 		it "should not create a thread", (done)->
 			faculty
 				.post "/c/#{courseId}/conference/newthread"
@@ -785,6 +813,7 @@ describe "Conference" ->
 					expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 					done err
 		it "should not edit a thread", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -816,6 +845,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not delete a thread", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -931,6 +961,7 @@ describe "Conference" ->
 			done err
 	describe "(User: Student)", (...)->
 		before (done)->
+			this.timeout = 0
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -957,6 +988,7 @@ describe "Conference" ->
 			]
 			done err
 		after (done)->
+			this.timeout = 0
 			admin
 				.get "/test/deletethreads/cps1234"
 				.end (err, res)->
@@ -972,6 +1004,7 @@ describe "Conference" ->
 					expect res.status .to.not.match /^(4|5)/
 					done err
 		it "should edit their thread", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1059,6 +1092,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should delete their thread", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1128,32 +1162,39 @@ describe "Conference" ->
 			]
 			done err
 		it "should not edit a post that is not theirs", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
-				(cont)->
+				(water)->
+					err,result <- async.parallel [
+						(next)->
+							student
+								.get "/test/gettid/cps1234?title=facultyThread"
+								.end (err, res)->
+									next err, { tid: res.body }
+						(next)->
+							student
+								.get "/test/getpost/cps1234?text=facultyPost"
+								.end (err, res)->
+									next err, { pid: res.body }
+					]
+					result = _ result.0 .merge result.1 .value!
+					water err, result
+				(ids,water)->
 					student
-						.get "/test/gettid/cps1234?title=facultyThread"
-						.end (err, res)->
-							cont err, res.body
-				(tid,cont)->
-					student
-						.get "/test/getpost/cps1234?text=facultyPost"
-						.end (err, res)->
-							cont err, tid, res.body
-				(tid,pid,fin)->
-					student
-						.post "/c/#{courseId}/post/#{pid.0._id.toString!}/editpost?hmo=put"
+						.post "/c/#{courseId}/post/#{ids.pid.0._id.toString!}/editpost?hmo=put"
 						.send {
-							thread: tid.0._id.toString!
-							post: pid.0._id.toString!
+							thread: ids.tid.0._id.toString!
+							post: ids.pid.0._id.toString!
 							text: "facultyPost"
 						}
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
 							expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
-							fin err
+							water err
 			]
 			done err
 		it "should not delete a thread that is not theirs", (done)->
+			this.timeout = 4000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1169,20 +1210,17 @@ describe "Conference" ->
 						.end (err, res)->
 							expect res.status .to.match /^(3|4|5)/
 							expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
-							cont err
-				(cont)->
+							cont err, tid
+				(tid,cont)->
 					student
-						.get "/test/gettid/cps1234?title=facultyThread"
+						.get "/c/#{courseId}/thread/#{tid.0._id.toString!}"
 						.end (err, res)->
-							cont err
-				(cont)->
-					student
-						.get "/test/getpost/cps1234?text=facultyPost"
-						.end (err, res)->
+							expect res.status .to.not.match /^(3|4|5)/
 							cont err
 			]
 			done err
 		it "should not delete a post that is not theirs", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1209,66 +1247,76 @@ describe "Conference" ->
 			done err
 	describe "(User: Non-Student)", (...)->
 		before (done)->
-			err <- async.waterfall [
-				(cont)->
-					faculty
-						.post "/c/#{courseId}/conference/newthread"
-						.send {
-							title:"facultyThread"
-							text:"facultyPost"
-						}
-						.end (err, res)->
+			this.timeout = 0
+			err <- async.parallel [
+				(next)->
+					err <- async.waterfall [
+						(water)->
 							faculty
-								.get "/test/gettid/cps1234?title=facultyThread"
+								.post "/c/#{courseId}/conference/newthread"
+								.send {
+									title:"facultyThread"
+									text:"facultyPost"
+								}
 								.end (err, res)->
-									cont err, res.body
-				(tid,fin)->
-					faculty
-						.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
+									faculty
+										.get "/test/gettid/cps1234?title=facultyThread"
+										.end (err, res)->
+											water err, res.body
+						(tid,water)->
+							faculty
+								.post "/c/#{courseId}/thread/#{tid.0._id.toString!}/newpost"
+								.send {
+									thread: tid.0._id.toString!
+									text:"facultyPost"
+								}
+								.end (err, res)->
+									expect res.status .to.not.match /^(4|5)/
+									water err
+					]
+					next err
+				(next)->
+					student
+						.get "/logout"
+						.end (err, res)->
+							next err
+				(next)->
+					student
+						.post "/login"
 						.send {
-							thread: tid.0._id.toString!
-							text:"facultyPost"
+							"username": "astudent"
+							"password": "password"
 						}
 						.end (err, res)->
-							expect res.status .to.not.match /^(4|5)/
-							fin err
+							expect res.status .to.equal 302
+							next err
 			]
 			done err
-		before (done)->
-			student
-				.get "/logout"
-				.end (err, res)->
-					done err
-		before (done)->
-			student
-				.post "/login"
-				.send {
-					"username": "astudent"
-					"password": "password"
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
 		after (done)->
-			student
-				.get "/logout"
-				.end (err, res)->
-					done err
-		after (done)->
-			student
-				.post "/login"
-				.send {
-					"username": "student"
-					"password": "password"
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
-		after (done)->
-			admin
-				.get "/test/deletethreads/cps1234"
-				.end (err, res)->
-					done err
+			this.timeout = 0
+			err <- async.parallel [
+				(next)->
+					student
+						.get "/logout"
+						.end (err, res)->
+							next err
+				(next)->
+					student
+						.post "/login"
+						.send {
+							"username": "student"
+							"password": "password"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							next err
+				(next)->
+					admin
+						.get "/test/deletethreads/cps1234"
+						.end (err, res)->
+							next err
+			]
+			done err
 		it "should not create a thread", (done)->
 			student
 				.post "/c/#{courseId}/conference/newthread"

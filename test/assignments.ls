@@ -22,44 +22,50 @@ faculty = req.agent app
 admin = req.agent app
 describe "Assignments Module" ->
 	before (done)->
-		err, course <- Course.findOne {
-			"school":app.locals.school
-			"id":"cps1234"
-		}
-		.exec
-		courseId := course._id.toString!
+		this.timeout = 0
+		err <- async.parallel [
+			(next)->
+				err, course <- Course.findOne {
+					"school":app.locals.school
+					"id":"cps1234"
+				}
+				.exec
+				courseId := course._id.toString!
+				next err
+			(next)->
+				student
+					.post "/login"
+					.send {
+						"username": "student"
+						"password": "password"
+					}
+					.end (err, res)->
+						expect res.status .to.equal 302
+						next err
+			(next)->
+				faculty
+					.post "/login"
+					.send {
+						"username":"faculty"
+						"password":"password"
+					}
+					.end (err, res)->
+						expect res.status .to.equal 302
+						next err
+			(next)->
+				admin
+					.post "/login"
+					.send {
+						"username":"admin"
+						"password":"password"
+					}
+					.end (err, res)->
+						expect res.status .to.equal 302
+						next err
+		]
 		done err
-	before (done)->
-		student
-			.post "/login"
-			.send {
-				"username": "student"
-				"password": "password"
-			}
-			.end (err, res)->
-				expect res.status .to.equal 302
-				done err
-	before (done)->
-		faculty
-			.post "/login"
-			.send {
-				"username":"faculty"
-				"password":"password"
-			}
-			.end (err, res)->
-				expect res.status .to.equal 302
-				done!
-	before (done)->
-		admin
-			.post "/login"
-			.send {
-				"username":"admin"
-				"password":"password"
-			}
-			.end (err, res)->
-				expect res.status .to.equal 302
-				done!
 	after (done)->
+		this.timeout = 0
 		admin
 			.get "/test/deleteassignments/cps1234"
 			.end (err,res)->
@@ -375,6 +381,7 @@ describe "Assignments Module" ->
 			]
 			done err
 		it "should grade an assignment", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					admin
@@ -548,6 +555,7 @@ describe "Assignments Module" ->
 			]
 			done err
 		it "should grade an assignment", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					faculty
@@ -613,73 +621,85 @@ describe "Assignments Module" ->
 
 	describe "(User: Non-Faculty)", (done)->
 		before (done)->
-			faculty
-				.post "/c/#{courseId}/assignments/new"
-				.send {
-					"title":"outsideFaculty"
-					"opendate":"2/1/2000"
-					"opentime":"1:00 AM"
-					"closedate":"1/1/3000"
-					"closetime":"1:00 PM"
-					"total":"100"
-					"tries":"100"
-					"late":"yes"
-					"text":"you will fail!"
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					expect res.header.location .to.match /^\/c\/.{24}\/assignment\/.{24}\/?/i
-					done err
-		before (done)->
-			faculty
-				.get "/logout"
-				.end (err, res)->
-					done err
-		before (done)->
-			faculty
-				.post "/login"
-				.send {
-					"username": "gfaculty"
-					"password": "password"
-				}
-				.end (err, res)->
-					expect res.status .to.equal 302
-					done err
-		after (done)->
+			this.timeout = 0
+			err <- async.parallel [
+				(next)->
+					faculty
+						.post "/c/#{courseId}/assignments/new"
+						.send {
+							"title":"outsideFaculty"
+							"opendate":"2/1/2000"
+							"opentime":"1:00 AM"
+							"closedate":"1/1/3000"
+							"closetime":"1:00 PM"
+							"total":"100"
+							"tries":"100"
+							"late":"yes"
+							"text":"you will fail!"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.match /^\/c\/.{24}\/assignment\/.{24}\/?/i
+							next err
+			]
+			done err if err
 			err <- async.waterfall [
-				(cont)->
+				(water)->
 					faculty
 						.get "/logout"
 						.end (err, res)->
-							cont err
-				(cont)->
+							water err
+				(water)->
 					faculty
 						.post "/login"
 						.send {
-							"username": "faculty"
+							"username": "gfaculty"
 							"password": "password"
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							cont err
+							water err
 			]
 			done err
 		after (done)->
-			# clean up outsideFaculty
-			err <- async.waterfall [
-				(cont)->
-					admin
-						.get "/test/getaid/cps1234?title=outsideFaculty"
-						.end (err, res)->
-							cont err, res.body
-				(aid,cont)->
-					admin
-						.post "/c/#{courseId}/assignment/#{aid.0._id.toString()}/delete?hmo=DELETE"
-						.send {
-						}
-						.end (err, res)->
-							expect res.status .to.equal 302
-							cont err
+			err <- async.parallel [
+				(next)->
+					err <- async.waterfall [
+						(water)->
+							faculty
+								.get "/logout"
+								.end (err, res)->
+									water err
+						(water)->
+							faculty
+								.post "/login"
+								.send {
+									"username": "faculty"
+									"password": "password"
+								}
+								.end (err, res)->
+									expect res.status .to.equal 302
+									water err
+					]
+					next err
+				(next)->
+					# clean up outsideFaculty
+					err <- async.waterfall [
+						(water)->
+							admin
+								.get "/test/getaid/cps1234?title=outsideFaculty"
+								.end (err, res)->
+									water err, res.body
+						(aid,water)->
+							admin
+								.post "/c/#{courseId}/assignment/#{aid.0._id.toString()}/delete?hmo=DELETE"
+								.send {
+								}
+								.end (err, res)->
+									expect res.status .to.equal 302
+									water err
+					]
+					next err
 			]
 			done err
 		it "should not return the assignment default view", (done)->
@@ -963,6 +983,7 @@ describe "Assignments Module" ->
 				.end (err, res)->
 					done err, res.body
 		it "should not grade an assignment", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1308,13 +1329,14 @@ describe "Assignments Module" ->
 	describe "Other Functions", (...)->
 		otherFunc = {}
 		before (done)->
+			this.timeout = 0
 			err <- async.waterfall [
-				(cont)->
+				(water)->
 					student
 						.get "/logout"
 						.end (err, res)->
-							cont err
-				(cont)->
+							water err
+				(water)->
 					student
 						.post "/login"
 						.send {
@@ -1323,115 +1345,106 @@ describe "Assignments Module" ->
 						}
 						.end (err, res)->
 							expect res.status .to.equal 302
-							cont err
+							water err
 			]
-			done err
-		before (done)->
-			# for now < date
-			faculty
-				.post "/c/#{courseId}/assignments/new"
-				.send {
-					"title":"Early"
-					"opendate":"1/1/3000"
-					"opentime":"1:00 AM"
-					"closedate":"1/1/4000"
-					"closetime":"1:00 PM"
-					"total":"100"
-					"tries":"100"
-					"late":"yes"
-					"text":"you will fail!"
-				}
-				.end (err, res)->
-					expect res.status .to.not.match /^(4|5)/i
-					done err
-		before (done)->
-			# for now > close
-			faculty
-				.post "/c/#{courseId}/assignments/new"
-				.send {
-					"title":"Late"
-					"opendate":"1/1/1000"
-					"opentime":"1:00 AM"
-					"closedate":"1/1/2000"
-					"closetime":"1:00 PM"
-					"total":"100"
-					"tries":"100"
-					"late":"no"
-					"text":"you will fail!"
-				}
-				.end (err, res)->
-					expect res.status .to.not.match /^(4|5)/i
-					done err
-		before (done)->
-			# for now > close & allowLate = true
-			faculty
-				.post "/c/#{courseId}/assignments/new"
-				.send {
-					"title":"allowLate"
-					"opendate":"1/1/1000"
-					"opentime":"1:00 AM"
-					"closedate":"1/1/2000"
-					"closetime":"1:00 PM"
-					"total":"100"
-					"tries":"1000"
-					"late":"yes"
-					"text":"you will fail!"
-				}
-				.end (err, res)->
-					expect res.status .to.not.match /^(4|5)/i
-					done err
-		before (done)->
-			# for attempts > allowed
-			faculty
-				.post "/c/#{courseId}/assignments/new"
-				.send {
-					"title":"None"
-					"opendate":"1/1/2000"
-					"opentime":"1:00 AM"
-					"closedate":"1/1/3000"
-					"closetime":"1:00 PM"
-					"total":"100"
-					"tries":"0"
-					"late":"yes"
-					"text":"you will fail!"
-				}
-				.end (err, res)->
-					expect res.status .to.not.match /^(4|5)/i
-					done err
-		before (done)->
+			done err if err
 			err <- async.parallel [
-				(cont)->
-					student
-						.post "/test/getaid/cps1234?title=Early"
+				(next)->
+					# for now < date
+					faculty
+						.post "/c/#{courseId}/assignments/new"
+						.send {
+							"title":"Early"
+							"opendate":"1/1/3000"
+							"opentime":"1:00 AM"
+							"closedate":"1/1/4000"
+							"closetime":"1:00 PM"
+							"total":"100"
+							"tries":"100"
+							"late":"yes"
+							"text":"you will fail!"
+						}
 						.end (err, res)->
-							assignments = JSON.parse res.text
-							otherFunc.Early = assignments.0._id
-							cont err
-				(cont)->
-					student
-						.post "/test/getaid/cps1234?title=Late"
+							expect res.status .to.not.match /^(4|5)/i
+							student
+								.post "/test/getaid/cps1234?title=Early"
+								.end (err, res)->
+									assignments = JSON.parse res.text
+									otherFunc.Early = assignments.0._id
+									next err
+				(next)->
+					# for now > close
+					faculty
+						.post "/c/#{courseId}/assignments/new"
+						.send {
+							"title":"Late"
+							"opendate":"1/1/1000"
+							"opentime":"1:00 AM"
+							"closedate":"1/1/2000"
+							"closetime":"1:00 PM"
+							"total":"100"
+							"tries":"100"
+							"late":"no"
+							"text":"you will fail!"
+						}
 						.end (err, res)->
-							assignments = JSON.parse res.text
-							otherFunc.Late = assignments.0._id
-							cont err
-				(cont)->
-					student
-						.post "/test/getaid/cps1234?title=allowLate"
+							expect res.status .to.not.match /^(4|5)/i
+							student
+								.post "/test/getaid/cps1234?title=Late"
+								.end (err, res)->
+									assignments = JSON.parse res.text
+									otherFunc.Late = assignments.0._id
+									next err
+				(next)->
+					# for now > close & allowLate = true
+					faculty
+						.post "/c/#{courseId}/assignments/new"
+						.send {
+							"title":"allowLate"
+							"opendate":"1/1/1000"
+							"opentime":"1:00 AM"
+							"closedate":"1/1/2000"
+							"closetime":"1:00 PM"
+							"total":"100"
+							"tries":"1000"
+							"late":"yes"
+							"text":"you will fail!"
+						}
 						.end (err, res)->
-							assignments = JSON.parse res.text
-							otherFunc.allowLate = assignments.0._id
-							cont err
-				(cont)->
-					student
-						.post "/test/getaid/cps1234?title=None"
+							expect res.status .to.not.match /^(4|5)/i
+							student
+								.post "/test/getaid/cps1234?title=allowLate"
+								.end (err, res)->
+									assignments = JSON.parse res.text
+									otherFunc.allowLate = assignments.0._id
+									next err
+				(next)->
+					# for attempts > allowed
+					faculty
+						.post "/c/#{courseId}/assignments/new"
+						.send {
+							"title":"None"
+							"opendate":"1/1/2000"
+							"opentime":"1:00 AM"
+							"closedate":"1/1/3000"
+							"closetime":"1:00 PM"
+							"total":"100"
+							"tries":"0"
+							"late":"yes"
+							"text":"you will fail!"
+						}
 						.end (err, res)->
-							assignments = JSON.parse res.text
-							otherFunc.None = assignments.0._id
-							cont err
+							expect res.status .to.not.match /^(4|5)/i
+							student
+								.post "/test/getaid/cps1234?title=None"
+								.end (err, res)->
+									assignments = JSON.parse res.text
+									otherFunc.None = assignments.0._id
+									next err
 			]
 			done err
 		after (done)->
-			this.timeout 0
+			this.timeout = 0
 			# clean up outsideFaculty
 			admin
 				.get "/test/deleteassignments/cps1234"

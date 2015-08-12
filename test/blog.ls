@@ -21,6 +21,7 @@ faculty = req.agent app
 admin = req.agent app
 describe "Blog", (...)->
 	before (done)->
+		this.timeout = 0
 		err, course <- Course.findOne {
 			"school":app.locals.school
 			"id":"cps1234"
@@ -29,6 +30,7 @@ describe "Blog", (...)->
 		courseId := course._id.toString!
 		done err
 	before (done)->
+		this.timeout = 0
 		student
 			.post "/login"
 			.send {
@@ -38,6 +40,7 @@ describe "Blog", (...)->
 			.end (err, res)->
 				done err
 	before (done)->
+		this.timeout = 0
 		faculty
 			.post "/login"
 			.send {
@@ -47,6 +50,7 @@ describe "Blog", (...)->
 			.end (err, res)->
 				done!
 	before (done)->
+		this.timeout = 0
 		admin
 			.post "/login"
 			.send {
@@ -67,7 +71,7 @@ describe "Blog", (...)->
 				expect res.status .to.equal 200
 				done err
 	after (done)->
-		this.timeout 0
+		this.timeout = 0
 		err <- async.parallel [
 			(cont)->
 				admin
