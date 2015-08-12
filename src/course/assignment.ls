@@ -13,9 +13,10 @@ Assignment = mongoose.models.Assignment
 Attempt = mongoose.models.Attempt
 router = express.Router!
 router
-	..route "/:assign/:action?" # query :: action(new|edit|delete|grade)
+	..route /^\/(.{24})\/?(edit|delete|attempt)?$/i # query :: action(new|edit|delete|grade)
 	.all (req, res, next)->
-		# (assignment view)
+		req.params.assign = req.params.0
+		req.params.action? = req.params.1
 		err <- async.parallel [
 			(done)->
 				# get assignment

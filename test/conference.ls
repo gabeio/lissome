@@ -1447,7 +1447,7 @@ describe "Conference" ->
 							thread: "12345678901234567890123"
 						}
 						.end (err, res)->
-							expect res.status .to.match /^(5)/
+							expect res.status .to.match /^(4|5)/
 							para err
 				(para)->
 					# this may fail if that ends up being a real conference _id
@@ -1457,7 +1457,7 @@ describe "Conference" ->
 							thread: "12345678901234567890123"
 						}
 						.end (err, res)->
-							expect res.status .to.match /^(5)/
+							expect res.status .to.match /^(4|5)/
 							para err
 			]
 			done err
@@ -1490,7 +1490,7 @@ describe "Conference" ->
 							text: "deletedPost"
 						}
 						.end (err, res)->
-							expect res.status .to.match /^(5)/
+							expect res.status .to.match /^(4|5)/
 							fin err
 			]
 			done err
@@ -1502,7 +1502,7 @@ describe "Conference" ->
 					thread: "123456789012345678901234"
 				}
 				.end (err, res)->
-					expect res.status .to.match /^404/
+					expect res.status .to.match /^(4|5)/
 					done err
 		it "should not allow creating a post after the thread is deleted", (done)->
 			this.timeout = 4000

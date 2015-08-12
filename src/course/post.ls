@@ -13,13 +13,12 @@ Thread = mongoose.models.Thread
 Post = mongoose.models.Post
 router = express.Router!
 router
-	..route "/:post/:action?"
+	..route /^\/(.{24})\/?(editpost|deletepost|report)?$/i
 	.all (req, res, next)->
-		if req.params.post.length isnt 24
-			next new Error "Bad Post"
-		else
-			if req.params.action? then req.params.action = req.params.action.toLowerCase!
-			next!
+		req.params.post = req.params.0
+		req.params.action? = req.params.1
+		req.params.action = req.params.action.toLowerCase! if req.params.action?
+		next!
 	.all (req, res, next)->
 		# one post
 		err, result <- Post.findOne {
@@ -77,7 +76,7 @@ router
 		| "report"
 			...
 		| _
-			next new Error "Action Error"
+			next!
 	.put parser, (req, res, next)->
 		switch req.params.action
 		| "editpost"
@@ -98,7 +97,7 @@ router
 				else
 					res.status 302 .redirect "/c/#{res.locals.course._id}/thread/#{res.locals.thread._id}"
 		| _
-			next new Error "Action Error"
+			next!
 	.delete parser, (req, res, next)->
 		switch req.params.action
 		| "deletepost"
@@ -121,6 +120,6 @@ router
 				else
 					res.status 302 .redirect "/c/#{res.locals.course._id}/thread/#{res.locals.thread._id}"
 		| _
-			next new Error "Action Error"
+			next!
 
 module.exports = router

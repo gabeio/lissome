@@ -13,8 +13,10 @@ Assignment = mongoose.models.Assignment
 Attempt = mongoose.models.Attempt
 router = express.Router!
 router
-	..route "/:attempt/:action?" # query :: action(new|edit|delete|grade)
+	..route /^\/(.{24})\/?(grade)?$/i # query :: action(new|edit|delete|grade)
 	.all (req, res, next)->
+		req.params.attempt = req.params.0
+		req.params.action? = req.params.1
 		err <- async.waterfall [
 			(done)->
 				# find attempt
