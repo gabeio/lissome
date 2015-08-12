@@ -21,7 +21,7 @@ repository:
 	url: "git://github.com/gabeio/lissome.git"
 
 dependencies:
-	"async": "~1.4.0"
+	"async": "~1.4.2"
 	"body-parser": "~1.13.3"
 	"compression": "~1.5.2"
 	"connect-redis": "~2.4.1"
@@ -31,15 +31,15 @@ dependencies:
 	"express-partial-response": "~0.3.4"
 	"express-session": "~1.11.3"
 	"helmet": "~0.10.0"
-	"ioredis": "~1.7.2"
+	"ioredis": "~1.7.3"
 	"livescript": "~1.4.0"
-	"lodash": "~3.10.0"
+	"lodash": "~3.10.1"
 	"markdown-it": "~4.4.0"
 	"method-override": "~2.3.5"
 	"moment": "~2.10.6"
 	"moment-timezone": "~0.4.0"
-	"mongoose": "~4.1.0"
-	"multer": "~1.0.1"
+	"mongoose": "~4.1.2"
+	"multer": "~1.0.3"
 	"passcode": "~1.0.2"
 	"response-time": "~2.3.1"
 	"request": "~2.60.0"
@@ -55,7 +55,7 @@ optionalDependencies:
 
 devDependencies:
 	"chai": "~3.2.0"
-	"del": "~1.2.0"
+	"del": "~1.2.1"
 	"gulp": "~3.9.0"
 	"gulp-livescript": "~2.4.0"
 	"istanbul": "~0.3.17"
