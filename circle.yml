@@ -1,33 +1,36 @@
 ---
 machine:
-	node:
-		version:
-			- 0.10
-			- 0.12
-			- iojs-v1.0
-			- iojs-v2.5
-	services:
-		- mongodb
-		- redis
-	environment:
-		- cookie: "cookie"
-		- school: "Kean University"
-		- timezone: "US/Eastern"
-		- mongo: "mongodb://circleci:test@localhost/lissome"
-		- redis: "redis://:test@localhost/0"
+  node:
+    version:
+      - 0.10
+      - 0.12
+      - iojs-v1.0
+      - iojs-v2.5
+  services:
+    - mongodb
+    - redis
+  environment:
+    - cookie: "cookie"
+    - school: "Kean University"
+    - timezone: "US/Eastern"
+    - mongo: "mongodb://circleci:test@localhost/lissome"
+    - redis: "redis://:test@localhost/0"
 dependencies:
-	pre:
-		- npm install -g gulp livescript mocha
-	cache_directories:
-		- "node_modules"
+  pre:
+    - npm install -g gulp livescript mocha
+  cache_directories:
+    - "node_modules"
 database:
-	pre:
-		- gulp build
-	override:
-		- redis-cli config set requirepass test
-		- mongo lissome --eval "db.addUser('circleci', 'test');"
-	post:
-	    - node lib/commandline/setupschool.js
+  pre:
+    - gulp build
+  override:
+    - redis-cli config set requirepass test
+    - mongo lissome --eval "db.addUser('circleci', 'test');"
+  post:
+    - node lib/commandline/setupschool.js
 test:
-	override:
-		- npm run testCi
+  pre:
+    - gulp clean
+    - gulp build
+  override:
+    - npm run testCi
