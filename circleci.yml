@@ -15,15 +15,19 @@ machine:
 		- timezone: "US/Eastern"
 		- mongo: "mongodb://circleci:test@localhost/lissome"
 		- redis: "redis://:test@localhost/0"
-	post:
-		- redis-cli config set requirepass test
-		- mongo lissome --eval "db.addUser('circleci', 'test');"
-	    - node lib/commandline/setupschool.js
 dependencies:
 	pre:
 		- npm install -g gulp livescript mocha
 	cache_directories:
 		- "node_modules"
+database:
+	pre:
+		- gulp build
+	override:
+		- redis-cli config set requirepass test
+		- mongo lissome --eval "db.addUser('circleci', 'test');"
+	post:
+	    - node lib/commandline/setupschool.js
 test:
 	override:
 		- npm run testCi
