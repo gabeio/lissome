@@ -1,5 +1,6 @@
 require! {
 	"async"
+	"bcrypt"
 	"mongoose"
 	"winston"
 }
