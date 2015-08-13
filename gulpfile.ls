@@ -40,8 +40,8 @@ gulp.task "build" (done)->
 		.on "done" ->
 			done!
 
-gulp.task "build-tests" ["clean-tests"] ->
-	gulp.src "./test/*.ls"
+gulp.task "build-tests" ["clean"] ->
+	gulp.src "./test/**/*.ls"
 		.pipe livescript bare:true
 		.on "error" -> winston.error it
 		.pipe gulp.dest "./test/"
