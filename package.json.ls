@@ -10,9 +10,11 @@ engines:
 	iojs: ">= 1.0.0"
 
 scripts:
-	start: "node ./lib/app.js"
-	test: "gulp build && gulp build-tests && mocha --slow 2"
-	test-ci: "gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -s 2 -R spec"
+	start: "gulp build && node ./lib/app.js"
+	build: "gulp build"
+	clean: "gulp clean"
+	test: "gulp clean && gulp build && gulp build-tests && mocha --slow 2"
+	test-ci: "gulp clean && gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -s 2 -R spec"
 	coverage: "gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha"
 	continuous: "nodemon -w ./ -e html,css,js -x node ./lib/app.js"
 

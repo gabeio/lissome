@@ -17,59 +17,28 @@ paths =
 		"./*.json.ls"
 	]
 
-gulp.task "default" ["build"] (done)->
+gulp.task "default" ["clean","build"] (done)->
 	done!
 
 gulp.task "clean" (done)->
-	del "./lib/*.js"
+	del "lib/**/*.js"
+	del "test/**/*.js"
 	done!
 
-gulp.task "build-gulp" ->
-	gulp.src "./gulpfile.ls"
-		.pipe livescript bare:true
-		.on "error" -> winston.error it
-		.pipe gulp.dest "./"
-
-gulp.task "build" ->
+gulp.task "build" (done)->
 	gulp
-		..src "./src/*.ls"
+		..src "./src/**/*.ls"
 		.pipe livescript bare:true
 		.on "error" -> winston.error it
 		.pipe gulp.dest "./lib/"
-
-		..src "./src/databases/*.ls"
-		.pipe livescript bare:true
-		.on "error" -> winston.error it
-		.pipe gulp.dest "./lib/databases/"
-
-		..src "./src/course/*.ls"
-		.pipe livescript bare:true
-		.on "error" -> winston.error it
-		.pipe gulp.dest "./lib/course/"
-
-		..src "./src/preferences/*.ls"
-		.pipe livescript bare:true
-		.on "error" -> winston.error it
-		.pipe gulp.dest "./lib/preferences/"
-
-		..src "./src/frontend/*.ls"
-		.pipe livescript bare:true
-		.on "error" -> winston.error it
-		.pipe gulp.dest "./public/assets/custom/"
-
-		..src "./src/commandline/*.ls"
-		.pipe livescript bare:true
-		.on "error" -> winston.error it
-		.pipe gulp.dest "./lib/commandline/"
-
+		.on "done" ->
+			done!
 		..src "./*.json.ls"
 		.pipe livescript!
 		.on "error" -> winston.error it
 		.pipe gulp.dest "./"
-
-gulp.task "clean-tests" (done)->
-	del "./test/*.js"
-	done!
+		.on "done" ->
+			done!
 
 gulp.task "build-tests" ["clean-tests"] ->
 	gulp.src "./test/*.ls"
