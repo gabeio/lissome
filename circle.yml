@@ -13,7 +13,8 @@ machine:
     redis: "redis://:test@localhost/0"
 dependencies:
   pre:
-    - npm install -g gulp livescript mocha
+    - npm i scrypt
+    - npm i -g gulp livescript mocha
   cache_directories:
     - "node_modules"
 database:
