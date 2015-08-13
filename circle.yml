@@ -6,11 +6,11 @@ machine:
     - mongodb
     - redis
   environment:
-    - cookie: "cookie"
-    - school: "Kean University"
-    - timezone: "US/Eastern"
-    - mongo: "mongodb://circleci:test@localhost/lissome"
-    - redis: "redis://:test@localhost/0"
+    cookie: "cookie"
+    school: "Kean University"
+    timezone: "US/Eastern"
+    mongo: "mongodb://circleci:test@localhost/lissome"
+    redis: "redis://:test@localhost/0"
 dependencies:
   pre:
     - npm install -g gulp livescript mocha
