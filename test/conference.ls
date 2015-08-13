@@ -164,7 +164,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should edit their thread", (done)->
-			this.timeout = 0
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					admin
@@ -194,7 +194,6 @@ describe "Conference" ->
 			]
 			done err
 		it "should not edit a thread that is not theirs", (done)->
-			this.timeout = 0
 			err <- async.waterfall [
 				(cont)->
 					admin
@@ -233,6 +232,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should edit their post", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(fin)->
 					admin
@@ -1194,7 +1194,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not delete a thread that is not theirs", (done)->
-			this.timeout = 4000
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1329,6 +1329,7 @@ describe "Conference" ->
 					expect res.header.location .to.not.match /^\/c\/.{24}\/post\/.{24}\/?/
 					done err
 		it "should not edit a thread", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					student
@@ -1360,6 +1361,7 @@ describe "Conference" ->
 			]
 			done err
 		it "should not delete a thread", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(cont)->
 					student

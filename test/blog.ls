@@ -22,44 +22,46 @@ admin = req.agent app
 describe "Blog", (...)->
 	before (done)->
 		this.timeout = 0
-		err, course <- Course.findOne {
-			"school":app.locals.school
-			"id":"cps1234"
-		}
-		.exec
-		courseId := course._id.toString!
+		err <- async.parallel [
+			(next)->
+				err, course <- Course.findOne {
+					"school":app.locals.school
+					"id":"cps1234"
+				}
+				.exec
+				courseId := course._id.toString!
+				next err
+			(next)->
+				student
+					.post "/login"
+					.send {
+						"username": "student"
+						"password": "password"
+					}
+					.end (err, res)->
+						next err
+			(next)->
+				faculty
+					.post "/login"
+					.send {
+						"username":"faculty"
+						"password":"password"
+					}
+					.end (err, res)->
+						next err
+			(next)->
+				admin
+					.post "/login"
+					.send {
+						"username":"admin"
+						"password":"password"
+					}
+					.end (err, res)->
+						next err
+		]
 		done err
-	before (done)->
-		this.timeout = 0
-		student
-			.post "/login"
-			.send {
-				"username": "student"
-				"password": "password"
-			}
-			.end (err, res)->
-				done err
-	before (done)->
-		this.timeout = 0
-		faculty
-			.post "/login"
-			.send {
-				"username":"faculty"
-				"password":"password"
-			}
-			.end (err, res)->
-				done!
-	before (done)->
-		this.timeout = 0
-		admin
-			.post "/login"
-			.send {
-				"username":"admin"
-				"password":"password"
-			}
-			.end (err, res)->
-				done!
 	beforeEach (done)->
+		this.timeout = 0
 		admin
 			.post "/test/postblog"
 			.send {
@@ -519,6 +521,7 @@ describe "Blog", (...)->
 		]
 		done err
 	it "should not allow blank blog fields", (done)->
+		this.timeout = 4000
 		err <- async.parallel [
 			(cont)->
 				admin
@@ -567,6 +570,7 @@ describe "Blog", (...)->
 		]
 		done err
 	it "should not allow cross contamination of new/edit/delete posts", (done)->
+		this.timeout = 3000
 		err <- async.parallel [
 			(cont)->
 				admin
@@ -600,6 +604,7 @@ describe "Blog", (...)->
 		]
 		done err
 	it "should redirect if editing nothing", (done)->
+		this.timeout = 4000
 		err <- async.parallel [
 			(cont)->
 				admin
