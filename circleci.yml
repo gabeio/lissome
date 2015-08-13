@@ -13,8 +13,12 @@ machine:
 		- cookie: "cookie"
 		- school: "Kean University"
 		- timezone: "US/Eastern"
-		- mongo: "mongodb://localhost/lissome"
-		- redis: "redis://localhost/0"
+		- mongo: "mongodb://circleci:test@localhost/lissome"
+		- redis: "redis://:test@localhost/0"
+	post:
+		- redis-cli config set requirepass test
+		- mongo lissome --eval "db.addUser('circleci', 'test');"
+	    - node lib/commandline/setupschool.js
 dependencies:
 	pre:
 		- npm install -g gulp livescript mocha
