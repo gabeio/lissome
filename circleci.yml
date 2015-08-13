@@ -1,0 +1,25 @@
+---
+machine:
+	node:
+		version:
+			- 0.10
+			- 0.12
+			- iojs-v1.0
+			- iojs-v2.5
+	services:
+		- mongodb
+		- redis
+	environment:
+		- cookie: "cookie"
+		- school: "Kean University"
+		- timezone: "US/Eastern"
+		- mongo: "mongodb://localhost/lissome"
+		- redis: "redis://localhost/0"
+dependencies:
+	pre:
+		- npm install -g gulp livescript mocha
+	cache_directories:
+		- "node_modules"
+test:
+	override:
+		- npm run testCi
