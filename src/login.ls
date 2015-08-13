@@ -1,9 +1,9 @@
 require! {
 	"express"
+	"bcrypt"
 	"mongoose"
 	"async"
 	"crypto"
-	"scrypt"
 	"request"
 	"winston"
 	"./app"
@@ -44,9 +44,8 @@ router
 				else
 					done null, user
 			(user,done)->
-				scrypt.verify.config.hashEncoding = "base64"
-				err,result <- scrypt.verify user.hash, new Buffer(req.body.password)
-				if err? and err.scrypt_err_message is "password is incorrect"
+				err,result <- bcrypt.compare req.body.password, user.hash
+				if err
 					done "bad"
 				else
 					done err, result, user

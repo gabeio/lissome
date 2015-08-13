@@ -1,7 +1,7 @@
 require! {
 	"express"
 	"async"
-	"scrypt"
+	"bcrypt"
 	"lodash":"_"
 	"mongoose"
 	"winston"
@@ -87,7 +87,7 @@ router
 					# add more checks here
 					(cont)->
 						# hash password
-						err, result <- scrypt.hash new Buffer(req.body.password), { N:1, r:1, p:1 }
+						err, result <- bcrypt.hash "password", 10
 						winston.error err if err
 						cont err, result
 					(hash, cont)->

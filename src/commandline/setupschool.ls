@@ -1,6 +1,6 @@
 require! {
 	"async"
-	"scrypt"
+	"bcrypt"
 	"mongoose"
 	"winston"
 }
@@ -26,7 +26,7 @@ winston.error err if err
 err <- async.series [
 	(done)->
 		scrypt.hash.config.outputEncoding = "base64"
-		err, hash <- scrypt.hash new Buffer("password"), { N:1, r:1, p:1 }
+		err, hashed <- bcrypt.hash "password", 10
 		winston.error err if err
 		hashPassword? := hash
 		done err
