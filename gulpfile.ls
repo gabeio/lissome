@@ -33,6 +33,12 @@ gulp.task "build" (done)->
 		.pipe gulp.dest "./lib/"
 		.on "done" ->
 			done!
+		..src "./src/frontend/**/*.ls"
+		.pipe livescript bare:true
+		.on "error" -> winston.error it
+		.pipe gulp.dest "./public/assets/custom/"
+		.on "done" ->
+			done!
 		..src "./*.json.ls"
 		.pipe livescript!
 		.on "error" -> winston.error it
