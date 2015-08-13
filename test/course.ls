@@ -20,48 +20,53 @@ faculty = req.agent app
 admin = req.agent app
 describe "Course" ->
 	before (done)->
-		err, course <- Course.findOne {
-			"school":app.locals.school
-			"id":"cps1234"
-		}
-		.exec
-		courseId := course._id.toString!
+		this.timeout = 0
+		err <- async.parallel [
+			(next)->
+				err, course <- Course.findOne {
+					"school":app.locals.school
+					"id":"cps1234"
+				}
+				.exec
+				courseId := course._id.toString!
+				next err
+			(next)->
+				err, course <- Course.findOne {
+					"school":app.locals.school
+					"id":"cps4601"
+				}
+				.exec
+				cps4601 := course._id.toString!
+				next err
+			(next)->
+				student
+					.post "/login"
+					.send {
+						"username": "student"
+						"password": "password"
+					}
+					.end (err, res)->
+						next err
+			(next)->
+				faculty
+					.post "/login"
+					.send {
+						"username":"faculty"
+						"password":"password"
+					}
+					.end (err, res)->
+						next err
+			(next)->
+				admin
+					.post "/login"
+					.send {
+						"username":"admin"
+						"password":"password"
+					}
+					.end (err, res)->
+						next err
+		]
 		done err
-	before (done)->
-		err, course <- Course.findOne {
-			"school":app.locals.school
-			"id":"cps4601"
-		}
-		.exec
-		cps4601 := course._id.toString!
-		done err
-	before (done)->
-		student
-			.post "/login"
-			.send {
-				"username": "student"
-				"password": "password"
-			}
-			.end (err, res)->
-				done err
-	before (done)->
-		faculty
-			.post "/login"
-			.send {
-				"username":"faculty"
-				"password":"password"
-			}
-			.end (err, res)->
-				done!
-	before (done)->
-		admin
-			.post "/login"
-			.send {
-				"username":"admin"
-				"password":"password"
-			}
-			.end (err, res)->
-				done!
 	describe "Course Dash", (...)->
 		describe "(User: Admin)", (...)->
 			it "should allow access to any classes", (done)->
