@@ -5,6 +5,9 @@ node_js:
     - "iojs-v3.0"
     - "0.10"
     - "0.12"
+branches:
+    except:
+        - circleci
 sudo: false
 notifications:
     email: false
