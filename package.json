@@ -8,7 +8,7 @@
     "iojs": ">= 1.0.0"
   },
   "scripts": {
-    "start": "gulp build && node ./lib/app.js",
+    "start": "node ./lib/app.js",
     "build": "gulp build",
     "clean": "gulp clean",
     "test": "gulp clean && gulp build && gulp build-tests && mocha --slow 2",
