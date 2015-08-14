@@ -1,9 +1,9 @@
 require! {
 	"express"
+	"bcrypt"
 	"mongoose"
 	"async"
 	"crypto"
-	"scrypt"
 	"request"
 	"winston"
 	"./app"
@@ -44,9 +44,8 @@ router
 				else
 					done null, user
 			(user,done)->
-				scrypt.verify.config.hashEncoding = "base64"
-				err,result <- scrypt.verify user.hash, new Buffer(req.body.password)
-				if err? and err.scrypt_err_message is "password is incorrect"
+				err,result <- bcrypt.compare req.body.password, user.hash
+				if err
 					done "bad"
 				else
 					done err, result, user
@@ -68,7 +67,7 @@ router
 					pin = ""
 					while pin.length < 8
 						byte = crypto.randomBytes 1 .toString!
-						if parseInt(byte) >= 0 # check if it's an "int"
+						if parseInt(byte, 10) >= 0 # check if it's an "int"
 							pin += byte
 					# 2. push pin to user
 					if user.pin.method is "pushover"

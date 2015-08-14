@@ -13,13 +13,12 @@ Thread = mongoose.models.Thread
 Post = mongoose.models.Post
 router = express.Router!
 router
-	..route "/:thread/:action?"
+	..route /^\/(.{24})\/?(newpost|editthread|deletethread|report)?$/i
 	.all (req, res, next)->
-		if req.params.thread.length isnt 24
-			next new Error "Bad Thread"
-		else
-			if req.params.action? then req.params.action = req.params.action.toLowerCase!
-			next!
+		req.params.thread = req.params.0
+		req.params.action? = req.params.1
+		req.params.action = req.params.action.toLowerCase! if req.params.action?
+		next!
 	.all (req, res, next)->
 		# thread/post db middleware async for attempted max speed
 		err <- async.parallel [
@@ -100,7 +99,7 @@ router
 		| "report"
 			...
 		| _
-			next new Error "Action Error"
+			next!
 	.put parser, (req, res, next)->
 		switch req.params.action
 		| "editthread"
@@ -120,7 +119,7 @@ router
 				else
 					res.status 302 .redirect "/c/#{res.locals.course._id}/thread/#{req.params.thread}"
 		| _
-			next new Error "Action Error"
+			next!
 	.delete parser, (req, res, next)->
 		switch req.params.action
 		| "deletethread"
@@ -155,6 +154,6 @@ router
 						else
 							res.status 302 .redirect "/c/#{res.locals.course._id}/conference"
 		| _
-			next new Error "Action Error"
+			next!
 
 module.exports = router

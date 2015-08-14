@@ -33,7 +33,7 @@ app = module.exports = express!
 
 # app locals
 app
-	..locals.smallpassword = parseInt (process.env.small||process.env.smallpassword||process.env.minpassword||6)
+	..locals.smallpassword = parseInt (process.env.smallpassword||process.env.SMALLPASSWORD||yargs.argv.smallpassword||6), 10
 	..locals.multer = multer { # requires: enctype="multipart/form-data"
 		dest: "uploads/"
 		limits:
@@ -175,33 +175,6 @@ app
 	.use cors!
 	# compress large files
 	.use compression!
-	# CUSTOM MIDDLEWARE
-	.use (req, res, next)->
-		err <- async.parallel [
-			(para)->
-				if req.session? and req.session.uid?
-					res.locals.uid = req.session.uid.toString!
-					res.locals.firstName = req.session.firstName
-					res.locals.lastName = req.session.lastName
-					res.locals.username = req.session.username
-					res.locals.middleName? = req.session.middleName
-					para!
-				else
-					para!
-			(para)->
-				if req.session? and req.session.auth?
-					res.locals.auth = req.session.auth
-					para!
-				else
-					para!
-			(para)->
-				/* istanbul ignore if which only tests if redis is offline */
-				if !req.session?
-					next new Error "Sessions are offline."
-				else
-					para!
-		]
-		next err
 
 # Production Switch
 /* istanbul ignore next switch */
@@ -233,6 +206,7 @@ app
 			next new Error "UNAUTHORIZED" # other unauth
 
 # Routers
+app.use require("./middleware")
 app.use "/login", require("./login")
 app.use "/logout", require("./logout")
 app.use "/otp", require("./otp")
@@ -259,17 +233,14 @@ else
 	# silence all logging on testing
 	winston.level = "error"
 	require("./test")(app)
-/* istanbul ignore next this is only executed when sigterm is sent */
-process.on "SIGTERM", ->
-	winston.info "app: Shutting down from SIGTERM"
+
+shutdown = ->
+	winston.info "app.ls: Gracefully shutting down."
 	server.close!
 	mongoose.disconnect!
-	redis.disconnect!
+	redisClient.disconnect!
 	process.exit 0
-/* istanbul ignore next this is only executed when sigint is sent */
-process.on "SIGINT", ->
-	winston.info "app: Gracefully shutting down from SIGINT (Ctrl-C)"
-	server.close!
-	mongoose.disconnect!
-	redis.disconnect!
-	process.exit 0
+/* istanbul ignore next only executed when sigterm is sent */
+process.on "SIGTERM", shutdown
+/* istanbul ignore next only executed when sigterm is sent */
+process.on "SIGINT", shutdown

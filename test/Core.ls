@@ -15,21 +15,19 @@ describe "Core" ->
 	before (done)->
 		this.timeout = 0 # allow setup for as long as needed
 		app := require "../lib/app"
-		<- async.parallel [
-			(wait)->
-				app.locals.mongoose.connections.0.once "open" ->
-					wait!
-			(wait)->
-				app.locals.redis.once "ready" ->
-					wait!
-		]
-		done!
-	before (done)-> # setup user agents
 		outside := req.agent app
 		student := req.agent app
 		faculty := req.agent app
 		admin := req.agent app
-		done!
+		err <- async.parallel [
+			(wait)->
+				app.locals.mongoose.connections.0.once "open" (err)->
+					wait err
+			(wait)->
+				app.locals.redis.once "ready" (err)->
+					wait err
+		]
+		done err
 	describe "Index", (...)->
 		it "should respond to a GET", (done)->
 			outside
@@ -61,7 +59,7 @@ describe "Core" ->
 					done err
 	describe "Login", (...)->
 		afterEach (complete)->
-			<- async.parallel [
+			err <- async.parallel [
 				(done)->
 					outside
 						.get "/logout"
@@ -83,7 +81,7 @@ describe "Core" ->
 						.end (err, res)->
 							done err
 			]
-			complete!
+			complete err
 		it "should respond to a GET", (done)->
 			outside
 				.get "/login"
@@ -144,21 +142,27 @@ describe "Core" ->
 						expect res.text .to.have.string "bad login credentials"
 						done err
 			it "should redirect if already logged in", (done)->
-				admin
-					.post "/login"
-					.send {
-						"username": "Admin"
-						"password": "password"
-					}
-					.expect 302
-					.end (err, res)->
-						expect res.header.location .to.equal "/bounce?to=/"
+				err <- async.waterfall [
+					(next)->
+						admin
+							.post "/login"
+							.send {
+								"username": "Admin"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.header.location .to.equal "/bounce?to=/"
+								next err
+					(next)->
 						admin
 							.get "/login"
 							.expect 302
 							.end (err, res)->
 								expect res.header.location .to.equal "/bounce?to=/"
-								done err
+								next err
+				]
+				done err
 			it "should tell them to enable cookies", (done)->
 				admin
 					.get "/bounce?to=/"
@@ -220,20 +224,27 @@ describe "Core" ->
 						expect res.text .to.have.string "bad login credentials"
 						done err
 			it "should redirect if already logged in", (done)->
-				faculty
-					.post "/login"
-					.send {
-						"username": "Faculty"
-						"password": "password"
-					}
-					.expect 302
-					.end (err, res)->
+				err <- async.waterfall [
+					(next)->
+						faculty
+							.post "/login"
+							.send {
+								"username": "Faculty"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.header.location .to.equal "/bounce?to=/"
+								next err
+					(next)->
 						faculty
 							.get "/login"
 							.expect 302
 							.end (err, res)->
 								expect res.header.location .to.equal "/bounce?to=/"
-								done err
+								next err
+				]
+				done err
 		describe "(User: Student)", (...)->
 			it "should login with valid credentials", (done)->
 				student
@@ -288,30 +299,41 @@ describe "Core" ->
 						expect res.text .to.have.string "bad login credentials"
 						done err
 			it "should redirect if already logged in", (done)->
-				student
-					.post "/login"
-					.send {
-						"username": "Student"
-						"password": "password"
-					}
-					.expect 302
-					.end (err, res)->
+				err <- async.waterfall [
+					(next)->
+						student
+							.post "/login"
+							.send {
+								"username": "Student"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.header.location .to.equal "/bounce?to=/"
+								next err
+					(next)->
 						student
 							.get "/login"
 							.expect 302
 							.end (err, res)->
 								expect res.header.location .to.equal "/bounce?to=/"
-								done err
+								next err
+				]
+				done err
 		it "should succeed for a good totp", (done)->
-			admin
-				.post "/login"
-				.send {
-					"username": "zadmin"
-					"password": "password"
-				}
-				.expect 302
-				.end (err, res)->
-					expect res.headers.location .to.equal "/bounce?to=/otp"
+			err <- async.waterfall [
+				(next)->
+					admin
+						.post "/login"
+						.send {
+							"username": "zadmin"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/bounce?to=/otp"
+							next err
+				(next)->
 					admin
 						.post "/otp"
 						.send {
@@ -320,17 +342,23 @@ describe "Core" ->
 						.expect 302
 						.end (err, res)->
 							expect res.headers.location .to.equal "/"
-							done err
+							next err
+			]
+			done err
 		it "should fail for a bad totp", (done)->
-			admin
-				.post "/login"
-				.send {
-					"username": "zadmin"
-					"password": "password"
-				}
-				.expect 302
-				.end (err, res)->
-					expect res.headers.location .to.equal "/bounce?to=/otp"
+			err <- async.waterfall [
+				(next)->
+					admin
+						.post "/login"
+						.send {
+							"username": "zadmin"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/bounce?to=/otp"
+							next err
+				(next)->
 					admin
 						.post "/otp"
 						.send {
@@ -339,17 +367,23 @@ describe "Core" ->
 						.expect 302
 						.end (err, res)->
 							expect res.headers.location .to.equal "/login"
-							done err
+							next err
+			]
+			done err
 		it "should not take a blank totp", (done)->
-			admin
-				.post "/login"
-				.send {
-					"username": "zadmin"
-					"password": "password"
-				}
-				.expect 302
-				.end (err, res)->
-					expect res.headers.location .to.equal "/bounce?to=/otp"
+			err <- async.waterfall [
+				(next)->
+					admin
+						.post "/login"
+						.send {
+							"username": "zadmin"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/bounce?to=/otp"
+							next err
+				(next)->
 					admin
 						.post "/otp"
 						.send {
@@ -358,7 +392,9 @@ describe "Core" ->
 						.expect 400
 						.end (err, res)->
 							expect res.headers.location .to.be.an "undefined"
-							done err
+							next err
+			]
+			done err
 		it "should fail for a blank user", (done)->
 			student
 				.post "/login"
@@ -382,6 +418,7 @@ describe "Core" ->
 					expect res.headers.location .to.be.an "undefined"
 					done err
 		it "should succeed for a good pin", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(next)->
 					admin
@@ -436,6 +473,7 @@ describe "Core" ->
 			]
 			done err
 		it "should fail for a bad pin", (done)->
+			this.timeout = 3000
 			err <- async.waterfall [
 				(next)->
 					admin
@@ -468,35 +506,40 @@ describe "Core" ->
 			done err
 	describe "Dashboard", (...)->
 		before (done)->
-			student
-				.post "/login"
-				.send {
-					"username": "Student"
-					"password": "password"
-				}
-				.expect 302
-				.end (err, res)->
-					done err
-		before (done)->
-			faculty
-				.post "/login"
-				.send {
-					"username": "Faculty"
-					"password": "password"
-				}
-				.expect 302
-				.end (err, res)->
-					done err
-		before (done)->
-			admin
-				.post "/login"
-				.send {
-					"username": "Admin"
-					"password": "password"
-				}
-				.expect 302
-				.end (err, res)->
-					done err
+			this.timeout = 0
+			err <- async.parallel [
+				(next)->
+					student
+						.post "/login"
+						.send {
+							"username": "Student"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							next err
+				(next)->
+					faculty
+						.post "/login"
+						.send {
+							"username": "Faculty"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							next err
+				(next)->
+					admin
+						.post "/login"
+						.send {
+							"username": "Admin"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							next err
+			]
+			done err
 		describe "(User: Admin)", (...)->
 			it "should display your courses", (done)->
 				admin

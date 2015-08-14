@@ -4,7 +4,7 @@ require! {
 }
 router = express.Router!
 router
-	..route "/?:index(index|dash|dashboard)?"
+	..route "/:index(index|dash|dashboard)?"
 	.get (req, res, next)->
 		res.render "course/index"
 
