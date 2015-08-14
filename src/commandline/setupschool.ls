@@ -23,9 +23,9 @@ db.on "error", winston.error.bind winston, "mongo: connection error"
 err <- db.once "open"
 winston.error err if err
 
-err <- async.series [
+err <- async.waterfall [
 	(done)->
-		err, hashed <- bcrypt.hash "password", 10
+		err, hash <- bcrypt.hash "password", 10
 		winston.error err if err
 		hashPassword? := hash
 		done err
