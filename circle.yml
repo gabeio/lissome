@@ -1,7 +1,7 @@
 ---
 machine:
   node:
-    version: iojs-v2.5
+    version: iojs-v3.0
   services:
     - mongodb
     - redis
