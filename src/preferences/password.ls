@@ -1,6 +1,6 @@
 require! {
 	"express"
-	"scrypt"
+	"bcrypt"
 	"mongoose"
 	"winston"
 	"../app"
@@ -17,27 +17,41 @@ router
 
 	..route "/change"
 	.put (req, res, next)->
-		scrypt.verify.config.hashEncoding = "base64"
-		error,result <- scrypt.verify res.locals.user.hash, new Buffer(req.body.oldpass)
-		if error? and error.scrypt_err_message is "password is incorrect"
-			res.redirect "/preferences/password?success=false"
-		else if error?
-			# unknown scrypt error
-			winston.error error
-			next new Error error
-		else if req.body.newpass != req.body.newpass2
-			res.redirect "/preferences/password?success=false"
-		else
-			# user password matches
-			scrypt.hash.config.outputEncoding = "base64"
-			err, hash <- scrypt.hash new Buffer(req.body.newpass2), { N:1, r:1, p:1 }
-			res.locals.user.hash = hash
-			res.locals.user.markModified "hash"
-			err,user <- res.locals.user.save
-			if err
-				winston.error "user:find", err
-				next new Error err
-			else
-				res.redirect "/preferences/password?success=true"
+		err <- async.waterfall [
+			(done)->
+				if req.body.newpass != req.body.newpass2
+					res.redirect "/preferences/password?success=false"
+					done "fin"
+				else
+					done!
+			(done)->
+				error,result <- bcrypt.compare res.locals.user.hash, new Buffer(req.body.oldpass)
+				done err,result
+			(result,done)->
+				if !result? or result is false
+					res.redirect "/preferences/password?success=false"
+					done "fin"
+				else
+					done!
+			(done)->
+				# user password matches
+				err, hash <- bcrypt.hash req.body.newpass2, 10
+				done err, hash
+			(hash,done)->
+				res.locals.user.hash = hash
+				res.locals.user.markModified "hash"
+				err,user <- res.locals.user.save
+				if err
+					done err
+				else
+					res.redirect "/preferences/password?success=true"
+		]
+		if err
+			switch err
+			| "fin"
+				break
+			| _
+				winston.error err
+				res.redirect "/preferences/password?success=false"
 
 module.exports = router

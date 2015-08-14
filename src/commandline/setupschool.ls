@@ -25,7 +25,6 @@ winston.error err if err
 
 err <- async.series [
 	(done)->
-		scrypt.hash.config.outputEncoding = "base64"
 		err, hashed <- bcrypt.hash "password", 10
 		winston.error err if err
 		hashPassword? := hash
