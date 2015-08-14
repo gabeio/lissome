@@ -7,7 +7,6 @@ require! {
 	"winston"
 	"./app"
 }
-scrypt.hash.config.outputEncoding = "base64"
 parser = app.locals.multer.fields []
 lower = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
 upper = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
@@ -512,7 +511,7 @@ router
 					(cont)->
 						# hash password
 						if req.body.password?
-							err, result <- scrypt.hash new Buffer(req.body.password), { N:1, r:1 ,p:1 }
+							err, result <- bcrypt.hash "password", 10
 							cont err, result
 						else
 							cont null
