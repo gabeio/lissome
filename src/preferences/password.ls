@@ -1,5 +1,6 @@
 require! {
 	"express"
+	"async"
 	"bcrypt"
 	"mongoose"
 	"winston"
@@ -25,7 +26,7 @@ router
 				else
 					done!
 			(done)->
-				error,result <- bcrypt.compare res.locals.user.hash, new Buffer(req.body.oldpass)
+				err,result <- bcrypt.compare req.body.oldpass, res.locals.user.hash
 				done err,result
 			(result,done)->
 				if !result? or result is false
