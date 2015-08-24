@@ -43,12 +43,12 @@
     "multer": "~1.0.3",
     "passcode": "~1.0.2",
     "response-time": "~2.3.1",
-    "request": "~2.60.0",
+    "request": "~2.61.0",
     "serve-static": "~1.10.0",
     "swig": "~1.4.2",
     "thirty-two": "~0.0.2",
     "winston": "~1.0.1",
-    "yargs": "~3.18.0"
+    "yargs": "~3.21.0"
   },
   "optionalDependencies": {
     "hiredis": "~0.4.0"
