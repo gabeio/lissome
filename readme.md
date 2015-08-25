@@ -14,7 +14,7 @@ Lissome
 - cookie = the session cookie signature assure this is safe or people can edit their sessions
 - school = the school's full name or short name ie: OCC Ocean County College is a little big
 - mongo|MONGO = the uri to mongodb (mongodb://[[username]:[password]]@host[:port]/dbName)
-- redishost|REDISHOST = the uri to redis (redis://[:password]@host:port/dbIndex)
+- redis|REDIS = the uri to redis (redis://[:password]@host:port/dbIndex)
 - small|smallpassword = the minimum password length all passwords must be
 - NODE_ENV=production = enables template caching
 - NODE_ENV=development = disables template caching
