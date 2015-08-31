@@ -37,13 +37,13 @@
 				<div class="pull-left">
 					<h3>{{ course.title }} - Conference</h3>
 				</div>
-				<div class="pull-right" style="padding-top: 8px;">
-					<a href="/c/{{ course._id|toString }}/conference?action=newthread" class="btn btn-default" alt="New Thread"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
+				<div class="pull-right panel-title-button">
+					<a href="/c/{{ course._id|toString }}/conference/newthread" class="btn btn-default" alt="New Thread"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 				</div>
 			</div>
 		</div>
 		<div class="row">
-			<form action="?action=newthread" method="POST" class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+			<form action="/c/{{ course._id|toString }}/conference/newthread" method="POST" class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
 				<input type="hidden" name="_csrf" value="{{csrf}}" />
 				<div class="form-group">
 					<label for="formTitle">Title</label>

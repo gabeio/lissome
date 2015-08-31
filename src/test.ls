@@ -8,6 +8,7 @@ module.exports = (app)->
 		"mongoose"
 		"winston"
 	}
+	parser = app.locals.multer.fields []
 	ObjectId = mongoose.Types.ObjectId
 	User = mongoose.models.User
 	Course = mongoose.models.Course
@@ -19,7 +20,7 @@ module.exports = (app)->
 	winston.warn "TESTING MODE\nIF YOU SEE THIS MESSAGE THERE IS SOMETHING WRONG!!!"
 	app
 		..route "/test/:action/:more?"
-		.all (req, res, next)->
+		.all parser, (req, res, next)->
 			switch req.params.action
 			| "getauth"
 				res.status 200 .send req.session.auth
@@ -35,6 +36,8 @@ module.exports = (app)->
 			| "getstudent"
 				req.session.auth = 1
 				res.status 200 .send "ok"
+			| "getpin"
+				res.send req.session.pin
 			| "getaid"
 				err, result <- Course.findOne {
 					"id": req.params.more
@@ -249,7 +252,7 @@ module.exports = (app)->
 								done err, result
 					]
 					if err
-						winston.error 
+						winston.error
 					res.json result
 			| "deleteposts"
 				err, result <- Course.findOne {}

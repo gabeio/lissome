@@ -1,15 +1,14 @@
 require! {
 	"express"
 	"async"
-	"lodash"
+	"lodash":"_"
 	"moment"
 	"mongoose"
-	"uuid"
 	"winston"
 	"../app"
 }
+parser = app.locals.multer.fields []
 ObjectId = mongoose.Types.ObjectId
-_ = lodash
 Post = mongoose.models.Post
 router = express.Router!
 router
@@ -49,7 +48,7 @@ router
 			res.render "course/blog/edit", { on:"editblog", success:req.query.success, action:"updated", csrf: req.csrfToken! }
 		| "delete"
 			res.render "course/blog/del", { on:"deleteblog", success:req.query.success, action:"deleted", csrf: req.csrfToken! }
-	.post (req, res, next)->
+	.post parser, (req, res, next)->
 		/* istanbul ignore else */
 		if req.query.action is "new"
 			async.parallel [
@@ -57,7 +56,7 @@ router
 					if !req.body.text? or req.body.text is "" or !req.body.title? or req.body.title is ""
 						res.status 400 .render "course/blog/create", { "blog":true, "on":"newblog", success:"no", action:"created", body: req.body, csrf: req.csrfToken! }
 					else
-						res.status 302 .redirect "/c/#{res.locals.course._id}/blog/"
+						res.status 302 .redirect "/c/#{res.locals.course._id}/blog/#{req.body.title}?success=yes"
 				->
 					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 						post = new Post {
@@ -77,14 +76,14 @@ router
 			]
 		else
 			next new Error "bad blog post"
-	.put (req, res, next)->
+	.put parser, (req, res, next)->
 		if req.query.action is "edit"
 			async.parallel [
 				->
-					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
-						res.redirect "/c/#{res.locals.course._id}/blog/#{req.params.unique}?action=edit&success=yes"
-					else
+					if !req.body.text? or req.body.text is "" or !req.body.title? or req.body.title is ""
 						res.status 400 .render "course/blog/create", { blog:true, on:"editblog", success:"no", action:"updated", body: req.body, csrf: req.csrfToken! }
+					else
+						res.status 302 .redirect "/c/#{res.locals.course._id}/blog/#{req.body.title}?success=yes"
 				->
 					if req.body.text? and req.body.text isnt "" and req.body.title? and req.body.title isnt ""
 						err, post <- Post.findOneAndUpdate {
@@ -101,7 +100,7 @@ router
 			]
 		else
 			next new Error "bad blog put"
-	.delete (req, res, next)->
+	.delete parser, (req, res, next)->
 		if req.query.action in ["delete","deleteall"]
 			async.parallel [
 				->
@@ -132,7 +131,7 @@ router
 
 	..route "/:unique?" # query action(search)
 	.get (req, res, next)->
-		if req.query.search? or req.params.unique?
+		if req.query.search? and req.query.search isnt "" or req.params.unique? and req.params.search isnt ""
 			res.locals.search = if req.params.unique? then req.params.unique else req.query.search
 			err, posts <- async.parallel [
 				(done)->
@@ -149,7 +148,10 @@ router
 									$gte: date0
 									$lt: date1
 								}
-							} .populate "author" .exec
+							}
+							.populate "author"
+							.lean!
+							.exec
 							done err, posts
 						else
 							done! # it's not a date range
@@ -161,7 +163,10 @@ router
 						"course": ObjectId res.locals.course._id
 						"type": "blog"
 						"text": new RegExp res.locals.search, "i"
-					} .populate("author").exec
+					}
+					.populate "author"
+					.lean!
+					.exec
 					done err, posts
 				(done)->
 					# search titles
@@ -169,7 +174,10 @@ router
 						"course": ObjectId res.locals.course._id
 						"type": "blog"
 						"title": new RegExp encodeURIComponent(res.locals.search), "i"
-					} .populate("author").exec
+					}
+					.populate "author"
+					.lean!
+					.exec
 					done err, posts
 				(done)->
 					# search tags
@@ -177,7 +185,10 @@ router
 						"course": ObjectId res.locals.course._id
 						"type": "blog"
 						"tags": res.locals.search
-					} .populate("author").exec
+					}
+					.populate "author"
+					.lean!
+					.exec
 					done err, posts
 				(done)->
 					# search authorName
@@ -185,19 +196,27 @@ router
 						"course": ObjectId res.locals.course._id
 						"type": "blog"
 						"authorName": new RegExp res.locals.search, "i"
-					} .populate("author").exec
+					}
+					.populate "author"
+					.lean!
+					.exec
 					done err, posts
 			]
-			posts = _.flatten _.without(posts,undefined), true
-			posts = if posts.length > 0 then _.uniq _.sortBy(posts, "timestamp").reverse!,(input)->
-				return input.timestamp.toString!
-			res.render "course/blog/default", { success: req.query.success, action: req.query.verb, blog: posts, csrf: req.csrfToken! }
+			posts = _(posts)
+			.without undefined # posts, undefined
+			.flatten true
+			.uniq "_id", ->
+				it.toString!
+			.sortBy "timestamp" .reverse!
+			res.render "course/blog/default", { success: req.query.success, action: req.query.verb, blog: posts.value! }
 		else
 			err, posts <- Post.find {
 				"course": ObjectId res.locals.course._id
 				"type":"blog"
-			} .populate("author").exec
+			}
+			.populate "author"
+			.exec
 			res.locals.blog = _.sortBy posts, "timestamp" .reverse!
-			res.render "course/blog/default", { success: req.query.success, action: req.query.verb, csrf: req.csrfToken! }
+			res.render "course/blog/default", { success: req.query.success, action: req.query.verb }
 
 module.exports = router

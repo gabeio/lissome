@@ -1,17 +1,16 @@
 ---
 language: node_js
 node_js:
-    - 'iojs-v1.0'
-    - 'iojs-v2.3'
-    - '0.10'
-    - '0.12'
+    - "iojs-v1.0"
+    - "iojs-v2.5"
+    - "0.10"
+    - "0.12"
+branches:
+    except:
+        - circleci
 sudo: false
 notifications:
     email: false
-    slack:
-        secure: "ZCc16+LCCEqDS18BJZPoUcKowGzp5hg6m02MAOy/3LzBlzl/FPEuky2CqgSBUpJ6fQJZf/kl/E4r01tY4EqgdZZ876KrIOHe32yZ5VNUaTbRO1f4pKLRN8rPMrGjgs7GAHcWSFBYA90iscZERjsPyf1Rsx5V4up3w05hXX7L7Bg="
-    flowdock:
-        secure: "OcgwG0RJdhPNMoD2IlTG9PShIw/6QWYzkYw+RWsFLyEpFV5XbbW+sVqo2+DGRDieFIuULQ1PDjmeRRB0uME3fH3IZRA2dwoPHZiaiFckX3Lfk03hkL86Yb/Fb1L5UIhKufXT+MzryPISjzSIqez+XTJj9VkiiRWgkWHNIA/Qydc="
 cache:
     directories:
         - node_modules
@@ -20,13 +19,14 @@ matrix:
 services:
     - mongodb
     - redis-server
-before_script:
-    - gulp build
-    - mongo lissome --eval 'db.addUser("travis", "test");'
-    - node lib/setupschool.js
 before_install:
     - npm install coveralls
+before_script:
+    - gulp build
+    - redis-cli config set requirepass test
+    - mongo lissome --eval "db.addUser('travis', 'test');"
+    - node lib/commandline/setupschool.js
 script:
     - npm run-script testCi
-after_script:
+after_success:
     - "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"

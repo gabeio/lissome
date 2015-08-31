@@ -45,6 +45,13 @@ router
 				water null
 		]
 		next!
+	.all (req, res, next)->
+		res.locals.assignmentattempts = {}
+		for attempt in res.locals.attempts
+			if !res.locals.assignmentattempts[attempt.assignment._id]?
+				res.locals.assignmentattempts[attempt.assignment._id] = []
+			res.locals.assignmentattempts[attempt.assignment._id].push(attempt)
+		next!
 	.get (req, res, next)->
 		res.render "course/grades"
 

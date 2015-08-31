@@ -42,30 +42,30 @@
 					<h3>{{ course.title }} - Conference</h3>
 				</div>
 				{% if posts %}{% if thread.author.toString() === uid %}
-				<div class="pull-right btn-group" role="group" style="padding-top: 8px;">
-					<a href="/c/{{ course._id|toString }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
+				<div class="pull-right btn-group panel-title-group" role="group">
+					<a href="/c/{{ course._id|toString }}/conference/newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 					<div class="btn-group" role="group">
 						<button class="btn btn-default dropdown-toggle" type="button" id="blogPostMenu" data-toggle="dropdown" aria-expanded="true">
 							<span class="glyphicon glyphicon-cog"></span>
 						</button>
 						<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
 							<li role="presentation">
-								<a role="menuitem" href="/c/{{ course._id|toString }}/conference/{{ thread._id|toString }}?action=editthread"><span class="glyphicon glyphicon-edit"></span> Edit This Thread</a>
+								<a role="menuitem" href="/c/{{ course._id|toString }}/thread/{{ thread._id|toString }}/editthread"><span class="glyphicon glyphicon-edit"></span> Edit This Thread</a>
 							</li>
 							<li role="presentation">
-								<a role="menuitem" href="/c/{{ course._id|toString }}/conference/{{ thread._id|toString }}?action=deletethread"><span class="glyphicon glyphicon-remove"></span> Delete This Thread</a>
+								<a role="menuitem" href="/c/{{ course._id|toString }}/thread/{{ thread._id|toString }}/deletethread"><span class="glyphicon glyphicon-remove"></span> Delete This Thread</a>
 							</li>
 						</ul>
 					</div>
 				</div>
 				{% else %}
-				<div class="pull-right" style="padding-top: 8px;">
-					<a href="/c/{{ course._id|toString }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
+				<div class="pull-right panel-title-button">
+					<a href="/c/{{ course._id|toString }}/conference/newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 				</div>
 				{% endif %}
 				{% else %}
-				<div class="pull-right" style="padding-top: 8px;">
-					<a href="/c/{{ course._id|toString }}/conference?action=newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
+				<div class="pull-right panel-title-button">
+					<a href="/c/{{ course._id|toString }}/conference/newthread" class="btn btn-default" alt="New Post"><span class="glyphicon glyphicon-pencil"></span> New Thread</a>
 				</div>
 				{% endif %}
 			</div>
@@ -87,27 +87,27 @@
 							{% if post.author._id.toString() === uid %}
 							<span title="{{ thread.timestamp|timezone }}">{{ thread.timestamp|fromNow }}</span>
 							<span class="dropdown">
-								<a style="color: #777; hover:color: red;" class="dropdown-toggle" id="blogPostMenu" data-toggle="dropdown" aria-expanded="false">
+								<a class="dropdown-toggle" id="blogPostMenu" data-toggle="dropdown" aria-expanded="false">
 									<span class="glyphicon glyphicon-cog"></span>
 								</a>
 								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
 									<li role="presentation">
-										<a role="menuitem" href="/c/{{ course._id|toString }}/conference/{{ thread._id|toString }}?action=editpost"><span class="glyphicon glyphicon-edit"></span> Edit This Post</a>
+										<a role="menuitem" href="/c/{{ course._id|toString }}/thread/{{ thread._id|toString }}/editpost"><span class="glyphicon glyphicon-edit"></span> Edit This Post</a>
 									</li>
 									<li role="presentation">
-										<a role="menuitem" href="/c/{{ course._id|toString }}/conference/{{ thread._id|toString }}?action=deletepost"><span class="glyphicon glyphicon-remove"></span> Delete This Post</a>
+										<a role="menuitem" href="/c/{{ course._id|toString }}/thread/{{ thread._id|toString }}/deletepost"><span class="glyphicon glyphicon-remove"></span> Delete This Post</a>
 									</li>
 								</ul>
 							</span>
 							{% else %}
 							<span title="{{ thread.timestamp|timezone }}">{{ thread.timestamp|fromNow }}</span>
 							<span class="dropdown">
-								<a style="color: #777; hover:color: red;" class="dropdown-toggle" id="blogPostMenu" data-toggle="dropdown" aria-expanded="false">
+								<a class="dropdown-toggle" id="blogPostMenu" data-toggle="dropdown" aria-expanded="false">
 									<span class="caret"></span>
 								</a>
 								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
 									<li role="presentation">
-										<a role="menuitem" href="/c/{{ course._id|toString }}/conference/{{ thread._id|toString }}?action=report"><span class="glyphicon glyphicon-flag"></span> Report This Post</a>
+										<a role="menuitem" href="/c/{{ course._id|toString }}/thread/{{ thread._id|toString }}/report"><span class="glyphicon glyphicon-flag"></span> Report This Post</a>
 									</li>
 								</ul>
 							</span>

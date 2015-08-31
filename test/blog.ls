@@ -2,13 +2,12 @@ require! {
 	"async"
 	"chai" # assert lib
 	"del" # delete
-	"lodash"
+	"lodash":"_"
 	"mongoose"
 	"supertest" # request lib
 }
 app = require "../lib/app"
 ObjectId = mongoose.Types.ObjectId
-_ = lodash
 Course = mongoose.models.Course
 req = supertest
 expect = chai.expect
@@ -22,41 +21,47 @@ faculty = req.agent app
 admin = req.agent app
 describe "Blog", (...)->
 	before (done)->
-		err, course <- Course.findOne {
-			"school":app.locals.school
-			"id":"cps1234"
-		}
-		.exec
-		courseId := course._id.toString!
+		this.timeout = 0
+		err <- async.parallel [
+			(next)->
+				err, course <- Course.findOne {
+					"school":app.locals.school
+					"id":"cps1234"
+				}
+				.exec
+				courseId := course._id.toString!
+				next err
+			(next)->
+				student
+					.post "/login"
+					.send {
+						"username": "student"
+						"password": "password"
+					}
+					.end (err, res)->
+						next err
+			(next)->
+				faculty
+					.post "/login"
+					.send {
+						"username":"faculty"
+						"password":"password"
+					}
+					.end (err, res)->
+						next err
+			(next)->
+				admin
+					.post "/login"
+					.send {
+						"username":"admin"
+						"password":"password"
+					}
+					.end (err, res)->
+						next err
+		]
 		done err
-	before (done)->
-		student
-			.post "/login"
-			.send {
-				"username": "student"
-				"password": "password"
-			}
-			.end (err, res)->
-				done err
-	before (done)->
-		faculty
-			.post "/login"
-			.send {
-				"username":"faculty"
-				"password":"password"
-			}
-			.end (err, res)->
-				done!
-	before (done)->
-		admin
-			.post "/login"
-			.send {
-				"username":"admin"
-				"password":"password"
-			}
-			.end (err, res)->
-				done!
 	beforeEach (done)->
+		this.timeout = 0
 		admin
 			.post "/test/postblog"
 			.send {
@@ -68,7 +73,7 @@ describe "Blog", (...)->
 				expect res.status .to.equal 200
 				done err
 	after (done)->
-		this.timeout 0
+		this.timeout = 0
 		err <- async.parallel [
 			(cont)->
 				admin
@@ -93,8 +98,8 @@ describe "Blog", (...)->
 			admin
 				.post "/c/#{courseId}/blog?action=new"
 				.send {
-					"title":"title"
-					"text":"student"
+					"title":"admin created title"
+					"text":"admin created text"
 				}
 				.expect 302
 				.end (err, res)->
@@ -143,11 +148,11 @@ describe "Blog", (...)->
 				.post "/c/#{courseId}/blog/title?action=edit&hmo=PUT"
 				.send {
 					"pid":blogpid.0
-					"title":"anything"
-					"text":"anything"
+					"title":"admin-created-title"
+					"text":"admin-created-text"
 				}
 				.end (err, res)->
-					expect res.header.location .to.equal "/c/#{courseId}/blog/title?action=edit&success=yes"
+					expect res.header.location .to.equal "/c/#{courseId}/blog/admin-created-title?success=yes"
 					expect res.status .to.equal 302
 					done err
 		it "should delete a post", (done)->
@@ -231,11 +236,11 @@ describe "Blog", (...)->
 				.post "/c/#{courseId}/blog/title?action=edit&hmo=PUT"
 				.send {
 					"pid":blogpid.0
-					"title":"anything"
-					"text":"faculty edit"
+					"title":"faculty-created-title"
+					"text":"faculty-created-text"
 				}
 				.end (err, res)->
-					expect res.header.location .to.equal "/c/#{courseId}/blog/title?action=edit&success=yes"
+					expect res.header.location .to.equal "/c/#{courseId}/blog/faculty-created-title?success=yes"
 					expect res.status .to.equal 302
 					done err
 		it "should delete a post", (done)->
@@ -266,11 +271,12 @@ describe "Blog", (...)->
 			student
 				.post "/c/#{courseId}/blog?action=new"
 				.send {
-					"title":"title"
-					"text":"student"
+					"title":"student-created-title"
+					"text":"student-created-text"
 				}
 				.expect 302
 				.end (err, res)->
+					expect res.header.location .to.not.equal "/c/#{courseId}/blog/student-created-title?success=yes"
 					done err
 		it "should not return create post page", (done)->
 			student
@@ -515,6 +521,7 @@ describe "Blog", (...)->
 		]
 		done err
 	it "should not allow blank blog fields", (done)->
+		this.timeout = 4000
 		err <- async.parallel [
 			(cont)->
 				admin
@@ -563,6 +570,7 @@ describe "Blog", (...)->
 		]
 		done err
 	it "should not allow cross contamination of new/edit/delete posts", (done)->
+		this.timeout = 3000
 		err <- async.parallel [
 			(cont)->
 				admin
@@ -596,12 +604,12 @@ describe "Blog", (...)->
 		]
 		done err
 	it "should redirect if editing nothing", (done)->
+		this.timeout = 4000
 		err <- async.parallel [
 			(cont)->
 				admin
 					.get "/c/#{courseId}/blog?action=edit"
 					.end (err, res)->
-						# console.log res
 						expect res.header.location .to.equal "/c/#{courseId}/blog"
 						expect res.status .to.equal 302
 						cont err
@@ -616,7 +624,6 @@ describe "Blog", (...)->
 				faculty
 					.get "/c/#{courseId}/blog/que?action=edit"
 					.end (err, res)->
-						# console.log res
 						expect res.header.location .to.equal "/c/#{courseId}/blog"
 						expect res.status .to.equal 302
 						cont err
