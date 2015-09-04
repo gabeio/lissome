@@ -55,7 +55,7 @@
   },
   "devDependencies": {
     "chai": "~3.2.0",
-    "del": "~2.0.0",
+    "del": "~2.0.1",
     "gulp": "~3.9.0",
     "gulp-livescript": "~2.4.0",
     "istanbul": "~0.3.19",
