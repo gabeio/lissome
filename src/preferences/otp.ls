@@ -9,7 +9,6 @@ require! {
 }
 User = mongoose.models.User
 router = express.Router!
-require! "util"
 router
 	..route "/"
 	.get (req, res, next)->
@@ -34,7 +33,7 @@ router
 		}
 		if res.locals.check? and res.locals.check.delta?
 			res.locals.user.otp.secret = req.session.preferences.otp.secret.toString!
-			res.locals.user.otp.set "secret", "changed"
+			res.locals.user.markModified "otp.secret"
 			error, user <- res.locals.user.save!
 			if error
 				winston.error error

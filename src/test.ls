@@ -36,6 +36,8 @@ module.exports = (app)->
 			| "getstudent"
 				req.session.auth = 1
 				res.status 200 .send "ok"
+			| "getpin"
+				res.send req.session.pin
 			| "getaid"
 				err, result <- Course.findOne {
 					"id": req.params.more

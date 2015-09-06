@@ -2,11 +2,10 @@ require! {
 	"async"
 	"chai" # assert lib
 	"del" # delete
-	"lodash"
+	"lodash":"_"
 	"supertest"
 	"passcode"
 }
-_ = lodash
 req = supertest
 expect = chai.expect
 assert = chai.assert
@@ -14,19 +13,21 @@ should = chai.should!
 var app, outside, student, faculty, admin
 describe "Core" ->
 	before (done)->
+		this.timeout = 0 # allow setup for as long as needed
 		app := require "../lib/app"
-		app.locals.mongo.on "open", ->
-			done!
-	before (done)-> # setup user agents
 		outside := req.agent app
 		student := req.agent app
 		faculty := req.agent app
 		admin := req.agent app
-		done!
-	before (done)->
-		# this is to allow app setup
-		this.timeout 0
-		setTimeout done, 2000
+		err <- async.parallel [
+			(wait)->
+				app.locals.mongoose.connections.0.once "open" (err)->
+					wait err
+			(wait)->
+				app.locals.redis.once "ready" (err)->
+					wait err
+		]
+		done err
 	describe "Index", (...)->
 		it "should respond to a GET", (done)->
 			outside
@@ -58,7 +59,7 @@ describe "Core" ->
 					done err
 	describe "Login", (...)->
 		afterEach (complete)->
-			<- async.parallel [
+			err <- async.parallel [
 				(done)->
 					outside
 						.get "/logout"
@@ -80,7 +81,7 @@ describe "Core" ->
 						.end (err, res)->
 							done err
 			]
-			complete!
+			complete err
 		it "should respond to a GET", (done)->
 			outside
 				.get "/login"
@@ -97,6 +98,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
+						expect res.header.location .to.equal "/bounce?to=/"
 						done err
 			it "should not matter how the caps the username", (done)->
 				admin
@@ -107,6 +109,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
+						expect res.header.location .to.equal "/bounce?to=/"
 						done err
 			it "should fail for a good username bad password", (done)->
 				admin
@@ -136,25 +139,37 @@ describe "Core" ->
 						"username":"admin"
 					}
 					.end (err, res)->
-						# expect res.text .to.not.be ""
 						expect res.text .to.have.string "bad login credentials"
-						# expect res.status .to.equal 401
 						done err
 			it "should redirect if already logged in", (done)->
-				admin
-					.post "/login"
-					.send {
-						"username": "Admin"
-						"password": "password"
-					}
-					.expect 302
-					.end (err, res)->
+				err <- async.waterfall [
+					(next)->
+						admin
+							.post "/login"
+							.send {
+								"username": "Admin"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.header.location .to.equal "/bounce?to=/"
+								next err
+					(next)->
 						admin
 							.get "/login"
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/"
-								done err
+								expect res.header.location .to.equal "/bounce?to=/"
+								next err
+				]
+				done err
+			it "should tell them to enable cookies", (done)->
+				admin
+					.get "/bounce?to=/"
+					.expect 200
+					.end (err, res)->
+						expect res.text .to.have.string "enable cookies"
+						done err
 		describe "(User: Faculty)", (...)->
 			it "should login with valid credentials", (done)->
 				faculty
@@ -165,6 +180,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
+						expect res.header.location .to.equal "/bounce?to=/"
 						done err
 			it "should not matter how the caps the username", (done)->
 				faculty
@@ -175,6 +191,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
+						expect res.header.location .to.equal "/bounce?to=/"
 						done err
 			it "should fail for a good username bad password", (done)->
 				faculty
@@ -207,20 +224,27 @@ describe "Core" ->
 						expect res.text .to.have.string "bad login credentials"
 						done err
 			it "should redirect if already logged in", (done)->
-				faculty
-					.post "/login"
-					.send {
-						"username": "Faculty"
-						"password": "password"
-					}
-					.expect 302
-					.end (err, res)->
+				err <- async.waterfall [
+					(next)->
+						faculty
+							.post "/login"
+							.send {
+								"username": "Faculty"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.header.location .to.equal "/bounce?to=/"
+								next err
+					(next)->
 						faculty
 							.get "/login"
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/"
-								done err
+								expect res.header.location .to.equal "/bounce?to=/"
+								next err
+				]
+				done err
 		describe "(User: Student)", (...)->
 			it "should login with valid credentials", (done)->
 				student
@@ -231,6 +255,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
+						expect res.header.location .to.equal "/bounce?to=/"
 						done err
 			it "should not matter how the caps the username", (done)->
 				student
@@ -241,6 +266,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
+						expect res.header.location .to.equal "/bounce?to=/"
 						done err
 			it "should fail for a good username bad password", (done)->
 				student
@@ -273,30 +299,41 @@ describe "Core" ->
 						expect res.text .to.have.string "bad login credentials"
 						done err
 			it "should redirect if already logged in", (done)->
-				student
-					.post "/login"
-					.send {
-						"username": "Student"
-						"password": "password"
-					}
-					.expect 302
-					.end (err, res)->
+				err <- async.waterfall [
+					(next)->
+						student
+							.post "/login"
+							.send {
+								"username": "Student"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.header.location .to.equal "/bounce?to=/"
+								next err
+					(next)->
 						student
 							.get "/login"
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/"
-								done err
+								expect res.header.location .to.equal "/bounce?to=/"
+								next err
+				]
+				done err
 		it "should succeed for a good totp", (done)->
-			admin
-				.post "/login"
-				.send {
-					"username": "zadmin"
-					"password": "password"
-				}
-				.expect 302
-				.end (err, res)->
-					expect res.headers.location .to.equal "/otp"
+			err <- async.waterfall [
+				(next)->
+					admin
+						.post "/login"
+						.send {
+							"username": "zadmin"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/bounce?to=/otp"
+							next err
+				(next)->
 					admin
 						.post "/otp"
 						.send {
@@ -305,17 +342,23 @@ describe "Core" ->
 						.expect 302
 						.end (err, res)->
 							expect res.headers.location .to.equal "/"
-							done err
+							next err
+			]
+			done err
 		it "should fail for a bad totp", (done)->
-			admin
-				.post "/login"
-				.send {
-					"username": "zadmin"
-					"password": "password"
-				}
-				.expect 302
-				.end (err, res)->
-					expect res.headers.location .to.equal "/otp"
+			err <- async.waterfall [
+				(next)->
+					admin
+						.post "/login"
+						.send {
+							"username": "zadmin"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/bounce?to=/otp"
+							next err
+				(next)->
 					admin
 						.post "/otp"
 						.send {
@@ -324,17 +367,23 @@ describe "Core" ->
 						.expect 302
 						.end (err, res)->
 							expect res.headers.location .to.equal "/login"
-							done err
+							next err
+			]
+			done err
 		it "should not take a blank totp", (done)->
-			admin
-				.post "/login"
-				.send {
-					"username": "zadmin"
-					"password": "password"
-				}
-				.expect 302
-				.end (err, res)->
-					expect res.headers.location .to.equal "/otp"
+			err <- async.waterfall [
+				(next)->
+					admin
+						.post "/login"
+						.send {
+							"username": "zadmin"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/bounce?to=/otp"
+							next err
+				(next)->
 					admin
 						.post "/otp"
 						.send {
@@ -343,7 +392,9 @@ describe "Core" ->
 						.expect 400
 						.end (err, res)->
 							expect res.headers.location .to.be.an "undefined"
-							done err
+							next err
+			]
+			done err
 		it "should fail for a blank user", (done)->
 			student
 				.post "/login"
@@ -366,37 +417,129 @@ describe "Core" ->
 					expect res.text .to.have.string "user not found"
 					expect res.headers.location .to.be.an "undefined"
 					done err
+		it "should succeed for a good pin", (done)->
+			this.timeout = 3000
+			err <- async.waterfall [
+				(next)->
+					admin
+						.post "/login"
+						.send {
+							"username": "zstudent"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/bounce?to=/pin"
+							next err
+				(next)->
+					admin
+						.get "/test/getpin"
+						.end (err, res)->
+							next err, res.text
+				(pin,next)->
+					admin
+						.post "/pin"
+						.send {
+							"pin": pin
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/"
+							next err
+			]
+			done err
+		it "should not take a blank pin", (done)->
+			err <- async.waterfall [
+				(next)->
+					admin
+						.post "/login"
+						.send {
+							"username": "zstudent"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/bounce?to=/pin"
+							next err
+				(next)->
+					admin
+						.post "/pin"
+						.send {
+							"pin": ""
+						}
+						.expect 400
+						.end (err, res)->
+							next err
+			]
+			done err
+		it "should fail for a bad pin", (done)->
+			this.timeout = 3000
+			err <- async.waterfall [
+				(next)->
+					admin
+						.post "/login"
+						.send {
+							"username": "xstudent"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/bounce?to=/pin"
+							next err
+				(next)->
+					admin
+						.get "/test/getpin"
+						.end (err, res)->
+							next err, parseInt(res.body)
+				(pin,next)->
+					pin+=10
+					admin
+						.post "/pin"
+						.send {
+							"pin": pin.toString!
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/login"
+							next err
+			]
+			done err
 	describe "Dashboard", (...)->
 		before (done)->
-			student
-				.post "/login"
-				.send {
-					"username": "Student"
-					"password": "password"
-				}
-				.expect 302
-				.end (err, res)->
-					done err
-		before (done)->
-			faculty
-				.post "/login"
-				.send {
-					"username": "Faculty"
-					"password": "password"
-				}
-				.expect 302
-				.end (err, res)->
-					done err
-		before (done)->
-			admin
-				.post "/login"
-				.send {
-					"username": "Admin"
-					"password": "password"
-				}
-				.expect 302
-				.end (err, res)->
-					done err
+			this.timeout = 0
+			err <- async.parallel [
+				(next)->
+					student
+						.post "/login"
+						.send {
+							"username": "Student"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							next err
+				(next)->
+					faculty
+						.post "/login"
+						.send {
+							"username": "Faculty"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							next err
+				(next)->
+					admin
+						.post "/login"
+						.send {
+							"username": "Admin"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							next err
+			]
+			done err
 		describe "(User: Admin)", (...)->
 			it "should display your courses", (done)->
 				admin

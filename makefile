@@ -1,10 +1,5 @@
-default: npmi build
-
-npmi:
-	npm i -g gulp livescript nodemon
-	npm i
-
 build:
+	npm i
 	gulp build
 
 test:
@@ -16,5 +11,8 @@ coverage:
 	gulp build
 	gulp build-tests
 	./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha
+
+clean:
+	rm -rf ./lib/
 
 .PHONY: default test coverage

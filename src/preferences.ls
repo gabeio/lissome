@@ -21,12 +21,13 @@ router
 		}
 		.exec
 		if err
-			winston.error "preferences.ls:user.findOne", err
+			winston.error "preferences.ls: user.findOne", err
 			next new Error "MONGO"
 		else
 			res.locals.user = result
 			next "route"
 	..use "/otp", require("./preferences/otp")
+	..use "/password", require("./preferences/password")
 	..use "/", require("./preferences/index")
 
 module.exports = router

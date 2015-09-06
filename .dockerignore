@@ -1,0 +1,10 @@
+# directories
+.git/
+node_modules/
+lib/
+test/
+uploads/
+
+# files
+npm-debug.log
+
