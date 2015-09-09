@@ -1,5 +1,5 @@
 name: "lissome"
-version: "0.0.8a"
+version: "0.0.9"
 
 private: true
 
@@ -27,21 +27,21 @@ dependencies:
 	"bcrypt": "~0.8.5"
 	"body-parser": "~1.13.3"
 	"compression": "~1.5.2"
-	"connect-redis": "~2.4.1"
+	"connect-redis": "~2.5.0"
 	"cors": "~2.7.1"
 	"csurf": "~1.8.3"
 	"express": "~4.13.3"
 	"express-partial-response": "~0.3.4"
 	"express-session": "~1.11.3"
 	"helmet": "~0.10.0"
-	"ioredis": "~1.7.5"
+	"ioredis": "~1.7.6"
 	"livescript": "~1.4.0"
 	"lodash": "~3.10.1"
 	"markdown-it": "~4.4.0"
 	"method-override": "~2.3.5"
 	"moment": "~2.10.6"
 	"moment-timezone": "~0.4.0"
-	"mongoose": "~4.1.3"
+	"mongoose": "~4.1.5"
 	"multer": "~1.0.3"
 	"passcode": "~1.0.2"
 	"response-time": "~2.3.1"
@@ -50,16 +50,16 @@ dependencies:
 	"swig": "~1.4.2"
 	"thirty-two": "~0.0.2"
 	"winston": "~1.0.1"
-	"yargs": "~3.21.0"
+	"yargs": "~3.24.0"
 
 optionalDependencies:
 	"hiredis": "~0.4.0"
 
 devDependencies:
 	"chai": "~3.2.0"
-	"del": "~1.2.1"
+	"del": "~2.0.1"
 	"gulp": "~3.9.0"
 	"gulp-livescript": "~2.4.0"
-	"istanbul": "~0.3.18"
-	"mocha": "~2.2.5"
+	"istanbul": "~0.3.19"
+	"mocha": "~2.3.0"
 	"supertest": "~0.15.0"
