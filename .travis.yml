@@ -5,6 +5,7 @@ node_js:
     - "iojs-v2.5"
     - "0.10"
     - "0.12"
+    - "4.0"
 branches:
     except:
         - circleci
