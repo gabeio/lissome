@@ -32,7 +32,7 @@
     "express-partial-response": "~0.3.4",
     "express-session": "~1.11.3",
     "helmet": "~0.10.0",
-    "ioredis": "~1.7.6",
+    "ioredis": "~1.8.0",
     "livescript": "~1.4.0",
     "lodash": "~3.10.1",
     "markdown-it": "~4.4.0",
