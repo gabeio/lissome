@@ -50,7 +50,7 @@ dependencies:
 	"swig": "~1.4.2"
 	"thirty-two": "~0.0.2"
 	"winston": "~1.0.1"
-	"yargs": "~3.24.0"
+	"yargs": "~3.25.0"
 
 optionalDependencies:
 	"hiredis": "~0.4.0"
