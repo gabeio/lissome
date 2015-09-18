@@ -19,6 +19,7 @@ services:
     - mongodb
     - redis-server
 before_install:
+    - npm install -g gulp livescript mocha node-gyp
     - npm install coveralls
 before_script:
     - gulp build
