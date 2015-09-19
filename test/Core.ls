@@ -34,28 +34,28 @@ describe "Core" ->
 				.get "/"
 				.expect 302
 				.end (err, res)->
-					expect res.header.location .to.equal "/login"
+					expect res.headers.location .to.equal "/login"
 					done err
 		it "should error to a POST", (done)->
 			outside
 				.post "/"
 				.expect 302
 				.end (err, res)->
-					expect res.header.location .to.equal "/login"
+					expect res.headers.location .to.equal "/login"
 					done err
 		it "should error to a PUT", (done)->
 			outside
 				.put "/"
 				.expect 302
 				.end (err, res)->
-					expect res.header.location .to.equal "/login"
+					expect res.headers.location .to.equal "/login"
 					done err
 		it "should error to a DELETE", (done)->
 			outside
 				.delete "/"
 				.expect 302
 				.end (err, res)->
-					expect res.header.location .to.equal "/login"
+					expect res.headers.location .to.equal "/login"
 					done err
 	describe "Login", (...)->
 		afterEach (complete)->
@@ -98,7 +98,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
-						expect res.header.location .to.equal "/bounce?to=/"
+						expect res.headers.location .to.equal "/bounce?to=/"
 						done err
 			it "should not matter how the caps the username", (done)->
 				admin
@@ -109,7 +109,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
-						expect res.header.location .to.equal "/bounce?to=/"
+						expect res.headers.location .to.equal "/bounce?to=/"
 						done err
 			it "should fail for a good username bad password", (done)->
 				admin
@@ -129,7 +129,7 @@ describe "Core" ->
 						"password": ""
 					}
 					.end (err, res)->
-						expect res.header.location .to.be.a "undefined"
+						expect res.headers.location .to.be.a "undefined"
 						expect res.text .to.have.string "bad login credentials"
 						done err
 			it "should not crash for just username defined", (done)->
@@ -152,14 +152,14 @@ describe "Core" ->
 							}
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/bounce?to=/"
+								expect res.headers.location .to.equal "/bounce?to=/"
 								next err
 					(next)->
 						admin
 							.get "/otp"
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/"
+								expect res.headers.location .to.equal "/"
 								next err
 				]
 				done err
@@ -174,14 +174,14 @@ describe "Core" ->
 							}
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/bounce?to=/"
+								expect res.headers.location .to.equal "/bounce?to=/"
 								next err
 					(next)->
 						admin
 							.get "/login"
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/bounce?to=/"
+								expect res.headers.location .to.equal "/bounce?to=/"
 								next err
 				]
 				done err
@@ -202,7 +202,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
-						expect res.header.location .to.equal "/bounce?to=/"
+						expect res.headers.location .to.equal "/bounce?to=/"
 						done err
 			it "should not matter how the caps the username", (done)->
 				faculty
@@ -213,7 +213,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
-						expect res.header.location .to.equal "/bounce?to=/"
+						expect res.headers.location .to.equal "/bounce?to=/"
 						done err
 			it "should fail for a good username bad password", (done)->
 				faculty
@@ -233,7 +233,7 @@ describe "Core" ->
 						"password": ""
 					}
 					.end (err, res)->
-						expect res.header.location .to.be.a "undefined"
+						expect res.headers.location .to.be.a "undefined"
 						expect res.text .to.have.string "bad login credentials"
 						done err
 			it "should not crash for just username defined", (done)->
@@ -256,14 +256,14 @@ describe "Core" ->
 							}
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/bounce?to=/"
+								expect res.headers.location .to.equal "/bounce?to=/"
 								next err
 					(next)->
 						faculty
 							.get "/otp"
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/"
+								expect res.headers.location .to.equal "/"
 								next err
 				]
 				done err
@@ -278,14 +278,14 @@ describe "Core" ->
 							}
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/bounce?to=/"
+								expect res.headers.location .to.equal "/bounce?to=/"
 								next err
 					(next)->
 						faculty
 							.get "/login"
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/bounce?to=/"
+								expect res.headers.location .to.equal "/bounce?to=/"
 								next err
 				]
 				done err
@@ -306,7 +306,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
-						expect res.header.location .to.equal "/bounce?to=/"
+						expect res.headers.location .to.equal "/bounce?to=/"
 						done err
 			it "should not matter how the caps the username", (done)->
 				student
@@ -317,7 +317,7 @@ describe "Core" ->
 					}
 					.expect 302
 					.end (err, res)->
-						expect res.header.location .to.equal "/bounce?to=/"
+						expect res.headers.location .to.equal "/bounce?to=/"
 						done err
 			it "should fail for a good username bad password", (done)->
 				student
@@ -337,7 +337,7 @@ describe "Core" ->
 						"password": ""
 					}
 					.end (err, res)->
-						expect res.header.location .to.be.a "undefined"
+						expect res.headers.location .to.be.a "undefined"
 						expect res.text .to.have.string "bad login credentials"
 						done err
 			it "should not crash for just username defined", (done)->
@@ -360,14 +360,14 @@ describe "Core" ->
 							}
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/bounce?to=/"
+								expect res.headers.location .to.equal "/bounce?to=/"
 								next err
 					(next)->
 						admin
 							.get "/otp"
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/"
+								expect res.headers.location .to.equal "/"
 								next err
 				]
 				done err
@@ -382,14 +382,14 @@ describe "Core" ->
 							}
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/bounce?to=/"
+								expect res.headers.location .to.equal "/bounce?to=/"
 								next err
 					(next)->
 						student
 							.get "/login"
 							.expect 302
 							.end (err, res)->
-								expect res.header.location .to.equal "/bounce?to=/"
+								expect res.headers.location .to.equal "/bounce?to=/"
 								next err
 				]
 				done err
