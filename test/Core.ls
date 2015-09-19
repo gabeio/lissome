@@ -584,6 +584,29 @@ describe "Core" ->
 							next err
 			]
 			done err
+	describe "Bounce", (...)->
+		it "should redirect to location given by query", (done)->
+			err <- async.waterfall [
+				(next)->
+					admin
+						.post "/login"
+						.send {
+							"username": "Admin"
+							"password": "password"
+						}
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/bounce?to=/"
+							next err, res.headers.location
+				(location, next)->
+					admin
+						.get location
+						.expect 302
+						.end (err, res)->
+							expect res.headers.location .to.equal "/"
+							next err
+			]
+			done err
 	describe "Dashboard", (...)->
 		before (done)->
 			this.timeout = 0
