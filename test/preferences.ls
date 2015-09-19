@@ -60,6 +60,84 @@ describe "Preferences" ->
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
+		it "Change Password", (done)->
+			err <- async.parallel [
+				(next)->
+					admin
+						.get "/preferences/password"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							next err
+				(next)->
+					admin
+						.get "/preferences/password?success=true"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							next err
+				(next)->
+					admin
+						.get "/preferences/password?success=false"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							next err
+				(next)->
+					admin
+						.put "/preferences/password/change?hmo=put"
+						.send {
+							"oldpass":"password"
+							"newpass":"password"
+							"newpass2":"password"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.match /^\/preferences\/password\?success\=true/i
+							next err
+			]
+			done err
+		it "Change Password - Bad Old Password", (done)->
+			err <- async.parallel [
+				(next)->
+					admin
+						.get "/preferences/password"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							next err
+				(next)->
+					admin
+						.put "/preferences/password/change?hmo=put"
+						.send {
+							"oldpass":"not"
+							"newpass":"password"
+							"newpass2":"password"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.not.match /^\/preferences\/password\?success\=true/i
+							next err
+			]
+			done err
+		it "Change Password - Bad New Password", (done)->
+			err <- async.parallel [
+				(next)->
+					admin
+						.get "/preferences/password"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							next err
+				(next)->
+					admin
+						.put "/preferences/password/change?hmo=put"
+						.send {
+							"oldpass":"password"
+							"newpass":"password1"
+							"newpass2":"password2"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.not.match /^\/preferences\/password\?success\=true/i
+							next err
+			]
+			done err
 	describe "(User: Faculty)", (...)->
 		it "Index Template", (done)->
 			faculty
@@ -67,6 +145,84 @@ describe "Preferences" ->
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
+		it "Change Password", (done)->
+			err <- async.parallel [
+				(next)->
+					faculty
+						.get "/preferences/password"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							next err
+				(next)->
+					admin
+						.get "/preferences/password?success=true"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							next err
+				(next)->
+					admin
+						.get "/preferences/password?success=false"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							next err
+				(next)->
+					faculty
+						.put "/preferences/password/change?hmo=put"
+						.send {
+							"oldpass":"password"
+							"newpass":"password"
+							"newpass2":"password"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.match /^\/preferences\/password\?success\=true/i
+							next err
+			]
+			done err
+		it "Change Password - Bad Old Password", (done)->
+			err <- async.parallel [
+				(next)->
+					faculty
+						.get "/preferences/password"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							next err
+				(next)->
+					faculty
+						.put "/preferences/password/change?hmo=put"
+						.send {
+							"oldpass":"not"
+							"newpass":"password"
+							"newpass2":"password"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.not.match /^\/preferences\/password\?success\=true/i
+							next err
+			]
+			done err
+		it "Change Password - Bad New Password", (done)->
+			err <- async.parallel [
+				(next)->
+					faculty
+						.get "/preferences/password"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							next err
+				(next)->
+					faculty
+						.put "/preferences/password/change?hmo=put"
+						.send {
+							"oldpass":"password"
+							"newpass":"password1"
+							"newpass2":"password2"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.not.match /^\/preferences\/password\?success\=true/i
+							next err
+			]
+			done err
 	describe "(User: Student)", (...)->
 		it "Index Template", (done)->
 			student
@@ -74,5 +230,83 @@ describe "Preferences" ->
 				.end (err, res)->
 					expect res.status .to.equal 200
 					done err
+		it "Change Password", (done)->
+			err <- async.parallel [
+				(next)->
+					student
+						.get "/preferences/password"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							next err
+				(next)->
+					admin
+						.get "/preferences/password?success=true"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							next err
+				(next)->
+					admin
+						.get "/preferences/password?success=false"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							next err
+				(next)->
+					student
+						.put "/preferences/password/change?hmo=put"
+						.send {
+							"oldpass":"password"
+							"newpass":"password"
+							"newpass2":"password"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.match /^\/preferences\/password\?success\=true/i
+							next err
+			]
+			done err
+		it "Change Password - Bad Old Password", (done)->
+			err <- async.parallel [
+				(next)->
+					student
+						.get "/preferences/password"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							next err
+				(next)->
+					student
+						.put "/preferences/password/change?hmo=put"
+						.send {
+							"oldpass":"not"
+							"newpass":"password"
+							"newpass2":"password"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.not.match /^\/preferences\/password\?success\=true/i
+							next err
+			]
+			done err
+		it "Change Password - Bad New Password", (done)->
+			err <- async.parallel [
+				(next)->
+					student
+						.get "/preferences/password"
+						.end (err, res)->
+							expect res.status .to.equal 200
+							next err
+				(next)->
+					student
+						.put "/preferences/password/change?hmo=put"
+						.send {
+							"oldpass":"password"
+							"newpass":"password1"
+							"newpass2":"password2"
+						}
+						.end (err, res)->
+							expect res.status .to.equal 302
+							expect res.header.location .to.not.match /^\/preferences\/password\?success\=true/i
+							next err
+			]
+			done err
 	# describe "Other", (...)->
 	# 	...
