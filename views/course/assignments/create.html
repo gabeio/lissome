@@ -82,12 +82,12 @@
 				<label for="formLate">Allow Late Submissions</label>
 				<div class="radio">
 					<label>
-						<input type="radio" name="late" id="formLate" value="yes" {% if body %}{% if body.late == true %}checked{% endif %}{% else %}{% if course.settings.assignments.allowLate == true %}checked{% endif %}{% endif %} tabindex="8">Yes <small>(allow students to submit assignments after close date)</small>
+						<input type="radio" name="late" id="formLate" value="yes" {% if body %}{% if body.late == "yes" %}checked{% endif %}{% else %}{% if course.settings.assignments.allowLate == true %}checked{% endif %}{% endif %} tabindex="8">Yes <small>(allow students to submit assignments after close date)</small>
 					</label>
 				</div>
 				<div class="radio">
 					<label>
-						<input type="radio" name="late" id="formLate" value="no" {% if body %}{% if body.late == false %}checked{% endif %} {% else %}{% if course.settings.assignments.allowLate == false %}checked{% endif %}{% endif %} tabindex="8">No <small>(do <strong>NOT</strong> allow students to submit assignments after close date)</small>
+						<input type="radio" name="late" id="formLate" value="no" {% if body %}{% if body.late == "no" %}checked{% endif %}{% else %}{% if course.settings.assignments.allowLate == false %}checked{% endif %}{% endif %} tabindex="8">No <small>(do <strong>NOT</strong> allow students to submit assignments after close date)</small>
 					</label>
 				</div>
 			</div>
