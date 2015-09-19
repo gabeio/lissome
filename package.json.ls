@@ -42,7 +42,7 @@ dependencies:
 	"moment": "~2.10.6"
 	"moment-timezone": "~0.4.0"
 	"mongoose": "~4.1.7"
-	"multer": "~1.0.3"
+	"multer": "~1.0.4"
 	"passcode": "~1.0.2"
 	"response-time": "~2.3.1"
 	"request": "~2.62.0"
