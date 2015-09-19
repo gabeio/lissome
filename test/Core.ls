@@ -141,6 +141,28 @@ describe "Core" ->
 					.end (err, res)->
 						expect res.text .to.have.string "bad login credentials"
 						done err
+			it "should redirect if no otp", (done)->
+				err <- async.waterfall [
+					(next)->
+						admin
+							.post "/login"
+							.send {
+								"username": "admin"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.header.location .to.equal "/bounce?to=/"
+								next err
+					(next)->
+						admin
+							.get "/otp"
+							.expect 302
+							.end (err, res)->
+								expect res.header.location .to.equal "/"
+								next err
+				]
+				done err
 			it "should redirect if already logged in", (done)->
 				err <- async.waterfall [
 					(next)->
@@ -223,6 +245,28 @@ describe "Core" ->
 					.end (err, res)->
 						expect res.text .to.have.string "bad login credentials"
 						done err
+			it "should redirect if no otp", (done)->
+				err <- async.waterfall [
+					(next)->
+						faculty
+							.post "/login"
+							.send {
+								"username": "faculty"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.header.location .to.equal "/bounce?to=/"
+								next err
+					(next)->
+						faculty
+							.get "/otp"
+							.expect 302
+							.end (err, res)->
+								expect res.header.location .to.equal "/"
+								next err
+				]
+				done err
 			it "should redirect if already logged in", (done)->
 				err <- async.waterfall [
 					(next)->
@@ -245,6 +289,13 @@ describe "Core" ->
 								next err
 				]
 				done err
+			it "should tell them to enable cookies", (done)->
+				admin
+					.get "/bounce?to=/"
+					.expect 200
+					.end (err, res)->
+						expect res.text .to.have.string "enable cookies"
+						done err
 		describe "(User: Student)", (...)->
 			it "should login with valid credentials", (done)->
 				student
@@ -298,6 +349,28 @@ describe "Core" ->
 					.end (err, res)->
 						expect res.text .to.have.string "bad login credentials"
 						done err
+			it "should redirect if no otp", (done)->
+				err <- async.waterfall [
+					(next)->
+						admin
+							.post "/login"
+							.send {
+								"username": "student"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.header.location .to.equal "/bounce?to=/"
+								next err
+					(next)->
+						admin
+							.get "/otp"
+							.expect 302
+							.end (err, res)->
+								expect res.header.location .to.equal "/"
+								next err
+				]
+				done err
 			it "should redirect if already logged in", (done)->
 				err <- async.waterfall [
 					(next)->
@@ -320,6 +393,13 @@ describe "Core" ->
 								next err
 				]
 				done err
+			it "should tell them to enable cookies", (done)->
+				admin
+					.get "/bounce?to=/"
+					.expect 200
+					.end (err, res)->
+						expect res.text .to.have.string "enable cookies"
+						done err
 		it "should succeed for a good totp", (done)->
 			err <- async.waterfall [
 				(next)->
