@@ -12,9 +12,9 @@ router
 	..route "/"
 	.get (req, res, next)->
 		if req.query.success?
-			res.render "preferences/password", { success:req.query.success }
+			res.render "preferences/password", { success:req.query.success, csrf: req.csrfToken! }
 		else
-			res.render "preferences/password"
+			res.render "preferences/password", { csrf: req.csrfToken! }
 
 	..route "/change"
 	.put (req, res, next)->

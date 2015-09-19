@@ -20,9 +20,9 @@ router
 				otp:
 					secret: bytes
 			}
-			res.render "preferences/otp", { otp:"enable", user: res.locals.user, bytes: bytes }
+			res.render "preferences/otp", { otp:"enable", user: res.locals.user, bytes: bytes, csrf: req.csrfToken! }
 		else
-			res.render "preferences/otp", { otp:"disable" }
+			res.render "preferences/otp", { otp:"disable", csrf: req.csrfToken! }
 
 	..route "/enable"
 	.put (req, res, next)->
