@@ -15,4 +15,4 @@ coverage:
 clean:
 	rm -rf ./lib/
 
-.PHONY: default test coverage
+.PHONY: default test coverage clean
