@@ -1,6 +1,7 @@
 build:
 	npm i
 	gulp build
+	npm i
 
 test:
 	gulp build
@@ -15,4 +16,4 @@ coverage:
 clean:
 	rm -rf ./lib/
 
-.PHONY: default test coverage
+.PHONY: default build test coverage clean

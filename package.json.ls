@@ -1,5 +1,5 @@
 name: "lissome"
-version: "0.0.8a"
+version: "0.0.9"
 
 private: true
 
@@ -25,7 +25,7 @@ repository:
 dependencies:
 	"async": "~1.4.2"
 	"bcrypt": "~0.8.5"
-	"body-parser": "~1.13.3"
+	"body-parser": "~1.14.0"
 	"compression": "~1.5.2"
 	"connect-redis": "~2.5.0"
 	"cors": "~2.7.1"
@@ -33,33 +33,33 @@ dependencies:
 	"express": "~5.0.0-alpha.2"
 	"express-partial-response": "~0.3.4"
 	"express-session": "~1.11.3"
-	"helmet": "~0.10.0"
-	"ioredis": "~1.7.5"
+	"helmet": "~0.11.0"
+	"ioredis": "~1.9.0"
 	"livescript": "~1.4.0"
 	"lodash": "~3.10.1"
 	"markdown-it": "~4.4.0"
 	"method-override": "~2.3.5"
 	"moment": "~2.10.6"
 	"moment-timezone": "~0.4.0"
-	"mongoose": "~4.1.4"
-	"multer": "~1.0.3"
+	"mongoose": "~4.1.7"
+	"multer": "~1.0.4"
 	"passcode": "~1.0.2"
 	"response-time": "~2.3.1"
-	"request": "~2.61.0"
+	"request": "~2.62.0"
 	"serve-static": "~1.10.0"
 	"swig": "~1.4.2"
 	"thirty-two": "~0.0.2"
 	"winston": "~1.0.1"
-	"yargs": "~3.23.0"
+	"yargs": "~3.25.0"
 
 optionalDependencies:
 	"hiredis": "~0.4.0"
 
 devDependencies:
 	"chai": "~3.2.0"
-	"del": "~2.0.0"
+	"del": "~2.0.2"
 	"gulp": "~3.9.0"
 	"gulp-livescript": "~2.4.0"
-	"istanbul": "~0.3.19"
-	"mocha": "~2.3.0"
+	"istanbul": "~0.3.20"
+	"mocha": "~2.3.2"
 	"supertest": "~0.15.0"
