@@ -49,6 +49,7 @@ router
 					res.redirect "/preferences/password?success=true"
 		]
 		if err
+			/* istanbul ignore next */
 			switch err
 			| "fin"
 				break
