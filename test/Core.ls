@@ -192,6 +192,232 @@ describe "Core" ->
 					.end (err, res)->
 						expect res.text .to.have.string "enable cookies"
 						done err
+			it "should succeed for a good totp", (done)->
+				err <- async.waterfall [
+					(next)->
+						admin
+							.post "/login"
+							.send {
+								"username": "zadmin"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/otp"
+								next err
+					(next)->
+						admin
+							.post "/otp"
+							.send {
+								"token": passcode.totp { secret: "4JZPEQXTGFNCR76H", encoding: "base32" }
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/"
+								next err
+				]
+				done err
+			it "should fail for a bad totp", (done)->
+				err <- async.waterfall [
+					(next)->
+						admin
+							.post "/login"
+							.send {
+								"username": "zadmin"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/otp"
+								next err
+					(next)->
+						admin
+							.post "/otp"
+							.send {
+								"token":"000000"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/login"
+								next err
+				]
+				done err
+			it "should not take a blank totp", (done)->
+				err <- async.waterfall [
+					(next)->
+						admin
+							.post "/login"
+							.send {
+								"username": "zadmin"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/otp"
+								next err
+					(next)->
+						admin
+							.post "/otp"
+							.send {
+								"otp":""
+							}
+							.expect 400
+							.end (err, res)->
+								expect res.headers.location .to.be.an "undefined"
+								next err
+				]
+				done err
+			it "should redirect to totp", (done)->
+				err <- async.waterfall [
+					(next)->
+						admin
+							.post "/login"
+							.send {
+								"username": "zadmin"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/otp"
+								next err
+					(next)->
+						admin
+							.get "/login"
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/otp"
+								next err
+				]
+				done err
+			it "should succeed for a good pin", (done)->
+				this.timeout = 3000
+				err <- async.waterfall [
+					(next)->
+						admin
+							.post "/login"
+							.send {
+								"username": "yadmin"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						admin
+							.get "/test/getpin"
+							.end (err, res)->
+								next err, res.text
+					(pin,next)->
+						admin
+							.post "/pin"
+							.send {
+								"pin": pin
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/"
+								next err
+				]
+				done err
+			it "should not take a blank pin", (done)->
+				err <- async.waterfall [
+					(next)->
+						admin
+							.post "/login"
+							.send {
+								"username": "yadmin"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						admin
+							.post "/pin"
+							.send {
+								"pin": ""
+							}
+							.expect 400
+							.end (err, res)->
+								next err
+				]
+				done err
+			it "should fail for a bad pin", (done)->
+				this.timeout = 3000
+				err <- async.waterfall [
+					(next)->
+						admin
+							.post "/login"
+							.send {
+								"username": "xadmin"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						admin
+							.get "/test/getpin"
+							.end (err, res)->
+								next err, parseInt(res.body)
+					(pin,next)->
+						pin+=10
+						admin
+							.post "/pin"
+							.send {
+								"pin": pin.toString!
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/login"
+								next err
+				]
+				done err
+			it "should redirect to pin", (done)->
+				err <- async.waterfall [
+					(next)->
+						admin
+							.post "/login"
+							.send {
+								"username": "xadmin"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						admin
+							.get "/login"
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+				]
+				done err
+			it "should be locked out", (done)->
+				err <- async.waterfall [
+					(next)->
+						admin
+							.post "/login"
+							.send {
+								"username": "badmin"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						admin
+							.get "/pin"
+							.end (err, res)->
+								next err
+				]
+				done err
 		describe "(User: Faculty)", (...)->
 			it "should login with valid credentials", (done)->
 				faculty
@@ -296,6 +522,168 @@ describe "Core" ->
 					.end (err, res)->
 						expect res.text .to.have.string "enable cookies"
 						done err
+			it "should succeed for a good totp", (done)->
+				err <- async.waterfall [
+					(next)->
+						faculty
+							.post "/login"
+							.send {
+								"username": "zfaculty"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/otp"
+								next err
+					(next)->
+						faculty
+							.post "/otp"
+							.send {
+								"token": passcode.totp { secret: "4JZPEQXTGFNCR76H", encoding: "base32" }
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/"
+								next err
+				]
+				done err
+			it "should fail for a bad totp", (done)->
+				err <- async.waterfall [
+					(next)->
+						faculty
+							.post "/login"
+							.send {
+								"username": "zfaculty"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/otp"
+								next err
+					(next)->
+						faculty
+							.post "/otp"
+							.send {
+								"token":"000000"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/login"
+								next err
+				]
+				done err
+			it "should not take a blank totp", (done)->
+				err <- async.waterfall [
+					(next)->
+						faculty
+							.post "/login"
+							.send {
+								"username": "zfaculty"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/otp"
+								next err
+					(next)->
+						faculty
+							.post "/otp"
+							.send {
+								"otp":""
+							}
+							.expect 400
+							.end (err, res)->
+								expect res.headers.location .to.be.an "undefined"
+								next err
+				]
+				done err
+			it "should succeed for a good pin", (done)->
+				this.timeout = 3000
+				err <- async.waterfall [
+					(next)->
+						faculty
+							.post "/login"
+							.send {
+								"username": "yfaculty"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						faculty
+							.get "/test/getpin"
+							.end (err, res)->
+								next err, res.text
+					(pin,next)->
+						faculty
+							.post "/pin"
+							.send {
+								"pin": pin
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/"
+								next err
+				]
+				done err
+			it "should not take a blank pin", (done)->
+				err <- async.waterfall [
+					(next)->
+						faculty
+							.post "/login"
+							.send {
+								"username": "yfaculty"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						faculty
+							.post "/pin"
+							.send {
+								"pin": ""
+							}
+							.expect 400
+							.end (err, res)->
+								next err
+				]
+				done err
+			it "should fail for a bad pin", (done)->
+				this.timeout = 3000
+				err <- async.waterfall [
+					(next)->
+						faculty
+							.post "/login"
+							.send {
+								"username": "xfaculty"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						faculty
+							.get "/test/getpin"
+							.end (err, res)->
+								next err, parseInt(res.body)
+					(pin,next)->
+						pin+=10
+						faculty
+							.post "/pin"
+							.send {
+								"pin": pin.toString!
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/login"
+								next err
+				]
+				done err
 		describe "(User: Student)", (...)->
 			it "should login with valid credentials", (done)->
 				student
@@ -352,7 +740,7 @@ describe "Core" ->
 			it "should redirect if no otp", (done)->
 				err <- async.waterfall [
 					(next)->
-						admin
+						student
 							.post "/login"
 							.send {
 								"username": "student"
@@ -363,7 +751,7 @@ describe "Core" ->
 								expect res.headers.location .to.equal "/bounce?to=/"
 								next err
 					(next)->
-						admin
+						student
 							.get "/otp"
 							.expect 302
 							.end (err, res)->
@@ -394,87 +782,174 @@ describe "Core" ->
 				]
 				done err
 			it "should tell them to enable cookies", (done)->
-				admin
+				student
 					.get "/bounce?to=/"
 					.expect 200
 					.end (err, res)->
 						expect res.text .to.have.string "enable cookies"
 						done err
-		it "should succeed for a good totp", (done)->
-			err <- async.waterfall [
-				(next)->
-					admin
-						.post "/login"
-						.send {
-							"username": "zadmin"
-							"password": "password"
-						}
-						.expect 302
-						.end (err, res)->
-							expect res.headers.location .to.equal "/bounce?to=/otp"
-							next err
-				(next)->
-					admin
-						.post "/otp"
-						.send {
-							"token": passcode.totp { secret: "4JZPEQXTGFNCR76H", encoding: "base32" }
-						}
-						.expect 302
-						.end (err, res)->
-							expect res.headers.location .to.equal "/"
-							next err
-			]
-			done err
-		it "should fail for a bad totp", (done)->
-			err <- async.waterfall [
-				(next)->
-					admin
-						.post "/login"
-						.send {
-							"username": "zadmin"
-							"password": "password"
-						}
-						.expect 302
-						.end (err, res)->
-							expect res.headers.location .to.equal "/bounce?to=/otp"
-							next err
-				(next)->
-					admin
-						.post "/otp"
-						.send {
-							"token":"000000"
-						}
-						.expect 302
-						.end (err, res)->
-							expect res.headers.location .to.equal "/login"
-							next err
-			]
-			done err
-		it "should not take a blank totp", (done)->
-			err <- async.waterfall [
-				(next)->
-					admin
-						.post "/login"
-						.send {
-							"username": "zadmin"
-							"password": "password"
-						}
-						.expect 302
-						.end (err, res)->
-							expect res.headers.location .to.equal "/bounce?to=/otp"
-							next err
-				(next)->
-					admin
-						.post "/otp"
-						.send {
-							"otp":""
-						}
-						.expect 400
-						.end (err, res)->
-							expect res.headers.location .to.be.an "undefined"
-							next err
-			]
-			done err
+			it "should succeed for a good totp", (done)->
+				err <- async.waterfall [
+					(next)->
+						student
+							.post "/login"
+							.send {
+								"username": "zstudent"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/otp"
+								next err
+					(next)->
+						student
+							.post "/otp"
+							.send {
+								"token": passcode.totp { secret: "4JZPEQXTGFNCR76H", encoding: "base32" }
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/"
+								next err
+				]
+				done err
+			it "should fail for a bad totp", (done)->
+				err <- async.waterfall [
+					(next)->
+						student
+							.post "/login"
+							.send {
+								"username": "zstudent"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/otp"
+								next err
+					(next)->
+						student
+							.post "/otp"
+							.send {
+								"token":"000000"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/login"
+								next err
+				]
+				done err
+			it "should not take a blank totp", (done)->
+				err <- async.waterfall [
+					(next)->
+						student
+							.post "/login"
+							.send {
+								"username": "zstudent"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/otp"
+								next err
+					(next)->
+						student
+							.post "/otp"
+							.send {
+								"otp":""
+							}
+							.expect 400
+							.end (err, res)->
+								expect res.headers.location .to.be.an "undefined"
+								next err
+				]
+				done err
+			it "should succeed for a good pin", (done)->
+				this.timeout = 3000
+				err <- async.waterfall [
+					(next)->
+						student
+							.post "/login"
+							.send {
+								"username": "ystudent"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						student
+							.get "/test/getpin"
+							.end (err, res)->
+								next err, res.text
+					(pin,next)->
+						student
+							.post "/pin"
+							.send {
+								"pin": pin
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/"
+								next err
+				]
+				done err
+			it "should not take a blank pin", (done)->
+				err <- async.waterfall [
+					(next)->
+						student
+							.post "/login"
+							.send {
+								"username": "ystudent"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						student
+							.post "/pin"
+							.send {
+								"pin": ""
+							}
+							.expect 400
+							.end (err, res)->
+								next err
+				]
+				done err
+			it "should fail for a bad pin", (done)->
+				this.timeout = 3000
+				err <- async.waterfall [
+					(next)->
+						student
+							.post "/login"
+							.send {
+								"username": "xstudent"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						student
+							.get "/test/getpin"
+							.end (err, res)->
+								next err, parseInt(res.body)
+					(pin,next)->
+						pin+=10
+						student
+							.post "/pin"
+							.send {
+								"pin": pin.toString!
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/login"
+								next err
+				]
+				done err
 		it "should fail for a blank user", (done)->
 			student
 				.post "/login"
@@ -497,93 +972,6 @@ describe "Core" ->
 					expect res.text .to.have.string "user not found"
 					expect res.headers.location .to.be.an "undefined"
 					done err
-		it "should succeed for a good pin", (done)->
-			this.timeout = 3000
-			err <- async.waterfall [
-				(next)->
-					admin
-						.post "/login"
-						.send {
-							"username": "zstudent"
-							"password": "password"
-						}
-						.expect 302
-						.end (err, res)->
-							expect res.headers.location .to.equal "/bounce?to=/pin"
-							next err
-				(next)->
-					admin
-						.get "/test/getpin"
-						.end (err, res)->
-							next err, res.text
-				(pin,next)->
-					admin
-						.post "/pin"
-						.send {
-							"pin": pin
-						}
-						.expect 302
-						.end (err, res)->
-							expect res.headers.location .to.equal "/"
-							next err
-			]
-			done err
-		it "should not take a blank pin", (done)->
-			err <- async.waterfall [
-				(next)->
-					admin
-						.post "/login"
-						.send {
-							"username": "zstudent"
-							"password": "password"
-						}
-						.expect 302
-						.end (err, res)->
-							expect res.headers.location .to.equal "/bounce?to=/pin"
-							next err
-				(next)->
-					admin
-						.post "/pin"
-						.send {
-							"pin": ""
-						}
-						.expect 400
-						.end (err, res)->
-							next err
-			]
-			done err
-		it "should fail for a bad pin", (done)->
-			this.timeout = 3000
-			err <- async.waterfall [
-				(next)->
-					admin
-						.post "/login"
-						.send {
-							"username": "xstudent"
-							"password": "password"
-						}
-						.expect 302
-						.end (err, res)->
-							expect res.headers.location .to.equal "/bounce?to=/pin"
-							next err
-				(next)->
-					admin
-						.get "/test/getpin"
-						.end (err, res)->
-							next err, parseInt(res.body)
-				(pin,next)->
-					pin+=10
-					admin
-						.post "/pin"
-						.send {
-							"pin": pin.toString!
-						}
-						.expect 302
-						.end (err, res)->
-							expect res.headers.location .to.equal "/login"
-							next err
-			]
-			done err
 	describe "Bounce", (...)->
 		it "should redirect to location given by query", (done)->
 			err <- async.waterfall [
