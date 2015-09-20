@@ -137,7 +137,3 @@ describe "Course" ->
 					.end (err, res)->
 						expect res.status .to.not.equal 200
 						done err
-	describe "Settings", (...)->
-		it.skip "should allow a teacher should be able to edit their classes", (done)->
-		it.skip "should allow a teacher should NOT be ablt to edit any other classes", (done)->
-		it.skip "should allow an admin should be able to edit any class", (done)->

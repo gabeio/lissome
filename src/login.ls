@@ -14,7 +14,7 @@ router = express.Router!
 router
 	..route "/"
 	.all (req, res, next)->
-		if req.session.opt? # first check otp so we don't cause redirect loop
+		if req.session.otp? # first check otp so we don't cause redirect loop
 			res.redirect "/bounce?to=/otp"
 		else if req.session.pin?
 			res.redirect "/bounce?to=/pin"
@@ -45,7 +45,9 @@ router
 					done null, user
 			(user,done)->
 				err,result <- bcrypt.compare req.body.password, user.hash
+				/* istanbul ignore if this is probably if the library somehow has an error */
 				if err
+					winston.error err
 					done "bad"
 				else
 					done err, result, user
@@ -71,7 +73,9 @@ router
 							pin += byte
 					# 2. push pin to user
 					if user.pin.method is "pushover"
+						/* istanbul ignore if */
 						if typeof app.locals.pushover.token isnt "undefined"
+							/* istanbul ignore next */
 							err, response, body <- request {
 								uri: "https://api.pushover.net/1/messages.json"
 								method: "POST"
@@ -86,7 +90,9 @@ router
 						#else
 							# pretend we sent the pin
 					else if user.pin.method is "pushbullet"
+						/* istanbul ignore if */
 						if typeof app.locals.pushbullet.token isnt "undefined"
+							/* istanbul ignore next */
 							err, response, body <- request {
 								uri: "https://api.pushbullet.com/v2/pushes"
 								method: "POST"
@@ -134,7 +140,9 @@ router
 					res.redirect "/bounce?to=/"
 					done "fin"
 		]
+		/* istanbul ignore else */
 		if err?
+			/* istanbul ignore next */
 			switch err
 			| "bad"
 				res.render "login", { error:"bad login credentials", csrf: req.csrfToken! }

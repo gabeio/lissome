@@ -48,6 +48,7 @@ router
 				else
 					res.redirect "/preferences/password?success=true"
 		]
+		/* istanbul ignore else */
 		if err
 			/* istanbul ignore next */
 			switch err
