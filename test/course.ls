@@ -137,3 +137,80 @@ describe "Course" ->
 					.end (err, res)->
 						expect res.status .to.not.equal 200
 						done err
+	describe "Course Settings", (...)->
+		describe "(User: Admin)", (...)->
+			it "should see class settings", (done)->
+				admin
+					.get "/c/#{courseId}/settings"
+					.end (err, res)->
+						expect res.status .to.equal 200
+						done err
+			it "should edit class settings", (done)->
+				admin
+					.put "/c/#{courseId}/settings"
+					.send {
+						"total": "100"
+						"tries": "2"
+						"late": "false"
+						"anonymous": "false"
+					}
+					.end (err, res)->
+						expect res.status .to.equal 302
+						done err
+		describe "(User: Faculty)", (...)->
+			it "should see class settings", (done)->
+				faculty
+					.get "/c/#{courseId}/settings"
+					.end (err, res)->
+						expect res.status .to.equal 200
+						done err
+			it "should edit class settings", (done)->
+				faculty
+					.put "/c/#{courseId}/settings"
+					.send {
+						"total": "100"
+						"tries": "2"
+						"late": "false"
+						"anonymous": "false"
+					}
+					.end (err, res)->
+						expect res.status .to.equal 302
+						done err
+		describe "(User: Student)", (...)->
+			it "should not see class settings", (done)->
+				student
+					.get "/c/#{courseId}/settings"
+					.end (err, res)->
+						expect res.status .to.not.equal 200
+						done err
+			it "should not edit class settings", (done)->
+				student
+					.put "/c/#{courseId}/settings"
+					.send {
+						"total": "100"
+						"tries": "2"
+						"late": "false"
+						"anonymous": "false"
+					}
+					.end (err, res)->
+						expect res.status .to.equal 302
+						done err
+		describe "(User: Outside)", (...)->
+			it "should not see class settings", (done)->
+				outside
+					.get "/c/#{courseId}/settings"
+					.end (err, res)->
+						expect res.status .to.not.equal 200
+						done err
+			it "should not edit class settings", (done)->
+				outside
+					.put "/c/#{courseId}/settings"
+					.send {
+						"total": "100"
+						"tries": "2"
+						"late": "false"
+						"anonymous": "false"
+					}
+					.end (err, res)->
+						expect res.status .to.equal 302
+						done err
