@@ -105,7 +105,7 @@ router
 							# pretend we sent the pin
 					else
 						# should never get here
-						done "#{user.username} Locked Out"
+						winston.warn "#{user.username} Locked Out"
 					# 3. add pushpin to session
 					req.session.pin = pin
 					done null, user
