@@ -151,8 +151,8 @@ describe "Course" ->
 					.send {
 						"total": "100"
 						"tries": "2"
-						"late": "false"
-						"anonymous": "false"
+						"late": "no"
+						"anonymous": "no"
 					}
 					.end (err, res)->
 						expect res.status .to.equal 302
@@ -170,8 +170,8 @@ describe "Course" ->
 					.send {
 						"total": "100"
 						"tries": "2"
-						"late": "true"
-						"anonymous": "true"
+						"late": "yes"
+						"anonymous": "yes"
 					}
 					.end (err, res)->
 						expect res.status .to.equal 302
