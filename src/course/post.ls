@@ -29,11 +29,13 @@ router
 		.populate "thread"
 		.populate "author"
 		.exec
+		var ref$
 		/* istanbul ignore if should only really occur if db crashes */
 		if err
 			winston.error "post.ls: post.findOne", err
 			next new Error "MONGO"
 		else
+			/* istanbul ignore else */
 			if result?
 				res.locals.post? = result
 				res.locals.posts? = result
@@ -42,6 +44,7 @@ router
 			else
 				next new Error "NOT FOUND"
 	.get (req, res, next)->
+		/* istanbul ignore next most cases should never hit default case */
 		switch req.params.action
 		| "editpost"
 			res.render "course/conference/editPost", { csrf: req.csrfToken! }
@@ -55,11 +58,13 @@ router
 		if req.method.toLowerCase! in ["post","put","delete"]
 			err <- async.parallel [
 				(done)->
+					/* istanbul ignore if should never hit this thanks to route regex */
 					if !req.body.thread? or req.body.thread is "" or req.body.thread.length isnt 24
 						done "Bad Thread"
 					else
 						done!
 				(done)->
+					/* istanbul ignore if should never hit this thanks to route regex */
 					if !req.body.post? or req.body.post is "" or req.body.post.length isnt 24
 						done "Bad Post"
 					else
@@ -72,6 +77,7 @@ router
 		else
 			next!
 	.post parser, (req, res, next)->
+		/* istanbul ignore next most cases should never hit default case */
 		switch req.params.action
 		| "report"
 			...
