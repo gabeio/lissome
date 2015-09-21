@@ -16,8 +16,7 @@ req = supertest
 expect = chai.expect
 assert = chai.assert
 should = chai.should!
-var agent, student, faculty, admin, courseId, blogpid
-assignid = []
+var agent, student, faculty, admin, key
 outside = req.agent app
 student = req.agent app
 faculty = req.agent app
@@ -149,7 +148,7 @@ describe "Preferences" ->
 							.get "/preferences/otp"
 							.end (err, res)->
 								expect res.status .to.equal 200
-								key = res.text.match(/\<input\ type\=\"text\"\ class\=\"form\-control\"\ id\=\"key\"\ value=\"(.{16})\"\ readonly\>/i)[1].toString!
+								key := res.text.match(/\<input\ type\=\"text\"\ class\=\"form\-control\"\ id\=\"key\"\ value=\"(.{16})\"\ readonly\>/i)[1].toString!
 								next err, key, token = passcode.totp {
 									secret: key
 									encoding: "base32"
@@ -190,7 +189,12 @@ describe "Preferences" ->
 					(next)->
 						admin
 							.put "/preferences/otp/disable?hmo=put"
-							.send {}
+							.send {
+								"token": passcode.totp {
+									secret: key
+									encoding: "base32"
+								}
+							}
 							.end (err, res)->
 								expect res.status .to.equal 302
 								expect res.header.location .to.match /^\/preferences\/otp\?success\=yes/i
@@ -322,7 +326,7 @@ describe "Preferences" ->
 							.get "/preferences/otp"
 							.end (err, res)->
 								expect res.status .to.equal 200
-								key = res.text.match(/\<input\ type\=\"text\"\ class\=\"form\-control\"\ id\=\"key\"\ value=\"(.{16})\"\ readonly\>/i)[1].toString!
+								key := res.text.match(/\<input\ type\=\"text\"\ class\=\"form\-control\"\ id\=\"key\"\ value=\"(.{16})\"\ readonly\>/i)[1].toString!
 								next err, key, token = passcode.totp {
 									secret: key
 									encoding: "base32"
@@ -363,7 +367,12 @@ describe "Preferences" ->
 					(next)->
 						faculty
 							.put "/preferences/otp/disable?hmo=put"
-							.send {}
+							.send {
+								"token": passcode.totp {
+									secret: key
+									encoding: "base32"
+								}
+							}
 							.end (err, res)->
 								expect res.status .to.equal 302
 								expect res.header.location .to.match /^\/preferences\/otp\?success\=yes/i
@@ -495,7 +504,7 @@ describe "Preferences" ->
 							.get "/preferences/otp"
 							.end (err, res)->
 								expect res.status .to.equal 200
-								key = res.text.match(/\<input\ type\=\"text\"\ class\=\"form\-control\"\ id\=\"key\"\ value=\"(.{16})\"\ readonly\>/i)[1].toString!
+								key := res.text.match(/\<input\ type\=\"text\"\ class\=\"form\-control\"\ id\=\"key\"\ value=\"(.{16})\"\ readonly\>/i)[1].toString!
 								next err, key, token = passcode.totp {
 									secret: key
 									encoding: "base32"
@@ -536,7 +545,12 @@ describe "Preferences" ->
 					(next)->
 						student
 							.put "/preferences/otp/disable?hmo=put"
-							.send {}
+							.send {
+								"token": passcode.totp {
+									secret: key
+									encoding: "base32"
+								}
+							}
 							.end (err, res)->
 								expect res.status .to.equal 302
 								expect res.header.location .to.match /^\/preferences\/otp\?success\=yes/i
