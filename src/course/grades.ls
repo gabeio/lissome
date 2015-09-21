@@ -56,3 +56,4 @@ router
 		res.render "course/grades"
 
 module.exports = router
+/* istanbul ignore next (not my function to cover) */

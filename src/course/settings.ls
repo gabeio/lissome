@@ -26,6 +26,7 @@ router
 		}
 		res.locals.course.settings.set("assignments","changed")
 		err, result <- res.locals.course.save!
+		/* istanbul ignore if */
 		if err?
 			winston.error err
 			next new Error "MONGO"

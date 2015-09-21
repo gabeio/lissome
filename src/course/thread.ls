@@ -63,6 +63,7 @@ router
 		else
 			next!
 	.get (req, res, next)->
+		/* istanbul ignore next should only ignore unimplemented */
 		switch req.params.action
 		| "editthread"
 			res.render "course/conference/editThread", { csrf: req.csrfToken! }
@@ -77,12 +78,15 @@ router
 		| "newpost"
 			async.parallel [
 				(para)->
+					/* istanbul ignore else */
 					if !req.body.thread? or req.body.thread is "" or !req.body.text? or req.body.text is ""
 						res.status 400 .render "course/conference/default" { body: req.body, success:"no", noun:"Post", verb:"created", csrf: req.csrfToken! }
 				(para)->
+					/* istanbul ignore else */
 					if req.body.thread? and req.body.thread isnt "" and req.body.text? and req.body.text isnt "" and res.locals.thread?
 						res.status 302 .redirect "/c/#{res.locals.course._id}/thread/#{req.params.thread}"
 				(para)->
+					/* istanbul ignore else */
 					if req.body.thread? and req.body.thread isnt "" and req.body.text? and req.body.text isnt "" and res.locals.thread?
 						post = {
 							course: res.locals.course._id

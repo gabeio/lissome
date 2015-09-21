@@ -42,12 +42,15 @@ router
 				res.locals.user.hash = hash
 				res.locals.user.markModified "hash"
 				err,user <- res.locals.user.save
+				/* istanbul ignore if */
 				if err
 					done err
 				else
 					res.redirect "/preferences/password?success=true"
 		]
+		/* istanbul ignore else */
 		if err
+			/* istanbul ignore next */
 			switch err
 			| "fin"
 				break
