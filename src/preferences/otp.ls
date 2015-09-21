@@ -51,14 +51,27 @@ router
 
 	..route "/disable"
 	.put (req, res, next)->
-		res.locals.user.set "otp.secret",""
-		res.locals.user.otp.set "secret","changed"
-		error, user <- res.locals.user.save!
-		/* istanbul ignore if */
-		if error
+		var error
+		/* istanbul ignore next */
+		try
+			res.locals.check = passcode.totp.verify {
+				secret: res.locals.user.otp.secret
+				token: req.body.token
+				encoding: "base32"
+			}
+		catch error
 			winston.error error
-			next new Error "MONGO"
+		if res.locals.check? and res.locals.check.delta?
+			res.locals.user.set "otp.secret",""
+			res.locals.user.otp.set "secret","changed"
+			error, user <- res.locals.user.save!
+			/* istanbul ignore if */
+			if error
+				winston.error error
+				next new Error "MONGO"
+			else
+				res.redirect "/preferences/otp?success=yes"
 		else
-			res.redirect "/preferences/otp?success=yes"
+			res.redirect "/preferences/otp?success=no"
 
 module.exports = router
