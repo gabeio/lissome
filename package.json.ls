@@ -41,7 +41,7 @@ dependencies:
 	"method-override": "~2.3.5"
 	"moment": "~2.10.6"
 	"moment-timezone": "~0.4.0"
-	"mongoose": "~4.1.7"
+	"mongoose": "~4.1.8"
 	"multer": "~1.0.5"
 	"passcode": "~1.0.2"
 	"response-time": "~2.3.1"
