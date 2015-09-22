@@ -33,7 +33,7 @@ dependencies:
 	"express": "~4.13.3"
 	"express-partial-response": "~0.3.4"
 	"express-session": "~1.11.3"
-	"helmet": "~0.11.0"
+	"helmet": "~0.12.0"
 	"ioredis": "~1.9.0"
 	"livescript": "~1.4.0"
 	"lodash": "~3.10.1"
