@@ -34,6 +34,7 @@ router
 				else
 					para!
 		]
+		/* istanbul ignore if */
 		if err?
 			next new Error err
 		else
@@ -46,6 +47,7 @@ router
 					err, user <- User.find {
 						_id: req.session.uid
 					}
+					/* istanbul ignore if */
 					if !user? or user.length is 0
 						done "LOGOUT"
 					else
@@ -56,7 +58,9 @@ router
 				next!
 				done null
 		]
+		/* istanbul ignore if */
 		if err?
+			/* istanbul ignore next */
 			switch err
 			| "LOGOUT"
 				winston.warn "Killing old user session", req.session
