@@ -376,6 +376,28 @@ describe "Core" ->
 								next err
 				]
 				done err
+			it "should redirect if no pin", (done)->
+				err <- async.waterfall [
+					(next)->
+						admin
+							.post "/login"
+							.send {
+								"username": "admin"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						admin
+							.get "/pin"
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/"
+								next err
+				]
+				done err
 			it "should redirect to pin", (done)->
 				err <- async.waterfall [
 					(next)->
@@ -684,6 +706,28 @@ describe "Core" ->
 								next err
 				]
 				done err
+			it "should redirect if no pin", (done)->
+				err <- async.waterfall [
+					(next)->
+						faculty
+							.post "/login"
+							.send {
+								"username": "faculty"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						faculty
+							.get "/pin"
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/"
+								next err
+				]
+				done err
 		describe "(User: Student)", (...)->
 			it "should login with valid credentials", (done)->
 				student
@@ -947,6 +991,28 @@ describe "Core" ->
 							.expect 302
 							.end (err, res)->
 								expect res.headers.location .to.equal "/login"
+								next err
+				]
+				done err
+			it "should redirect if no pin", (done)->
+				err <- async.waterfall [
+					(next)->
+						student
+							.post "/login"
+							.send {
+								"username": "student"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						student
+							.get "/pin"
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/"
 								next err
 				]
 				done err
