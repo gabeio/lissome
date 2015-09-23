@@ -516,7 +516,7 @@ describe "Core" ->
 				]
 				done err
 			it "should tell them to enable cookies", (done)->
-				admin
+				faculty
 					.get "/bounce?to=/"
 					.expect 200
 					.end (err, res)->
