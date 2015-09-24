@@ -740,6 +740,26 @@ describe "Core" ->
 								next err
 				]
 				done err
+			it "should be locked out", (done)->
+				err <- async.waterfall [
+					(next)->
+						faculty
+							.post "/login"
+							.send {
+								"username": "bfaculty"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						faculty
+							.get "/pin"
+							.end (err, res)->
+								next err
+				]
+				done err
 		describe "(User: Student)", (...)->
 			it "should login with valid credentials", (done)->
 				student
@@ -1031,6 +1051,26 @@ describe "Core" ->
 							.expect 302
 							.end (err, res)->
 								expect res.headers.location .to.equal "/"
+								next err
+				]
+				done err
+			it "should be locked out", (done)->
+				err <- async.waterfall [
+					(next)->
+						student
+							.post "/login"
+							.send {
+								"username": "bstudent"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						student
+							.get "/pin"
+							.end (err, res)->
 								next err
 				]
 				done err
