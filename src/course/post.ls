@@ -30,7 +30,7 @@ router
 		.populate "author"
 		.exec
 		var ref$
-		/* istanbul ignore if should only really occur if db crashes */
+		/* istanbul ignore if db error catcher */
 		if err
 			winston.error "post.ls: post.findOne", err
 			next new Error "MONGO"
@@ -96,7 +96,7 @@ router
 				},{
 					text: req.body.text
 				}
-				/* istanbul ignore if should only really occur if db crashes */
+				/* istanbul ignore if db error catcher */
 				if err?
 					winston.error "post.ls: Post.findOneAndUpdate", err
 					next new Error "INTERNAL"
@@ -119,7 +119,7 @@ router
 					delete res.locals.thePost.author
 				# delete post
 				err, post <- Post.findOneAndRemove res.locals.thePost
-				/* istanbul ignore if should only really occur if db crashes */
+				/* istanbul ignore if db error catcher */
 				if err?
 					winston.error err
 					res.status 400 .render "course/conference/deletePost" { body: req.body, success:"no", noun:"Post", verb:"deleted", csrf: req.csrfToken! }

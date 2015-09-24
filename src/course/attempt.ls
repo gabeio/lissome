@@ -34,7 +34,7 @@ router
 				.populate "assignment"
 				.populate "author"
 				.exec
-				done err,result
+				done err, result
 			(result,done)->
 				if result?
 					res.locals.attempt = result
@@ -44,13 +44,10 @@ router
 					res.locals.assignment = result.assignment
 				done null
 		]
+		/* istanbul ignore if db error catcher */
 		if err
-			switch err
-			| "fin"
-				break
-			| _
-				winston.error "attempt.ls: attempt.findOne", err
-				next new Error "MONGO"
+			winston.error "attempt.ls: attempt.findOne", err
+			next new Error "MONGO"
 		else
 			next!
 	.get (req, res, next)->
@@ -82,7 +79,7 @@ router
 				}, {
 					"points": req.body.points
 				}
-				/* istanbul ignore if should only occur if db crashes */
+				/* istanbul ignore if db error catcher */
 				if err?
 					winston.error err
 					next new Error "INTERNAL"

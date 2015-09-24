@@ -44,13 +44,10 @@ router
 				res.locals.attempts? = results
 				done err
 		]
+		/* istanbul ignore if db error catcher */
 		if err
-			switch err
-			| "fin"
-				break
-			| _
-				winston.error "assignment.ls:", err
-				next new Error err
+			winston.error "assignment.ls:", err
+			next new Error err
 		else if !res.locals.assignment?
 			next new Error "NOT FOUND"
 		else
@@ -80,6 +77,8 @@ router
 				}
 				.count!
 				.exec
+				/* istanbul ignore if db error catcher */
+				winston.error "assignments.ls: Attempt.find", err if err
 				res.locals.tries = result
 				err <- async.parallel [
 					(cont)->
@@ -114,7 +113,7 @@ router
 						res.locals.body.late = true
 					res.locals.attempt = new Attempt res.locals.body
 					err, attempt <- res.locals.attempt.save
-					/* istanbul ignore if should only occur if db crashes */
+					/* istanbul ignore if db error catcher */
 					if err
 						winston.error err
 						next new Error "Mongo Error"
@@ -166,7 +165,7 @@ router
 					"course": ObjectId res.locals.course._id
 					# don't check for author as me might not be...
 				}, assign
-				/* istanbul ignore if should only occur if db crashes */
+				/* istanbul ignore if db error catcher */
 				if err?
 					winston.error err
 					next new Error "Mongo Error"

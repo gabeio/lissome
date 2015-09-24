@@ -42,7 +42,7 @@ router
 				res.locals.user.hash = hash
 				res.locals.user.markModified "hash"
 				err,user <- res.locals.user.save
-				/* istanbul ignore if */
+				/* istanbul ignore if db error catcher */
 				if err
 					done err
 				else
