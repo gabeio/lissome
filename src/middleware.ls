@@ -28,7 +28,7 @@ router
 				else
 					para!
 			(para)->
-				/* istanbul ignore if which only tests if redis is offline */
+				/* istanbul ignore if db error catcher */
 				if !req.session?
 					para "Sessions are offline."
 				else

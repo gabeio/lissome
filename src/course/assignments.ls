@@ -90,7 +90,7 @@ router
 						]
 						assignment = new Assignment res.locals.assign
 						err, assignment <- assignment.save
-						/* istanbul ignore if should only occur if db crashes */
+						/* istanbul ignore if db error catcher */
 						if err?
 							winston.error err
 							next new Error "INTERNAL"

@@ -144,13 +144,20 @@ describe "Conference" ->
 				.get "/test/deletethreads/cps1234"
 				.end (err, res)->
 					done err
+		it "should not create a thread", (done)->
+			admin
+				.post "/c/#{courseId}/conference/newthread"
+				.send {
+				}
+				.expect 400
+				.end (err, res)->
+					done err
 		it "should create a thread", (done)->
 			err <- async.parallel [
 				(fin)->
 					admin
 						.get "/c/#{courseId}/conference/newthread"
 						.end (err, res)->
-							expect res.status .to.not.match /^(4|5)/
 							fin err
 				(fin)->
 					admin
@@ -159,8 +166,8 @@ describe "Conference" ->
 							title:"adminThread"
 							text:"adminPost"
 						}
+						.expect 302
 						.end (err, res)->
-							expect res.status .to.not.match /^(4|5)/
 							fin err
 			]
 			done err
@@ -599,13 +606,18 @@ describe "Conference" ->
 				.get "/test/deletethreads/cps1234"
 				.end (err, res)->
 					done err
+		it "should not create a thread", (done)->
+			faculty
+				.post "/c/#{courseId}/conference/newthread"
+				.expect 400
+				.end (err, res)->
+					done err
 		it "should create a thread", (done)->
 			err <- async.parallel [
 				(fin)->
 					faculty
 						.get "/c/#{courseId}/conference/newthread"
 						.end (err, res)->
-							expect res.status .to.not.match /^(4|5)/
 							fin err
 				(fin)->
 					faculty
@@ -614,8 +626,8 @@ describe "Conference" ->
 							title:"facultyThread"
 							text:"facultyPost"
 						}
+						.expect 302
 						.end (err, res)->
-							expect res.status .to.not.match /^(4|5)/
 							fin err
 			]
 			done err
@@ -1242,6 +1254,12 @@ describe "Conference" ->
 			this.timeout = 0
 			admin
 				.get "/test/deletethreads/cps1234"
+				.end (err, res)->
+					done err
+		it "should not create a thread", (done)->
+			student
+				.post "/c/#{courseId}/conference/newthread"
+				.expect 400
 				.end (err, res)->
 					done err
 		it "should create a thread", (done)->

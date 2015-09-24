@@ -40,7 +40,7 @@ router
 			res.locals.user.otp.secret = req.session.preferences.otp.secret.toString!
 			res.locals.user.markModified "otp.secret"
 			error, user <- res.locals.user.save!
-			/* istanbul ignore if */
+			/* istanbul ignore if db error catcher */
 			if error
 				winston.error error
 				next new Error "MONGO"
@@ -65,7 +65,7 @@ router
 			res.locals.user.set "otp.secret",""
 			res.locals.user.otp.set "secret","changed"
 			error, user <- res.locals.user.save!
-			/* istanbul ignore if */
+			/* istanbul ignore if db error catcher */
 			if error
 				winston.error error
 				next new Error "MONGO"

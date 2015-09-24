@@ -69,12 +69,15 @@ router
 						}
 						post = new Post post
 						err, post <- post.save
+						/* istanbul ignore if db error catcher */
 						winston.error "conference.ls new Post.save", err if err # this way it doesn't try to double send response
-						done null
+						done err
 				]
+				/* istanbul ignore if db error catcher */
 				if err
 					winston.error "conference.ls new Thread.save", err
 					next new Error err
+				/* istanbul ignore next break sould never be hit */
 		| "report"
 			...
 		| _

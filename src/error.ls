@@ -3,10 +3,10 @@ module.exports = (app)->
 		"async"
 		"winston"
 	}
-	/* istanbul ignore next this literally catches all the errors hard to test... */
+	/* istanbul ignore next this literally catches all the errors hard to test */
 	app
 		..use (err, req, res, next)->
-			/* istanbul ignore next this literally catches all the errors hard to test... */
+			/* istanbul ignore next this literally catches all the errors hard to test */
 			async.parallel [
 				!->
 					# ALWAYS LOG

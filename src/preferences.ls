@@ -20,7 +20,7 @@ router
 			username:req.session.username
 		}
 		.exec
-		/* istanbul ignore if */
+		/* istanbul ignore if db error catcher */
 		if err
 			winston.error "preferences.ls: user.findOne", err
 			next new Error "MONGO"

@@ -65,7 +65,7 @@ router
 		.lean!
 		.exec
 		var thisSemester
-		/* istanbul ignore if */
+		/* istanbul ignore if db error catcher */
 		if err
 			winston.error "dashboard.ls: Course.find", err
 			para "MONGO"

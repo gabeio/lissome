@@ -30,7 +30,7 @@ router
 				}
 				.populate "author"
 				.exec
-				/* istanbul ignore if should only really occur if db crashes */
+				/* istanbul ignore if db error catcher */
 				if err?
 					para err
 				else
@@ -50,7 +50,7 @@ router
 				.populate "author"
 				.sort!
 				.exec
-				/* istanbul ignore if should only really occur if db crashes */
+				/* istanbul ignore if db error catcher */
 				if err?
 					para err
 				else
@@ -63,7 +63,7 @@ router
 		else
 			next!
 	.get (req, res, next)->
-		/* istanbul ignore next should only ignore unimplemented */
+		/* istanbul ignore next only ignoring unimplemented */
 		switch req.params.action
 		| "editthread"
 			res.render "course/conference/editThread", { csrf: req.csrfToken! }
@@ -97,7 +97,7 @@ router
 						}
 						post = new Post post
 						err, post <- post.save
-						/* istanbul ignore if should only really occur if db crashes */
+						/* istanbul ignore if db error catcher */
 						winston.error "thread.ls: new Post.save", err if err
 			]
 		| "report"
@@ -116,7 +116,7 @@ router
 				},{
 					title: req.body.title
 				}
-				/* istanbul ignore if should only really occur if db crashes */
+				/* istanbul ignore if db error catcher */
 				if err?
 					winston.error "thread.ls: Thread.findOneAndUpdate", err
 					next new Error "INTERNAL"
@@ -138,7 +138,7 @@ router
 					delete res.locals.theThread.author
 				# delete thread
 				err, thread <- Thread.findOneAndRemove res.locals.theThread
-				/* istanbul ignore if should only really occur if db crashes */
+				/* istanbul ignore if db error catcher */
 				if err?
 					# error might be that they are not author
 					winston.error "thread.ls: Thread.findOneAndRemove", err
@@ -151,7 +151,7 @@ router
 						err, post <- Post.remove {
 							thread: ObjectId thread._id
 						}
-						/* istanbul ignore if should only really occur if db crashes */
+						/* istanbul ignore if db error catcher */
 						if err?
 							winston.error "thread.ls: Post.Remove", err
 							res.status 400 .render "course/conference/deleteThread" { body: req.body, success:"no", noun:"Posts", verb:"deleted", csrf: req.csrfToken! }

@@ -207,6 +207,12 @@ describe "Core" ->
 								next err
 					(next)->
 						admin
+							.get "/otp"
+							.expect 200
+							.end (err, res)->
+								next err
+					(next)->
+						admin
 							.post "/otp"
 							.send {
 								"token": passcode.totp { secret: "4JZPEQXTGFNCR76H", encoding: "base32" }
@@ -376,6 +382,28 @@ describe "Core" ->
 								next err
 				]
 				done err
+			it "should redirect if no pin", (done)->
+				err <- async.waterfall [
+					(next)->
+						admin
+							.post "/login"
+							.send {
+								"username": "admin"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/"
+								next err
+					(next)->
+						admin
+							.get "/pin"
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/"
+								next err
+				]
+				done err
 			it "should redirect to pin", (done)->
 				err <- async.waterfall [
 					(next)->
@@ -516,7 +544,7 @@ describe "Core" ->
 				]
 				done err
 			it "should tell them to enable cookies", (done)->
-				admin
+				faculty
 					.get "/bounce?to=/"
 					.expect 200
 					.end (err, res)->
@@ -534,6 +562,12 @@ describe "Core" ->
 							.expect 302
 							.end (err, res)->
 								expect res.headers.location .to.equal "/bounce?to=/otp"
+								next err
+					(next)->
+						faculty
+							.get "/otp"
+							.expect 200
+							.end (err, res)->
 								next err
 					(next)->
 						faculty
@@ -684,6 +718,48 @@ describe "Core" ->
 								next err
 				]
 				done err
+			it "should redirect if no pin", (done)->
+				err <- async.waterfall [
+					(next)->
+						faculty
+							.post "/login"
+							.send {
+								"username": "faculty"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/"
+								next err
+					(next)->
+						faculty
+							.get "/pin"
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/"
+								next err
+				]
+				done err
+			it "should be locked out", (done)->
+				err <- async.waterfall [
+					(next)->
+						faculty
+							.post "/login"
+							.send {
+								"username": "bfaculty"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						faculty
+							.get "/pin"
+							.end (err, res)->
+								next err
+				]
+				done err
 		describe "(User: Student)", (...)->
 			it "should login with valid credentials", (done)->
 				student
@@ -800,6 +876,12 @@ describe "Core" ->
 							.expect 302
 							.end (err, res)->
 								expect res.headers.location .to.equal "/bounce?to=/otp"
+								next err
+					(next)->
+						student
+							.get "/otp"
+							.expect 200
+							.end (err, res)->
 								next err
 					(next)->
 						student
@@ -947,6 +1029,48 @@ describe "Core" ->
 							.expect 302
 							.end (err, res)->
 								expect res.headers.location .to.equal "/login"
+								next err
+				]
+				done err
+			it "should redirect if no pin", (done)->
+				err <- async.waterfall [
+					(next)->
+						student
+							.post "/login"
+							.send {
+								"username": "student"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/"
+								next err
+					(next)->
+						student
+							.get "/pin"
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/"
+								next err
+				]
+				done err
+			it "should be locked out", (done)->
+				err <- async.waterfall [
+					(next)->
+						student
+							.post "/login"
+							.send {
+								"username": "bstudent"
+								"password": "password"
+							}
+							.expect 302
+							.end (err, res)->
+								expect res.headers.location .to.equal "/bounce?to=/pin"
+								next err
+					(next)->
+						student
+							.get "/pin"
+							.end (err, res)->
 								next err
 				]
 				done err

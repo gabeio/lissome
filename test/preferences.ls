@@ -344,6 +344,25 @@ describe "Preferences" ->
 								next err
 				]
 				done err
+			it "should not crash when disabling OTP without token", (done)->
+				err <- async.parallel [
+					(next)->
+						faculty
+							.get "/preferences/otp"
+							.end (err, res)->
+								expect res.status .to.equal 200
+								next err
+					(next)->
+						faculty
+							.put "/preferences/otp/disable?hmo=put"
+							.send {
+							}
+							.end (err, res)->
+								expect res.status .to.equal 302
+								expect res.header.location .to.match /^\/preferences\/otp\?success\=no/i
+								next err
+				]
+				done err
 			it "Disable OTP", (done)->
 				err <- async.parallel [
 					(next)->

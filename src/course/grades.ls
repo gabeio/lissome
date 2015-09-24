@@ -19,9 +19,9 @@ router
 		.populate "author"
 		.sort { timestamp: -1 }
 		.exec
-		/* istanbul ignore if should only occur if db crashes */
+		/* istanbul ignore if db error catcher */
 		if err?
-			winston.error "assign findOne conf", err
+			winston.error "grades find", err
 			next new Error "INTERNAL"
 		else
 			res.locals.attempts = result
