@@ -387,7 +387,7 @@ describe "Core" ->
 							}
 							.expect 302
 							.end (err, res)->
-								expect res.headers.location .to.equal "/bounce?to=/pin"
+								expect res.headers.location .to.equal "/bounce?to=/"
 								next err
 					(next)->
 						admin
@@ -717,7 +717,7 @@ describe "Core" ->
 							}
 							.expect 302
 							.end (err, res)->
-								expect res.headers.location .to.equal "/bounce?to=/pin"
+								expect res.headers.location .to.equal "/bounce?to=/"
 								next err
 					(next)->
 						faculty
@@ -1005,7 +1005,7 @@ describe "Core" ->
 							}
 							.expect 302
 							.end (err, res)->
-								expect res.headers.location .to.equal "/bounce?to=/pin"
+								expect res.headers.location .to.equal "/bounce?to=/"
 								next err
 					(next)->
 						student
