@@ -207,6 +207,12 @@ describe "Core" ->
 								next err
 					(next)->
 						admin
+							.get "/otp"
+							.expect 200
+							.end (err, res)->
+								next err
+					(next)->
+						admin
 							.post "/otp"
 							.send {
 								"token": passcode.totp { secret: "4JZPEQXTGFNCR76H", encoding: "base32" }
@@ -559,6 +565,12 @@ describe "Core" ->
 								next err
 					(next)->
 						faculty
+							.get "/otp"
+							.expect 200
+							.end (err, res)->
+								next err
+					(next)->
+						faculty
 							.post "/otp"
 							.send {
 								"token": passcode.totp { secret: "4JZPEQXTGFNCR76H", encoding: "base32" }
@@ -844,6 +856,12 @@ describe "Core" ->
 							.expect 302
 							.end (err, res)->
 								expect res.headers.location .to.equal "/bounce?to=/otp"
+								next err
+					(next)->
+						student
+							.get "/otp"
+							.expect 200
+							.end (err, res)->
 								next err
 					(next)->
 						student
