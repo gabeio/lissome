@@ -49,7 +49,7 @@ dependencies:
 	"serve-static": "~1.10.0"
 	"swig": "~1.4.2"
 	"thirty-two": "~0.0.2"
-	"winston": "~1.0.1"
+	"winston": "~1.0.2"
 	"yargs": "~3.26.0"
 
 optionalDependencies:
