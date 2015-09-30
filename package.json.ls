@@ -25,7 +25,7 @@ repository:
 dependencies:
 	"async": "~1.4.2"
 	"bcrypt": "~0.8.5"
-	"body-parser": "~1.14.0"
+	"body-parser": "~1.14.1"
 	"compression": "~1.5.2"
 	"connect-redis": "~2.5.1"
 	"cors": "~2.7.1"
