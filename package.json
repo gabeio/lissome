@@ -35,7 +35,7 @@
     "ioredis": "~1.9.1",
     "livescript": "~1.4.0",
     "lodash": "~3.10.1",
-    "markdown-it": "~4.4.0",
+    "markdown-it": "~5.0.0",
     "method-override": "~2.3.5",
     "moment": "~2.10.6",
     "moment-timezone": "~0.4.0",
