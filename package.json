@@ -48,7 +48,7 @@
     "swig": "~1.4.2",
     "thirty-two": "~0.0.2",
     "winston": "~1.0.2",
-    "yargs": "~3.26.0"
+    "yargs": "~3.27.0"
   },
   "optionalDependencies": {
     "hiredis": "~0.4.0"
