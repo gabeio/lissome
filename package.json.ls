@@ -40,7 +40,7 @@ dependencies:
 	"markdown-it": "~5.0.0"
 	"method-override": "~2.3.5"
 	"moment": "~2.10.6"
-	"moment-timezone": "~0.4.0"
+	"moment-timezone": "~0.4.1"
 	"mongoose": "~4.1.9"
 	"multer": "~1.0.6"
 	"passcode": "~1.0.2"
