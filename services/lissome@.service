@@ -1,0 +1,23 @@
+[Unit]
+Description=Lissome on port %i
+# Requires
+Requires=docker.service
+Requires=redis@6379.service
+Requires=mongo@27017.service
+# Start After
+After=docker.service
+After=redis@6379.service
+After=mongo@27017.service
+
+[Service]
+TimeoutStartSec=0
+# Checks Before start
+ExecStartPre=-/usr/bin/docker kill lissome%i
+ExecStartPre=-/usr/bin/docker rm lissome%i
+# Start
+ExecStart=/usr/bin/docker run -p %i:80 --link mongo27017:mongo --link redis6379:redis -e cookie="cookie" -e school="Kean University" -e timezone="US/Eastern" -e NODE_ENV="production" --name lissome%i lissome
+# Stop
+ExecStop=/usr/bin/docker stop lissome%i
+
+[Install]
+WantedBy=multi-user.target
