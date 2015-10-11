@@ -1,0 +1,23 @@
+[Unit]
+Description=Redis on port 6379
+# Requires
+Requires=docker.service
+# Start After
+After=docker.service
+
+[Service]
+TimeoutStartSec=0
+# Checks Before start
+ExecStartPre=-/usr/bin/docker kill redis%i
+ExecStartPre=-/usr/bin/docker rm redis%i
+ExecStartPre=-/usr/bin/docker pull redis
+# Start
+ExecStart=/usr/bin/docker run -p 6379:6379 --name redis%i redis
+# Stop
+ExecStop=/usr/bin/docker stop redis%i
+
+[Install]
+WantedBy=multi-user.target
+
+[X-Fleet]
+X-Conflicts=redis.*.service
