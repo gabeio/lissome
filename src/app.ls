@@ -118,6 +118,12 @@ app
 			"maxcdn.bootstrapcdn.com",
 			"cdnjs.cloudflare.com"
 		]
+		img-src:     ["'self'",
+			"lissome.co"
+			"assets.lissome.co",
+			"maxcdn.bootstrapcdn.com",
+			"cdnjs.cloudflare.com"
+		]
 		script-src:  ["'self'",
 			"assets.lissome.co",
 			"maxcdn.bootstrapcdn.com",
