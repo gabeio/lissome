@@ -59,7 +59,7 @@ devDependencies:
 	"chai": "~3.4.1"
 	"del": "~2.2.0"
 	"gulp": "~3.9.0"
-	"gulp-livescript": "~2.4.0"
+	"gulp-livescript": "~3.0.0"
 	"istanbul": "~0.4.0"
 	"mocha": "~2.3.3"
 	"supertest": "~0.15.0"
