@@ -32,7 +32,7 @@ dependencies:
 	"csurf": "~1.8.3"
 	"express": "~4.13.3"
 	"express-partial-response": "~0.3.4"
-	"express-session": "~1.12.1"
+	"express-session": "~1.13.0"
 	"helmet": "~1.0.1"
 	"ioredis": "~1.13.2"
 	"kerberos": "~0.0.17"
