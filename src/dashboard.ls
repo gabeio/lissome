@@ -28,7 +28,7 @@ router
 					.exec
 					/* istanbul ignore next */
 					winston.error "dashboard.ls: Semester.find" err if err
-					res.locals.semesters = _.map _.toArray(_.pluck semesters, "_id" ), (doc)->
+					res.locals.semesters = _.map _.toArray(_.map semesters, "_id" ), (doc)->
 						doc.toString!
 					done err
 				else
