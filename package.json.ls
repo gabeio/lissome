@@ -38,7 +38,7 @@ dependencies:
 	"kerberos": "~0.0.17"
 	"livescript": "~1.4.0"
 	"lodash": "~3.10.1"
-	"markdown-it": "~5.0.2"
+	"markdown-it": "~5.1.0"
 	"method-override": "~2.3.5"
 	"moment": "~2.10.6"
 	"moment-timezone": "~0.5.0"
