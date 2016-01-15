@@ -51,7 +51,7 @@ router
 							.exec
 							course.students = ObjectId res.locals.uid
 							course.semester = {
-								"$in": _.pluck semester, "_id"
+								"$in": _.map semester, "_id"
 							}
 							para err, course
 						else
