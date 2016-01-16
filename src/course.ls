@@ -51,12 +51,13 @@ router
 							.exec
 							course.students = ObjectId res.locals.uid
 							course.semester = {
-								"$in": _.pluck semester, "_id"
+								"$in": _.map semester, "_id"
 							}
 							para err, course
 						else
 							para null
 					(para)->
+						/* istanbul ignore if */
 						if !res.locals.auth? or res.locals.auth <= 0
 							para "UNAUTHORIZED"
 						else
@@ -66,6 +67,7 @@ router
 				.without undefined
 				.flatten true
 				.value!
+				/* istanbul ignore else */
 				if course.length <= 1
 					done err, course.0
 				else
@@ -85,6 +87,7 @@ router
 				res.locals.course? = result
 				done err, result
 		]
+		/* istanbul ignore if */
 		if err?
 			switch err
 			| "LOGOUT"

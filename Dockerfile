@@ -1,5 +1,5 @@
-# use iojs
-FROM iojs
+# use node
+FROM node
 # default port 80
 ENV PORT 80
 # expost default port 80

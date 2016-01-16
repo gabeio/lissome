@@ -12,9 +12,9 @@ router
 	..route "/"
 	.get (req, res, next)->
 		if req.query.success?
-			res.render "preferences/password", { success:req.query.success }
+			res.render "preferences/password", { success:req.query.success, csrf: req.csrfToken! }
 		else
-			res.render "preferences/password"
+			res.render "preferences/password", { csrf: req.csrfToken! }
 
 	..route "/change"
 	.put (req, res, next)->
@@ -42,12 +42,15 @@ router
 				res.locals.user.hash = hash
 				res.locals.user.markModified "hash"
 				err,user <- res.locals.user.save
+				/* istanbul ignore if db error catcher */
 				if err
 					done err
 				else
 					res.redirect "/preferences/password?success=true"
 		]
+		/* istanbul ignore else */
 		if err
+			/* istanbul ignore next */
 			switch err
 			| "fin"
 				break

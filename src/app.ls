@@ -24,8 +24,9 @@ require! {
 	"./databases/redisClient"
 	"./databases/mongoClient"
 }
-
+var secret
 # verbosity level
+/* istanbul ignore next verbosity level only set when necessary */
 winston.level? = (yargs.argv.v||yargs.argv.verbose)
 
 # express
@@ -54,6 +55,8 @@ do ->
 	if !process.env.cookie? and !process.env.COOKIE? and !yargs.argv.cookie?
 		winston.error "app: REQUIRES COOKIE SECRET"
 		process.exit 1
+	else
+		secret := (process.env.cookie||process.env.COOKIE||yargs.argv.cookie)
 	if !process.env.school? and !process.env.SCHOOL? and !yargs.argv.school?
 		winston.error "app: REQUIRES SCHOOL NAME"
 		process.exit 1
@@ -146,7 +149,7 @@ app
 	.use method-override "hmo" # Http-Method-Override
 	# sessions
 	.use express-session {
-		secret: (process.env.cookie||process.env.COOKIE||yargs.argv.cookie)
+		secret: secret
 		-resave
 		+rolling
 		+saveUninitialized
@@ -234,6 +237,7 @@ else
 	winston.level = "error"
 	require("./test")(app)
 
+/* istanbul ignore next only executed if a sig(term/int) is sent */
 shutdown = ->
 	winston.info "app.ls: Gracefully shutting down."
 	server.close!
@@ -242,5 +246,5 @@ shutdown = ->
 	process.exit 0
 /* istanbul ignore next only executed when sigterm is sent */
 process.on "SIGTERM", shutdown
-/* istanbul ignore next only executed when sigterm is sent */
+/* istanbul ignore next only executed when sigint is sent */
 process.on "SIGINT", shutdown

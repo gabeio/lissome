@@ -70,9 +70,9 @@ router
 							course: ObjectId res.locals.course._id
 						}
 						err, post <- post.save
-						/* istanbul ignore if */
+						/* istanbul ignore if db error catcher */
 						if err?
-							winston.error "blog post save", err
+							winston.error "blog post.save", err
 			]
 		else
 			next new Error "bad blog post"
@@ -94,9 +94,9 @@ router
 							"title": req.body.title
 							"text": req.body.text
 						}
-						/* istanbul ignore if */
+						/* istanbul ignore if db error catcher */
 						if err
-							winston.error "blog post update", err
+							winston.error "blog post.update", err
 			]
 		else
 			next new Error "bad blog put"
@@ -112,9 +112,8 @@ router
 							"course": ObjectId res.locals.course._id
 							"type": "blog"
 						}
-						/* istanbul ignore if */
-						if err
-							winston.error "blog post delete", err
+						/* istanbul ignore if db error catcher */
+						winston.error "blog post delete", err if err
 				->
 					if req.query.action is "deleteall" and req.params.unique?
 						err, post <- Post.remove {
@@ -122,9 +121,8 @@ router
 							"course": ObjectId res.locals.course._id
 							"type": "blog"
 						}
-						/* istanbul ignore if */
-						if err
-							winston.error "blog post delete", err
+						/* istanbul ignore if db error catcher */
+						winston.error "blog post delete", err if err
 			]
 		else
 			next new Error "bad blog delete"
@@ -202,6 +200,8 @@ router
 					.exec
 					done err, posts
 			]
+			/* istanbul ignore if db error catcher */
+			winston.error "blog search", err if err
 			posts = _(posts)
 			.without undefined # posts, undefined
 			.flatten true
@@ -216,6 +216,8 @@ router
 			}
 			.populate "author"
 			.exec
+			/* istanbul ignore if db error catcher */
+			winston.error "blog search(empty)", err if err
 			res.locals.blog = _.sortBy posts, "timestamp" .reverse!
 			res.render "course/blog/default", { success: req.query.success, action: req.query.verb }
 

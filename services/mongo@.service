@@ -1,0 +1,23 @@
+[Unit]
+Description=Mongo on port 27017
+# Requires
+Requires=docker.service
+# Start After
+After=docker.service
+
+[Service]
+TimeoutStartSec=0
+# Checks Before start
+ExecStartPre=-/usr/bin/docker kill mongo%i
+ExecStartPre=-/usr/bin/docker rm mongo%i
+ExecStartPre=-/usr/bin/docker pull mongo
+# Start
+ExecStart=/usr/bin/docker run -v /data:/data -p 27017:27017 --name mongo%i mongo
+# Stop
+ExecStop=/usr/bin/docker stop mongo%i
+
+[Install]
+WantedBy=multi-user.target
+
+[X-Fleet]
+X-Conflicts=mongo.*.service
