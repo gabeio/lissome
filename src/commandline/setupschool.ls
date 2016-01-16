@@ -5,10 +5,12 @@ require! {
 	"winston"
 }
 
-var school, student, astudent, zstudent, faculty,\
-	gfaculty, zfaculty, admin, zadmin, course1, course2,\
-	course3, course4, hashPassword, semester1, semester2,\
-	xstudent
+var school, \
+	student, astudent, bstudent, xstudent, ystudent, zstudent, \
+	faculty, bfaculty, gfaculty, xfaculty, yfaculty, zfaculty, \
+	admin, badmin, xadmin, yadmin, zadmin, \
+	course1, course2, course3, course4, \
+	hashPassword, semester1, semester2
 
 require("../databases/mongoose")
 School = mongoose.models.School
@@ -102,7 +104,38 @@ err <- async.waterfall [
 				err, astudent <- astudent.save
 				winston.error err if err
 				astudent? := astudent
-				winston.info "Student created"
+				winston.info "aStudent created"
+				done err
+	(done)->
+		# bstudent
+		err,result <- User.find { "username":"bstudent", "type":1, "school":(process.env.school||process.env.SCHOOL) }
+		if err
+			winston.error err
+			done err
+		else
+			if result? and result.length > 0
+				bstudent := result.0
+				winston.info "bstudent exists"
+				done!
+			else
+				bstudent := new User {
+					id: 13
+					username: "bstudent"
+					firstName: "Carver"
+					lastName: "Pearce"
+					email: "bstudent@kean.edu"
+					hash: hashPassword
+					school: (process.env.school||process.env.SCHOOL)
+					type: 1
+					pin: {
+						required: true
+						method: "unknown"
+					}
+				}
+				err, bstudent <- bstudent.save
+				winston.error err if err
+				bstudent? := bstudent
+				winston.info "bStudent created"
 				done err
 	(done)->
 		# xstudent
@@ -117,7 +150,7 @@ err <- async.waterfall [
 				done!
 			else
 				xstudent := new User {
-					id: 13
+					id: 14
 					username: "xstudent"
 					firstName: "Clay"
 					lastName: "Dennis"
@@ -134,26 +167,26 @@ err <- async.waterfall [
 				err, xstudent <- xstudent.save
 				winston.error err if err
 				xstudent? := xstudent
-				winston.info "Student created"
+				winston.info "xStudent created"
 				done err
 	(done)->
-		# zstudent
-		err,result <- User.find { "username":"zstudent", "type":1, "school":(process.env.school||process.env.SCHOOL) }
+		# ystudent
+		err,result <- User.find { "username":"ystudent", "type":1, "school":(process.env.school||process.env.SCHOOL) }
 		if err
 			winston.error err
 			done err
 		else
 			if result? and result.length > 0
 				astudent := result.0
-				winston.info "zstudent exists"
+				winston.info "ystudent exists"
 				done!
 			else
-				zstudent := new User {
-					id: 14
-					username: "zstudent"
+				ystudent := new User {
+					id: 15
+					username: "ystudent"
 					firstName: "Lochan"
 					lastName: "Axel"
-					email: "zstudent@kean.edu"
+					email: "ystudent@kean.edu"
 					hash: hashPassword
 					school: (process.env.school||process.env.SCHOOL)
 					type: 1
@@ -163,10 +196,40 @@ err <- async.waterfall [
 						token: "uvMDxy1CwWNvVSVDjBzN2L1rC9aMmF"
 					}
 				}
+				err, ystudent <- ystudent.save
+				winston.error err if err
+				ystudent? := ystudent
+				winston.info "yStudent created"
+				done err
+	(done)->
+		# zstudent
+		err,result <- User.find { "username":"zstudent", "type":1, "school":(process.env.school||process.env.SCHOOL) }
+		if err
+			winston.error err
+			done err
+		else
+			if result? and result.length > 0
+				admin := result.0
+				winston.info "zstudent exists"
+				done!
+			else
+				zstudent := new User {
+					id: 16
+					username: "zstudent"
+					firstName: "Totp"
+					lastName: "Usar"
+					email: "zstudent@kean.edu"
+					hash: hashPassword
+					school: (process.env.school||process.env.SCHOOL)
+					type: 1
+					otp: {
+						secret: "4JZPEQXTGFNCR76H"
+					}
+				}
 				err, zstudent <- zstudent.save
 				winston.error err if err
 				zstudent? := zstudent
-				winston.info "Student created"
+				winston.info "zStudent created"
 				done err
 	(done)->
 		# faculty
@@ -181,7 +244,7 @@ err <- async.waterfall [
 				done!
 			else
 				faculty := new User {
-					id: 24
+					id: 21
 					username: "faculty"
 					firstName: "Ralph"
 					lastName: "Frost"
@@ -196,6 +259,37 @@ err <- async.waterfall [
 				winston.info "Faculty created"
 				done err
 	(done)->
+		# bfaculty
+		err,result <- User.find { "username":"bfaculty", "type":2, "school":(process.env.school||process.env.SCHOOL) }
+		if err
+			winston.error err
+			done err
+		else
+			if result? and result.length > 0
+				bfaculty := result.0
+				winston.info "bfaculty exists"
+				done!
+			else
+				bfaculty := new User {
+					id: 22
+					username: "bfaculty"
+					firstName: "Carver"
+					lastName: "Pearce"
+					email: "bfaculty@kean.edu"
+					hash: hashPassword
+					school: (process.env.school||process.env.SCHOOL)
+					type: 2
+					pin: {
+						required: true
+						method: "unknown"
+					}
+				}
+				err, bfaculty <- bfaculty.save
+				winston.error err if err
+				bfaculty? := bfaculty
+				winston.info "bFaculty created"
+				done err
+	(done)->
 		# gfaculty
 		err,result <- User.find { "username":"gfaculty", "type":2, "school":(process.env.school||process.env.SCHOOL) }
 		if err
@@ -208,7 +302,7 @@ err <- async.waterfall [
 				done!
 			else
 				gfaculty := new User {
-					id: 25
+					id: 23
 					username: "gfaculty"
 					firstName: "Shaw"
 					lastName: "Hanson"
@@ -219,8 +313,72 @@ err <- async.waterfall [
 				}
 				err, faculty <- gfaculty.save
 				winston.error err if err
-				gfaculty? := faculty
-				winston.info "Faculty created"
+				gfaculty? := gfaculty
+				winston.info "gFaculty created"
+				done err
+	(done)->
+		# xfaculty
+		err,result <- User.find { "username":"xfaculty", "type":2, "school":(process.env.school||process.env.SCHOOL) }
+		if err
+			winston.error err
+			done err
+		else
+			if result? and result.length > 0
+				astudent := result.0
+				winston.info "xfaculty exists"
+				done!
+			else
+				xfaculty := new User {
+					id: 24
+					username: "xfaculty"
+					firstName: "Clay"
+					lastName: "Dennis"
+					email: "xfaculty@kean.edu"
+					hash: hashPassword
+					school: (process.env.school||process.env.SCHOOL)
+					type: 2
+					pin: {
+						required: true
+						method: "pushbullet"
+						token: "burtonmodel@gmail.com"
+					}
+				}
+				err, xfaculty <- xfaculty.save
+				winston.error err if err
+				xfaculty? := xfaculty
+				winston.info "xFaculty created"
+				done err
+	(done)->
+		# yfaculty
+		err,result <- User.find { "username":"yfaculty", "type":2, "school":(process.env.school||process.env.SCHOOL) }
+		if err
+			winston.error err
+			done err
+		else
+			if result? and result.length > 0
+				astudent := result.0
+				winston.info "yfaculty exists"
+				done!
+			else
+				yfaculty := new User {
+					id: 25
+					username: "yfaculty"
+					firstName: "Lochan"
+					lastName: "Axel"
+					email: "yfaculty@kean.edu"
+					hash: hashPassword
+					school: (process.env.school||process.env.SCHOOL)
+					type: 2
+					pin: {
+						required: true
+						method: "pushover"
+						token: "uvMDxy1CwWNvVSVDjBzN2L1rC9aMmF"
+					}
+				}
+				err, yfaculty <- yfaculty.save
+				winston.error err if err
+				yfaculty? := yfaculty
+				winston.info "yFaculty created"
 				done err
 	(done)->
 		# zfaculty
@@ -237,7 +395,7 @@ err <- async.waterfall [
 				zfaculty := new User {
 					id: 26
 					username: "zfaculty"
-					firstName: "Hotp"
+					firstName: "Totp"
 					lastName: "Usar"
 					email: "zfaculty@kean.edu"
 					hash: hashPassword
@@ -250,7 +408,7 @@ err <- async.waterfall [
 				err, faculty <- zfaculty.save
 				winston.error err if err
 				gfaculty? := faculty
-				winston.info "Faculty created"
+				winston.info "yFaculty created"
 				done err
 	(done)->
 		# admin
@@ -265,7 +423,7 @@ err <- async.waterfall [
 				done!
 			else
 				admin := new User {
-					id: 35
+					id: 31
 					username: "admin"
 					firstName: "Carver"
 					lastName: "Pearce"
@@ -280,6 +438,101 @@ err <- async.waterfall [
 				winston.info "Admin created"
 				done err
 	(done)->
+		# badmin
+		err,result <- User.find { "username":"badmin", "type":3, "school":(process.env.school||process.env.SCHOOL) }
+		if err
+			winston.error err
+			done err
+		else
+			if result? and result.length > 0
+				badmin := result.0
+				winston.info "badmin exists"
+				done!
+			else
+				badmin := new User {
+					id: 32
+					username: "badmin"
+					firstName: "Carver"
+					lastName: "Pearce"
+					email: "badmin@kean.edu"
+					hash: hashPassword
+					school: (process.env.school||process.env.SCHOOL)
+					type: 3
+					pin: {
+						required: true
+						method: "unknown"
+					}
+				}
+				err, badmin <- badmin.save
+				winston.error err if err
+				badmin? := badmin
+				winston.info "bAdmin created"
+				done err
+	(done)->
+		# xadmin
+		err,result <- User.find { "username":"xadmin", "type":1, "school":(process.env.school||process.env.SCHOOL) }
+		if err
+			winston.error err
+			done err
+		else
+			if result? and result.length > 0
+				astudent := result.0
+				winston.info "xadmin exists"
+				done!
+			else
+				xadmin := new User {
+					id: 33
+					username: "xadmin"
+					firstName: "Clay"
+					lastName: "Dennis"
+					email: "xadmin@kean.edu"
+					hash: hashPassword
+					school: (process.env.school||process.env.SCHOOL)
+					type: 1
+					pin: {
+						required: true
+						method: "pushbullet"
+						token: "burtonmodel@gmail.com"
+					}
+				}
+				err, xadmin <- xadmin.save
+				winston.error err if err
+				xadmin? := xadmin
+				winston.info "xAdmin created"
+				done err
+	(done)->
+		# yadmin
+		err,result <- User.find { "username":"yadmin", "type":3, "school":(process.env.school||process.env.SCHOOL) }
+		if err
+			winston.error err
+			done err
+		else
+			if result? and result.length > 0
+				astudent := result.0
+				winston.info "yadmin exists"
+				done!
+			else
+				yadmin := new User {
+					id: 34
+					username: "yadmin"
+					firstName: "Lochan"
+					lastName: "Axel"
+					email: "yadmin@kean.edu"
+					hash: hashPassword
+					school: (process.env.school||process.env.SCHOOL)
+					type: 3
+					pin: {
+						required: true
+						method: "pushover"
+						token: "uvMDxy1CwWNvVSVDjBzN2L1rC9aMmF"
+					}
+				}
+				err, yadmin <- yadmin.save
+				winston.error err if err
+				yadmin? := yadmin
+				winston.info "yAdmin created"
+				done err
+	(done)->
 		# zadmin
 		err,result <- User.find { "username":"zadmin", "type":3, "school":(process.env.school||process.env.SCHOOL) }
 		if err
@@ -291,8 +544,8 @@ err <- async.waterfall [
 				winston.info "admin exists"
 				done!
 			else
-				admin := new User {
-					id: 36
+				zadmin := new User {
+					id: 35
 					username: "zadmin"
 					firstName: "Totp"
 					lastName: "Usar"
@@ -304,10 +557,10 @@ err <- async.waterfall [
 						secret: "4JZPEQXTGFNCR76H"
 					}
 				}
-				err, admin <- admin.save
+				err, zadmin <- zadmin.save
 				winston.error err if err
-				admin? := admin
-				winston.info "Admin created"
+				zadmin? := zadmin
+				winston.info "zAdmin created"
 				done err
 	(done)->
 		# Fall 2015 semester
@@ -376,7 +629,7 @@ err <- async.waterfall [
 					students: [ # student's username(s)
 						student._id
 						xstudent._id
-						zstudent._id
+						ystudent._id
 					]
 					school: (process.env.school||process.env.SCHOOL)
 					semester: semester1._id
@@ -436,7 +689,7 @@ err <- async.waterfall [
 					]
 					students: [ # student's username(s)
 						student._id
-						zstudent._id
+						ystudent._id
 					]
 					school: (process.env.school||process.env.SCHOOL)
 					semester: semester2._id

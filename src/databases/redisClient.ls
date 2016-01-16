@@ -4,7 +4,7 @@ require! {
 	"yargs"
 }
 
-/* istanbul ignore if */
+/* istanbul ignore next */
 redis = new ioredis (process.env.redis||process.env.REDIS||yargs.argv.redis||"redis://localhost:6379/0")
 redis.on "connect", ->
 	winston.info "redis: connected"

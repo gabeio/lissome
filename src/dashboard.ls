@@ -18,6 +18,7 @@ router
 	.get (req, res, next)->
 		<- async.parallel [
 			(done)->
+				/* istanbul ignore else use should already have been sent to login */
 				if res.locals.auth > 0
 					err, semesters <- Semester.find {
 						"open":{ "$lt": new Date Date.now! }
@@ -25,8 +26,9 @@ router
 					}
 					.lean!
 					.exec
+					/* istanbul ignore next */
 					winston.error "dashboard.ls: Semester.find" err if err
-					res.locals.semesters = _.map _.toArray(_.pluck semesters, "_id" ), (doc)->
+					res.locals.semesters = _.map _.toArray(_.map semesters, "_id" ), (doc)->
 						doc.toString!
 					done err
 				else
@@ -62,7 +64,8 @@ router
 		.populate "semester"
 		.lean!
 		.exec
-		/* istanbul ignore if */
+		var thisSemester
+		/* istanbul ignore if db error catcher */
 		if err
 			winston.error "dashboard.ls: Course.find", err
 			para "MONGO"

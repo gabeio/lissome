@@ -1,6 +1,8 @@
 build:
 	npm i
 	gulp build
+	rm -rf ./node_modules/
+	npm i
 
 test:
 	gulp build
@@ -13,6 +15,6 @@ coverage:
 	./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha
 
 clean:
-	rm -rf ./lib/
+	rm -rf ./lib/ ./node_modules/
 
-.PHONY: default test coverage
+.PHONY: default build test coverage clean
