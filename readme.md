@@ -1,9 +1,9 @@
 Lissome
 =======
 
-[![Build Status](https://magnum.travis-ci.com/gabeio/lissome.svg?token=8ysSVLsN3qoWuWWmeBwM&branch=develop)](https://magnum.travis-ci.com/gabeio/lissome)
-[![Circle CI](https://circleci.com/gh/gabeio/lissome/tree/develop.svg?style=svg&circle-token=541ce6a9dc1d8fdbaad3c0f6ec11931485ec96cd)](https://circleci.com/gh/gabeio/lissome/tree/develop)
-[![Dependency Status](https://gemnasium.com/feee31ec6a8bc2286a63441e57234d8f.svg)](https://gemnasium.com/gabeio/lissome)
+[![Build Status](https://travis-ci.org/gabeio/lissome.svg?branch=develop)](https://travis-ci.org/gabeio/lissome)
+[![Circle CI](https://circleci.com/gh/gabeio/lissome/tree/develop.svg?style=svg)](https://circleci.com/gh/gabeio/lissome/tree/develop)
+[![Dependency Status](https://david-dm.org/gabeio/lissome.svg)](https://david-dm.org/gabeio/lissome)
 [![Coverage Status](https://coveralls.io/repos/gabeio/lissome/badge.svg?branch=develop&t=blNPeE)](https://coveralls.io/r/gabeio/lissome?branch=develop)
 
 ## docker
