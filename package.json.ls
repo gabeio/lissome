@@ -25,7 +25,7 @@ repository:
 dependencies:
 	"async": "~1.5.0"
 	"bcrypt": "~0.8.5"
-	"body-parser": "~1.14.2"
+	"body-parser": "~1.15.0"
 	"compression": "~1.6.0"
 	"connect-redis": "~3.0.1"
 	"cors": "~2.7.1"
@@ -38,7 +38,7 @@ dependencies:
 	"kerberos": "~0.0.17"
 	"livescript": "~1.4.0"
 	"lodash": "~4.6.0"
-	"markdown-it": "~5.1.0"
+	"markdown-it": "~6.0.0"
 	"method-override": "~2.3.5"
 	"moment": "~2.12.0"
 	"moment-timezone": "~0.5.0"
