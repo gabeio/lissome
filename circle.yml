@@ -24,7 +24,7 @@ database:
     - gulp build
   override:
     - redis-cli config set requirepass test
-    - mongo lissome --eval "db.addUser('circleci', 'test');"
+    - mongo lissome --eval "db.createUser({user:'circleci', pwd:'test', roles: [{role: 'readWrite', db: 'lissome' }]});"
   post:
     - node lib/commandline/setupschool.js
 test:
