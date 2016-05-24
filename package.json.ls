@@ -1,8 +1,6 @@
 name: "lissome"
 version: "0.0.10"
 
-private: true
-
 bugs: "https://github.com/gabeio/lissome/issues"
 
 engines:
