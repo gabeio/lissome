@@ -35,7 +35,7 @@ dependencies:
 	"ioredis": "~1.15.0"
 	"kerberos": "~0.0.17"
 	"livescript": "~1.5.0"
-	"lodash": "~4.6.0"
+	"lodash": "~4.13.0"
 	"markdown-it": "~6.0.0"
 	"method-override": "~2.3.5"
 	"moment": "~2.12.0"
