@@ -3,7 +3,6 @@ machine:
   node:
     version: 6.2.0
   services:
-    - mongodb
     - redis
   environment:
     cookie: "cookie"
