@@ -1,9 +1,8 @@
 ---
 machine:
   node:
-    version: 5.1.0
+    version: 6.2.0
   services:
-    - mongodb
     - redis
   environment:
     cookie: "cookie"
@@ -25,7 +24,7 @@ database:
     - gulp build
   override:
     - redis-cli config set requirepass test
-    - mongo lissome --eval "db.addUser('circleci', 'test');"
+    - mongo lissome --eval "db.createUser({user:'circleci',pwd:'test',roles:[{role:'readWrite',db:'lissome'}]});"
   post:
     - node lib/commandline/setupschool.js
 test:
@@ -33,4 +32,6 @@ test:
     - gulp clean
     - gulp build
   override:
+    - case $CIRCLE_NODE_INDEX in 0) nvm use 0.12 ;; 1) nvm use 4 ;; 2) nvm use 5 ;; 3) nvm use 6 ;; esac:
+        parallel: true
     - npm run testCi
