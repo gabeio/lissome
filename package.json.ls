@@ -31,7 +31,7 @@ dependencies:
 	"express": "~4.13.3"
 	"express-partial-response": "~0.3.4"
 	"express-session": "~1.13.0"
-	"helmet": "~1.3.0"
+	"helmet": "~2.1.0"
 	"ioredis": "~1.15.0"
 	"kerberos": "~0.0.17"
 	"livescript": "~1.4.0"
