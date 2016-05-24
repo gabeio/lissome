@@ -49,7 +49,7 @@ dependencies:
 	"swig": "~1.4.2"
 	"thirty-two": "~1.0.1"
 	"winston": "~2.2.0"
-	"yargs": "~4.3.0"
+	"yargs": "~4.7.0"
 
 optionalDependencies:
 	"hiredis": "~0.4.1"
