@@ -138,6 +138,7 @@ app
 		]
 	}
 	.use helmet.frameguard "deny"
+	.use helmet.noCache!
 	# body parser
 	.use bodyParser.urlencoded {
 		+extended
