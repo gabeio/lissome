@@ -31,7 +31,7 @@
     "express-partial-response": "~0.3.4",
     "express-session": "~1.13.0",
     "helmet": "~2.1.0",
-    "ioredis": "~1.15.0",
+    "ioredis": "~2.0.0",
     "kerberos": "~0.0.17",
     "livescript": "~1.5.0",
     "lodash": "~4.13.0",
