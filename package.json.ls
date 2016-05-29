@@ -27,7 +27,7 @@ dependencies:
 	"compression": "~1.6.0"
 	"connect-redis": "~3.0.1"
 	"cors": "~2.7.1"
-	"csurf": "~1.8.3"
+	"csurf": "~1.9.0"
 	"express": "~4.13.3"
 	"express-partial-response": "~0.3.4"
 	"express-session": "~1.13.0"
