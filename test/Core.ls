@@ -1159,31 +1159,31 @@ describe "Core" ->
 			it "should display your courses", (done)->
 				admin
 					.get "/"
+					.expect 200
 					.end (err, res)->
-						expect res.status .to.equal 200
 						expect res.text .to.have.string "Courses"
 						done err
 		describe "(User: Faculty)", (...)->
 			it "should display your courses", (done)->
 				faculty
 					.get "/"
+					.expect 200
 					.end (err, res)->
-						expect res.status .to.equal 200
 						expect res.text .to.have.string "Courses"
 						done err
 		describe "(User: Student)", (...)->
 			it "should display your courses", (done)->
 				student
 					.get "/"
+					.expect 200
 					.end (err, res)->
-						expect res.status .to.equal 200
 						expect res.text .to.have.string "Your Courses"
 						done err
 		describe "(User: Outside)", (...)->
 			it "should display your courses", (done)->
 				outside
 					.get "/"
+					.expect "status" /!(200)/
 					.end (err, res)->
-						expect res.status .to.not.equal 200
 						expect res.text .to.not.have.string "Your Courses"
 						done err
