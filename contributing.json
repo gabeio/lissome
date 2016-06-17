@@ -10,7 +10,7 @@
     "subject_must_not_end_with_dot": true,
     "body_lines_must_be_shorter_than": 73,
     "subject_must_include_prefix": {
-      "prefixes": ["build", "examples", "feat", "fix", "docs", "deps", "pref", "refactor", "test"],
+      "prefixes": ["build", "examples", "feat", "fix", "docs", "deps", "pref", "refactor", "tests"],
       "require_after_prefix": "(*): "
     },
   },
