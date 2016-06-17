@@ -52,7 +52,7 @@ dependencies:
 	"yargs": "~4.7.0"
 
 optionalDependencies:
-	"hiredis": "~0.4.1"
+	"hiredis": "~0.5.0"
 
 devDependencies:
 	"chai": "~3.5.0"
