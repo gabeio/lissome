@@ -30,7 +30,7 @@ dependencies:
 	"csurf": "~1.9.0"
 	"express": "~4.14.0"
 	"express-partial-response": "~0.3.4"
-	"express-session": "~1.13.0"
+	"express-session": "~1.14.0"
 	"helmet": "~2.1.0"
 	"ioredis": "~2.0.0"
 	"kerberos": "~0.0.21"
