@@ -60,5 +60,5 @@ devDependencies:
 	"gulp": "~3.9.0"
 	"gulp-livescript": "~3.0.0"
 	"istanbul": "~0.4.0"
-	"mocha": "~2.5.0"
+	"mocha": "~3.0.0"
 	"supertest": "~1.2.0"
