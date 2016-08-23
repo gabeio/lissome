@@ -1,8 +1,10 @@
 require! {
 	"mongoose"
+	"q"
 	"winston"
 	"yargs"
 }
+mongoose.Promise = q.Promise
 schemas = require("./schemas")(mongoose) # get mongoose schemas
 User = mongoose.model "User" schemas.User
 Semester = mongoose.model "Semester" schemas.Semester

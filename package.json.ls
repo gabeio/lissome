@@ -43,6 +43,7 @@ dependencies:
 	"mongoose": "~4.5.0"
 	"multer": "~1.2.0"
 	"passcode": "~1.0.2"
+	"q": "~1.4.0"
 	"response-time": "~2.3.1"
 	"request": "~2.74.0"
 	"serve-static": "~1.11.0"
