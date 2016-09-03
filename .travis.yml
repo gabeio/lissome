@@ -21,6 +21,7 @@ notifications:
 cache:
     directories:
         - node_modules
+        - g++-4.9
 matrix:
     fast_finish: true
 services:
