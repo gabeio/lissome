@@ -579,6 +579,31 @@ describe "Assignments Module" !->
 							cont err
 			]
 			done err
+		it "should not negatively grade an assignment", (done)!->
+			this.timeout = 3000
+			err <- async.waterfall [
+				(cont)!->
+					faculty
+						.get "/test/getaid/cps1234?title=faculty"
+						.end (err, res)!->
+							cont err, res.body
+				(assign,cont)!->
+					faculty
+						.get "/test/getattempt/cps1234?title=faculty&text=facultyAttempt"
+						.end (err, res)!->
+							cont err, assign, res.body
+				(assign,attempt,cont)!->
+					faculty
+						.post "/c/#{courseId}/attempt/#{attempt.0._id.toString()}/grade"
+						.send {
+							"points": "-10"
+						}
+						.expect 400
+						.end (err, res)!->
+							# expect res.header.location .to.match /^\/c\/.{24}\/attempt\/.{24}\/?\?success\=yes\&verb\=graded/i
+							cont err
+			]
+			done err
 		it "should return the delete assignment view", (done)!->
 			err <- async.waterfall [
 				(cont)!->
