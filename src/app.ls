@@ -87,6 +87,9 @@ md = new markdown-it {
 # create nunjucks filters
 nun = new nunjucks.Environment new nunjucks.FileSystemLoader 'views'
 nun.express app
+nun.globals.Date = Date
+nun.addFilter "urldecode", (input)->
+	decodeURIComponent input
 nun.addFilter "markdown", (input)->
 	md.render input
 nun.addFilter "toString", (input)->
@@ -198,10 +201,6 @@ switch app.get "env"
 		winston.info "app: Development Mode"
 	# disable template cache
 	app.set "view cache" false
-	# nunjucks.configure {
-	# 	noCache: true,
-	# 	watch: true
-	# }
 	app.use (req, res, next)->
 		req.csrfToken = ->
 			return ""
