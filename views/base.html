@@ -24,8 +24,7 @@
 {% include 'scripts.html' ignore missing %} {# load global scripts #}
 {% block scripts %}{% endblock %} {# load page scripts #}
 	</body>
-</html>{% spaceless %}
-{#
+</html>{#
 IMPORTS:
 	sytles.html: app global css (ie: bootstrap or foundation)
 	header.html: app header (ie: bootstrap's navbar or foundation's topbar)
@@ -37,4 +36,3 @@ BLOCKS:
 	body: content
 	scripts: loaded last so if not needed never is loaded
 #}
-{% endspaceless %}
