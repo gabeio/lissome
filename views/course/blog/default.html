@@ -56,7 +56,7 @@
 				{% for post in blog %}
 				<div class="panel panel-default">
 					<div class="panel-heading clearfix">
-						<h2 class="panel-title pull-left{% if 2 <= auth %} panel-title-dropdown{% endif %}">{{ post.title|url_decode }}</h2>
+						<h2 class="panel-title pull-left{% if 2 <= auth %} panel-title-dropdown{% endif %}">{{ post.title|urldecode }}</h2>
 						{% if 2 <= auth %}
 						<div class="pull-right">
 							<div class="dropdown">
@@ -65,10 +65,10 @@
 								</button>
 								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="blogPostMenu">
 									<li role="presentation">
-										<a role="menuitem" href="/c/{{ course._id|toString }}/blog/{{ post.title|url_encode }}?action=edit"><span class="glyphicon glyphicon-edit"></span> Edit This Post</a>
+										<a role="menuitem" href="/c/{{ course._id|toString }}/blog/{{ post.title|urlencode }}?action=edit"><span class="glyphicon glyphicon-edit"></span> Edit This Post</a>
 									</li>
 									<li role="presentation">
-										<a role="menuitem" href="/c/{{ course._id|toString }}/blog/{{ post.title|url_encode }}?action=delete"><span class="glyphicon glyphicon-remove"></span> Delete This Post</a>
+										<a role="menuitem" href="/c/{{ course._id|toString }}/blog/{{ post.title|urlencode }}?action=delete"><span class="glyphicon glyphicon-remove"></span> Delete This Post</a>
 									</li>
 								</ul>
 							</div>

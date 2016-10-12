@@ -42,7 +42,7 @@
 					<span class="pull-right" title="{{ attempt.timestamp|timezone }}">{{ attempt.timestamp|fromNow }}</span></div>
 				</div>
 				{% endfor %}
-				{% if !loop.last %}<hr />{% endif %}
+				{% if loop.last != 1 %}<hr />{% endif %}
 				{% endfor %}
 			</div>
 		</div>

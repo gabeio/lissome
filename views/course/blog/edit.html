@@ -39,7 +39,7 @@
 				<input type="hidden" name="pid" value="{{ post._id|toString }}" />
 				<div class="form-group">
 					<label for="formTitle">Title</label>
-					<input type="text" class="form-control" id="formTitle" name="title" value="{{ post.title|url_decode }}" tabindex="1" {% if loop.first %}autofocus{% endif %}/>
+					<input type="text" class="form-control" id="formTitle" name="title" value="{{ post.title|urldecode }}" tabindex="1" {% if loop.first %}autofocus{% endif %}/>
 				</div>
 				<div class="form-group">
 					<label for="formBody">Body <small>(<a href="https://markdown-it.github.io/" target="_new">markdown</a>)</small></label>

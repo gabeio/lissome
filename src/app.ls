@@ -16,9 +16,9 @@ require! {
 	"moment-timezone"
 	"mongoose"
 	"multer"
+	"nunjucks" # templates
 	"response-time"
 	"serve-static" # nginx static
-	"swig" # templates
 	"winston"
 	"yargs" # --var val
 	"./databases/redisClient"
@@ -84,20 +84,25 @@ md = new markdown-it {
 	typographer: true
 }
 
-# create swig |markdown filter
-swig.setFilter "markdown", (input)->
+# create nunjucks filters
+nun = new nunjucks.Environment new nunjucks.FileSystemLoader 'views'
+nun.express app
+nun.globals.Date = Date
+nun.addFilter "urldecode", (input)->
+	decodeURIComponent input
+nun.addFilter "markdown", (input)->
 	md.render input
-swig.setFilter "toString", (input)->
+nun.addFilter "toString", (input)->
 	input.toString!
-swig.setFilter "fromNow", (input)->
+nun.addFilter "fromNow", (input)->
 	moment input .fromNow!
 /* istanbul ignore next function while unused */
-swig.setFilter "format", (input, format)->
+nun.addFilter "format", (input, format)->
 	moment input .format format
 /* istanbul ignore next function while unused */
-swig.setFilter "calendar", (input)->
+nun.addFilter "calendar", (input)->
 	moment input .calendar!
-swig.setFilter "timezone", (input)->
+nun.addFilter "timezone", (input)->
 	moment.tz input, "America/New_York" .clone!.tz app.locals.timezone .toString!
 
 # MONGOOSE
@@ -167,8 +172,8 @@ app
 	}
 	# hide what we are made of
 	.disable "x-powered-by"
-	# set extention of templates to html to render in swig
-	.engine "html" swig.renderFile
+	# set extention of templates to html to render in nunjucks
+	# .engine "html" nun.render
 	# set extention of templates to html
 	.set "view engine" "html"
 	# .set "views" __dirname + "/NOTviews" # /views by default
@@ -196,7 +201,6 @@ switch app.get "env"
 		winston.info "app: Development Mode"
 	# disable template cache
 	app.set "view cache" false
-	swig.setDefaults { -cache }
 	app.use (req, res, next)->
 		req.csrfToken = ->
 			return ""
