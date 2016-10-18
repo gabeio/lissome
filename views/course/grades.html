@@ -28,7 +28,7 @@
 		</div>
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
-				{% for assignattempt in assignmentattempts %}
+				{% for key,assignattempt in assignmentattempts %}
 				<h4>{{ assignattempt[0].assignment.title }}</h4>
 				{% for attempt in assignattempt %}
 				<div class="panel panel-default">
