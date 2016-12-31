@@ -32,6 +32,6 @@ test:
     - gulp clean
     - gulp build
   override:
-    - case $CIRCLE_NODE_INDEX in 0) nvm use 0.12 ;; 1) nvm use 4 ;; 2) nvm use 6 ;; 3) nvm use 7 ;; esac:
+    - case $CIRCLE_NODE_INDEX in 0) nvm use 0.12 ;; 1) nvm use 4 ;; 2) nvm use 5 ;; 3) nvm use 6 ;; esac:
         parallel: true
     - npm run testCi
