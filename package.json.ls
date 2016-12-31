@@ -42,7 +42,7 @@ dependencies:
 	"moment-timezone": "~0.5.0"
 	"mongoose": "~4.6.0"
 	"multer": "~1.2.0"
-	"nunjucks": "~2.5.0"
+	"nunjucks": "~3.0.0"
 	"passcode": "~1.0.2"
 	"q": "~1.4.0"
 	"response-time": "~2.3.1"
