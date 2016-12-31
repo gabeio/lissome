@@ -22,7 +22,7 @@ repository:
 
 dependencies:
 	"async": "~2.1.0"
-	"bcrypt": "~0.8.7"
+	"bcrypt": "~1.0.0"
 	"body-parser": "~1.15.0"
 	"compression": "~1.6.0"
 	"connect-redis": "~3.1.0"
