@@ -33,7 +33,7 @@ before_install:
 before_script:
     - gulp build
     - redis-cli config set requirepass test
-    - mongo lissome --eval "db.addUser('travis', 'test');"
+    - mongo lissome --eval 'db.createUser({user:"travis",pwd:"test",roles:["readWrite"]});'
     - node lib/commandline/setupschool.js
 script:
     - npm run-script testCi
