@@ -50,7 +50,7 @@ dependencies:
 	"serve-static": "~1.13.0"
 	"thirty-two": "~1.0.2"
 	"winston": "~2.4.2"
-	"yargs": "~7.0.0"
+	"yargs": "~8.0.0"
 
 optionalDependencies:
 	"hiredis": "~0.5.0"
