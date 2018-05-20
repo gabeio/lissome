@@ -19,7 +19,7 @@ Course = mongoose.models.Course
 Semester = mongoose.models.Semester
 
 db = mongoose.connection
-db.open (process.env.mongo||process.env.MONGO||"mongodb://127.0.0.1/lissome")
+db.connect (process.env.mongo||process.env.MONGO||"mongodb://127.0.0.1/lissome")
 db.on "error", winston.error.bind winston, "mongo: connection error"
 
 err <- db.once "open"
