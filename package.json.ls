@@ -11,9 +11,9 @@ scripts:
 	start: "node ./lib/app.js"
 	build: "gulp build"
 	clean: "gulp clean"
-	test: "gulp clean && gulp build && gulp build-tests && mocha --slow 2"
-	test-ci: "gulp clean && gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -s 2 -R spec"
-	coverage: "gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha"
+	test: "gulp clean && gulp build && gulp build-tests && mocha --exit --slow 2"
+	test-ci: "gulp clean && gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- --exit -s 2 -R spec"
+	coverage: "gulp build && gulp build-tests && istanbul cover ./node_modules/mocha/bin/_mocha --exit"
 	continuous: "nodemon -w ./ -e html,css,js -x node ./lib/app.js"
 
 repository:
