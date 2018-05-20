@@ -56,7 +56,7 @@ optionalDependencies:
 	"hiredis": "~0.5.0"
 
 devDependencies:
-	"chai": "~3.5.0"
+	"chai": "~4.1.2"
 	"del": "~2.2.0"
 	"gulp": "~3.9.1"
 	"gulp-livescript": "~3.0.0"
