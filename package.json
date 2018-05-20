@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "async": "~2.1.0",
-    "bcrypt": "~1.0.0",
+    "bcrypt": "~2.0.1",
     "body-parser": "~1.18.2",
     "compression": "~1.7.1",
     "connect-redis": "~3.2.0",
