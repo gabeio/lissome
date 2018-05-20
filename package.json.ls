@@ -57,7 +57,7 @@ optionalDependencies:
 
 devDependencies:
 	"chai": "~4.1.2"
-	"del": "~2.2.0"
+	"del": "~3.0.0"
 	"gulp": "~3.9.1"
 	"gulp-livescript": "~3.0.0"
 	"istanbul": "~0.4.0"
